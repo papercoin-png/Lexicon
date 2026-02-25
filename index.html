@@ -1,0 +1,1510 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Telegram Mini App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Cache control for fresh updates -->
+    <meta http-equiv="Cache-Control" content="no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lexicon Cards - Telegram Edition</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+            color: white;
+        }
+
+        .title-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .dust-value {
+            color: #ffd700;
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+            backdrop-filter: blur(5px);
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Collection View */
+        .collection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .rarity-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .rarity-filter {
+            padding: 8px 16px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .rarity-filter:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .rarity-filter.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            min-height: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        /* Trading Card Design */
+        .card {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3/4;
+            background: white;
+            border-radius: 15px;
+            padding: 12px 8px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid transparent;
+            user-select: none;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) rotate(2deg);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .card.selected {
+            border-color: #ffd700;
+            transform: translateY(-10px);
+            box-shadow: 0 0 20px #ffd700;
+        }
+
+        /* Rarity-specific styles */
+        .card.common {
+            background: linear-gradient(135deg, #e0e0e0, #b0b0b0);
+        }
+        .card.common .card-rarity {
+            color: #808080;
+        }
+
+        .card.uncommon {
+            background: linear-gradient(135deg, #8bc34a, #5a9e3a);
+        }
+        .card.uncommon .card-rarity {
+            color: #2e7d32;
+        }
+
+        .card.rare {
+            background: linear-gradient(135deg, #42a5f5, #1976d2);
+        }
+        .card.rare .card-rarity {
+            color: #0d47a1;
+        }
+
+        .card.epic {
+            background: linear-gradient(135deg, #9c27b0, #6a1b9a);
+            color: white;
+        }
+        .card.epic .card-rarity {
+            color: #e1bee7;
+        }
+
+        .card.legendary {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+        }
+        .card.legendary .card-rarity {
+            color: #fff3e0;
+        }
+
+        .card.mythic {
+            background: linear-gradient(135deg, #d4af37, #b8860b);
+            color: white;
+            animation: mythicGlow 3s infinite;
+        }
+        .card.mythic .card-rarity {
+            color: #fff8e7;
+        }
+
+        @keyframes mythicGlow {
+            0% { box-shadow: 0 0 5px gold; }
+            50% { box-shadow: 0 0 30px gold, 0 0 60px #ffd700; }
+            100% { box-shadow: 0 0 5px gold; }
+        }
+
+        .card-word {
+            font-size: 22px;
+            font-weight: 800;
+            text-align: center;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .card-type {
+            font-size: 11px;
+            text-transform: uppercase;
+            text-align: center;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .card-rarity {
+            font-size: 10px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-top: auto;
+            font-weight: bold;
+        }
+
+        .card-tier {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .card-number {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            font-size: 9px;
+            opacity: 0.6;
+        }
+
+        /* Merge Section */
+        .merge-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .merge-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .merge-slots {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .merge-slot {
+            width: 130px;
+            height: 173px; /* 3:4 aspect ratio */
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .merge-slot.filled {
+            border-style: solid;
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .merge-slot .remove-card {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            background: #f44336;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        .merge-info {
+            text-align: center;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .chance-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .chance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #ffc107, #f44336);
+            transition: width 0.3s;
+        }
+
+        .merge-button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .merge-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .merge-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Pack Opening Section */
+        .pack-section {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .pack {
+            width: 160px;
+            padding: 25px 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .pack:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .pack-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .pack-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .pack-price {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Market Section */
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .market-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .market-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .buy-button {
+            padding: 8px;
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .buy-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        /* Gallery Section */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            min-height: 400px;
+        }
+
+        .gallery-empty {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 18px;
+            padding: 50px;
+            grid-column: 1/-1;
+        }
+
+        /* Log Section */
+        .log-section {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-size: 14px;
+            max-height: 100px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+
+        .log-success { color: #4caf50; }
+        .log-failure { color: #f44336; }
+        .log-info { color: #ffd700; }
+
+        /* Telegram-specific styles */
+        .tg-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: white;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .tg-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Telegram User Info (will be populated by JS) -->
+        <div class="tg-header" id="tgUserInfo">
+            <div class="tg-avatar"></div>
+            <span>Loading Telegram user...</span>
+        </div>
+        
+        <!-- Header -->
+        <div class="header">
+            <div class="title-section">
+                <div class="title">📚 LEXICON CARDS</div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">Collection</div>
+                    <div class="stat-value" id="totalCards">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Unique</div>
+                    <div class="stat-value" id="uniqueCards">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Dust</div>
+                    <div class="stat-value dust-value" id="dustAmount">100</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('collection')">📚 Collection</button>
+            <button class="tab" onclick="switchTab('merge')">🔄 Merge Chamber</button>
+            <button class="tab" onclick="switchTab('packs')">📦 Card Packs</button>
+            <button class="tab" onclick="switchTab('market')">🏪 Trading Post</button>
+            <button class="tab" onclick="switchTab('gallery')">🖼️ Gallery</button>
+        </div>
+
+        <!-- Collection Tab -->
+        <div id="collectionTab" class="tab-content active">
+            <div class="collection-header">
+                <h3 style="color: white;">Your Card Collection</h3>
+                <div class="rarity-filters">
+                    <button class="rarity-filter active" onclick="filterRarity('all')">All</button>
+                    <button class="rarity-filter" onclick="filterRarity('common')">Common</button>
+                    <button class="rarity-filter" onclick="filterRarity('uncommon')">Uncommon</button>
+                    <button class="rarity-filter" onclick="filterRarity('rare')">Rare</button>
+                    <button class="rarity-filter" onclick="filterRarity('epic')">Epic</button>
+                    <button class="rarity-filter" onclick="filterRarity('legendary')">Legendary</button>
+                    <button class="rarity-filter" onclick="filterRarity('mythic')">Mythic</button>
+                </div>
+            </div>
+            <div class="cards-grid" id="collectionGrid">
+                <!-- Cards will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Merge Tab -->
+        <div id="mergeTab" class="tab-content">
+            <div class="merge-section">
+                <div class="merge-title">🔄 Merge Chamber</div>
+                <div style="color: white; text-align: center; margin-bottom: 20px;">
+                    Select 3 cards of the same rarity to attempt a merge
+                </div>
+                
+                <div class="merge-slots" id="mergeSlots">
+                    <div class="merge-slot" id="slot1" onclick="removeFromMerge(0)">Drag card here</div>
+                    <div class="merge-slot" id="slot2" onclick="removeFromMerge(1)">Drag card here</div>
+                    <div class="merge-slot" id="slot3" onclick="removeFromMerge(2)">Drag card here</div>
+                </div>
+
+                <div class="merge-info">
+                    <div style="font-size: 18px; margin-bottom: 10px;" id="targetRarity">Select cards to see target</div>
+                    
+                    <div class="chance-bar">
+                        <div class="chance-fill" id="chanceBar" style="width: 0%"></div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                        <span>Success Chance: <span id="successChance">0</span>%</span>
+                        <span>Pity Bonus: +<span id="pityBonus">0</span>%</span>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>On Success:</span>
+                            <span id="successReward">Random higher rarity card</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>On Failure:</span>
+                            <span id="failureReward">Dust</span>
+                        </div>
+                    </div>
+
+                    <button class="merge-button" id="mergeButton" onclick="performMerge()" disabled>Select 3 cards to merge</button>
+                </div>
+            </div>
+
+            <!-- Collection preview for merging -->
+            <div style="margin-top: 20px;">
+                <h3 style="color: white; margin-bottom: 15px;">Your Cards (click to add to merge)</h3>
+                <div class="cards-grid" id="mergeCollectionGrid" style="max-height: 300px;"></div>
+            </div>
+        </div>
+
+        <!-- Packs Tab -->
+        <div id="packsTab" class="tab-content">
+            <h3 style="color: white; margin-bottom: 20px;">📦 Open Card Packs</h3>
+            
+            <div class="pack-section">
+                <div class="pack" onclick="openPack('basic')">
+                    <div class="pack-icon">📦</div>
+                    <div class="pack-name">Basic Pack</div>
+                    <div class="pack-price">50 Dust</div>
+                    <div style="font-size: 12px; margin-top: 10px;">5 Common cards</div>
+                </div>
+                
+                <div class="pack" onclick="openPack('grand')">
+                    <div class="pack-icon">🎁</div>
+                    <div class="pack-name">Grand Pack</div>
+                    <div class="pack-price">200 Dust</div>
+                    <div style="font-size: 12px; margin-top: 10px;">4 Commons + 1 Uncommon</div>
+                </div>
+                
+                <div class="pack" onclick="openPack('premium')">
+                    <div class="pack-icon">💎</div>
+                    <div class="pack-name">Premium Pack</div>
+                    <div class="pack-price">500 Dust</div>
+                    <div style="font-size: 12px; margin-top: 10px;">3 Commons + 1 Rare + 1 Epic chance</div>
+                </div>
+            </div>
+
+            <!-- Pack opening animation area -->
+            <div id="packResults" style="background: rgba(0,0,0,0.3); border-radius: 20px; padding: 20px; margin-top: 20px;">
+                <h4 style="color: white; margin-bottom: 15px;">Opened Cards</h4>
+                <div class="cards-grid" id="packResultsGrid" style="min-height: 200px;">
+                    <!-- Pack results appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Tab -->
+        <div id="marketTab" class="tab-content">
+            <h3 style="color: white; margin-bottom: 20px;">🏪 Trading Post</h3>
+            
+            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <button class="tab" onclick="showMarket('buy')">Buy Cards</button>
+                <button class="tab" onclick="showMarket('sell')">Sell Cards</button>
+            </div>
+            
+            <div class="market-grid" id="marketGrid">
+                <!-- Market items appear here -->
+            </div>
+        </div>
+
+        <!-- Gallery Tab -->
+        <div id="galleryTab" class="tab-content">
+            <h3 style="color: white; margin-bottom: 20px;">🖼️ Your Gallery</h3>
+            
+            <div style="background: rgba(0,0,0,0.3); border-radius: 20px; padding: 30px;">
+                <div class="gallery-grid" id="galleryDisplay">
+                    <!-- Gallery cards appear here -->
+                </div>
+                
+                <div class="gallery-empty" id="galleryEmpty">
+                    ✨ Your legendary and mythic cards will be displayed here ✨
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Section -->
+        <div class="log-section" id="logMessages">
+            <div class="log-entry">✨ Welcome to Lexicon Cards!</div>
+            <div class="log-entry">📚 Start by opening packs or merging cards</div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== TELEGRAM INITIALIZATION ====================
+        
+        // Initialize Telegram Mini App
+        const tg = window.Telegram?.WebApp;
+        let haptic = null;
+        let telegramUser = null;
+        
+        if (tg) {
+            // Tell Telegram our app is ready
+            tg.ready();
+            
+            // Expand to full screen
+            tg.expand();
+            
+            // Request full-screen mode for immersive experience (Bot API 8.0+)
+            if (tg.requestFullscreen) {
+                tg.requestFullscreen();
+            }
+            
+            // Get haptic feedback object
+            haptic = tg.HapticFeedback;
+            
+            // Get user info
+            if (tg.initDataUnsafe?.user) {
+                telegramUser = tg.initDataUnsafe.user;
+            }
+            
+            console.log('✅ Telegram Mini App initialized');
+        } else {
+            console.log('⚠️ Running outside Telegram');
+        }
+
+        // ==================== HAPTIC FEEDBACK HELPER ====================
+        
+        function triggerHaptic(type, style = 'medium') {
+            if (!haptic) return;
+            
+            try {
+                switch(type) {
+                    case 'success':
+                        haptic.notificationOccurred('success');
+                        break;
+                    case 'error':
+                        haptic.notificationOccurred('error');
+                        break;
+                    case 'warning':
+                        haptic.notificationOccurred('warning');
+                        break;
+                    case 'impact':
+                        haptic.impactOccurred(style); // 'light', 'medium', 'heavy'
+                        break;
+                    case 'selection':
+                        haptic.selectionChanged();
+                        break;
+                }
+            } catch (e) {
+                console.log('Haptic error:', e);
+            }
+        }
+
+        // ==================== GAME CONSTANTS ====================
+        
+        // Word pools by rarity
+        const WORD_POOLS = {
+            common: [
+                'SUN', 'MOON', 'STAR', 'TREE', 'FIRE', 'WATER', 'WIND', 'ROCK', 
+                'BIRD', 'FISH', 'DOG', 'CAT', 'BOOK', 'DOOR', 'HOME', 'LIGHT',
+                'DARK', 'SOUND', 'SIGHT', 'TOUCH', 'COLD', 'HOT', 'WET', 'DRY'
+            ],
+            uncommon: [
+                'FLAME', 'OCEAN', 'FOREST', 'MOUNTAIN', 'THUNDER', 'RAINBOW',
+                'SHADOW', 'ECHO', 'WHISPER', 'CRYSTAL', 'EMBER', 'FROST',
+                'BREEZE', 'PEBBLE', 'PAPER', 'CANDLE', 'MIRROR', 'PILLOW'
+            ],
+            rare: [
+                'PHOENIX', 'DRAGON', 'UNICORN', 'GRYPHON', 'SPHINX',
+                'ILLUSION', 'NIGHTMARE', 'DAYDREAM', 'BUTTERFLY', 'HURRICANE',
+                'VOLCANO', 'EARTHQUAKE', 'AVALANCHE', 'TORNADO'
+            ],
+            epic: [
+                'ENIGMA', 'PARADOX', 'ETERNITY', 'INFINITY', 'COSMOS',
+                'NEBULA', 'GALAXY', 'UNIVERSE', 'DIMENSION', 'REALITY',
+                'DESTINY', 'FOREVER', 'OMNIPOTENT', 'OMNISCIENT'
+            ],
+            legendary: [
+                'SERENDIPITY', 'EPHEMERAL', 'MELLIFLUOUS', 'ETHEREAL',
+                'LUMINESCENT', 'PETRICHOR', 'AURORA', 'ZEPHYR',
+                'QUINTESSENCE', 'APOTHEOSIS', 'TRANSFIGURATION'
+            ],
+            mythic: [
+                'ABRACADABRA', 'ALAKAZAM', 'PRESTIGE', 'INFINITUM',
+                'OMNIVERSE', 'PRIMORDIAL', 'TRANSCENDENT', 'NUMINOUS'
+            ]
+        };
+
+        // Success chances by merge path
+        const SUCCESS_CHANCES = {
+            'common→uncommon': 1.0,    // 100%
+            'uncommon→rare': 0.8,       // 80%
+            'rare→epic': 0.5,            // 50%
+            'epic→legendary': 0.3,        // 30%
+            'legendary→mythic': 0.1       // 10%
+        };
+
+        // Dust rewards for failed merges
+        const DUST_REWARDS = {
+            'common→uncommon': 0,
+            'uncommon→rare': 10,
+            'rare→epic': 25,
+            'epic→legendary': 100,
+            'legendary→mythic': 500
+        };
+
+        // Rarity order
+        const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
+        
+        // Rarity display names
+        const RARITY_NAMES = {
+            common: 'Common',
+            uncommon: 'Uncommon',
+            rare: 'Rare',
+            epic: 'Epic',
+            legendary: 'Legendary',
+            mythic: '✨ MYTHIC ✨'
+        };
+
+        // ==================== GAME STATE ====================
+
+        let collection = [];           // All cards owned
+        let dust = 100;                // Starting dust
+        let selectedCards = [];        // Cards selected for merging
+        let currentFilter = 'all';      // Current rarity filter
+        let pityCounters = {           // Pity system (increases chance after failures)
+            'uncommon→rare': 0,
+            'rare→epic': 0,
+            'epic→legendary': 0,
+            'legendary→mythic': 0
+        };
+        
+        const PITY_INCREMENT = 0.05;   // 5% per failure
+        const MAX_PITY = 0.5;           // Max 50% bonus
+
+        // ==================== TELEGRAM USER INFO ====================
+        
+        // Display Telegram user info
+        function displayTelegramUser() {
+            const userInfoEl = document.getElementById('tgUserInfo');
+            if (telegramUser) {
+                const firstName = telegramUser.first_name || '';
+                const lastName = telegramUser.last_name || '';
+                const username = telegramUser.username ? `@${telegramUser.username}` : '';
+                userInfoEl.innerHTML = `
+                    <div class="tg-avatar"></div>
+                    <span>${firstName} ${lastName} ${username} • Playing Lexicon Cards</span>
+                `;
+            } else {
+                userInfoEl.innerHTML = `
+                    <div class="tg-avatar"></div>
+                    <span>Guest Player • Playing Lexicon Cards</span>
+                `;
+            }
+        }
+
+        // ==================== CARD FUNCTIONS ====================
+
+        // Generate a unique ID for a card
+        function generateCardId() {
+            return Date.now() + Math.random() + Math.random();
+        }
+
+        // Add a random card of specified rarity to collection
+        function addRandomCard(rarity) {
+            const pool = WORD_POOLS[rarity];
+            if (!pool || pool.length === 0) return null;
+            
+            const word = pool[Math.floor(Math.random() * pool.length)];
+            const card = {
+                id: generateCardId(),
+                word: word,
+                rarity: rarity,
+                tier: rarity.toUpperCase(),
+                number: Math.floor(Math.random() * 100) + 1
+            };
+            
+            collection.push(card);
+            return card;
+        }
+
+        // Remove card from collection by ID
+        function removeCard(cardId) {
+            const index = collection.findIndex(c => c.id === cardId);
+            if (index !== -1) {
+                collection.splice(index, 1);
+                return true;
+            }
+            return false;
+        }
+
+        // Get cards by rarity
+        function getCardsByRarity(rarity) {
+            if (rarity === 'all') return collection;
+            return collection.filter(c => c.rarity === rarity);
+        }
+
+        // Get unique card count (by word)
+        function getUniqueCardCount() {
+            const uniqueWords = new Set(collection.map(c => c.word));
+            return uniqueWords.size;
+        }
+
+        // ==================== ENHANCED STORAGE (Telegram + localStorage) ====================
+        
+        async function loadGame() {
+            let loaded = false;
+            
+            // Try Telegram DeviceStorage first (Bot API 9.0+)
+            if (tg?.DeviceStorage) {
+                try {
+                    const saved = await tg.DeviceStorage.getItem('lexiconCards');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        collection = data.collection || [];
+                        dust = data.dust || 100;
+                        pityCounters = data.pityCounters || {
+                            'uncommon→rare': 0,
+                            'rare→epic': 0,
+                            'epic→legendary': 0,
+                            'legendary→mythic': 0
+                        };
+                        loaded = true;
+                        addLog('📱 Game loaded from Telegram cloud', 'info');
+                    }
+                } catch (e) {
+                    console.log('Telegram storage error:', e);
+                }
+            }
+            
+            // Fallback to localStorage
+            if (!loaded) {
+                const saved = localStorage.getItem('lexiconCards');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    collection = data.collection || [];
+                    dust = data.dust || 100;
+                    pityCounters = data.pityCounters || {
+                        'uncommon→rare': 0,
+                        'rare→epic': 0,
+                        'epic→legendary': 0,
+                        'legendary→mythic': 0
+                    };
+                    addLog('💾 Game loaded from browser', 'info');
+                } else {
+                    // Brand new game
+                    initializeNewGame();
+                    addLog('🆕 New game started!', 'info');
+                }
+            }
+            
+            updateUI();
+        }
+
+        async function saveGame() {
+            const saveData = JSON.stringify({
+                collection,
+                dust,
+                pityCounters
+            });
+            
+            // Save to Telegram DeviceStorage if available
+            if (tg?.DeviceStorage) {
+                try {
+                    await tg.DeviceStorage.setItem('lexiconCards', saveData);
+                } catch (e) {
+                    console.log('Telegram save error:', e);
+                }
+            }
+            
+            // Always save to localStorage as backup
+            localStorage.setItem('lexiconCards', saveData);
+        }
+
+        function initializeNewGame() {
+            // Give starter cards
+            collection = [];
+            for (let i = 0; i < 10; i++) {
+                addRandomCard('common');
+            }
+            addRandomCard('uncommon');
+            dust = 100;
+            pityCounters = {
+                'uncommon→rare': 0,
+                'rare→epic': 0,
+                'epic→legendary': 0,
+                'legendary→mythic': 0
+            };
+        }
+
+        // ==================== MERGE FUNCTIONS ====================
+
+        // Add card to merge slots
+        function addToMerge(cardId) {
+            if (selectedCards.length >= 3) {
+                triggerHaptic('warning');
+                addLog('Cannot select more than 3 cards', 'failure');
+                return false;
+            }
+            
+            const card = collection.find(c => c.id === cardId);
+            if (!card) return false;
+            
+            // Check if all selected cards are same rarity
+            if (selectedCards.length > 0) {
+                const firstCard = collection.find(c => c.id === selectedCards[0]);
+                if (firstCard.rarity !== card.rarity) {
+                    triggerHaptic('warning');
+                    addLog('All cards must be the same rarity', 'failure');
+                    return false;
+                }
+            }
+            
+            triggerHaptic('selection');
+            selectedCards.push(cardId);
+            updateMergeUI();
+            return true;
+        }
+
+        // Remove card from merge slots
+        function removeFromMerge(index) {
+            if (index < selectedCards.length) {
+                triggerHaptic('selection');
+                selectedCards.splice(index, 1);
+                updateMergeUI();
+            }
+        }
+
+        // Perform merge attempt
+        function performMerge() {
+            if (selectedCards.length !== 3) {
+                triggerHaptic('warning');
+                addLog('Select exactly 3 cards to merge', 'failure');
+                return;
+            }
+
+            // Get selected card objects
+            const cardsToMerge = collection.filter(c => selectedCards.includes(c.id));
+            
+            // Verify all same rarity
+            const rarities = [...new Set(cardsToMerge.map(c => c.rarity))];
+            if (rarities.length !== 1) {
+                triggerHaptic('warning');
+                addLog('All cards must be the same rarity', 'failure');
+                return;
+            }
+
+            const fromRarity = rarities[0];
+            const fromIndex = RARITY_ORDER.indexOf(fromRarity);
+            
+            // Can't merge highest tier
+            if (fromIndex === RARITY_ORDER.length - 1) {
+                triggerHaptic('warning');
+                addLog('Mythic cards cannot be merged', 'failure');
+                return;
+            }
+
+            const toRarity = RARITY_ORDER[fromIndex + 1];
+            const mergeKey = `${fromRarity}→${toRarity}`;
+            
+            // Calculate success chance with pity
+            let baseChance = SUCCESS_CHANCES[mergeKey] || 0;
+            let pityBonus = Math.min(pityCounters[mergeKey] || 0, MAX_PITY);
+            let totalChance = baseChance + pityBonus;
+            
+            // Remove merged cards
+            selectedCards.forEach(id => removeCard(id));
+            
+            // Attempt merge
+            if (Math.random() < totalChance) {
+                // SUCCESS - add random card of next tier
+                const newCard = addRandomCard(toRarity);
+                
+                if (newCard) {
+                    // Reset pity for this tier
+                    pityCounters[mergeKey] = 0;
+                    
+                    triggerHaptic('success');
+                    addLog(`✨ SUCCESS! Created ${newCard.word} (${RARITY_NAMES[toRarity]})`, 'success');
+                }
+            } else {
+                // FAILURE - add dust
+                const dustEarned = DUST_REWARDS[mergeKey] || 5;
+                dust += dustEarned;
+                
+                // Increase pity counter
+                pityCounters[mergeKey] = (pityCounters[mergeKey] || 0) + PITY_INCREMENT;
+                
+                triggerHaptic('error');
+                addLog(`💔 Failed! Earned ${dustEarned} dust`, 'failure');
+            }
+            
+            selectedCards = [];
+            saveGame();
+            updateUI();
+        }
+
+        // ==================== PACK FUNCTIONS ====================
+
+        // Open a card pack
+        function openPack(packType) {
+            let cost = 0;
+            let cards = [];
+            
+            triggerHaptic('impact', 'medium');
+            
+            switch(packType) {
+                case 'basic':
+                    cost = 50;
+                    for (let i = 0; i < 5; i++) {
+                        const card = addRandomCard('common');
+                        if (card) cards.push(card);
+                    }
+                    break;
+                    
+                case 'grand':
+                    cost = 200;
+                    for (let i = 0; i < 4; i++) {
+                        const card = addRandomCard('common');
+                        if (card) cards.push(card);
+                    }
+                    const uncommon = addRandomCard('uncommon');
+                    if (uncommon) cards.push(uncommon);
+                    break;
+                    
+                case 'premium':
+                    cost = 500;
+                    for (let i = 0; i < 3; i++) {
+                        const card = addRandomCard('common');
+                        if (card) cards.push(card);
+                    }
+                    const rare = addRandomCard('rare');
+                    if (rare) cards.push(rare);
+                    
+                    // 30% chance for an epic
+                    if (Math.random() < 0.3) {
+                        const epic = addRandomCard('epic');
+                        if (epic) cards.push(epic);
+                    } else {
+                        const extraRare = addRandomCard('rare');
+                        if (extraRare) cards.push(extraRare);
+                    }
+                    break;
+            }
+            
+            dust -= cost;
+            
+            // Show pack results
+            const resultsGrid = document.getElementById('packResultsGrid');
+            resultsGrid.innerHTML = '';
+            cards.forEach(card => {
+                if (card) {
+                    resultsGrid.appendChild(createCardElement(card));
+                }
+            });
+            
+            addLog(`📦 Opened ${packType} pack!`, 'info');
+            saveGame();
+            updateUI();
+        }
+
+        // ==================== MARKET FUNCTIONS ====================
+
+        // Generate market items (random cards for sale)
+        function generateMarket() {
+            const marketGrid = document.getElementById('marketGrid');
+            marketGrid.innerHTML = '';
+            
+            // Create 6 random cards for sale
+            for (let i = 0; i < 6; i++) {
+                const rarity = RARITY_ORDER[Math.floor(Math.random() * 4)]; // Up to epic
+                const word = WORD_POOLS[rarity][Math.floor(Math.random() * WORD_POOLS[rarity].length)];
+                
+                const price = {
+                    common: 30,
+                    uncommon: 80,
+                    rare: 200,
+                    epic: 500
+                }[rarity] || 100;
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'market-item';
+                itemDiv.innerHTML = `
+                    <div style="font-size: 24px; font-weight: bold; text-align: center;">${word}</div>
+                    <div style="text-align: center;">${RARITY_NAMES[rarity]}</div>
+                    <div class="market-price">${price} Dust</div>
+                    <button class="buy-button" onclick="buyCard('${word}', '${rarity}', ${price})">Buy Card</button>
+                `;
+                
+                marketGrid.appendChild(itemDiv);
+            }
+        }
+
+        // Buy a card from market
+        function buyCard(word, rarity, price) {
+            if (dust < price) {
+                triggerHaptic('warning');
+                addLog('Not enough dust!', 'failure');
+                return;
+            }
+            
+            triggerHaptic('success');
+            dust -= price;
+            
+            collection.push({
+                id: generateCardId(),
+                word: word,
+                rarity: rarity,
+                tier: rarity.toUpperCase(),
+                number: Math.floor(Math.random() * 100) + 1
+            });
+            
+            addLog(`🛒 Purchased ${word} (${RARITY_NAMES[rarity]})`, 'success');
+            saveGame();
+            updateUI();
+            
+            // Refresh market
+            generateMarket();
+        }
+
+        // ==================== UI FUNCTIONS ====================
+
+        // Switch between tabs
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            triggerHaptic('selection');
+            
+            // Special tab setup
+            if (tabName === 'market') {
+                generateMarket();
+            } else if (tabName === 'gallery') {
+                updateGallery();
+            } else if (tabName === 'collection') {
+                updateCollectionGrid();
+            } else if (tabName === 'merge') {
+                updateMergeUI();
+            }
+        }
+
+        // Filter collection by rarity
+        function filterRarity(rarity) {
+            currentFilter = rarity;
+            
+            // Update filter buttons
+            document.querySelectorAll('.rarity-filter').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            triggerHaptic('selection');
+            updateCollectionGrid();
+        }
+
+        // Update collection grid display
+        function updateCollectionGrid() {
+            const grid = document.getElementById('collectionGrid');
+            const filteredCards = getCardsByRarity(currentFilter);
+            
+            grid.innerHTML = '';
+            filteredCards.forEach(card => {
+                grid.appendChild(createCardElement(card));
+            });
+            
+            if (filteredCards.length === 0) {
+                grid.innerHTML = '<div style="color: white; text-align: center; grid-column: 1/-1; padding: 50px;">No cards in this collection</div>';
+            }
+        }
+
+        // Update merge UI
+        function updateMergeUI() {
+            // Update merge slots
+            for (let i = 0; i < 3; i++) {
+                const slot = document.getElementById(`slot${i+1}`);
+                if (i < selectedCards.length) {
+                    const card = collection.find(c => c.id === selectedCards[i]);
+                    if (card) {
+                        slot.innerHTML = `
+                            <div style="text-align: center;">
+                                <div style="font-size: 18px; font-weight: bold;">${card.word}</div>
+                                <div style="font-size: 12px;">${RARITY_NAMES[card.rarity]}</div>
+                                <div class="remove-card" onclick="removeFromMerge(${i})">×</div>
+                            </div>
+                        `;
+                        slot.classList.add('filled');
+                    }
+                } else {
+                    slot.innerHTML = 'Drag card here';
+                    slot.classList.remove('filled');
+                }
+            }
+            
+            // Update merge info if 3 cards selected
+            if (selectedCards.length === 3) {
+                const firstCard = collection.find(c => c.id === selectedCards[0]);
+                const fromRarity = firstCard.rarity;
+                const fromIndex = RARITY_ORDER.indexOf(fromRarity);
+                const toRarity = RARITY_ORDER[fromIndex + 1];
+                const mergeKey = `${fromRarity}→${toRarity}`;
+                
+                let baseChance = SUCCESS_CHANCES[mergeKey] || 0;
+                let pityBonus = Math.min(pityCounters[mergeKey] || 0, MAX_PITY);
+                let totalChance = baseChance + pityBonus;
+                
+                document.getElementById('targetRarity').textContent = 
+                    `Target: ${RARITY_NAMES[toRarity]}`;
+                document.getElementById('chanceBar').style.width = (totalChance * 100) + '%';
+                document.getElementById('successChance').textContent = Math.round(totalChance * 100);
+                document.getElementById('pityBonus').textContent = Math.round(pityBonus * 100);
+                document.getElementById('successReward').textContent = 
+                    `Random ${RARITY_NAMES[toRarity]} card`;
+                document.getElementById('failureReward').textContent = 
+                    `${DUST_REWARDS[mergeKey]} Dust`;
+                
+                document.getElementById('mergeButton').disabled = false;
+                document.getElementById('mergeButton').textContent = 
+                    `Merge (${Math.round(totalChance * 100)}% chance)`;
+            } else {
+                document.getElementById('targetRarity').textContent = 
+                    `Select ${3 - selectedCards.length} more card(s)`;
+                document.getElementById('chanceBar').style.width = '0%';
+                document.getElementById('successChance').textContent = '0';
+                document.getElementById('mergeButton').disabled = true;
+                document.getElementById('mergeButton').textContent = 
+                    `Select ${3 - selectedCards.length} more card(s)`;
+            }
+            
+            // Update merge collection grid
+            const mergeGrid = document.getElementById('mergeCollectionGrid');
+            if (mergeGrid) {
+                mergeGrid.innerHTML = '';
+                collection.forEach(card => {
+                    if (!selectedCards.includes(card.id)) {
+                        mergeGrid.appendChild(createCardElement(card, true));
+                    }
+                });
+            }
+        }
+
+        // Update gallery with legendary and mythic cards
+        function updateGallery() {
+            const gallery = document.getElementById('galleryDisplay');
+            const legendaryCards = collection.filter(c => 
+                c.rarity === 'legendary' || c.rarity === 'mythic'
+            );
+            
+            gallery.innerHTML = '';
+            
+            if (legendaryCards.length === 0) {
+                document.getElementById('galleryEmpty').style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('galleryEmpty').style.display = 'none';
+            
+            legendaryCards.forEach(card => {
+                const cardElement = createCardElement(card);
+                cardElement.style.width = '220px';
+                cardElement.style.height = '293px';
+                cardElement.onclick = null; // Remove selection in gallery
+                gallery.appendChild(cardElement);
+            });
+        }
+
+        // Create a card DOM element
+        function createCardElement(card, isMergeable = false) {
+            const div = document.createElement('div');
+            div.className = `card ${card.rarity}`;
+            div.innerHTML = `
+                <div class="card-tier">${card.tier}</div>
+                <div class="card-word">${card.word}</div>
+                <div class="card-type">WORD CARD</div>
+                <div class="card-rarity">${RARITY_NAMES[card.rarity]}</div>
+                <div class="card-number">#${card.number.toString().padStart(3, '0')}</div>
+            `;
+            
+            if (isMergeable) {
+                div.onclick = () => addToMerge(card.id);
+            }
+            
+            return div;
+        }
+
+        // Update all UI elements
+        function updateUI() {
+            document.getElementById('totalCards').textContent = collection.length;
+            document.getElementById('uniqueCards').textContent = getUniqueCardCount();
+            document.getElementById('dustAmount').textContent = dust;
+            
+            // Update current tab if visible
+            if (document.getElementById('collectionTab').classList.contains('active')) {
+                updateCollectionGrid();
+            } else if (document.getElementById('mergeTab').classList.contains('active')) {
+                updateMergeUI();
+            } else if (document.getElementById('galleryTab').classList.contains('active')) {
+                updateGallery();
+            }
+        }
+
+        // Add message to log
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('logMessages');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            
+            // Keep last 10 messages
+            while (log.children.length > 10) {
+                log.removeChild(log.firstChild);
+            }
+        }
+
+        // ==================== MARKET TOGGLE ====================
+
+        // Show market (buy/sell toggle)
+        function showMarket(type) {
+            triggerHaptic('selection');
+            generateMarket(); // For now just show buy
+        }
+
+        // ==================== INITIALIZATION ====================
+
+        // Make functions globally available
+        window.switchTab = switchTab;
+        window.filterRarity = filterRarity;
+        window.addToMerge = addToMerge;
+        window.removeFromMerge = removeFromMerge;
+        window.performMerge = performMerge;
+        window.openPack = openPack;
+        window.buyCard = buyCard;
+        window.showMarket = showMarket;
+
+        // Start the game
+        displayTelegramUser();
+        loadGame();
+    </script>
+</body>
+</html>
+```
