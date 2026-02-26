@@ -23,8 +23,8 @@
         html, body {
             width: 100%;
             height: 100%;
-            overflow: hidden; /* Prevent body scrolling */
-            position: fixed; /* Fix position to prevent overscroll */
+            overflow: hidden;
+            position: fixed;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         }
@@ -35,7 +35,7 @@
             align-items: center;
             padding: 8px;
             height: 100vh;
-            height: 100dvh; /* Use dynamic viewport height for mobile */
+            height: 100dvh;
         }
 
         .game-container {
@@ -50,15 +50,47 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Contain everything */
+            overflow: hidden;
         }
 
-        /* Scrollable content areas */
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: #ffd700;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         .scrollable-content {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            min-height: 0; /* Important for flex child scrolling */
+            min-height: 0;
             padding-right: 4px;
             margin-top: 12px;
             margin-bottom: 4px;
@@ -89,7 +121,7 @@
             flex-wrap: wrap;
             gap: 10px;
             color: white;
-            flex-shrink: 0; /* Prevent header from shrinking */
+            flex-shrink: 0;
         }
 
         .title-section {
@@ -174,6 +206,12 @@
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-color: transparent;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
         }
 
         /* Tab Content */
@@ -402,7 +440,7 @@
 
         .merge-slot {
             width: 100px;
-            height: 133px; /* 3:4 aspect ratio */
+            height: 133px;
             background: rgba(255, 255, 255, 0.1);
             border: 2px dashed rgba(255, 255, 255, 0.3);
             border-radius: 12px;
@@ -633,7 +671,6 @@
             flex-shrink: 0;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 480px) {
             .game-container {
                 padding: 10px;
@@ -655,11 +692,16 @@
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
     <div class="game-container">
-        <!-- Telegram User Info (will be populated by JS) -->
+        <!-- Telegram User Info -->
         <div class="tg-header" id="tgUserInfo">
             <div class="tg-avatar"></div>
-            <span>Loading Telegram user...</span>
+            <span id="tgUserName">Loading...</span>
         </div>
         
         <!-- Header -->
@@ -685,11 +727,11 @@
 
         <!-- Tab Navigation -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('collection')">📚 Collection</button>
-            <button class="tab" onclick="switchTab('merge')">🔄 Merge</button>
-            <button class="tab" onclick="switchTab('packs')">📦 Packs</button>
-            <button class="tab" onclick="switchTab('market')">🏪 Market</button>
-            <button class="tab" onclick="switchTab('gallery')">🖼️ Gallery</button>
+            <button class="tab active" onclick="switchTab('collection')" id="tabCollection">📚 Collection</button>
+            <button class="tab" onclick="switchTab('merge')" id="tabMerge">🔄 Merge</button>
+            <button class="tab" onclick="switchTab('packs')" id="tabPacks">📦 Packs</button>
+            <button class="tab" onclick="switchTab('market')" id="tabMarket">🏪 Market</button>
+            <button class="tab" onclick="switchTab('gallery')" id="tabGallery">🖼️ Gallery</button>
         </div>
 
         <!-- Scrollable Content Area -->
@@ -816,48 +858,144 @@
         <!-- Log Section -->
         <div class="log-section" id="logMessages">
             <div class="log-entry">✨ Welcome to Lexicon Cards!</div>
-            <div class="log-entry">📚 Open packs or merge cards</div>
+            <div class="log-entry">📚 Loading your game...</div>
         </div>
     </div>
 
     <script>
-        // ==================== TELEGRAM INITIALIZATION ====================
+        // ==================== GLOBAL VARIABLES ====================
         
-        // Initialize Telegram Mini App
-        const tg = window.Telegram?.WebApp;
+        let tg = null;
         let haptic = null;
         let telegramUser = null;
+        let appInitialized = false;
         
-        if (tg) {
-            // Tell Telegram our app is ready
-            tg.ready();
+        // Game state
+        let collection = [];
+        let dust = 100;
+        let selectedCards = [];
+        let currentFilter = 'all';
+        let pityCounters = {
+            'uncommon→rare': 0,
+            'rare→epic': 0,
+            'epic→legendary': 0,
+            'legendary→mythic': 0
+        };
+        
+        // Constants
+        const WORD_POOLS = {
+            common: ['SUN', 'MOON', 'STAR', 'TREE', 'FIRE', 'WATER', 'WIND', 'ROCK', 'BIRD', 'FISH', 'DOG', 'CAT', 'BOOK', 'DOOR', 'HOME', 'LIGHT', 'DARK', 'SOUND', 'SIGHT', 'COLD', 'HOT', 'WET', 'DRY'],
+            uncommon: ['FLAME', 'OCEAN', 'FOREST', 'MOUNTAIN', 'THUNDER', 'RAINBOW', 'SHADOW', 'ECHO', 'WHISPER', 'CRYSTAL', 'EMBER', 'FROST', 'BREEZE', 'PEBBLE', 'PAPER', 'CANDLE', 'MIRROR', 'PILLOW'],
+            rare: ['PHOENIX', 'DRAGON', 'UNICORN', 'GRYPHON', 'SPHINX', 'ILLUSION', 'NIGHTMARE', 'DAYDREAM', 'BUTTERFLY', 'HURRICANE', 'VOLCANO', 'EARTHQUAKE', 'AVALANCHE', 'TORNADO'],
+            epic: ['ENIGMA', 'PARADOX', 'ETERNITY', 'INFINITY', 'COSMOS', 'NEBULA', 'GALAXY', 'UNIVERSE', 'DIMENSION', 'REALITY', 'DESTINY', 'FOREVER', 'OMNIPOTENT', 'OMNISCIENT'],
+            legendary: ['SERENDIPITY', 'EPHEMERAL', 'MELLIFLUOUS', 'ETHEREAL', 'LUMINESCENT', 'PETRICHOR', 'AURORA', 'ZEPHYR', 'QUINTESSENCE', 'APOTHEOSIS', 'TRANSFIGURATION'],
+            mythic: ['ABRACADABRA', 'ALAKAZAM', 'PRESTIGE', 'INFINITUM', 'OMNIVERSE', 'PRIMORDIAL', 'TRANSCENDENT', 'NUMINOUS']
+        };
+
+        const SUCCESS_CHANCES = {
+            'common→uncommon': 1.0,
+            'uncommon→rare': 0.8,
+            'rare→epic': 0.5,
+            'epic→legendary': 0.3,
+            'legendary→mythic': 0.1
+        };
+
+        const DUST_REWARDS = {
+            'common→uncommon': 0,
+            'uncommon→rare': 10,
+            'rare→epic': 25,
+            'epic→legendary': 100,
+            'legendary→mythic': 500
+        };
+
+        const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
+        
+        const RARITY_NAMES = {
+            common: 'Common',
+            uncommon: 'Uncommon',
+            rare: 'Rare',
+            epic: 'Epic',
+            legendary: 'Legendary',
+            mythic: '✨ MYTHIC ✨'
+        };
+
+        const PITY_INCREMENT = 0.05;
+        const MAX_PITY = 0.5;
+
+        // ==================== INITIALIZATION ====================
+        
+        // Initialize immediately when script loads
+        (function init() {
+            console.log('Initializing Lexicon Cards...');
             
-            // Expand to full screen
-            tg.expand();
-            
-            // Set background color to match theme
-            tg.setHeaderColor?.'#1a1a2e';
-            tg.setBackgroundColor?.('#16213e');
-            
-            // Request full-screen mode for immersive experience (Bot API 8.0+)
-            if (tg.requestFullscreen) {
-                tg.requestFullscreen();
+            // Try to get Telegram Web App object
+            try {
+                if (window.Telegram && window.Telegram.WebApp) {
+                    tg = window.Telegram.WebApp;
+                    console.log('✅ Telegram Web App found');
+                    
+                    // Tell Telegram our app is ready
+                    tg.ready();
+                    
+                    // Expand to full screen
+                    tg.expand();
+                    
+                    // Set colors
+                    if (tg.setHeaderColor) tg.setHeaderColor('#1a1a2e');
+                    if (tg.setBackgroundColor) tg.setBackgroundColor('#16213e');
+                    
+                    // Get haptic feedback
+                    haptic = tg.HapticFeedback;
+                    
+                    // Get user info
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        telegramUser = tg.initDataUnsafe.user;
+                    }
+                } else {
+                    console.log('⚠️ Running outside Telegram');
+                }
+            } catch (e) {
+                console.error('Telegram initialization error:', e);
             }
             
-            // Get haptic feedback object
-            haptic = tg.HapticFeedback;
+            // Display user info immediately
+            displayTelegramUser();
             
-            // Get user info
-            if (tg.initDataUnsafe?.user) {
-                telegramUser = tg.initDataUnsafe.user;
-            }
-            
-            console.log('✅ Telegram Mini App initialized');
-        } else {
-            console.log('⚠️ Running outside Telegram');
+            // Load game data
+            loadGame().then(() => {
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                
+                // Enable all tabs
+                enableTabs();
+                
+                // Update UI
+                updateUI();
+                
+                // Add welcome message
+                addLog('🚀 Game ready!', 'info');
+            });
+        })();
+
+        function enableTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.disabled = false;
+            });
         }
 
-        // ==================== HAPTIC FEEDBACK HELPER ====================
+        function displayTelegramUser() {
+            const userNameSpan = document.getElementById('tgUserName');
+            if (telegramUser) {
+                const firstName = telegramUser.first_name || '';
+                const lastName = telegramUser.last_name || '';
+                const username = telegramUser.username ? `@${telegramUser.username}` : '';
+                userNameSpan.textContent = `${firstName} ${lastName} ${username}`.trim() || 'Telegram User';
+            } else {
+                userNameSpan.textContent = 'Guest Player';
+            }
+        }
+
+        // ==================== HAPTIC FEEDBACK ====================
         
         function triggerHaptic(type, style = 'medium') {
             if (!haptic) return;
@@ -882,85 +1020,6 @@
                 }
             } catch (e) {
                 console.log('Haptic error:', e);
-            }
-        }
-
-        // ==================== GAME CONSTANTS ====================
-        
-        // Word pools by rarity
-        const WORD_POOLS = {
-            common: ['SUN', 'MOON', 'STAR', 'TREE', 'FIRE', 'WATER', 'WIND', 'ROCK', 'BIRD', 'FISH', 'DOG', 'CAT', 'BOOK', 'DOOR', 'HOME', 'LIGHT', 'DARK', 'SOUND', 'SIGHT', 'COLD', 'HOT', 'WET', 'DRY'],
-            uncommon: ['FLAME', 'OCEAN', 'FOREST', 'MOUNTAIN', 'THUNDER', 'RAINBOW', 'SHADOW', 'ECHO', 'WHISPER', 'CRYSTAL', 'EMBER', 'FROST', 'BREEZE', 'PEBBLE', 'PAPER', 'CANDLE', 'MIRROR', 'PILLOW'],
-            rare: ['PHOENIX', 'DRAGON', 'UNICORN', 'GRYPHON', 'SPHINX', 'ILLUSION', 'NIGHTMARE', 'DAYDREAM', 'BUTTERFLY', 'HURRICANE', 'VOLCANO', 'EARTHQUAKE', 'AVALANCHE', 'TORNADO'],
-            epic: ['ENIGMA', 'PARADOX', 'ETERNITY', 'INFINITY', 'COSMOS', 'NEBULA', 'GALAXY', 'UNIVERSE', 'DIMENSION', 'REALITY', 'DESTINY', 'FOREVER', 'OMNIPOTENT', 'OMNISCIENT'],
-            legendary: ['SERENDIPITY', 'EPHEMERAL', 'MELLIFLUOUS', 'ETHEREAL', 'LUMINESCENT', 'PETRICHOR', 'AURORA', 'ZEPHYR', 'QUINTESSENCE', 'APOTHEOSIS', 'TRANSFIGURATION'],
-            mythic: ['ABRACADABRA', 'ALAKAZAM', 'PRESTIGE', 'INFINITUM', 'OMNIVERSE', 'PRIMORDIAL', 'TRANSCENDENT', 'NUMINOUS']
-        };
-
-        // Success chances by merge path
-        const SUCCESS_CHANCES = {
-            'common→uncommon': 1.0,
-            'uncommon→rare': 0.8,
-            'rare→epic': 0.5,
-            'epic→legendary': 0.3,
-            'legendary→mythic': 0.1
-        };
-
-        // Dust rewards for failed merges
-        const DUST_REWARDS = {
-            'common→uncommon': 0,
-            'uncommon→rare': 10,
-            'rare→epic': 25,
-            'epic→legendary': 100,
-            'legendary→mythic': 500
-        };
-
-        // Rarity order
-        const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
-        
-        // Rarity display names
-        const RARITY_NAMES = {
-            common: 'Common',
-            uncommon: 'Uncommon',
-            rare: 'Rare',
-            epic: 'Epic',
-            legendary: 'Legendary',
-            mythic: '✨ MYTHIC ✨'
-        };
-
-        // ==================== GAME STATE ====================
-
-        let collection = [];
-        let dust = 100;
-        let selectedCards = [];
-        let currentFilter = 'all';
-        let pityCounters = {
-            'uncommon→rare': 0,
-            'rare→epic': 0,
-            'epic→legendary': 0,
-            'legendary→mythic': 0
-        };
-        
-        const PITY_INCREMENT = 0.05;
-        const MAX_PITY = 0.5;
-
-        // ==================== TELEGRAM USER INFO ====================
-        
-        function displayTelegramUser() {
-            const userInfoEl = document.getElementById('tgUserInfo');
-            if (telegramUser) {
-                const firstName = telegramUser.first_name || '';
-                const lastName = telegramUser.last_name || '';
-                const username = telegramUser.username ? `@${telegramUser.username}` : '';
-                userInfoEl.innerHTML = `
-                    <div class="tg-avatar"></div>
-                    <span>${firstName} ${lastName} ${username}</span>
-                `;
-            } else {
-                userInfoEl.innerHTML = `
-                    <div class="tg-avatar"></div>
-                    <span>Guest Player</span>
-                `;
             }
         }
 
@@ -1006,12 +1065,13 @@
             return uniqueWords.size;
         }
 
-        // ==================== ENHANCED STORAGE ====================
+        // ==================== STORAGE ====================
         
         async function loadGame() {
             let loaded = false;
             
-            if (tg?.DeviceStorage) {
+            // Try Telegram DeviceStorage first
+            if (tg && tg.DeviceStorage) {
                 try {
                     const saved = await tg.DeviceStorage.getItem('lexiconCards');
                     if (saved) {
@@ -1032,36 +1092,47 @@
                 }
             }
             
+            // Fallback to localStorage
             if (!loaded) {
                 const saved = localStorage.getItem('lexiconCards');
                 if (saved) {
-                    const data = JSON.parse(saved);
-                    collection = data.collection || [];
-                    dust = data.dust || 100;
-                    pityCounters = data.pityCounters || {
-                        'uncommon→rare': 0,
-                        'rare→epic': 0,
-                        'epic→legendary': 0,
-                        'legendary→mythic': 0
-                    };
-                    addLog('💾 Game loaded from browser', 'info');
-                } else {
-                    initializeNewGame();
-                    addLog('🆕 New game started!', 'info');
+                    try {
+                        const data = JSON.parse(saved);
+                        collection = data.collection || [];
+                        dust = data.dust || 100;
+                        pityCounters = data.pityCounters || {
+                            'uncommon→rare': 0,
+                            'rare→epic': 0,
+                            'epic→legendary': 0,
+                            'legendary→mythic': 0
+                        };
+                        loaded = true;
+                        addLog('💾 Game loaded from browser', 'info');
+                    } catch (e) {
+                        console.log('Local storage parse error:', e);
+                    }
                 }
             }
             
+            // If still not loaded, initialize new game
+            if (!loaded) {
+                initializeNewGame();
+                addLog('🆕 New game started!', 'info');
+            }
+            
+            // Update UI with loaded data
             updateUI();
         }
 
         async function saveGame() {
             const saveData = JSON.stringify({
-                collection,
-                dust,
-                pityCounters
+                collection: collection,
+                dust: dust,
+                pityCounters: pityCounters
             });
             
-            if (tg?.DeviceStorage) {
+            // Save to Telegram DeviceStorage if available
+            if (tg && tg.DeviceStorage) {
                 try {
                     await tg.DeviceStorage.setItem('lexiconCards', saveData);
                 } catch (e) {
@@ -1069,11 +1140,13 @@
                 }
             }
             
+            // Always save to localStorage as backup
             localStorage.setItem('lexiconCards', saveData);
         }
 
         function initializeNewGame() {
             collection = [];
+            // Add starter cards
             for (let i = 0; i < 10; i++) {
                 addRandomCard('common');
             }
@@ -1099,6 +1172,7 @@
             const card = collection.find(c => c.id === cardId);
             if (!card) return false;
             
+            // Check if all selected cards are same rarity
             if (selectedCards.length > 0) {
                 const firstCard = collection.find(c => c.id === selectedCards[0]);
                 if (firstCard.rarity !== card.rarity) {
@@ -1125,50 +1199,64 @@
         function performMerge() {
             if (selectedCards.length !== 3) {
                 triggerHaptic('warning');
-                addLog('Select exactly 3 cards', 'failure');
+                addLog('Select exactly 3 cards to merge', 'failure');
                 return;
             }
 
+            // Get selected card objects
             const cardsToMerge = collection.filter(c => selectedCards.includes(c.id));
-            const rarities = [...new Set(cardsToMerge.map(c => c.rarity))];
             
+            // Verify all same rarity
+            const rarities = [...new Set(cardsToMerge.map(c => c.rarity))];
             if (rarities.length !== 1) {
                 triggerHaptic('warning');
-                addLog('Cards must be same rarity', 'failure');
+                addLog('All cards must be the same rarity', 'failure');
                 return;
             }
 
             const fromRarity = rarities[0];
             const fromIndex = RARITY_ORDER.indexOf(fromRarity);
             
+            // Can't merge highest tier
             if (fromIndex === RARITY_ORDER.length - 1) {
                 triggerHaptic('warning');
-                addLog('Mythic cards cannot merge', 'failure');
+                addLog('Mythic cards cannot be merged', 'failure');
                 return;
             }
 
             const toRarity = RARITY_ORDER[fromIndex + 1];
             const mergeKey = `${fromRarity}→${toRarity}`;
             
+            // Calculate success chance with pity
             let baseChance = SUCCESS_CHANCES[mergeKey] || 0;
             let pityBonus = Math.min(pityCounters[mergeKey] || 0, MAX_PITY);
             let totalChance = baseChance + pityBonus;
             
+            // Remove merged cards
             selectedCards.forEach(id => removeCard(id));
             
+            // Attempt merge
             if (Math.random() < totalChance) {
+                // SUCCESS - add random card of next tier
                 const newCard = addRandomCard(toRarity);
+                
                 if (newCard) {
+                    // Reset pity for this tier
                     pityCounters[mergeKey] = 0;
+                    
                     triggerHaptic('success');
                     addLog(`✨ SUCCESS! Created ${newCard.word} (${RARITY_NAMES[toRarity]})`, 'success');
                 }
             } else {
+                // FAILURE - add dust
                 const dustEarned = DUST_REWARDS[mergeKey] || 5;
                 dust += dustEarned;
+                
+                // Increase pity counter
                 pityCounters[mergeKey] = (pityCounters[mergeKey] || 0) + PITY_INCREMENT;
+                
                 triggerHaptic('error');
-                addLog(`💔 Failed! +${dustEarned} dust`, 'failure');
+                addLog(`💔 Failed! Earned ${dustEarned} dust`, 'failure');
             }
             
             selectedCards = [];
@@ -1188,32 +1276,44 @@
                 case 'basic':
                     cost = 50;
                     for (let i = 0; i < 5; i++) {
-                        cards.push(addRandomCard('common'));
+                        const card = addRandomCard('common');
+                        if (card) cards.push(card);
                     }
                     break;
+                    
                 case 'grand':
                     cost = 200;
                     for (let i = 0; i < 4; i++) {
-                        cards.push(addRandomCard('common'));
+                        const card = addRandomCard('common');
+                        if (card) cards.push(card);
                     }
-                    cards.push(addRandomCard('uncommon'));
+                    const uncommon = addRandomCard('uncommon');
+                    if (uncommon) cards.push(uncommon);
                     break;
+                    
                 case 'premium':
                     cost = 500;
                     for (let i = 0; i < 3; i++) {
-                        cards.push(addRandomCard('common'));
+                        const card = addRandomCard('common');
+                        if (card) cards.push(card);
                     }
-                    cards.push(addRandomCard('rare'));
+                    const rare = addRandomCard('rare');
+                    if (rare) cards.push(rare);
+                    
+                    // 30% chance for an epic
                     if (Math.random() < 0.3) {
-                        cards.push(addRandomCard('epic'));
+                        const epic = addRandomCard('epic');
+                        if (epic) cards.push(epic);
                     } else {
-                        cards.push(addRandomCard('rare'));
+                        const extraRare = addRandomCard('rare');
+                        if (extraRare) cards.push(extraRare);
                     }
                     break;
             }
             
             dust -= cost;
             
+            // Show pack results
             const resultsGrid = document.getElementById('packResultsGrid');
             resultsGrid.innerHTML = '';
             cards.forEach(card => {
@@ -1233,8 +1333,9 @@
             const marketGrid = document.getElementById('marketGrid');
             marketGrid.innerHTML = '';
             
+            // Create 6 random cards for sale
             for (let i = 0; i < 6; i++) {
-                const rarity = RARITY_ORDER[Math.floor(Math.random() * 4)];
+                const rarity = RARITY_ORDER[Math.floor(Math.random() * 4)]; // Up to epic
                 const word = WORD_POOLS[rarity][Math.floor(Math.random() * WORD_POOLS[rarity].length)];
                 
                 const price = {
@@ -1278,17 +1379,21 @@
             addLog(`🛒 Purchased ${word} (${RARITY_NAMES[rarity]})`, 'success');
             saveGame();
             updateUI();
+            
+            // Refresh market
             generateMarket();
         }
 
         // ==================== UI FUNCTIONS ====================
 
         function switchTab(tabName) {
+            // Update tab buttons
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
             event.target.classList.add('active');
             
+            // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
@@ -1296,6 +1401,7 @@
             
             triggerHaptic('selection');
             
+            // Special tab setup
             if (tabName === 'market') {
                 generateMarket();
             } else if (tabName === 'gallery') {
@@ -1310,6 +1416,7 @@
         function filterRarity(rarity) {
             currentFilter = rarity;
             
+            // Update filter buttons
             document.querySelectorAll('.rarity-filter').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -1334,6 +1441,7 @@
         }
 
         function updateMergeUI() {
+            // Update merge slots
             for (let i = 0; i < 3; i++) {
                 const slot = document.getElementById(`slot${i+1}`);
                 if (i < selectedCards.length) {
@@ -1354,6 +1462,7 @@
                 }
             }
             
+            // Update merge info if 3 cards selected
             if (selectedCards.length === 3) {
                 const firstCard = collection.find(c => c.id === selectedCards[0]);
                 const fromRarity = firstCard.rarity;
@@ -1369,6 +1478,7 @@
                 document.getElementById('chanceBar').style.width = (totalChance * 100) + '%';
                 document.getElementById('successChance').textContent = Math.round(totalChance * 100);
                 document.getElementById('pityBonus').textContent = Math.round(pityBonus * 100);
+                
                 document.getElementById('mergeButton').disabled = false;
                 document.getElementById('mergeButton').textContent = `Merge (${Math.round(totalChance * 100)}%)`;
             } else {
@@ -1379,6 +1489,7 @@
                 document.getElementById('mergeButton').textContent = `Select ${3 - selectedCards.length} more`;
             }
             
+            // Update merge collection grid
             const mergeGrid = document.getElementById('mergeCollectionGrid');
             if (mergeGrid) {
                 mergeGrid.innerHTML = '';
@@ -1409,7 +1520,7 @@
                 const cardElement = createCardElement(card);
                 cardElement.style.width = '100%';
                 cardElement.style.height = 'auto';
-                cardElement.onclick = null;
+                cardElement.onclick = null; // Remove selection in gallery
                 gallery.appendChild(cardElement);
             });
         }
@@ -1417,11 +1528,18 @@
         function createCardElement(card, isMergeable = false) {
             const div = document.createElement('div');
             div.className = `card ${card.rarity}`;
+            
+            // Clean up mythic display for card-rarity
+            let rarityDisplay = RARITY_NAMES[card.rarity];
+            if (card.rarity === 'mythic') {
+                rarityDisplay = 'MYTHIC';
+            }
+            
             div.innerHTML = `
                 <div class="card-tier">${card.tier}</div>
                 <div class="card-word">${card.word}</div>
                 <div class="card-type">WORD</div>
-                <div class="card-rarity">${RARITY_NAMES[card.rarity].replace('✨', '')}</div>
+                <div class="card-rarity">${rarityDisplay}</div>
                 <div class="card-number">#${card.number.toString().padStart(3, '0')}</div>
             `;
             
@@ -1437,6 +1555,7 @@
             document.getElementById('uniqueCards').textContent = getUniqueCardCount();
             document.getElementById('dustAmount').textContent = dust;
             
+            // Update current tab if visible
             if (document.getElementById('collectionTab').classList.contains('active')) {
                 updateCollectionGrid();
             } else if (document.getElementById('mergeTab').classList.contains('active')) {
@@ -1454,6 +1573,7 @@
             log.appendChild(entry);
             log.scrollTop = log.scrollHeight;
             
+            // Keep last 5 messages
             while (log.children.length > 5) {
                 log.removeChild(log.firstChild);
             }
@@ -1463,10 +1583,10 @@
 
         function showMarket(type) {
             triggerHaptic('selection');
-            generateMarket();
+            generateMarket(); // For now just show buy
         }
 
-        // ==================== INITIALIZATION ====================
+        // ==================== MAKE FUNCTIONS GLOBAL ====================
 
         window.switchTab = switchTab;
         window.filterRarity = filterRarity;
@@ -1476,10 +1596,6 @@
         window.openPack = openPack;
         window.buyCard = buyCard;
         window.showMarket = showMarket;
-
-        // Start the game
-        displayTelegramUser();
-        loadGame();
 
         // Handle viewport changes
         window.addEventListener('resize', () => {
