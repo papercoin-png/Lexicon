@@ -300,17 +300,79 @@
             pointer-events: none;
         }
 
-        /* Tab Content */
+        /* Tab Content - IMPROVED SCROLLING */
         .tab-content {
             display: none;
-            height: 100%;
             flex-direction: column;
+            height: 100%;
             overflow: hidden;
             flex: 1;
         }
 
         .tab-content.active {
             display: flex;
+        }
+
+        /* Merge Tab Specific Scrolling */
+        #mergeTab {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #mergeTab .collection-section {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        #mergeTab .cards-grid {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+            max-height: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Packs Tab Specific Scrolling */
+        #packsTab {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #packsTab .pack-section {
+            flex-shrink: 0;
+        }
+
+        #packsTab #packResults {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        #packsTab #packResults h4 {
+            flex-shrink: 0;
+            margin-bottom: 8px;
+        }
+
+        #packsTab #packResultsGrid {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+            -webkit-overflow-scrolling: touch;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 8px;
         }
 
         /* Collection Progress */
@@ -349,7 +411,7 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 20px;
             padding: 16px;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
             color: white;
             flex-shrink: 0;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -724,7 +786,7 @@
             color: #ffd700;
         }
 
-        /* Cards Grid */
+        /* Cards Grid - Universal Scrolling */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -735,6 +797,7 @@
             overflow-y: auto;
             flex: 1;
             min-height: 0;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* Card Styles */
@@ -916,7 +979,7 @@
             display: flex;
             gap: 12px;
             justify-content: center;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
             flex-wrap: wrap;
             flex-shrink: 0;
         }
@@ -1258,27 +1321,24 @@
                 </div>
             </div>
 
-            <!-- Merge Tab -->
+            <!-- Merge Tab - IMPROVED SCROLLABLE -->
             <div id="mergeTab" class="tab-content">
-                <!-- Merge Chamber -->
+                <!-- Fixed merge section -->
                 <div class="merge-section">
                     <div class="merge-title">
                         <span>🔄 Merge Chamber</span>
                     </div>
                     
                     <div class="merge-slots-container">
-                        <!-- Merge Slots -->
                         <div class="merge-slots">
                             <div class="merge-slot empty-slot-common" id="slot1" onclick="removeFromMerge(0)"></div>
                             <div class="merge-slot empty-slot-uncommon" id="slot2" onclick="removeFromMerge(1)"></div>
                             <div class="merge-slot empty-slot-rare" id="slot3" onclick="removeFromMerge(2)"></div>
                         </div>
                         
-                        <!-- Quick Fill Button -->
                         <div class="quick-fill-btn" id="quickFillBtn" onclick="quickFillMerge()" data-tooltip="Auto-fill with matching rarity">✨</div>
                     </div>
 
-                    <!-- Merge Info Panel -->
                     <div class="merge-info-panel" id="mergeInfoPanel">
                         <div class="target-info">
                             <span>Target:</span>
@@ -1306,7 +1366,7 @@
                     </div>
                 </div>
 
-                <!-- Collection for Merging -->
+                <!-- Scrollable cards section -->
                 <div class="collection-section">
                     <div class="collection-header">
                         <h3>Your Cards (Lowest to Highest Rarity)</h3>
@@ -1318,9 +1378,9 @@
                 </div>
             </div>
 
-            <!-- Packs Tab -->
+            <!-- Packs Tab - IMPROVED SCROLLABLE -->
             <div id="packsTab" class="tab-content">
-                <h3 style="color: white; margin-bottom: 12px; font-size: 16px;">📦 Open Card Packs</h3>
+                <h3 style="color: white; margin-bottom: 8px; font-size: 16px; flex-shrink: 0;">📦 Open Card Packs</h3>
                 
                 <div class="pack-section">
                     <div class="pack" onclick="openPack('basic')" id="basicPack">
@@ -1342,9 +1402,9 @@
                     </div>
                 </div>
 
-                <div id="packResults" style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 12px;">
-                    <h4 style="color: white; margin-bottom: 10px; font-size: 14px;">Opened Cards</h4>
-                    <div class="cards-grid" id="packResultsGrid" style="grid-template-columns: repeat(3, 1fr); min-height: 150px;">
+                <div id="packResults">
+                    <h4 style="color: white; margin-bottom: 8px; font-size: 14px;">Opened Cards</h4>
+                    <div class="cards-grid" id="packResultsGrid">
                         <!-- Pack results appear here -->
                     </div>
                 </div>
@@ -1477,6 +1537,7 @@
                 document.getElementById('loadingOverlay').classList.add('hidden');
                 updateUI();
                 showToast('✨ Game ready!', 'info');
+                adjustScrollableAreas();
             });
         })();
 
@@ -1498,6 +1559,18 @@
             toggle.textContent = soundEnabled ? '🔊' : '🔇';
             toggle.classList.toggle('muted');
             showToast(soundEnabled ? 'Sound on' : 'Sound off', 'info');
+        }
+
+        // ==================== SCROLL ADJUSTMENT ====================
+        
+        function adjustScrollableAreas() {
+            const gameContainer = document.querySelector('.game-container');
+            const scrollableContent = document.querySelector('.scrollable-content');
+            
+            if (gameContainer && scrollableContent) {
+                const containerTop = gameContainer.offsetTop;
+                scrollableContent.style.maxHeight = `calc(100vh - ${containerTop * 2 + 80}px)`;
+            }
         }
 
         // ==================== TOAST NOTIFICATIONS ====================
@@ -1790,7 +1863,6 @@
             let pityBonus = Math.min(pityCounters[mergeKey] || 0, MAX_PITY);
             let totalChance = baseChance + pityBonus;
             
-            // Visual feedback
             document.querySelector('.merge-section').classList.add('merge-flash');
             
             selectedCards.forEach(id => removeCard(id));
@@ -1815,7 +1887,6 @@
                 document.querySelector('.merge-section').classList.add('merge-flash-failure');
                 showToast(`💔 Failed! +${dustEarned} dust`, 'error');
                 
-                // Animate dust change
                 animateDustChange();
             }
             
@@ -1842,7 +1913,6 @@
             
             triggerHaptic('impact', 'medium');
             
-            // Animate pack
             const packEl = document.getElementById(`${packType}Pack`);
             if (packEl) {
                 packEl.classList.add('opening');
@@ -1954,6 +2024,9 @@
             else if (tabName === 'gallery') updateGallery();
             else if (tabName === 'collection') updateCollectionGrid();
             else if (tabName === 'merge') updateMergeUI();
+            
+            // Adjust scrolling after tab switch
+            setTimeout(adjustScrollableAreas, 100);
         }
 
         function updateCollectionGrid() {
@@ -2118,7 +2191,6 @@
                 const cardElement = createCardElement(card);
                 cardElement.onclick = null;
                 
-                // Wrap in gallery card for flip effect
                 const galleryCard = document.createElement('div');
                 galleryCard.className = 'gallery-card';
                 galleryCard.innerHTML = `
@@ -2163,7 +2235,6 @@
             document.getElementById('uniqueCards').textContent = getUniqueCardCount();
             document.getElementById('dustAmount').textContent = dust;
             
-            // Update progress bar
             const progress = getCollectionProgress();
             document.getElementById('progressFill').style.width = progress + '%';
             document.getElementById('progressText').textContent = `${progress}% Complete`;
@@ -2197,6 +2268,7 @@
         // Handle viewport changes
         window.addEventListener('resize', () => {
             document.body.style.height = window.innerHeight + 'px';
+            adjustScrollableAreas();
         });
     </script>
 </body>
