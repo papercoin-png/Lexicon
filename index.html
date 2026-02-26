@@ -4,322 +4,151 @@
 <head>
     <!-- Telegram Mini App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Lexicon · Codex + Events + Quests</title>
+    <title>Lexicon · Complete Realm & Codex</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            height: 100dvh;
-            overflow: hidden;
-            position: fixed;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #0b0b1a 0%, #1a1a3a 100%);
-        }
-
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-            height: 100vh;
-            height: 100dvh;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { width: 100%; height: 100%; overflow: hidden; position: fixed; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: #0a0a1a; }
+        body { display: flex; justify-content: center; align-items: center; }
         .game-container {
-            max-width: 1200px;
-            width: 100%;
-            height: 100%;
-            height: 100dvh;
-            background: rgba(10, 10, 25, 0.8);
-            backdrop-filter: blur(12px);
-            padding: 8px 8px 4px 8px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border-left: 1px solid rgba(255,215,0,0.2);
-            border-right: 1px solid rgba(255,215,0,0.2);
+            max-width: 1200px; width: 100%; height: 100%; background: rgba(10,10,30,0.98); backdrop-filter: blur(12px);
+            padding: 8px; display: flex; flex-direction: column; overflow: hidden; border-left: 1px solid rgba(255,215,0,0.3); border-right: 1px solid rgba(255,215,0,0.3);
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
-
-        /* loading */
         .loading-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #0b0b1a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.3s;
+            position: fixed; inset:0; background: #0a0a1a; display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.4s;
         }
         .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-        .loading-spinner {
-            width: 50px; height: 50px;
-            border: 3px solid rgba(255,215,0,0.2);
-            border-radius: 50%;
-            border-top-color: gold;
-            animation: spin 1s infinite;
-        }
+        .loading-spinner { width: 60px; height: 60px; border: 5px solid rgba(255,215,0,0.2); border-top-color: gold; border-radius: 50%; animation: spin 1s infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* toast */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 90%;
-            max-width: 400px;
-            pointer-events: none;
-        }
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; width: 90%; max-width: 420px; pointer-events: none; }
         .toast {
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(8px);
-            border: 1px solid gold;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 5px 20px black;
-            animation: slideDown 0.2s ease;
-            text-align: center;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(12px); border: 1px solid gold; color: white; padding: 14px 24px;
+            border-radius: 60px; font-weight: 600; font-size: 15px; margin-bottom: 8px; box-shadow: 0 8px 25px black;
+            animation: slideDown 0.25s ease; text-align: center;
         }
-        .toast.success { border-left: 5px solid #4caf50; border-right: 5px solid #4caf50; }
-        .toast.error { border-left: 5px solid #f44336; border-right: 5px solid #f44336; }
-        @keyframes slideDown { from { opacity:0; transform:translateY(-100%); } to { opacity:1; transform:translateY(0); } }
+        .toast.success { border-left: 6px solid #4caf50; border-right: 6px solid #4caf50; }
+        .toast.error { border-left: 6px solid #f44336; border-right: 6px solid #f44336; }
+        @keyframes slideDown { 0% { opacity:0; transform: translateY(-100%); } 100% { opacity:1; transform: translateY(0); } }
 
-        /* main scroll */
-        .main-scrollable {
-            flex: 1;
-            min-height: 0;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-right: 4px;
-            scrollbar-width: thin;
-            scrollbar-color: gold #1e1e3f;
-        }
+        .main-scrollable { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 4px; scrollbar-width: thin; scrollbar-color: gold #1e1e3f; }
         .main-scrollable::-webkit-scrollbar { width: 6px; }
         .main-scrollable::-webkit-scrollbar-track { background: #1e1e3f; border-radius: 10px; }
         .main-scrollable::-webkit-scrollbar-thumb { background: gold; border-radius: 10px; }
 
-        /* tabs */
+        /* TABS */
         .tabs {
-            display: flex;
-            gap: 4px;
-            margin: 4px 0;
-            flex-wrap: wrap;
-            flex-shrink: 0;
+            display: flex; gap: 8px; margin: 6px 0 10px; flex-wrap: wrap; flex-shrink: 0; justify-content: center;
         }
         .tab {
-            padding: 5px 9px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,215,0,0.3);
-            border-radius: 40px;
-            color: #eee;
-            font-weight: 600;
-            font-size: clamp(10px, 2.5vw, 13px);
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
+            padding: 8px 18px; background: rgba(20,20,50,0.9); border: 1px solid rgba(255,215,0,0.4); border-radius: 40px;
+            color: #eee; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; text-transform: uppercase;
+            letter-spacing: 0.5px; backdrop-filter: blur(5px); box-shadow: 0 4px 0 #00000055;
         }
         .tab.active {
-            background: linear-gradient(135deg, #b8860b, #daa520);
-            border-color: gold;
-            color: #000;
-            box-shadow: 0 0 15px gold;
+            background: linear-gradient(145deg, #d4a017, #f0c000); border-color: white; color: #000; box-shadow: 0 0 20px gold, 0 4px 0 #7d5e00;
         }
 
-        /* header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-            color: white;
-            flex-shrink: 0;
+        /* header stats */
+        .header-stats {
+            display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6);
+            border-radius: 60px; padding: 6px 18px; margin-bottom: 10px; border: 1px solid rgba(255,215,0,0.4);
+            backdrop-filter: blur(8px);
         }
-        .title { 
-            font-size: 22px; font-weight: 800; 
-            background: linear-gradient(135deg, #ffd966, #ffaa00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .stats {
-            display: flex;
-            gap: 10px;
-            background: rgba(0,0,0,0.5);
-            padding: 4px 12px;
-            border-radius: 50px;
-            border: 1px solid rgba(255,215,0,0.3);
-        }
+        .stat-group { display: flex; gap: 24px; }
         .stat-item { text-align: center; }
-        .stat-label { font-size: 9px; color: #aaa; }
-        .stat-value { font-weight: bold; color: white; font-size: 16px; }
-        .dust-value { color: #ffd700; }
+        .stat-label { font-size: 10px; color: #aaa; letter-spacing: 0.5px; }
+        .stat-value { font-weight: bold; color: white; font-size: 20px; text-shadow: 0 2px 5px black; }
+        .dust-value { color: #ffd700; text-shadow: 0 0 8px gold; }
+        .sound-toggle {
+            width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid gold;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 22px; transition: 0.2s;
+        }
+        .sound-toggle:hover { background: gold; color: black; }
 
-        /* progress bar */
-        .collection-progress {
-            background: rgba(0,0,0,0.4);
-            border-radius: 20px;
-            padding: 4px 8px;
-            margin-bottom: 6px;
+        /* progress card */
+        .progress-card {
+            background: rgba(25,25,50,0.9); border-radius: 40px; padding: 10px 20px; margin-bottom: 16px; border: 1px solid rgba(255,215,0,0.3);
         }
-        .progress-bar { height: 5px; background: #333; border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, gold, #ffa500); width: 0%; }
-        .progress-text { font-size: 9px; color: #ccc; text-align: right; }
+        .progress-bar { height: 10px; background: #2a2a5a; border-radius: 5px; overflow: hidden; margin: 6px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, gold, #ffa500); width: 0%; border-radius: 5px; }
 
-        /* filter bar */
-        .filter-bar {
-            display: flex;
-            gap: 6px;
-            margin: 8px 0;
-            flex-wrap: wrap;
+        /* realm panels */
+        .realm-panel {
+            background: rgba(20,20,45,0.95); border-radius: 32px; padding: 18px; margin-bottom: 20px; border: 1px solid rgba(255,215,0,0.4);
+            backdrop-filter: blur(4px); box-shadow: 0 8px 0 #00000033;
         }
-        .filter-btn, .search-box {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,215,0,0.3);
-            border-radius: 30px;
-            padding: 5px 12px;
-            color: white;
-            font-size: 11px;
+        .panel-title {
+            font-size: 20px; font-weight: 800; color: gold; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+            text-shadow: 0 2px 5px black;
         }
-        .search-box { flex: 1; min-width: 120px; }
-        .filter-btn.active { background: gold; color: #000; font-weight: bold; }
+        .quest-item {
+            background: rgba(0,0,0,0.5); border-radius: 28px; padding: 14px 18px; margin-bottom: 10px; display: flex; justify-content: space-between;
+            align-items: center; border-left: 6px solid gold; border-right: 2px solid #b8860b;
+        }
+        .quest-progress { height: 8px; background: #333; border-radius: 4px; width: 100%; margin: 8px 0; }
+        .quest-fill { height: 100%; background: #4caf50; width: 0%; border-radius: 4px; }
+        .badge {
+            background: gold; color: black; padding: 6px 16px; border-radius: 40px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 0 #7d5e00;
+        }
+        .streak-flame { color: orange; font-size: 32px; filter: drop-shadow(0 0 10px orange); }
+        .offline-claim {
+            background: linear-gradient(145deg, #2d6a2d, #1f8a1f); border: none; color: white; padding: 12px 30px;
+            border-radius: 60px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; border: 1px solid gold;
+        }
+        .offline-claim:active { transform: scale(0.95); }
+
+        /* merge chamber */
+        .merge-chamber {
+            background: #12122c; border-radius: 40px; padding: 20px; border: 3px solid rgba(255,215,0,0.6); margin-bottom: 20px; box-shadow: inset 0 0 15px #00000088;
+        }
+        .slots { display: flex; gap: 20px; justify-content: center; margin: 20px 0; }
+        .slot {
+            width: 90px; height: 120px; border-radius: 20px; background: rgba(255,215,0,0.15); border: 3px dashed #b8860b;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; position: relative;
+            font-weight: bold; box-shadow: 0 8px 0 #00000066;
+        }
+        .slot.filled { border: 5px solid gold; background: #3a2a1a; box-shadow: 0 0 25px gold; }
+        .remove-slot { position: absolute; top: -10px; right: -10px; width: 28px; height: 28px; background: #f44336; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 3px solid white; font-size: 18px; }
 
         /* cards grid */
         .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            padding: 4px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 6px;
         }
         .card {
-            aspect-ratio: 3/4;
-            border-radius: 12px;
-            padding: 6px 3px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            position: relative;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 5px 0 rgba(0,0,0,0.5);
-            transition: 0.1s ease;
-            font-weight: bold;
-            color: #111;
-            text-shadow: 0 1px 2px white;
+            aspect-ratio: 3/4; border-radius: 18px; padding: 10px 4px; display: flex; flex-direction: column;
+            align-items: center; justify-content: space-between; position: relative; cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 6px 0 rgba(0,0,0,0.6); transition: 0.1s ease;
+            font-weight: bold; color: #111; text-shadow: 0 1px 3px white;
         }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 0 black; }
-        .card.common { background: linear-gradient(135deg, #d4d4d4, #a0a0a0); }
-        .card.uncommon { background: linear-gradient(135deg, #8bc34a, #5e8c3a); }
-        .card.rare { background: linear-gradient(135deg, #64b5f6, #1976d2); }
-        .card.epic { background: linear-gradient(135deg, #ba68c8, #7b1fa2); color: white; text-shadow: 0 1px 3px black; }
-        .card.legendary { background: linear-gradient(135deg, #ffb74d, #f57c00); color: white; }
-        .card.mythic { background: linear-gradient(135deg, #ffd966, #b8860b); color: black; animation: mythicPulse 2s infinite; }
-        @keyframes mythicPulse { 0%{box-shadow:0 0 5px gold;} 50%{box-shadow:0 0 20px gold;} }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 0 black; }
+        .card.common { background: linear-gradient(145deg, #e0e0e0, #b0b0b0); }
+        .card.uncommon { background: linear-gradient(145deg, #9ccc65, #6b8e4c); }
+        .card.rare { background: linear-gradient(145deg, #64b5f6, #1e5cb3); color: white; text-shadow: 0 2px 4px black; }
+        .card.epic { background: linear-gradient(145deg, #ba68c8, #6a1b9a); color: white; }
+        .card.legendary { background: linear-gradient(145deg, #ffb74d, #e65100); color: white; }
+        .card.mythic { background: linear-gradient(145deg, #ffe066, #b8860b); animation: mythicPulse 2s infinite; }
+        @keyframes mythicPulse { 0% { box-shadow: 0 0 10px gold; } 50% { box-shadow: 0 0 30px gold; } }
 
-        .card-word { font-size: 12px; font-weight: 800; text-align: center; text-transform: uppercase; }
-        .card-type { font-size: 7px; opacity: 0.8; }
-        .card-number { font-size: 5px; opacity: 0.6; }
-        .card-rarity-badge { width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 3px; left: 3px; border:1px solid white; }
-        .card.in-codex::after { content: '📖'; position: absolute; top: 2px; right: 2px; font-size: 12px; }
-        .card.burnable::after { content: '🔥'; position: absolute; top: 2px; right: 2px; font-size: 12px; filter:drop-shadow(0 0 5px orange); }
-        .quick-burn {
-            position: absolute; bottom: 2px; left: 2px;
-            background: #cc0000; border: none; border-radius: 4px;
-            color: white; font-size: 9px; padding: 2px 4px;
-            cursor: pointer; opacity: 0; transition: 0.2s;
-            border:1px solid gold; z-index: 10;
-        }
-        .card:hover .quick-burn { opacity: 1; }
-
-        /* merge chamber */
-        .merge-chamber-fixed {
-            background: #0c0c1f;
-            border-radius: 18px;
-            padding: 12px;
-            margin-bottom: 10px;
-            border: 2px solid rgba(255,215,0,0.3);
-        }
-        .merge-slots-container {
-            display: flex; align-items: center; justify-content: center; gap: 15px;
-        }
-        .merge-slots { display: flex; gap: 10px; }
-        .merge-slot {
-            width: 65px; height: 85px;
-            border-radius: 10px;
-            background: rgba(255,215,0,0.1);
-            border: 2px dashed #b8860b;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 9px; color: white; text-align: center;
-        }
-        .merge-slot.filled { border: 3px solid gold; background: rgba(255,215,0,0.3); }
-        .remove-slot {
-            width: 18px; height: 18px; background: #f44336; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            position: absolute; top: -5px; right: -5px; cursor: pointer;
-            border: 2px solid white; font-weight: bold;
-        }
-        .quick-fill-btn {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: linear-gradient(135deg, #b8860b, #daa520);
-            border: 2px solid white;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 20px;
-        }
-        .merge-button {
-            width: 100%; padding: 12px; margin-top: 10px;
-            background: linear-gradient(135deg, #b8860b, #daa520);
-            border: none; border-radius: 60px; font-weight: bold; cursor: pointer;
-        }
-        .merge-button:disabled { opacity: 0.3; }
-
-        /* quest & event banners */
-        .quest-panel, .event-banner {
-            background: rgba(50,50,80,0.7);
-            border-radius: 16px;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255,215,0,0.4);
-            backdrop-filter: blur(5px);
-            color: white;
-        }
-        .quest-title, .event-title {
-            font-size: 14px; font-weight: bold; color: gold;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .quest-progress { height: 6px; background: #333; border-radius: 3px; margin: 6px 0; }
-        .quest-fill { height: 100%; background: #4caf50; width: 0%; border-radius: 3px; }
-        .streak-fire { color: orange; font-weight: bold; }
+        .card-word { font-size: 14px; font-weight: 800; text-transform: uppercase; text-align: center; }
+        .card.in-codex::after { content: '📖'; position: absolute; top: 3px; right: 3px; font-size: 16px; filter: drop-shadow(0 0 4px black); }
+        .card.burnable::after { content: '🔥'; position: absolute; top: 3px; right: 3px; font-size: 16px; filter:drop-shadow(0 0 8px orange); }
 
         /* codex */
-        .codex-header { background: #1e1a3a; border-radius: 18px; padding: 12px; }
-        .milestone-bar { height: 12px; background: #333; border-radius: 6px; overflow: hidden; }
+        .codex-header { background: #1e1a3a; border-radius: 36px; padding: 20px; margin-bottom: 16px; border: 1px solid gold; }
+        .milestone-bar { height: 14px; background: #2a2a5a; border-radius: 7px; overflow: hidden; margin: 12px 0; }
         .milestone-fill { height: 100%; background: linear-gradient(90deg, gold, #ff6b6b); width: 0%; }
-        .burn-interface { background: #2a1a2a; border-radius: 16px; padding: 12px; border: 1px solid #ff6b6b; margin: 10px 0; }
-        .codex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px,1fr)); gap: 6px; max-height: 300px; overflow-y: auto; }
+        .codex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px,1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding: 5px; }
 
-        /* sound toggle */
-        .sound-toggle { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; border:1px solid gold; }
+        /* filter */
+        .filter-bar { display: flex; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+        .filter-btn, .search-box { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,215,0,0.5); border-radius: 40px; padding: 8px 18px; color: white; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .filter-btn:hover { background: gold; color: black; }
 
         /* log */
-        .log-section { background: #0a0a1a; border-radius: 8px; padding: 5px; color: #aaa; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 5px; }
-        .dust-change { animation: dustPop 0.4s; }
-        @keyframes dustPop { 50%{transform:scale(1.3); color:gold;} }
+        .log-section { background: #0a0a1a; border-radius: 40px; padding: 10px 22px; color: #ccc; font-size: 12px; margin-top: 8px; border: 2px solid #b8860b; backdrop-filter: blur(5px); }
     </style>
 </head>
 <body>
@@ -327,173 +156,199 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <div class="game-container">
-        <!-- top bar -->
-        <div style="display:flex; align-items:center; justify-content:space-between; color:white; margin-bottom:4px;">
-            <div style="display:flex; align-items:center; gap:6px;"><span class="title">📚 LEXICON</span></div>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span id="streakDisplay" class="streak-fire" title="Daily streak">🔥 0</span>
-                <div class="sound-toggle" id="soundToggle">🔊</div>
+        <!-- top bar with stats & sound -->
+        <div class="header-stats">
+            <div class="stat-group">
+                <div class="stat-item"><span class="stat-label">CARDS</span><span class="stat-value" id="totalCards">0</span></div>
+                <div class="stat-item"><span class="stat-label">UNIQUE</span><span class="stat-value" id="uniqueCards">0</span></div>
+                <div class="stat-item"><span class="stat-label">DUST</span><span class="stat-value dust-value" id="dustAmount">150</span></div>
             </div>
+            <div class="sound-toggle" id="soundToggle">🔊</div>
         </div>
 
-        <!-- header stats -->
-        <div class="header">
-            <div class="stats">
-                <div class="stat-item"><span class="stat-label">Cards</span><span class="stat-value" id="totalCards">0</span></div>
-                <div class="stat-item"><span class="stat-label">Unique</span><span class="stat-value" id="uniqueCards">0</span></div>
-                <div class="stat-item"><span class="stat-label">Dust</span><span class="stat-value dust-value" id="dustAmount">150</span></div>
-            </div>
-        </div>
-
-        <!-- collection progress -->
-        <div class="collection-progress">
-            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-            <div class="progress-text" id="progressText">0% complete</div>
-        </div>
-
-        <!-- tabs -->
+        <!-- Tabs: Realm · Merge · Codex · Events · Packs -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('collection')">📚 Collection</button>
-            <button class="tab" onclick="switchTab('merge')">🔄 Merge</button>
-            <button class="tab" onclick="switchTab('packs')">📦 Packs</button>
-            <button class="tab" onclick="switchTab('codex')">📖 Codex</button>
-            <button class="tab" onclick="switchTab('events')">🎉 Events</button>
+            <button class="tab active" onclick="switchTab('realm')">🏰 REALM</button>
+            <button class="tab" onclick="switchTab('merge')">🔄 MERGE</button>
+            <button class="tab" onclick="switchTab('codex')">📖 CODEX</button>
+            <button class="tab" onclick="switchTab('events')">🎉 EVENTS</button>
+            <button class="tab" onclick="switchTab('packs')">📦 PACKS</button>
         </div>
 
-        <!-- scrollable area -->
+        <!-- main scroll area -->
         <div class="main-scrollable" id="mainScrollable">
-            <!-- COLLECTION TAB (default) -->
-            <div id="collectionTab" class="tab-content active">
-                <div class="filter-bar">
-                    <input type="text" class="search-box" id="collectionSearch" placeholder="🔍 search" oninput="filterCollection()">
-                    <select class="filter-btn" id="rarityFilter" onchange="filterCollection()"><option value="all">All</option><option value="common">C</option><option value="uncommon">U</option><option value="rare">R</option><option value="epic">E</option><option value="legendary">L</option><option value="mythic">M</option></select>
-                    <button class="filter-btn" onclick="burnAllDuplicates()" title="one‑tap burn all duplicates">🔥 Burn dupes</button>
+            <!-- REALM TAB (active by default) -->
+            <div id="realmTab" class="tab-content" style="display:block;">
+                <!-- weekend booster banner -->
+                <div class="realm-panel" id="weekendBanner">
+                    <div class="panel-title">✨ WEEKEND BOOSTER ✨</div>
+                    <div id="eventDesc" style="font-size:22px; font-weight:bold; color:#ffd700;">+50% MERGE & LUCK</div>
+                    <div id="eventTimer" style="font-size:15px; color:#aaa;">active until Monday 00:00</div>
                 </div>
-                <div class="cards-grid" id="collectionGrid"></div>
+
+                <!-- daily quests -->
+                <div class="realm-panel">
+                    <div class="panel-title">📋 DAILY QUESTS <span style="font-size:15px; margin-left:auto; background:#333; padding:5px 15px; border-radius:30px;" id="dailyReset">reset in 2h</span></div>
+                    <div id="dailyQuestsContainer"></div>
+                </div>
+
+                <!-- weekly quests -->
+                <div class="realm-panel">
+                    <div class="panel-title">📅 WEEKLY QUESTS</div>
+                    <div id="weeklyQuestsContainer"></div>
+                </div>
+
+                <!-- streak & offline combined card -->
+                <div class="realm-panel" style="display:flex; flex-direction:row; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <span class="streak-flame">🔥</span>
+                        <div><span style="color:white; font-size:18px;">Streak</span> <span id="streakCount" style="font-weight:bold; color:orange; font-size:28px;">0</span> days<br><span style="font-size:14px;">+<span id="streakBonusPercent">0</span>% dust/luck</span></div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <span style="font-size:18px;">⏳ offline:</span>
+                        <span id="offlineDisplay" style="font-size:22px; font-weight:bold; color:#aaffaa;">0 dust</span>
+                        <button class="offline-claim" onclick="claimOfflineReward()">CLAIM</button>
+                    </div>
+                </div>
+
+                <!-- quick collection progress -->
+                <div class="progress-card">
+                    <div style="display:flex; justify-content:space-between; color:white; margin-bottom:6px; font-size:16px;">
+                        <span>📖 Codex completion</span><span id="codexPercent">0%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" id="realmProgressFill" style="width:0%"></div></div>
+                </div>
             </div>
 
             <!-- MERGE TAB -->
-            <div id="mergeTab" class="tab-content">
-                <div class="merge-chamber-fixed">
-                    <div class="merge-slots-container">
-                        <div class="merge-slots">
-                            <div class="merge-slot" id="slot1" onclick="removeFromMerge(0)"></div>
-                            <div class="merge-slot" id="slot2" onclick="removeFromMerge(1)"></div>
-                            <div class="merge-slot" id="slot3" onclick="removeFromMerge(2)"></div>
-                        </div>
-                        <div class="quick-fill-btn" onclick="quickFillMerge()">✨</div>
+            <div id="mergeTab" class="tab-content" style="display:none;">
+                <div class="merge-chamber">
+                    <div class="slots">
+                        <div class="slot" id="slot1" onclick="removeFromMerge(0)"></div>
+                        <div class="slot" id="slot2" onclick="removeFromMerge(1)"></div>
+                        <div class="slot" id="slot3" onclick="removeFromMerge(2)"></div>
                     </div>
-                    <div class="selection-summary" id="selectionSummary" style="color:#aaa; font-size:11px; margin:5px;">click cards</div>
-                    <button class="merge-button" id="mergeButton" onclick="performMerge()" disabled>select 3 cards</button>
+                    <div style="display:flex; justify-content:center; gap:20px; margin:15px 0;">
+                        <button class="filter-btn" onclick="quickFillMerge()" style="font-size:16px; padding:10px 25px;">✨ quick fill</button>
+                        <button class="filter-btn" id="mergeButton" onclick="performMerge()" disabled style="font-size:16px; padding:10px 25px; background:gold; color:black;">merge (3)</button>
+                    </div>
                 </div>
                 <div class="filter-bar">
-                    <input type="text" class="search-box" id="mergeSearch" placeholder="🔍 search" oninput="updateMergeUI()">
-                    <select class="filter-btn" id="mergeRarityFilter" onchange="updateMergeUI()"><option value="all">All</option><option value="common">C</option><option value="uncommon">U</option><option value="rare">R</option><option value="epic">E</option><option value="legendary">L</option><option value="mythic">M</option></select>
-                    <button class="filter-btn" onclick="sortMergeCards()" id="sortBtn">⬇️ Sort</button>
+                    <input type="text" class="search-box" id="mergeSearch" placeholder="🔍 search card..." oninput="updateMergeUI()">
+                    <select class="filter-btn" id="mergeRarityFilter" onchange="updateMergeUI()">
+                        <option value="all">All rarities</option>
+                        <option value="common">Common</option>
+                        <option value="uncommon">Uncommon</option>
+                        <option value="rare">Rare</option>
+                        <option value="epic">Epic</option>
+                        <option value="legendary">Legendary</option>
+                        <option value="mythic">Mythic</option>
+                    </select>
                 </div>
                 <div class="cards-grid" id="mergeCollectionGrid"></div>
             </div>
 
-            <!-- PACKS TAB -->
-            <div id="packsTab" class="tab-content">
-                <div class="pack-section" style="display:flex; gap:8px; margin:10px 0;">
-                    <div class="pack" onclick="openPack('basic')" style="flex:1; background:#2a2a5a; border-radius:16px; padding:10px; text-align:center; color:white; border:1px solid gold;">📦 Basic (50)</div>
-                    <div class="pack" onclick="openPack('grand')" style="flex:1; background:#2a2a5a; border-radius:16px; padding:10px; text-align:center; color:white; border:1px solid gold;">🎁 Grand (200)</div>
-                    <div class="pack" onclick="openPack('premium')" style="flex:1; background:#2a2a5a; border-radius:16px; padding:10px; text-align:center; color:white; border:1px solid gold;">💎 Premium (500)</div>
-                </div>
-                <div id="packResults" style="background:#1a1a3a; border-radius:16px; padding:8px;">
-                    <div class="cards-grid" id="packResultsGrid" style="grid-template-columns:repeat(3,1fr); min-height:100px;"></div>
-                </div>
-            </div>
-
             <!-- CODEX TAB -->
-            <div id="codexTab" class="tab-content">
+            <div id="codexTab" class="tab-content" style="display:none;">
                 <div class="codex-header">
-                    <div style="display:flex; justify-content:space-between;"><span style="color:gold;">📖 CODEX</span><span id="codexCurrent">0</span>/<span id="codexTotal">150</span></div>
-                    <div class="milestone-bar" style="margin:8px 0;"><div class="milestone-fill" id="milestoneFill" style="width:0%"></div></div>
-                    <div class="milestone-markers" style="display:flex; justify-content:space-between; font-size:9px;">5 25 50 75 100 125 150</div>
-                    <div id="nextMilestonePreview" style="font-size:10px; color:gold;">next: 5 words</div>
-                </div>
-                <div class="burn-interface">
-                    <h3 style="color:#ff9999;">🔥 BURN CARD</h3>
-                    <select class="burn-select" id="burnCardSelect" onchange="previewBurn()" style="width:100%; padding:8px; background:#1a1a2e; color:white; border-radius:30px;"></select>
-                    <button class="burn-button" id="burnBtn" onclick="burnSelectedCard()" disabled style="margin-top:8px; width:100%; padding:8px; background:#cc4444;">🔥 Burn forever</button>
-                    <div class="burn-preview" id="burnPreview" style="font-size:11px; margin-top:5px;">select card</div>
-                </div>
-                <div style="margin-top:10px;">
-                    <div style="display:flex; gap:4px; flex-wrap:wrap;" class="codex-filters">
-                        <button class="filter-btn" onclick="filterCodex('all')">All</button>
-                        <button class="filter-btn" onclick="filterCodex('common')">C</button>
-                        <button class="filter-btn" onclick="filterCodex('uncommon')">U</button>
-                        <button class="filter-btn" onclick="filterCodex('rare')">R</button>
-                        <button class="filter-btn" onclick="filterCodex('epic')">E</button>
-                        <button class="filter-btn" onclick="filterCodex('legendary')">L</button>
-                        <button class="filter-btn" onclick="filterCodex('mythic')">M</button>
+                    <div style="display:flex; justify-content:space-between; color:gold; font-size:26px; font-weight:800;">
+                        <span>📖 CODEX</span><span><span id="codexCurrent">0</span>/<span id="codexTotal">150</span></span>
                     </div>
-                    <div class="codex-grid" id="codexGrid" style="margin-top:8px;"></div>
+                    <div class="milestone-bar"><div class="milestone-fill" id="milestoneFill" style="width:0%"></div></div>
+                    <div style="display:flex; justify-content:space-between; font-size:12px; color:#aaa;">5••25••50••75••100••125••150</div>
+                    <div id="nextMilestonePreview" style="color:gold; margin-top:10px; font-size:16px;">next: 5 words</div>
+                </div>
+                <div class="realm-panel" style="background:#2a1a2a;">
+                    <div style="display:flex; gap:12px;">
+                        <select class="search-box" id="burnCardSelect" onchange="previewBurn()" style="flex:2; font-size:15px;"><option value="">select card to burn</option></select>
+                        <button class="offline-claim" id="burnBtn" onclick="burnSelectedCard()" disabled style="background:#aa2222; flex:0 0 auto;">🔥 BURN</button>
+                    </div>
+                    <div id="burnPreview" style="font-size:14px; margin:12px; color:#ffaaaa;">preview</div>
+                </div>
+                <div style="margin:15px 0; display:flex; gap:5px; flex-wrap:wrap;" class="codex-filters">
+                    <button class="filter-btn" onclick="filterCodex('all')">All</button>
+                    <button class="filter-btn" onclick="filterCodex('common')">C</button>
+                    <button class="filter-btn" onclick="filterCodex('uncommon')">U</button>
+                    <button class="filter-btn" onclick="filterCodex('rare')">R</button>
+                    <button class="filter-btn" onclick="filterCodex('epic')">E</button>
+                    <button class="filter-btn" onclick="filterCodex('legendary')">L</button>
+                    <button class="filter-btn" onclick="filterCodex('mythic')">M</button>
+                </div>
+                <div class="codex-grid" id="codexGrid"></div>
+            </div>
+
+            <!-- EVENTS TAB -->
+            <div id="eventsTab" class="tab-content" style="display:none;">
+                <div class="realm-panel">
+                    <div class="panel-title">🎉 SPECIAL EVENTS</div>
+                    <div id="specialEventList">
+                        <div style="padding:15px; background:#1e1e3e; border-radius:30px; margin-bottom:10px; border-left:8px solid gold;">
+                            <span style="font-size:20px;">🌟 Weekend Booster</span><br><span style="color:#aaf;">+50% merge chance (active)</span>
+                        </div>
+                        <div style="padding:15px; background:#1e1e3e; border-radius:30px; border-left:8px solid #aaa;">
+                            <span style="font-size:20px;">🔥 Flash Burn</span><br><span>double milestone progress · starts saturday</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="realm-panel">
+                    <div class="panel-title">🏆 EVENT LEADERBOARD</div>
+                    <div style="color:#aaa; font-size:16px; text-align:center;">Compete with friends – coming soon</div>
                 </div>
             </div>
 
-            <!-- EVENTS & QUESTS TAB -->
-            <div id="eventsTab" class="tab-content">
-                <div class="event-banner" id="activeEventBanner">
-                    <span class="event-title">✨ WEEKEND BOOSTER ✨</span>
-                    <div id="eventDesc">+50% merge chance (Sat‑Sun)</div>
+            <!-- PACKS TAB -->
+            <div id="packsTab" class="tab-content" style="display:none;">
+                <div style="display:flex; gap:15px; margin:20px 0;">
+                    <div class="realm-panel" style="flex:1; text-align:center; cursor:pointer; padding:20px;" onclick="openPack('basic')">
+                        <div style="font-size:48px;">📦</div><div style="font-size:20px; font-weight:bold;">Basic</div><div style="color:gold;">50 dust</div>
+                    </div>
+                    <div class="realm-panel" style="flex:1; text-align:center; cursor:pointer; padding:20px;" onclick="openPack('grand')">
+                        <div style="font-size:48px;">🎁</div><div style="font-size:20px; font-weight:bold;">Grand</div><div style="color:gold;">200 dust</div>
+                    </div>
+                    <div class="realm-panel" style="flex:1; text-align:center; cursor:pointer; padding:20px;" onclick="openPack('premium')">
+                        <div style="font-size:48px;">💎</div><div style="font-size:20px; font-weight:bold;">Premium</div><div style="color:gold;">500 dust</div>
+                    </div>
                 </div>
-                <div class="quest-panel">
-                    <div class="quest-title">📋 DAILY QUESTS <span style="font-size:10px; margin-left:auto;" id="questResetTimer">reset in 2h</span></div>
-                    <div id="dailyQuestsContainer"></div>
-                </div>
-                <div class="quest-panel">
-                    <div class="quest-title">📅 WEEKLY QUESTS</div>
-                    <div id="weeklyQuestsContainer"></div>
-                </div>
-                <div class="quest-panel" style="text-align:center;">
-                    <span class="streak-fire">🔥 STREAK BONUS</span>
-                    <div>Current streak: <span id="streakCount">0</span> days</div>
-                    <div style="font-size:11px;">+<span id="streakBonusPercent">0</span>% dust & pack luck</div>
-                </div>
-                <div class="quest-panel" style="background:#1a3344;">
-                    <span>⏳ OFFLINE PROGRESS</span>
-                    <div id="offlineMessage">collecting dust...</div>
-                    <button class="filter-btn" onclick="claimOfflineReward()" style="margin-top:5px;">claim reward</button>
+                <div class="realm-panel">
+                    <div class="panel-title">📦 opened cards</div>
+                    <div class="cards-grid" id="packResultsGrid" style="grid-template-columns:repeat(3,1fr); min-height:150px;"></div>
                 </div>
             </div>
         </div>
 
         <!-- log -->
-        <div class="log-section" id="logMessages">✨ Welcome</div>
+        <div class="log-section" id="logMessages">✨ welcome to Lexicon · realm online</div>
     </div>
 
     <script>
         (function() {
-            // ----- INIT -----
-            let tg, haptic, telegramUser;
-            try { tg = window.Telegram?.WebApp; tg?.ready(); tg?.expand(); haptic = tg?.HapticFeedback; } catch(e){}
-            let soundEnabled = true;
+            // ---------- TELEGRAM ----------
+            let tg, haptic, soundEnabled = true;
+            try { tg = window.Telegram?.WebApp; tg?.ready(); haptic = tg?.HapticFeedback; } catch(e) {}
             const soundToggle = document.getElementById('soundToggle');
-            soundToggle.onclick = ()=>{ soundEnabled = !soundEnabled; soundToggle.innerText = soundEnabled ? '🔊' : '🔇'; showToast(`sound ${soundEnabled?'on':'off'}`,'info'); };
+            soundToggle.onclick = ()=>{
+                soundEnabled = !soundEnabled;
+                soundToggle.innerText = soundEnabled ? '🔊' : '🔇';
+                showToast(`sound ${soundEnabled?'on':'off'}`);
+            };
 
-            // --- GAME STATE ---
+            // ---------- STATE ----------
             let collection = [];
             let dust = 150;
             let pityCounters = {'uncommon→rare':0,'rare→epic':0,'epic→legendary':0,'legendary→mythic':0};
             let codex = new Set();
             let claimedMilestones = new Set();
             let selectedCards = [];
-            let sortAscending = true;
 
-            // --- NEW FEATURES: quests, streak, offline ---
+            // quests, streak, offline
             let dailyQuests = [];
             let weeklyQuests = [];
-            let streak = 0;               // consecutive days
+            let streak = 0;
             let lastLoginDate = '';
-            let offlineAccumulated = 0;    // dust gained while away (per minute)
-            let lastOfflineCheck = Date.now();
+            let offlineAccumulated = 0;
+            let activeEventMultiplier = 1.0;
 
-            // event boost (weekend)
-            let activeEventMultiplier = 1.0;  // for merge / pack luck
-
+            // word pools
             const WORD_POOLS = {
                 common: ['SUN','MOON','STAR','TREE','FIRE','WATER','WIND','ROCK','BIRD','FISH','DOG','CAT','BOOK','DOOR','HOME'],
                 uncommon: ['FLAME','OCEAN','FOREST','MOUNTAIN','THUNDER','RAINBOW','SHADOW','ECHO','WHISPER','CRYSTAL','EMBER','FROST'],
@@ -504,19 +359,26 @@
             };
             const TOTAL_WORDS = Object.values(WORD_POOLS).flat().length;
             const RARITY_ORDER = ['common','uncommon','rare','epic','legendary','mythic'];
-            const RARITY_NAMES = { common:'Common', uncommon:'Uncommon', rare:'Rare', epic:'Epic', legendary:'Legendary', mythic:'MYTHIC' };
 
-            // milestone rewards (simplified)
-            const MILESTONES = {5:'+1% dust',10:'daily pack',15:'+2% merge',20:'5% keep',25:'+10 dust fail',30:'title',35:'+3% packs',40:'vision',45:'+1 quest',50:'+5% merge',55:'10% reroll',60:'double burn',65:'+2% pity',70:'cardback',75:'extra card',80:'+20% duration',85:'organize',90:'+8% legendary',95:'1% mythic',100:'+10% all',125:'legendary boost',150:'infinite packs'};
+            // ---------- HELPERS ----------
+            function showToast(msg, type='info') {
+                let t = document.createElement('div'); t.className = `toast ${type}`; t.innerText = msg;
+                document.getElementById('toastContainer').appendChild(t);
+                setTimeout(()=>t.remove(), 2800);
+            }
+            function triggerHaptic() { if(haptic && soundEnabled) haptic.impactOccurred('medium'); }
+            function saveGame() {
+                localStorage.setItem('lexicon_save', JSON.stringify({
+                    collection, dust, pityCounters, codex:Array.from(codex), claimedMilestones:Array.from(claimedMilestones),
+                    streak, lastLoginDate, offlineAccumulated, dailyQuests, weeklyQuests
+                }));
+            }
 
-            // ----- helper -----
-            function showToast(msg,type='info') { let t=document.createElement('div'); t.className=`toast ${type}`; t.innerText=msg; document.getElementById('toastContainer').appendChild(t); setTimeout(()=>t.remove(),2800); }
-            function triggerHaptic(s){ if(haptic && soundEnabled) try{ haptic.impactOccurred('medium'); }catch(e){} }
-            function saveGame(){ localStorage.setItem('lexicon_save', JSON.stringify({collection,dust,pityCounters,codex:Array.from(codex),claimedMilestones:Array.from(claimedMilestones),streak,lastLoginDate,offlineAccumulated,dailyQuests,weeklyQuests })); }
-            function loadGame(){
-                let def = localStorage.getItem('lexicon_save');
-                if(def){
-                    let d=JSON.parse(def);
+            // load / init
+            function loadGame() {
+                let saved = localStorage.getItem('lexicon_save');
+                if(saved) {
+                    let d = JSON.parse(saved);
                     collection = d.collection || [];
                     dust = d.dust || 150;
                     pityCounters = d.pityCounters || {'uncommon→rare':0,'rare→epic':0,'epic→legendary':0,'legendary→mythic':0};
@@ -527,210 +389,203 @@
                     offlineAccumulated = d.offlineAccumulated || 0;
                     dailyQuests = d.dailyQuests || [];
                     weeklyQuests = d.weeklyQuests || [];
-                } else { // fresh start
+                } else {
                     for(let i=0;i<8;i++) addRandomCard('common');
                     addRandomCard('uncommon');
                 }
-                // generate quests if empty
                 if(dailyQuests.length===0) generateQuests('daily');
                 if(weeklyQuests.length===0) generateQuests('weekly');
                 checkStreakAndEvent();
-                startOfflineAccumulation();
+                setInterval(()=>{ offlineAccumulated += 0.5; }, 60000);
             }
 
-            function addRandomCard(rarity){
-                let pool = WORD_POOLS[rarity]; if(!pool) return null;
+            function generateQuests(type) {
+                let arr = type=='daily' ? dailyQuests : weeklyQuests;
+                arr.length = 0;
+                let pool = type=='daily' ? 
+                    [{desc:'Merge 3 cards',type:'merge',target:3,reward:30},{desc:'Burn 2 cards',type:'burn',target:2,reward:40},{desc:'Open 2 packs',type:'pack',target:2,reward:50}] :
+                    [{desc:'Merge 10 cards',type:'merge',target:10,reward:150},{desc:'Burn 5 cards',type:'burn',target:5,reward:200}];
+                arr.push(...pool.map(p=>({...p, progress:0})));
+            }
+
+            function checkStreakAndEvent() {
+                let today = new Date().toDateString();
+                if(lastLoginDate !== today) {
+                    if(lastLoginDate === new Date(Date.now()-86400000).toDateString()) streak++;
+                    else streak = 1;
+                    lastLoginDate = today;
+                }
+                let day = new Date().getDay();
+                activeEventMultiplier = (day===6||day===0) ? 1.5 : 1.0;
+                let banner = document.getElementById('weekendBanner');
+                if(day===6||day===0) {
+                    document.getElementById('eventDesc').innerText = '✨ +50% MERGE & LUCK ✨';
+                    document.getElementById('eventTimer').innerText = 'active until midnight';
+                } else {
+                    document.getElementById('eventDesc').innerText = 'weekend booster inactive';
+                    document.getElementById('eventTimer').innerText = 'next: saturday';
+                }
+            }
+
+            function addRandomCard(rarity) {
+                let pool = WORD_POOLS[rarity];
                 let w = pool[Math.floor(Math.random()*pool.length)];
                 let c = { id: Date.now()+Math.random()+Math.random(), word:w, rarity, number:Math.floor(Math.random()*1000) };
                 collection.push(c); return c;
             }
-            function removeCard(id){ let idx = collection.findIndex(c=>c.id==id); if(idx>=0){ collection.splice(idx,1); return true;} return false; }
-            function getUniqueCount(){ return new Set(collection.map(c=>c.word)).size; }
 
-            // --- quests ---
-            function generateQuests(type){
+            function updateQuestProgress(type, amount=1) {
                 let arr = type=='daily' ? dailyQuests : weeklyQuests;
-                arr.length = 0;
-                let count = type=='daily'? 3 : 2;
-                let questPool = ['merge','burn','open_pack','collect_unique','legendary_merge'];
-                for(let i=0;i<count;i++){
-                    let q = questPool[Math.floor(Math.random()*questPool.length)];
-                    let target = q=='merge'? 3 : q=='burn'? 2 : q=='open_pack'? 2 : q=='collect_unique'? 5 : 1;
-                    arr.push({ id:i+Date.now(), desc: getQuestDesc(q,target), type:q, target, progress:0, reward: type=='daily'? 30 : 150 });
-                }
-            }
-            function getQuestDesc(t,tar){ if(t=='merge') return `Merge ${tar} cards`; if(t=='burn') return `Burn ${tar} cards`; if(t=='open_pack') return `Open ${tar} packs`; if(t=='collect_unique') return `Collect ${tar} new words`; return `Merge legendary`; }
-
-            function updateQuestProgress(type, amount=1){
-                let quests = type=='daily'? dailyQuests : weeklyQuests;
-                quests.forEach(q=>{ if(q.progress<q.target) q.progress = Math.min(q.progress+amount, q.target); });
-                saveGame(); renderQuests();
+                arr.forEach(q=>{ if(q.progress<q.target) q.progress = Math.min(q.progress+amount, q.target); });
+                renderQuests(); saveGame();
             }
 
-            function claimQuestReward(idx,isDaily){
-                let q = isDaily ? dailyQuests[idx] : weeklyQuests[idx];
-                if(!q || q.progress < q.target) return;
-                dust += q.reward;
-                (isDaily?dailyQuests:weeklyQuests).splice(idx,1);
-                showToast(`+${q.reward} dust from quest!`,'success');
-                saveGame(); updateUI(); renderQuests();
-            }
-
-            // --- streak & offline ---
-            function checkStreakAndEvent(){
-                let today = new Date().toDateString();
-                if(lastLoginDate !== today){
-                    if(lastLoginDate === new Date(Date.now()-86400000).toDateString()) streak++;
-                    else streak = 1;
-                    lastLoginDate = today;
-                    // bonus packs or rewards
-                    if(streak%5===0) dust += 100;
-                }
-                // weekend event: sat=6 sun=0
-                let d = new Date().getDay();
-                activeEventMultiplier = (d===6||d===0) ? 1.5 : 1.0;
-                document.getElementById('eventDesc').innerText = (d===6||d===0)?'+50% merge chance & luck (weekend!)':'no event today';
-            }
-
-            function startOfflineAccumulation(){
-                setInterval(()=>{ offlineAccumulated += 0.5; }, 60000); // 0.5 dust per minute
-            }
-            function claimOfflineReward(){
-                let gain = Math.floor(offlineAccumulated);
-                if(gain>0){ dust += gain; offlineAccumulated=0; showToast(`⏳ earned ${gain} dust while away`,'success'); saveGame(); updateUI(); }
-            }
-
-            // --- one-tap duplicate burn ---
-            function burnAllDuplicates(){
-                let wordMap = new Map();
-                collection.forEach(c=> wordMap.set(c.word, (wordMap.get(c.word)||0)+1 ));
-                let burned = 0;
-                for(let [word, cnt] of wordMap.entries()){
-                    if(cnt>1 && !codex.has(word)){
-                        let dupes = collection.filter(c=>c.word===word && !codex.has(word)).slice(1); // keep first
-                        dupes.forEach(c=> { burnCard(c.id, true); burned++; });
-                    }
-                }
-                if(burned) showToast(`🔥 burned ${burned} duplicate(s)`,'success');
-                updateUI(); updateCodexUI();
-            }
-
-            // burn card (with optional silent)
-            function burnCard(cardId, silent=false){
+            function burnCard(cardId, silent=false) {
                 let card = collection.find(c=>c.id==cardId); if(!card) return false;
-                if(codex.has(card.word)){ if(!silent) showToast('already in codex','error'); return false; }
+                if(codex.has(card.word)) { showToast('already in codex','error'); return false; }
                 removeCard(cardId);
                 codex.add(card.word);
-                updateQuestProgress('daily',1); // burn progress
+                updateQuestProgress('daily',1);
                 if(!silent) { showToast(`🔥 burned ${card.word}`,'success'); triggerHaptic(); }
-                // milestone check
                 let size = codex.size;
                 if(size%5===0 && !claimedMilestones.has(size)) {
-                    claimedMilestones.add(size);
-                    dust += 50; // bonus
-                    showToast(`🏆 milestone ${size} words! +50 dust`,'success');
+                    claimedMilestones.add(size); dust += 50; showToast(`🏆 milestone ${size} words! +50 dust`,'success');
                 }
                 saveGame(); updateCodexUI(); updateUI();
                 return true;
             }
 
-            // --- merge ---
-            function performMerge(){
+            function removeCard(id) { let idx = collection.findIndex(c=>c.id==id); if(idx>=0) { collection.splice(idx,1); return true; } return false; }
+
+            function performMerge() {
                 if(selectedCards.length!=3) return;
                 let cards = collection.filter(c=>selectedCards.includes(c.id));
-                if(cards.length!=3) return;
-                let rar = cards[0].rarity; if(cards.some(c=>c.rarity!=rar)) return;
+                if(cards.length!=3 || new Set(cards.map(c=>c.rarity)).size!=1) return;
+                let rar = cards[0].rarity;
                 let idx = RARITY_ORDER.indexOf(rar); if(idx>=RARITY_ORDER.length-1) return;
-                let targetRarity = RARITY_ORDER[idx+1];
-                let mergeKey = `${rar}→${targetRarity}`;
-                let baseChance = { 'common→uncommon':1.0, 'uncommon→rare':0.8, 'rare→epic':0.5, 'epic→legendary':0.3, 'legendary→mythic':0.1 }[mergeKey]||0;
-                let pity = Math.min(pityCounters[mergeKey]||0,0.5);
-                let totalChance = Math.min(baseChance + pity + (activeEventMultiplier-1) + (claimedMilestones.has(50)?0.05:0) + (claimedMilestones.has(15)?0.02:0), 1.0);
-                // remove merged cards
+                let target = RARITY_ORDER[idx+1];
+                let key = `${rar}→${target}`;
+                let base = {'common→uncommon':1.0,'uncommon→rare':0.8,'rare→epic':0.5,'epic→legendary':0.3,'legendary→mythic':0.1}[key]||0;
+                let pity = Math.min(pityCounters[key]||0,0.5);
+                let chance = Math.min(base + pity + (activeEventMultiplier-1) + (claimedMilestones.has(50)?0.05:0), 1.0);
                 selectedCards.forEach(id=>removeCard(id));
-                if(Math.random()<totalChance){
-                    let newCard = addRandomCard(targetRarity);
-                    pityCounters[mergeKey]=0;
-                    showToast(`✨ success: ${newCard.word} (${targetRarity})`,'success');
-                    updateQuestProgress('daily',1); // merge quest
+                if(Math.random()<chance){
+                    let newC = addRandomCard(target);
+                    pityCounters[key]=0;
+                    showToast(`✨ success: ${newC.word}`,'success');
+                    updateQuestProgress('daily',1);
                 } else {
-                    let dustReward = { 'common→uncommon':5, 'uncommon→rare':10, 'rare→epic':25, 'epic→legendary':100, 'legendary→mythic':200 }[mergeKey]||5;
-                    if(claimedMilestones.has(25)) dustReward += 10;
+                    let dustReward = {'common→uncommon':5,'uncommon→rare':10,'rare→epic':25,'epic→legendary':100,'legendary→mythic':200}[key]||5;
+                    if(claimedMilestones.has(25)) dustReward+=10;
                     dust += dustReward;
-                    pityCounters[mergeKey] = (pityCounters[mergeKey]||0)+0.05;
+                    pityCounters[key] = (pityCounters[key]||0)+0.05;
                     showToast(`💔 failed +${dustReward} dust`,'error');
                 }
                 selectedCards=[];
                 saveGame(); updateUI(); updateMergeUI();
             }
 
-            // --- UI renderers ---
-            function updateUI(){
+            // UI rendering
+            function updateUI() {
                 document.getElementById('totalCards').innerText = collection.length;
-                document.getElementById('uniqueCards').innerText = getUniqueCount();
+                document.getElementById('uniqueCards').innerText = new Set(collection.map(c=>c.word)).size;
                 document.getElementById('dustAmount').innerText = Math.round(dust);
-                let prog = Math.round((getUniqueCount()/TOTAL_WORDS)*100);
-                document.getElementById('progressFill').style.width = prog+'%';
-                document.getElementById('progressText').innerText = prog+'% complete';
+                let prog = Math.round((codex.size/TOTAL_WORDS)*100);
+                document.getElementById('realmProgressFill').style.width = prog+'%';
+                document.getElementById('codexPercent').innerText = prog+'%';
                 document.getElementById('streakCount').innerText = streak;
                 document.getElementById('streakBonusPercent').innerText = streak*2;
-                document.getElementById('streakDisplay').innerHTML = `🔥 ${streak}`;
-                if(document.getElementById('collectionTab').classList.contains('active')) filterCollection();
-                if(document.getElementById('codexTab').classList.contains('active')) updateCodexUI();
+                document.getElementById('offlineDisplay').innerText = Math.floor(offlineAccumulated)+' dust';
                 renderQuests();
             }
-            function renderQuests(){
-                let dc = document.getElementById('dailyQuestsContainer'); if(dc) dc.innerHTML = dailyQuests.map((q,i)=>`<div style="background:#1e1e3e; border-radius:12px; padding:6px; margin:4px;">${q.desc} (${q.progress}/${q.target}) <button ${q.progress<q.target?'disabled':''} onclick="claimQuestReward(${i},true)">${q.reward}✨</button></div>`).join('');
-                let wc = document.getElementById('weeklyQuestsContainer'); if(wc) wc.innerHTML = weeklyQuests.map((q,i)=>`<div style="background:#1e1e3e; border-radius:12px; padding:6px; margin:4px;">${q.desc} (${q.progress}/${q.target}) <button ${q.progress<q.target?'disabled':''} onclick="claimQuestReward(${i},false)">${q.reward}✨</button></div>`).join('');
+
+            function renderQuests() {
+                let dc = document.getElementById('dailyQuestsContainer');
+                dc.innerHTML = dailyQuests.map((q,i)=>`
+                    <div class="quest-item">
+                        <div style="flex:2; font-size:16px;">${q.desc} (${q.progress}/${q.target})</div>
+                        <div><span class="badge">${q.reward}</span>
+                        ${q.progress>=q.target ? `<button class="filter-btn" onclick="claimQuest(${i},true)" style="margin-left:10px;">claim</button>` : ''}</div>
+                    </div>`).join('');
+                let wc = document.getElementById('weeklyQuestsContainer');
+                wc.innerHTML = weeklyQuests.map((q,i)=>`
+                    <div class="quest-item">
+                        <div style="font-size:16px;">${q.desc} (${q.progress}/${q.target})</div>
+                        <div><span class="badge">${q.reward}</span>
+                        ${q.progress>=q.target ? `<button class="filter-btn" onclick="claimQuest(${i},false)" style="margin-left:10px;">claim</button>` : ''}</div>
+                    </div>`).join('');
             }
-            function filterCollection(){
-                let search = document.getElementById('collectionSearch').value.toLowerCase();
-                let rarity = document.getElementById('rarityFilter').value;
-                let filtered = collection.filter(c=> (rarity=='all'||c.rarity==rarity) && c.word.toLowerCase().includes(search));
-                document.getElementById('collectionGrid').innerHTML = filtered.map(c=>createCardHTML(c)).join('');
-            }
-            function createCardHTML(card){
-                let inCodex = codex.has(card.word) ? 'in-codex' : 'burnable';
-                return `<div class="card ${card.rarity} ${inCodex}" onclick="addToMerge('${card.id}')" title="${card.word}">
-                    <div class="card-rarity-badge ${card.rarity}"></div><div class="card-word">${card.word}</div><div class="card-type">WORD</div><div class="card-number">#${card.number.toString().padStart(3,'0')}</div>
-                    ${!codex.has(card.word)?`<button class="quick-burn" onclick="event.stopPropagation();burnCard('${card.id}')">🔥</button>`:''}
-                </div>`;
-            }
-            function updateMergeUI(){
+
+            window.claimQuest = (idx, isDaily)=>{
+                let q = isDaily ? dailyQuests[idx] : weeklyQuests[idx];
+                if(!q || q.progress<q.target) return;
+                dust += q.reward;
+                (isDaily?dailyQuests:weeklyQuests).splice(idx,1);
+                showToast(`+${q.reward} dust!`,'success');
+                saveGame(); updateUI(); renderQuests();
+            };
+
+            function updateMergeUI() {
                 let search = document.getElementById('mergeSearch')?.value.toLowerCase()||'';
                 let rarity = document.getElementById('mergeRarityFilter')?.value||'all';
                 let filtered = collection.filter(c=> (rarity=='all'||c.rarity==rarity) && c.word.toLowerCase().includes(search));
-                if(!sortAscending) filtered.reverse();
-                let mergeGrid = document.getElementById('mergeCollectionGrid');
-                mergeGrid.innerHTML = filtered.map(c=>{
-                    let selected = selectedCards.includes(c.id)?'style="border:3px solid gold;"':'';
-                    return `<div class="card ${c.rarity} ${codex.has(c.word)?'in-codex':'burnable'}" onclick="addToMerge('${c.id}')" ${selected}><div class="card-word">${c.word}</div><div class="card-number">#${c.number}</div></div>`;
+                let grid = document.getElementById('mergeCollectionGrid');
+                grid.innerHTML = filtered.map(c=>{
+                    let sel = selectedCards.includes(c.id)?'style="border:6px solid gold; transform:scale(1.02);"':'';
+                    return `<div class="card ${c.rarity}" onclick="addToMerge('${c.id}')" ${sel}><div class="card-word">${c.word}</div></div>`;
                 }).join('');
-                // slots
-                for(let i=0;i<3;i++){
+                for(let i=0;i<3;i++) {
                     let s = document.getElementById(`slot${i+1}`);
-                    if(selectedCards[i]){
+                    if(selectedCards[i]) {
                         let c = collection.find(c=>c.id==selectedCards[i]);
-                        s.className = `merge-slot filled ${c.rarity}`;
-                        s.innerHTML = `<div class="slot-word">${c.word}</div><div class="remove-slot" onclick="removeFromMerge(${i})">✖</div>`;
-                    } else { s.className = 'merge-slot'; s.innerHTML = ''; }
+                        s.className = `slot filled ${c.rarity}`;
+                        s.innerHTML = `<div style="font-size:16px;">${c.word}</div><div class="remove-slot" onclick="removeFromMerge(${i})">✖</div>`;
+                    } else { s.className = 'slot'; s.innerHTML = ''; }
                 }
                 document.getElementById('mergeButton').disabled = selectedCards.length!=3;
             }
-            window.addToMerge = (id)=>{ if(selectedCards.length<3 && !selectedCards.includes(id)){ selectedCards.push(id); triggerHaptic(); updateMergeUI(); } };
-            window.removeFromMerge = (i)=>{ if(i<selectedCards.length){ selectedCards.splice(i,1); updateMergeUI(); } };
+
+            window.addToMerge = (id)=>{
+                if(selectedCards.length<3 && !selectedCards.includes(id)){ selectedCards.push(id); triggerHaptic(); updateMergeUI(); }
+            };
+            window.removeFromMerge = (i)=>{ if(i<selectedCards.length){ selectedCards.splice(i,1); updateMergeUI(); }};
             window.quickFillMerge = ()=>{
                 if(selectedCards.length==0) return;
-                let first = collection.find(c=>c.id==selectedCards[0]);
-                if(!first) return;
+                let first = collection.find(c=>c.id==selectedCards[0]); if(!first) return;
                 let same = collection.filter(c=>c.rarity==first.rarity && !selectedCards.includes(c.id));
-                while(selectedCards.length<3 && same.length){
-                    selectedCards.push(same[0].id);
-                    same.shift();
-                }
+                while(selectedCards.length<3 && same.length) selectedCards.push(same.shift().id);
                 updateMergeUI();
             };
-            window.sortMergeCards = ()=>{ sortAscending=!sortAscending; updateMergeUI(); };
+
+            function updateCodexUI() {
+                document.getElementById('codexCurrent').innerText = codex.size;
+                document.getElementById('codexTotal').innerText = TOTAL_WORDS;
+                let fill = (codex.size/TOTAL_WORDS)*100;
+                document.getElementById('milestoneFill').style.width = fill+'%';
+                let next = Math.ceil((codex.size+1)/5)*5; if(next>150) next=150;
+                document.getElementById('nextMilestonePreview').innerText = `next milestone: ${next} words`;
+                let sel = document.getElementById('burnCardSelect');
+                sel.innerHTML = '<option value="">select card to burn</option>';
+                collection.filter(c=>!codex.has(c.word)).forEach(c=> sel.innerHTML+=`<option value="${c.id}">${c.word} (${c.rarity})</option>`);
+                let filt = window.codexFilter || 'all';
+                let grid = document.getElementById('codexGrid'); grid.innerHTML='';
+                Array.from(codex).sort().forEach(w=>{
+                    let r='common'; for(let [rk,list] of Object.entries(WORD_POOLS)) if(list.includes(w)) r=rk;
+                    if(filt!='all' && r!=filt) return;
+                    grid.innerHTML+=`<div class="codex-card ${r}" style="background:#2a2a4a; border-radius:16px; padding:8px; text-align:center; border-left:6px solid ${r=='mythic'?'gold':r=='legendary'?'orange':r=='epic'?'purple':r=='rare'?'blue':r=='uncommon'?'green':'gray'};">${w}<br><span style="font-size:10px;">${r}</span></div>`;
+                });
+            }
+            window.previewBurn = ()=>{
+                let id = document.getElementById('burnCardSelect').value;
+                document.getElementById('burnBtn').disabled = !id;
+                document.getElementById('burnPreview').innerText = id ? `🔥 will add to codex (total ${codex.size+1})` : 'select a card';
+            };
+            window.burnSelectedCard = ()=>{
+                let id = document.getElementById('burnCardSelect').value;
+                if(id) burnCard(id);
+            };
+            window.filterCodex = (f)=>{ window.codexFilter = f; updateCodexUI(); };
+
             window.openPack = (type)=>{
                 let cost = type=='basic'?50: type=='grand'?200:500;
                 if(dust<cost){ showToast('not enough dust','error'); return; }
@@ -742,58 +597,33 @@
                     for(let i=0;i<3;i++) cards.push(addRandomCard('common'));
                     cards.push(Math.random()<0.7? addRandomCard('rare'):addRandomCard('uncommon'));
                     cards.push(Math.random()<0.3? addRandomCard('epic'):addRandomCard('rare'));
+                    if(Math.random()<0.05) cards.push(addRandomCard('mythic'));
                 }
                 document.getElementById('packResultsGrid').innerHTML = cards.map(c=>`<div class="card ${c.rarity}"><div class="card-word">${c.word}</div></div>`).join('');
-                updateQuestProgress('daily',1); // pack quest
+                updateQuestProgress('daily',1);
                 saveGame(); updateUI();
             };
-            // codex
-            function updateCodexUI(){
-                document.getElementById('codexCurrent').innerText = codex.size;
-                document.getElementById('codexTotal').innerText = TOTAL_WORDS;
-                let fill = (codex.size/TOTAL_WORDS)*100;
-                document.getElementById('milestoneFill').style.width = fill+'%';
-                let next = Math.ceil((codex.size+1)/5)*5; if(next>150) next=150;
-                document.getElementById('nextMilestonePreview').innerText = `next: ${next} words`;
-                let burnSelect = document.getElementById('burnCardSelect');
-                burnSelect.innerHTML = '<option value="">select card</option>';
-                collection.filter(c=>!codex.has(c.word)).forEach(c=> burnSelect.innerHTML+=`<option value="${c.id}">${c.word} (${c.rarity})</option>`);
-                // codex grid
-                let filt = window.codexFilter || 'all';
-                let words = Array.from(codex).sort();
-                let grid = document.getElementById('codexGrid'); grid.innerHTML='';
-                words.forEach(w=>{
-                    let r = 'common'; for(let [rk,list] of Object.entries(WORD_POOLS)) if(list.includes(w)) r=rk;
-                    if(filt!='all' && r!=filt) return;
-                    grid.innerHTML+=`<div class="codex-card ${r}" style="background:#2a2a4a; border-radius:10px; padding:4px; text-align:center;">${w}<br><span style="font-size:9px;">${r}</span></div>`;
-                });
-            }
-            window.previewBurn = ()=>{
-                let id = document.getElementById('burnCardSelect').value;
-                document.getElementById('burnBtn').disabled = !id;
-                if(id) document.getElementById('burnPreview').innerText = `burn → codex (${codex.size+1}/${TOTAL_WORDS})`;
+
+            window.claimOfflineReward = ()=>{
+                let gain = Math.floor(offlineAccumulated);
+                if(gain>0){ dust+=gain; offlineAccumulated=0; showToast(`⏳ +${gain} dust offline!`,'success'); saveGame(); updateUI(); }
             };
-            window.burnSelectedCard = ()=>{
-                let id = document.getElementById('burnCardSelect').value;
-                if(id) burnCard(id);
-            };
-            window.filterCodex = (f)=>{ window.codexFilter = f; updateCodexUI(); };
+
             window.switchTab = (tab)=>{
                 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
                 event.target.classList.add('active');
-                document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-                document.getElementById(tab+'Tab').classList.add('active');
-                if(tab=='codex') updateCodexUI(); if(tab=='merge') updateMergeUI(); if(tab=='events') { renderQuests(); checkStreakAndEvent(); }
+                document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
+                document.getElementById(tab+'Tab').style.display = 'block';
+                if(tab=='codex') updateCodexUI();
+                if(tab=='merge') updateMergeUI();
+                if(tab=='realm') { renderQuests(); checkStreakAndEvent(); updateUI(); }
+                if(tab=='events') { checkStreakAndEvent(); }
             };
-            window.burnAllDuplicates = burnAllDuplicates;
-            window.claimOfflineReward = claimOfflineReward;
-            window.claimQuestReward = claimQuestReward;
 
-            // startup
             loadGame();
             document.getElementById('loadingOverlay').classList.add('hidden');
             updateUI(); updateMergeUI(); updateCodexUI();
-            setInterval(()=>{ saveGame(); }, 10000);
+            setInterval(saveGame, 10000);
         })();
     </script>
 </body>
