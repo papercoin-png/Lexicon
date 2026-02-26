@@ -5,7 +5,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Lexicon · Complete Realm & Codex</title>
+    <title>Lexicon · Fixed UI · Truthful Gameplay</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { width: 100%; height: 100%; overflow: hidden; position: fixed; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: #0a0a1a; }
@@ -13,7 +13,6 @@
         .game-container {
             max-width: 1200px; width: 100%; height: 100%; background: rgba(10,10,30,0.98); backdrop-filter: blur(12px);
             padding: 8px; display: flex; flex-direction: column; overflow: hidden; border-left: 1px solid rgba(255,215,0,0.3); border-right: 1px solid rgba(255,215,0,0.3);
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
         .loading-overlay {
             position: fixed; inset:0; background: #0a0a1a; display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.4s;
@@ -30,6 +29,7 @@
         }
         .toast.success { border-left: 6px solid #4caf50; border-right: 6px solid #4caf50; }
         .toast.error { border-left: 6px solid #f44336; border-right: 6px solid #f44336; }
+        .toast.info { border-left: 6px solid gold; border-right: 6px solid gold; }
         @keyframes slideDown { 0% { opacity:0; transform: translateY(-100%); } 100% { opacity:1; transform: translateY(0); } }
 
         .main-scrollable { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 4px; scrollbar-width: thin; scrollbar-color: gold #1e1e3f; }
@@ -87,8 +87,6 @@
             background: rgba(0,0,0,0.5); border-radius: 28px; padding: 14px 18px; margin-bottom: 10px; display: flex; justify-content: space-between;
             align-items: center; border-left: 6px solid gold; border-right: 2px solid #b8860b;
         }
-        .quest-progress { height: 8px; background: #333; border-radius: 4px; width: 100%; margin: 8px 0; }
-        .quest-fill { height: 100%; background: #4caf50; width: 0%; border-radius: 4px; }
         .badge {
             background: gold; color: black; padding: 6px 16px; border-radius: 40px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 0 #7d5e00;
         }
@@ -98,19 +96,27 @@
             border-radius: 60px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; border: 1px solid gold;
         }
         .offline-claim:active { transform: scale(0.95); }
+        .offline-claim:disabled { opacity: 0.3; pointer-events: none; }
 
         /* merge chamber */
         .merge-chamber {
-            background: #12122c; border-radius: 40px; padding: 20px; border: 3px solid rgba(255,215,0,0.6); margin-bottom: 20px; box-shadow: inset 0 0 15px #00000088;
+            background: #12122c; border-radius: 40px; padding: 20px; border: 3px solid rgba(255,215,0,0.6); margin-bottom: 20px;
         }
         .slots { display: flex; gap: 20px; justify-content: center; margin: 20px 0; }
         .slot {
             width: 90px; height: 120px; border-radius: 20px; background: rgba(255,215,0,0.15); border: 3px dashed #b8860b;
             display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; position: relative;
-            font-weight: bold; box-shadow: 0 8px 0 #00000066;
+            font-weight: bold; box-shadow: 0 8px 0 #00000066; transition: 0.2s;
         }
         .slot.filled { border: 5px solid gold; background: #3a2a1a; box-shadow: 0 0 25px gold; }
-        .remove-slot { position: absolute; top: -10px; right: -10px; width: 28px; height: 28px; background: #f44336; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 3px solid white; font-size: 18px; }
+        .slot.filled .remove-slot {
+            position: absolute; top: -10px; right: -10px; width: 28px; height: 28px; background: #f44336; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 3px solid white; font-size: 18px;
+        }
+        .merge-preview {
+            background: #1a1a3a; border-radius: 20px; padding: 12px; margin: 10px 0; text-align: center; color: gold;
+            border: 1px solid gold;
+        }
 
         /* cards grid */
         .cards-grid {
@@ -132,7 +138,9 @@
         @keyframes mythicPulse { 0% { box-shadow: 0 0 10px gold; } 50% { box-shadow: 0 0 30px gold; } }
 
         .card-word { font-size: 14px; font-weight: 800; text-transform: uppercase; text-align: center; }
-        .card.in-codex::after { content: '📖'; position: absolute; top: 3px; right: 3px; font-size: 16px; filter: drop-shadow(0 0 4px black); }
+        .card.selected { border: 6px solid gold; transform: scale(1.02); box-shadow: 0 0 30px gold; }
+        .card.in-codex { opacity: 0.9; }
+        .card.in-codex::after { content: '📖'; position: absolute; top: 3px; right: 3px; font-size: 16px; }
         .card.burnable::after { content: '🔥'; position: absolute; top: 3px; right: 3px; font-size: 16px; filter:drop-shadow(0 0 8px orange); }
 
         /* codex */
@@ -145,12 +153,13 @@
         .filter-bar { display: flex; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
         .filter-btn, .search-box { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,215,0,0.5); border-radius: 40px; padding: 8px 18px; color: white; font-size: 13px; font-weight: 600; cursor: pointer; }
         .filter-btn:hover { background: gold; color: black; }
+        .filter-btn:disabled { opacity: 0.3; pointer-events: none; }
 
         /* log */
-        .log-section { background: #0a0a1a; border-radius: 40px; padding: 10px 22px; color: #ccc; font-size: 12px; margin-top: 8px; border: 2px solid #b8860b; backdrop-filter: blur(5px); }
-        
-        /* animation */
+        .log-section { background: #0a0a1a; border-radius: 40px; padding: 10px 22px; color: #ccc; font-size: 12px; margin-top: 8px; border: 2px solid #b8860b; }
+
         @keyframes successFlash { 0% { box-shadow: 0 0 10px gold; } 50% { box-shadow: 0 0 50px #4caf50; } 100% { box-shadow: 0 0 10px gold; } }
+        @keyframes failureFlash { 0% { box-shadow: 0 0 10px gold; } 50% { box-shadow: 0 0 50px #f44336; } 100% { box-shadow: 0 0 10px gold; } }
     </style>
 </head>
 <body>
@@ -168,7 +177,7 @@
             <div class="sound-toggle" id="soundToggle">🔊</div>
         </div>
 
-        <!-- Tabs: Realm · Merge · Codex · Events · Packs -->
+        <!-- Tabs -->
         <div class="tabs">
             <button class="tab active" onclick="switchTab('realm')">🏰 REALM</button>
             <button class="tab" onclick="switchTab('merge')">🔄 MERGE</button>
@@ -179,65 +188,69 @@
 
         <!-- main scroll area -->
         <div class="main-scrollable" id="mainScrollable">
-            <!-- REALM TAB (active by default) -->
+            <!-- REALM TAB -->
             <div id="realmTab" class="tab-content" style="display:block;">
-                <!-- weekend booster banner -->
                 <div class="realm-panel" id="weekendBanner">
                     <div class="panel-title">✨ WEEKEND BOOSTER ✨</div>
-                    <div id="eventDesc" style="font-size:22px; font-weight:bold; color:#ffd700;">+50% MERGE & LUCK</div>
-                    <div id="eventTimer" style="font-size:15px; color:#aaa;">active until Monday 00:00</div>
+                    <div id="eventDesc" style="font-size:22px; font-weight:bold; color:#ffd700;">+50% MERGE CHANCE</div>
+                    <div id="eventTimer" style="font-size:15px; color:#aaa;">check sat/sun</div>
+                    <div style="font-size:13px; margin-top:5px;">⚡ affects merge success only</div>
                 </div>
 
-                <!-- daily quests -->
                 <div class="realm-panel">
-                    <div class="panel-title">📋 DAILY QUESTS <span style="font-size:15px; margin-left:auto; background:#333; padding:5px 15px; border-radius:30px;" id="dailyReset">reset in 2h</span></div>
+                    <div class="panel-title">📋 DAILY QUESTS <span style="font-size:13px; margin-left:auto; background:#333; padding:5px 15px; border-radius:30px;">reset daily</span></div>
                     <div id="dailyQuestsContainer"></div>
                 </div>
 
-                <!-- weekly quests -->
                 <div class="realm-panel">
                     <div class="panel-title">📅 WEEKLY QUESTS</div>
                     <div id="weeklyQuestsContainer"></div>
                 </div>
 
-                <!-- streak & offline combined card -->
-                <div class="realm-panel" style="display:flex; flex-direction:row; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+                <div class="realm-panel" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
                     <div style="display:flex; align-items:center; gap:15px;">
                         <span class="streak-flame">🔥</span>
-                        <div><span style="color:white; font-size:18px;">Streak</span> <span id="streakCount" style="font-weight:bold; color:orange; font-size:28px;">0</span> days<br><span style="font-size:14px;">+<span id="streakBonusPercent">0</span>% dust/luck</span></div>
+                        <div><span style="color:white; font-size:18px;">Streak</span> <span id="streakCount" style="font-weight:bold; color:orange; font-size:28px;">0</span> days<br>
+                        <span style="font-size:14px;">bonus: <span id="streakBonusPercent">0</span>% dust & luck</span></div>
                     </div>
                     <div style="display:flex; align-items:center; gap:15px;">
                         <span style="font-size:18px;">⏳ offline:</span>
-                        <span id="offlineDisplay" style="font-size:22px; font-weight:bold; color:#aaffaa;">0 dust</span>
-                        <button class="offline-claim" onclick="claimOfflineReward()">CLAIM</button>
+                        <span id="offlineDisplay" style="font-size:22px; font-weight:bold; color:#aaffaa;">0</span>
+                        <button class="offline-claim" id="offlineClaimBtn" onclick="claimOfflineReward()">CLAIM</button>
                     </div>
                 </div>
 
-                <!-- quick collection progress -->
                 <div class="progress-card">
-                    <div style="display:flex; justify-content:space-between; color:white; margin-bottom:6px; font-size:16px;">
+                    <div style="display:flex; justify-content:space-between; color:white; margin-bottom:6px;">
                         <span>📖 Codex completion</span><span id="codexPercent">0%</span>
                     </div>
                     <div class="progress-bar"><div class="progress-fill" id="realmProgressFill" style="width:0%"></div></div>
                 </div>
             </div>
 
-            <!-- MERGE TAB (FIXED) -->
+            <!-- MERGE TAB (FULLY FIXED) -->
             <div id="mergeTab" class="tab-content" style="display:none;">
                 <div class="merge-chamber">
                     <div class="slots">
-                        <div class="slot" id="slot1" onclick="removeFromMerge(0)"></div>
-                        <div class="slot" id="slot2" onclick="removeFromMerge(1)"></div>
-                        <div class="slot" id="slot3" onclick="removeFromMerge(2)"></div>
+                        <div class="slot" id="slot1"></div>
+                        <div class="slot" id="slot2"></div>
+                        <div class="slot" id="slot3"></div>
                     </div>
+                    
+                    <div class="merge-preview" id="mergePreview">
+                        <div id="mergeTarget">Select 3 same-rarity cards</div>
+                        <div id="mergeChance" style="font-size:20px; font-weight:bold;"></div>
+                        <div id="mergeReward" style="font-size:14px;"></div>
+                    </div>
+
                     <div style="display:flex; justify-content:center; gap:20px; margin:15px 0;">
-                        <button class="filter-btn" onclick="quickFillMerge()" style="font-size:16px; padding:10px 25px;">✨ quick fill</button>
-                        <button class="filter-btn" id="mergeButton" onclick="performMerge()" disabled style="font-size:16px; padding:10px 25px; background:gold; color:black;">merge (3)</button>
+                        <button class="filter-btn" id="quickFillBtn" onclick="quickFillMerge()" style="font-size:16px; padding:10px 25px;">✨ quick fill</button>
+                        <button class="filter-btn" id="mergeButton" onclick="performMerge()" disabled style="font-size:16px; padding:10px 25px; background:gold; color:black;">MERGE</button>
                     </div>
-                    <div id="mergeInfo" style="text-align:center; color:#aaa; font-size:14px;">Select 3 cards of same rarity</div>
                 </div>
+
                 <div class="filter-bar">
-                    <input type="text" class="search-box" id="mergeSearch" placeholder="🔍 search card..." oninput="updateMergeUI()">
+                    <input type="text" class="search-box" id="mergeSearch" placeholder="🔍 search cards..." oninput="updateMergeUI()">
                     <select class="filter-btn" id="mergeRarityFilter" onchange="updateMergeUI()">
                         <option value="all">All rarities</option>
                         <option value="common">Common</option>
@@ -248,27 +261,34 @@
                         <option value="mythic">Mythic</option>
                     </select>
                 </div>
+
                 <div class="cards-grid" id="mergeCollectionGrid"></div>
+                <div style="color:#aaa; font-size:12px; margin-top:8px; text-align:center;">⚠️ Mythic cards cannot be merged</div>
             </div>
 
             <!-- CODEX TAB -->
             <div id="codexTab" class="tab-content" style="display:none;">
                 <div class="codex-header">
-                    <div style="display:flex; justify-content:space-between; color:gold; font-size:26px; font-weight:800;">
+                    <div style="display:flex; justify-content:space-between; color:gold; font-size:26px;">
                         <span>📖 CODEX</span><span><span id="codexCurrent">0</span>/<span id="codexTotal">150</span></span>
                     </div>
                     <div class="milestone-bar"><div class="milestone-fill" id="milestoneFill" style="width:0%"></div></div>
                     <div style="display:flex; justify-content:space-between; font-size:12px; color:#aaa;">5••25••50••75••100••125••150</div>
-                    <div id="nextMilestonePreview" style="color:gold; margin-top:10px; font-size:16px;">next: 5 words</div>
+                    <div id="nextMilestonePreview" style="color:gold; margin-top:10px; font-size:16px;"></div>
                 </div>
+
                 <div class="realm-panel" style="background:#2a1a2a;">
                     <div style="display:flex; gap:12px;">
-                        <select class="search-box" id="burnCardSelect" onchange="previewBurn()" style="flex:2; font-size:15px;"><option value="">select card to burn</option></select>
-                        <button class="offline-claim" id="burnBtn" onclick="burnSelectedCard()" disabled style="background:#aa2222; flex:0 0 auto;">🔥 BURN</button>
+                        <select class="search-box" id="burnCardSelect" onchange="previewBurn()" style="flex:2;">
+                            <option value="">-- select card to burn --</option>
+                        </select>
+                        <button class="offline-claim" id="burnBtn" onclick="burnSelectedCard()" disabled style="background:#aa2222;">🔥 BURN</button>
                     </div>
-                    <div id="burnPreview" style="font-size:14px; margin:12px; color:#ffaaaa;">preview</div>
+                    <div id="burnPreview" style="font-size:14px; margin:12px; color:#ffaaaa;"></div>
+                    <div style="font-size:12px; color:orange;">⚠️ Burning removes card permanently, adds word to Codex</div>
                 </div>
-                <div style="margin:15px 0; display:flex; gap:5px; flex-wrap:wrap;" class="codex-filters">
+
+                <div style="margin:15px 0; display:flex; gap:5px; flex-wrap:wrap;">
                     <button class="filter-btn" onclick="filterCodex('all')">All</button>
                     <button class="filter-btn" onclick="filterCodex('common')">C</button>
                     <button class="filter-btn" onclick="filterCodex('uncommon')">U</button>
@@ -277,25 +297,25 @@
                     <button class="filter-btn" onclick="filterCodex('legendary')">L</button>
                     <button class="filter-btn" onclick="filterCodex('mythic')">M</button>
                 </div>
+
                 <div class="codex-grid" id="codexGrid"></div>
             </div>
 
             <!-- EVENTS TAB -->
             <div id="eventsTab" class="tab-content" style="display:none;">
                 <div class="realm-panel">
-                    <div class="panel-title">🎉 SPECIAL EVENTS</div>
-                    <div id="specialEventList">
-                        <div style="padding:15px; background:#1e1e3e; border-radius:30px; margin-bottom:10px; border-left:8px solid gold;">
-                            <span style="font-size:20px;">🌟 Weekend Booster</span><br><span style="color:#aaf;">+50% merge chance (active)</span>
-                        </div>
-                        <div style="padding:15px; background:#1e1e3e; border-radius:30px; border-left:8px solid #aaa;">
-                            <span style="font-size:20px;">🔥 Flash Burn</span><br><span>double milestone progress · starts saturday</span>
-                        </div>
+                    <div class="panel-title">🎉 ACTIVE EVENT</div>
+                    <div id="activeEventDisplay" style="padding:15px; background:#1e1e3e; border-radius:30px; border-left:8px solid gold;">
+                        <span style="font-size:20px;">🌟 Weekend Booster</span><br>
+                        <span id="eventActiveStatus">+50% merge chance (active on weekends)</span>
                     </div>
                 </div>
                 <div class="realm-panel">
-                    <div class="panel-title">🏆 EVENT LEADERBOARD</div>
-                    <div style="color:#aaa; font-size:16px; text-align:center;">Compete with friends – coming soon</div>
+                    <div class="panel-title">⏳ UPCOMING</div>
+                    <div style="padding:15px; background:#1e1e3e; border-radius:30px;">
+                        <span style="font-size:18px;">🔥 Flash Burn</span><br>
+                        <span>Double milestone progress · starts Saturday</span>
+                    </div>
                 </div>
             </div>
 
@@ -303,13 +323,22 @@
             <div id="packsTab" class="tab-content" style="display:none;">
                 <div style="display:flex; gap:15px; margin:20px 0;">
                     <div class="realm-panel" style="flex:1; text-align:center; cursor:pointer; padding:20px;" onclick="openPack('basic')">
-                        <div style="font-size:48px;">📦</div><div style="font-size:20px; font-weight:bold;">Basic</div><div style="color:gold;">50 dust</div>
+                        <div style="font-size:48px;">📦</div>
+                        <div style="font-size:20px;">Basic</div>
+                        <div style="color:gold;">50 dust</div>
+                        <div style="font-size:12px;">5 common cards</div>
                     </div>
                     <div class="realm-panel" style="flex:1; text-align:center; cursor:pointer; padding:20px;" onclick="openPack('grand')">
-                        <div style="font-size:48px;">🎁</div><div style="font-size:20px; font-weight:bold;">Grand</div><div style="color:gold;">200 dust</div>
+                        <div style="font-size:48px;">🎁</div>
+                        <div style="font-size:20px;">Grand</div>
+                        <div style="color:gold;">200 dust</div>
+                        <div style="font-size:12px;">4 common + chance at uncommon</div>
                     </div>
                     <div class="realm-panel" style="flex:1; text-align:center; cursor:pointer; padding:20px;" onclick="openPack('premium')">
-                        <div style="font-size:48px;">💎</div><div style="font-size:20px; font-weight:bold;">Premium</div><div style="color:gold;">500 dust</div>
+                        <div style="font-size:48px;">💎</div>
+                        <div style="font-size:20px;">Premium</div>
+                        <div style="color:gold;">500 dust</div>
+                        <div style="font-size:12px;">rare, epic & mythic chances</div>
                     </div>
                 </div>
                 <div class="realm-panel">
@@ -320,11 +349,27 @@
         </div>
 
         <!-- log -->
-        <div class="log-section" id="logMessages">✨ welcome to Lexicon · realm online</div>
+        <div class="log-section" id="logMessages">✨ game ready · ui accurate</div>
     </div>
 
     <script>
         (function() {
+            // ---------- GLOBAL EXPOSURE ----------
+            // All functions that need to be called from HTML must be on window
+            window.addToMerge = null;      // defined later
+            window.removeFromMerge = null; 
+            window.quickFillMerge = null;
+            window.performMerge = null;
+            window.switchTab = null;
+            window.claimQuest = null;
+            window.burnCard = null;
+            window.burnSelectedCard = null;
+            window.previewBurn = null;
+            window.filterCodex = null;
+            window.openPack = null;
+            window.claimOfflineReward = null;
+            window.updateMergeUI = null;
+
             // ---------- TELEGRAM ----------
             let tg, haptic, soundEnabled = true;
             try { tg = window.Telegram?.WebApp; tg?.ready(); haptic = tg?.HapticFeedback; } catch(e) {}
@@ -342,8 +387,8 @@
             let codex = new Set();
             let claimedMilestones = new Set();
             let selectedCards = [];
+            let sortAscending = true;
 
-            // quests, streak, offline
             let dailyQuests = [];
             let weeklyQuests = [];
             let streak = 0;
@@ -351,7 +396,6 @@
             let offlineAccumulated = 0;
             let activeEventMultiplier = 1.0;
 
-            // word pools
             const WORD_POOLS = {
                 common: ['SUN','MOON','STAR','TREE','FIRE','WATER','WIND','ROCK','BIRD','FISH','DOG','CAT','BOOK','DOOR','HOME'],
                 uncommon: ['FLAME','OCEAN','FOREST','MOUNTAIN','THUNDER','RAINBOW','SHADOW','ECHO','WHISPER','CRYSTAL','EMBER','FROST'],
@@ -363,7 +407,7 @@
             const TOTAL_WORDS = Object.values(WORD_POOLS).flat().length;
             const RARITY_ORDER = ['common','uncommon','rare','epic','legendary','mythic'];
 
-            // ---------- HELPERS ----------
+            // ---------- CORE HELPERS ----------
             function showToast(msg, type='info') {
                 let t = document.createElement('div'); t.className = `toast ${type}`; t.innerText = msg;
                 document.getElementById('toastContainer').appendChild(t);
@@ -377,7 +421,333 @@
                 }));
             }
 
-            // load / init
+            function addRandomCard(rarity) {
+                let pool = WORD_POOLS[rarity];
+                let w = pool[Math.floor(Math.random()*pool.length)];
+                let c = { id: Date.now()+Math.random()+Math.random(), word:w, rarity, number:Math.floor(Math.random()*1000) };
+                collection.push(c); return c;
+            }
+            function removeCard(id) { let idx = collection.findIndex(c=>c.id==id); if(idx>=0) { collection.splice(idx,1); return true; } return false; }
+
+            // ---------- QUEST & STREAK ----------
+            function generateQuests(type) {
+                let arr = type=='daily' ? dailyQuests : weeklyQuests;
+                arr.length = 0;
+                if(type=='daily') {
+                    arr.push({desc:'Merge 3 cards', type:'merge', target:3, progress:0, reward:30});
+                    arr.push({desc:'Burn 2 cards', type:'burn', target:2, progress:0, reward:40});
+                    arr.push({desc:'Open 2 packs', type:'pack', target:2, progress:0, reward:50});
+                } else {
+                    arr.push({desc:'Merge 10 cards', type:'merge', target:10, progress:0, reward:150});
+                    arr.push({desc:'Burn 5 cards', type:'burn', target:5, progress:0, reward:200});
+                }
+            }
+
+            function updateQuestProgress(type, amount=1) {
+                let arr = type=='daily' ? dailyQuests : weeklyQuests;
+                arr.forEach(q=>{ if(q.progress<q.target) q.progress = Math.min(q.progress+amount, q.target); });
+                renderQuests(); saveGame();
+            }
+
+            function checkStreakAndEvent() {
+                let today = new Date().toDateString();
+                if(lastLoginDate !== today) {
+                    if(lastLoginDate === new Date(Date.now()-86400000).toDateString()) streak++;
+                    else streak = 1;
+                    lastLoginDate = today;
+                }
+                let day = new Date().getDay();
+                activeEventMultiplier = (day===6||day===0) ? 1.5 : 1.0;
+                document.getElementById('eventActiveStatus').innerText = 
+                    (day===6||day===0) ? '+50% merge chance (ACTIVE)' : 'inactive (weekends only)';
+            }
+
+            // ---------- BURN & CODEX ----------
+            function burnCard(cardId, silent=false) {
+                let card = collection.find(c=>c.id==cardId); if(!card) return false;
+                if(codex.has(card.word)) { showToast('already in codex','error'); return false; }
+                removeCard(cardId);
+                codex.add(card.word);
+                updateQuestProgress('daily',1);
+                if(!silent) { showToast(`🔥 burned ${card.word}`,'success'); triggerHaptic(); }
+                let size = codex.size;
+                if(size%5===0 && !claimedMilestones.has(size)) {
+                    claimedMilestones.add(size); dust += 50; showToast(`🏆 milestone ${size} words! +50 dust`,'success');
+                }
+                saveGame(); updateCodexUI(); updateUI();
+                return true;
+            }
+
+            // ---------- MERGE FUNCTIONS (EXPOSED TO WINDOW) ----------
+            window.addToMerge = function(cardId) {
+                let card = collection.find(c => c.id == cardId);
+                if (!card) return;
+                if (selectedCards.includes(cardId)) { showToast('Card already selected', 'error'); return; }
+                if (selectedCards.length >= 3) { showToast('Maximum 3 cards', 'error'); return; }
+                if (selectedCards.length > 0) {
+                    let firstCard = collection.find(c => c.id == selectedCards[0]);
+                    if (firstCard.rarity !== card.rarity) {
+                        showToast(`Must be same rarity (${firstCard.rarity})`, 'error');
+                        return;
+                    }
+                }
+                if (card.rarity === 'mythic') { showToast('Mythic cannot be merged', 'error'); return; }
+                selectedCards.push(cardId);
+                triggerHaptic();
+                updateMergeUI();
+            };
+
+            window.removeFromMerge = function(index) {
+                if (index < selectedCards.length) {
+                    selectedCards.splice(index, 1);
+                    updateMergeUI();
+                    triggerHaptic();
+                }
+            };
+
+            window.quickFillMerge = function() {
+                if (selectedCards.length === 0) { showToast('Select first card', 'error'); return; }
+                let firstCard = collection.find(c => c.id == selectedCards[0]);
+                if (!firstCard) return;
+                let available = collection.filter(c => 
+                    c.rarity === firstCard.rarity && !selectedCards.includes(c.id) && c.rarity !== 'mythic'
+                );
+                let needed = 3 - selectedCards.length;
+                let toAdd = available.slice(0, needed);
+                toAdd.forEach(c => selectedCards.push(c.id));
+                if (toAdd.length > 0) {
+                    showToast(`Added ${toAdd.length} cards`, 'success');
+                    updateMergeUI();
+                    triggerHaptic();
+                } else { showToast('No more cards available', 'error'); }
+            };
+
+            window.performMerge = function() {
+                if (selectedCards.length !== 3) { showToast('Select 3 cards', 'error'); return; }
+                let cards = collection.filter(c => selectedCards.includes(c.id));
+                if (cards.length !== 3) return;
+                let rarities = [...new Set(cards.map(c => c.rarity))];
+                if (rarities.length !== 1) { showToast('Cards must be same rarity', 'error'); return; }
+                let fromRarity = cards[0].rarity;
+                let fromIndex = RARITY_ORDER.indexOf(fromRarity);
+                if (fromIndex >= RARITY_ORDER.length - 1) { showToast('Cannot merge mythic', 'error'); return; }
+                let toRarity = RARITY_ORDER[fromIndex + 1];
+                let mergeKey = `${fromRarity}→${toRarity}`;
+                let baseChance = {'common→uncommon':1.0,'uncommon→rare':0.8,'rare→epic':0.5,'epic→legendary':0.3,'legendary→mythic':0.1}[mergeKey]||0;
+                let pityBonus = Math.min(pityCounters[mergeKey] || 0, 0.5);
+                let eventBonus = activeEventMultiplier - 1;
+                let milestoneBonus = (claimedMilestones.has(50) ? 0.05 : 0) + (claimedMilestones.has(15) ? 0.02 : 0);
+                let totalChance = Math.min(baseChance + pityBonus + eventBonus + milestoneBonus, 1.0);
+                
+                cards.forEach(c => removeCard(c.id));
+                
+                if (Math.random() < totalChance) {
+                    let newCard = addRandomCard(toRarity);
+                    pityCounters[mergeKey] = 0;
+                    document.querySelector('.merge-chamber').style.animation = 'successFlash 0.5s';
+                    setTimeout(() => document.querySelector('.merge-chamber').style.animation = '', 500);
+                    showToast(`✨ SUCCESS! Created ${newCard.word} (${toRarity})`, 'success');
+                    if (toRarity === 'mythic') createConfetti();
+                    updateQuestProgress('daily', 1);
+                } else {
+                    let dustReward = {'common→uncommon':5,'uncommon→rare':10,'rare→epic':25,'epic→legendary':100,'legendary→mythic':200}[mergeKey]||5;
+                    if (claimedMilestones.has(25)) dustReward += 10;
+                    dust += dustReward;
+                    pityCounters[mergeKey] = (pityCounters[mergeKey] || 0) + 0.05;
+                    document.querySelector('.merge-chamber').style.animation = 'failureFlash 0.5s';
+                    setTimeout(() => document.querySelector('.merge-chamber').style.animation = '', 500);
+                    showToast(`💔 Failed +${dustReward} dust`, 'error');
+                }
+                selectedCards = [];
+                saveGame(); updateUI(); updateMergeUI();
+            };
+
+            // ---------- UI RENDERING ----------
+            function updateUI() {
+                document.getElementById('totalCards').innerText = collection.length;
+                document.getElementById('uniqueCards').innerText = new Set(collection.map(c=>c.word)).size;
+                document.getElementById('dustAmount').innerText = Math.round(dust);
+                let prog = Math.round((codex.size/TOTAL_WORDS)*100);
+                document.getElementById('realmProgressFill').style.width = prog+'%';
+                document.getElementById('codexPercent').innerText = prog+'%';
+                document.getElementById('streakCount').innerText = streak;
+                document.getElementById('streakBonusPercent').innerText = streak*2;
+                document.getElementById('offlineDisplay').innerText = Math.floor(offlineAccumulated)+' dust';
+                document.getElementById('offlineClaimBtn').disabled = offlineAccumulated < 1;
+                renderQuests();
+            }
+
+            function renderQuests() {
+                let dc = document.getElementById('dailyQuestsContainer');
+                dc.innerHTML = dailyQuests.map((q,i)=>`
+                    <div class="quest-item">
+                        <div style="flex:2;">${q.desc} (${q.progress}/${q.target})</div>
+                        <div><span class="badge">${q.reward}</span>
+                        ${q.progress>=q.target ? `<button class="filter-btn" onclick="claimQuest(${i},true)" style="margin-left:10px;">claim</button>` : ''}</div>
+                    </div>`).join('');
+                let wc = document.getElementById('weeklyQuestsContainer');
+                wc.innerHTML = weeklyQuests.map((q,i)=>`
+                    <div class="quest-item">
+                        <div style="flex:2;">${q.desc} (${q.progress}/${q.target})</div>
+                        <div><span class="badge">${q.reward}</span>
+                        ${q.progress>=q.target ? `<button class="filter-btn" onclick="claimQuest(${i},false)" style="margin-left:10px;">claim</button>` : ''}</div>
+                    </div>`).join('');
+            }
+
+            window.claimQuest = function(idx, isDaily) {
+                let q = isDaily ? dailyQuests[idx] : weeklyQuests[idx];
+                if(!q || q.progress<q.target) return;
+                dust += q.reward;
+                (isDaily?dailyQuests:weeklyQuests).splice(idx,1);
+                showToast(`+${q.reward} dust!`,'success');
+                saveGame(); updateUI(); renderQuests();
+            };
+
+            function updateMergeUI() {
+                let search = document.getElementById('mergeSearch')?.value.toLowerCase()||'';
+                let rarity = document.getElementById('mergeRarityFilter')?.value||'all';
+                let filtered = collection.filter(c=> (rarity=='all'||c.rarity==rarity) && c.word.toLowerCase().includes(search));
+                
+                let grid = document.getElementById('mergeCollectionGrid');
+                grid.innerHTML = '';
+                filtered.forEach(c => {
+                    let cardDiv = document.createElement('div');
+                    cardDiv.className = `card ${c.rarity}`;
+                    if (selectedCards.includes(c.id)) cardDiv.classList.add('selected');
+                    if (codex.has(c.word)) cardDiv.classList.add('in-codex');
+                    cardDiv.setAttribute('onclick', `addToMerge('${c.id}')`);
+                    cardDiv.innerHTML = `<div class="card-word">${c.word}</div><div class="card-number">#${c.number}</div>`;
+                    grid.appendChild(cardDiv);
+                });
+
+                // Update merge slots
+                for(let i=0;i<3;i++) {
+                    let s = document.getElementById(`slot${i+1}`);
+                    s.innerHTML = '';
+                    s.className = 'slot';
+                    if(selectedCards[i]) {
+                        let c = collection.find(c=>c.id==selectedCards[i]);
+                        s.classList.add('filled', c.rarity);
+                        s.innerHTML = `<div>${c.word}</div><div class="remove-slot" onclick="removeFromMerge(${i})">✖</div>`;
+                    }
+                }
+
+                // Update merge preview
+                let preview = document.getElementById('mergePreview');
+                if(selectedCards.length === 3) {
+                    let firstCard = collection.find(c => c.id == selectedCards[0]);
+                    let fromRarity = firstCard.rarity;
+                    let fromIndex = RARITY_ORDER.indexOf(fromRarity);
+                    let toRarity = RARITY_ORDER[fromIndex + 1];
+                    let mergeKey = `${fromRarity}→${toRarity}`;
+                    let base = {'common→uncommon':1.0,'uncommon→rare':0.8,'rare→epic':0.5,'epic→legendary':0.3,'legendary→mythic':0.1}[mergeKey]||0;
+                    let pity = Math.min(pityCounters[mergeKey]||0,0.5);
+                    let event = activeEventMultiplier - 1;
+                    let bonus = (claimedMilestones.has(50)?0.05:0)+(claimedMilestones.has(15)?0.02:0);
+                    let total = Math.min(base + pity + event + bonus, 1.0);
+                    document.getElementById('mergeTarget').innerText = `Merge into ${toRarity.toUpperCase()}`;
+                    document.getElementById('mergeChance').innerText = `${Math.round(total*100)}% chance`;
+                    document.getElementById('mergeReward').innerHTML = `success: ${toRarity} card · fail: dust`;
+                } else {
+                    document.getElementById('mergeTarget').innerText = `Select ${3-selectedCards.length} more card(s)`;
+                    document.getElementById('mergeChance').innerText = '';
+                    document.getElementById('mergeReward').innerText = '';
+                }
+                document.getElementById('mergeButton').disabled = selectedCards.length !== 3;
+            }
+
+            function updateCodexUI() {
+                document.getElementById('codexCurrent').innerText = codex.size;
+                document.getElementById('codexTotal').innerText = TOTAL_WORDS;
+                let fill = (codex.size/TOTAL_WORDS)*100;
+                document.getElementById('milestoneFill').style.width = fill+'%';
+                let next = Math.ceil((codex.size+1)/5)*5; if(next>150) next=150;
+                document.getElementById('nextMilestonePreview').innerText = `next milestone at ${next} words`;
+                
+                let sel = document.getElementById('burnCardSelect');
+                sel.innerHTML = '<option value="">-- select card to burn --</option>';
+                collection.filter(c=>!codex.has(c.word)).forEach(c=> {
+                    let opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = `${c.word} (${c.rarity})`;
+                    sel.appendChild(opt);
+                });
+
+                let filt = window.codexFilter || 'all';
+                let grid = document.getElementById('codexGrid'); grid.innerHTML='';
+                Array.from(codex).sort().forEach(w=>{
+                    let r='common'; for(let [rk,list] of Object.entries(WORD_POOLS)) if(list.includes(w)) r=rk;
+                    if(filt!='all' && r!=filt) return;
+                    let div = document.createElement('div');
+                    div.className = `codex-card ${r}`;
+                    div.style.background = '#2a2a4a'; div.style.borderRadius = '16px'; div.style.padding = '8px'; div.style.textAlign = 'center';
+                    div.style.borderLeft = `6px solid ${r=='mythic'?'gold':r=='legendary'?'orange':r=='epic'?'purple':r=='rare'?'blue':r=='uncommon'?'green':'gray'}`;
+                    div.innerHTML = `${w}<br><span style="font-size:10px;">${r}</span>`;
+                    grid.appendChild(div);
+                });
+            }
+
+            window.previewBurn = function() {
+                let id = document.getElementById('burnCardSelect').value;
+                let btn = document.getElementById('burnBtn');
+                if(!id) { btn.disabled = true; document.getElementById('burnPreview').innerText = ''; return; }
+                btn.disabled = false;
+                let card = collection.find(c=>c.id==id);
+                if(card) document.getElementById('burnPreview').innerText = `🔥 Burn ${card.word} · will add to Codex (total ${codex.size+1})`;
+            };
+
+            window.burnSelectedCard = function() {
+                let id = document.getElementById('burnCardSelect').value;
+                if(id) burnCard(id);
+            };
+
+            window.filterCodex = function(f) { window.codexFilter = f; updateCodexUI(); };
+
+            window.openPack = function(type) {
+                let cost = type=='basic'?50: type=='grand'?200:500;
+                if(dust<cost){ showToast('not enough dust','error'); return; }
+                dust-=cost;
+                let cards=[];
+                if(type=='basic') for(let i=0;i<5;i++) cards.push(addRandomCard('common'));
+                if(type=='grand'){ 
+                    for(let i=0;i<4;i++) cards.push(addRandomCard('common')); 
+                    cards.push(Math.random()<0.8? addRandomCard('uncommon'):addRandomCard('common')); 
+                }
+                if(type=='premium'){
+                    for(let i=0;i<3;i++) cards.push(addRandomCard('common'));
+                    cards.push(Math.random()<0.7? addRandomCard('rare'):addRandomCard('uncommon'));
+                    cards.push(Math.random()<0.3? addRandomCard('epic'):addRandomCard('rare'));
+                    if(Math.random()<0.05) cards.push(addRandomCard('mythic'));
+                }
+                let grid = document.getElementById('packResultsGrid');
+                grid.innerHTML = '';
+                cards.forEach(c => {
+                    let cardDiv = document.createElement('div');
+                    cardDiv.className = `card ${c.rarity}`;
+                    cardDiv.innerHTML = `<div class="card-word">${c.word}</div>`;
+                    grid.appendChild(cardDiv);
+                });
+                updateQuestProgress('daily',1);
+                saveGame(); updateUI();
+            };
+
+            window.claimOfflineReward = function() {
+                let gain = Math.floor(offlineAccumulated);
+                if(gain>0){ dust+=gain; offlineAccumulated=0; showToast(`⏳ +${gain} dust offline!`,'success'); saveGame(); updateUI(); }
+            };
+
+            window.switchTab = function(tab) {
+                document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+                event.target.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
+                document.getElementById(tab+'Tab').style.display = 'block';
+                if(tab=='codex') updateCodexUI();
+                if(tab=='merge') updateMergeUI();
+                if(tab=='realm') { renderQuests(); checkStreakAndEvent(); updateUI(); }
+                if(tab=='events') checkStreakAndEvent();
+            };
+
+            // ---------- INIT ----------
             function loadGame() {
                 let saved = localStorage.getItem('lexicon_save');
                 if(saved) {
@@ -402,371 +772,19 @@
                 setInterval(()=>{ offlineAccumulated += 0.5; }, 60000);
             }
 
-            function generateQuests(type) {
-                let arr = type=='daily' ? dailyQuests : weeklyQuests;
-                arr.length = 0;
-                let pool = type=='daily' ? 
-                    [{desc:'Merge 3 cards',type:'merge',target:3,reward:30},{desc:'Burn 2 cards',type:'burn',target:2,reward:40},{desc:'Open 2 packs',type:'pack',target:2,reward:50}] :
-                    [{desc:'Merge 10 cards',type:'merge',target:10,reward:150},{desc:'Burn 5 cards',type:'burn',target:5,reward:200}];
-                arr.push(...pool.map(p=>({...p, progress:0})));
-            }
-
-            function checkStreakAndEvent() {
-                let today = new Date().toDateString();
-                if(lastLoginDate !== today) {
-                    if(lastLoginDate === new Date(Date.now()-86400000).toDateString()) streak++;
-                    else streak = 1;
-                    lastLoginDate = today;
-                }
-                let day = new Date().getDay();
-                activeEventMultiplier = (day===6||day===0) ? 1.5 : 1.0;
-                let banner = document.getElementById('weekendBanner');
-                if(day===6||day===0) {
-                    document.getElementById('eventDesc').innerText = '✨ +50% MERGE & LUCK ✨';
-                    document.getElementById('eventTimer').innerText = 'active until midnight';
-                } else {
-                    document.getElementById('eventDesc').innerText = 'weekend booster inactive';
-                    document.getElementById('eventTimer').innerText = 'next: saturday';
-                }
-            }
-
-            function addRandomCard(rarity) {
-                let pool = WORD_POOLS[rarity];
-                let w = pool[Math.floor(Math.random()*pool.length)];
-                let c = { id: Date.now()+Math.random()+Math.random(), word:w, rarity, number:Math.floor(Math.random()*1000) };
-                collection.push(c); return c;
-            }
-
-            function updateQuestProgress(type, amount=1) {
-                let arr = type=='daily' ? dailyQuests : weeklyQuests;
-                arr.forEach(q=>{ if(q.progress<q.target) q.progress = Math.min(q.progress+amount, q.target); });
-                renderQuests(); saveGame();
-            }
-
-            function burnCard(cardId, silent=false) {
-                let card = collection.find(c=>c.id==cardId); if(!card) return false;
-                if(codex.has(card.word)) { showToast('already in codex','error'); return false; }
-                removeCard(cardId);
-                codex.add(card.word);
-                updateQuestProgress('daily',1);
-                if(!silent) { showToast(`🔥 burned ${card.word}`,'success'); triggerHaptic(); }
-                let size = codex.size;
-                if(size%5===0 && !claimedMilestones.has(size)) {
-                    claimedMilestones.add(size); dust += 50; showToast(`🏆 milestone ${size} words! +50 dust`,'success');
-                }
-                saveGame(); updateCodexUI(); updateUI();
-                return true;
-            }
-
-            function removeCard(id) { let idx = collection.findIndex(c=>c.id==id); if(idx>=0) { collection.splice(idx,1); return true; } return false; }
-
-            // ---------- FIXED MERGE FUNCTIONS ----------
-            window.addToMerge = function(cardId) {
-                let card = collection.find(c => c.id == cardId);
-                if (!card) return;
-                
-                // Check if card is already selected
-                if (selectedCards.includes(cardId)) {
-                    showToast('Card already selected', 'error');
-                    return;
-                }
-                
-                // Check if we already have 3 cards
-                if (selectedCards.length >= 3) {
-                    showToast('Maximum 3 cards can be selected', 'error');
-                    return;
-                }
-                
-                // Check if all selected cards are same rarity
-                if (selectedCards.length > 0) {
-                    let firstCard = collection.find(c => c.id == selectedCards[0]);
-                    if (firstCard.rarity !== card.rarity) {
-                        showToast(`Can only merge cards of the same rarity (${firstCard.rarity})`, 'error');
-                        return;
-                    }
-                }
-                
-                // Check if card is mythic (can't merge mythic)
-                if (card.rarity === 'mythic') {
-                    showToast('Mythic cards cannot be merged', 'error');
-                    return;
-                }
-                
-                selectedCards.push(cardId);
-                triggerHaptic();
-                updateMergeUI();
-                showToast(`Selected ${selectedCards.length}/3 cards`, 'info');
-            };
-
-            window.removeFromMerge = function(index) {
-                if (index < selectedCards.length) {
-                    selectedCards.splice(index, 1);
-                    updateMergeUI();
-                    triggerHaptic();
-                }
-            };
-
-            window.quickFillMerge = function() {
-                if (selectedCards.length === 0) {
-                    showToast('Select a first card first', 'error');
-                    return;
-                }
-                
-                let firstCard = collection.find(c => c.id == selectedCards[0]);
-                if (!firstCard) return;
-                
-                // Get available cards of same rarity not already selected
-                let available = collection.filter(c => 
-                    c.rarity === firstCard.rarity && 
-                    !selectedCards.includes(c.id) &&
-                    c.rarity !== 'mythic'
-                );
-                
-                let needed = 3 - selectedCards.length;
-                let toAdd = available.slice(0, needed);
-                
-                toAdd.forEach(c => selectedCards.push(c.id));
-                
-                if (toAdd.length > 0) {
-                    showToast(`Added ${toAdd.length} cards`, 'success');
-                    updateMergeUI();
-                    triggerHaptic();
-                } else {
-                    showToast('No more cards available of this rarity', 'error');
-                }
-            };
-
-            window.performMerge = function() {
-                if (selectedCards.length !== 3) {
-                    showToast('Select exactly 3 cards to merge', 'error');
-                    return;
-                }
-                
-                let cards = collection.filter(c => selectedCards.includes(c.id));
-                if (cards.length !== 3) return;
-                
-                // Verify all same rarity
-                let rarities = [...new Set(cards.map(c => c.rarity))];
-                if (rarities.length !== 1) {
-                    showToast('Cards must be the same rarity', 'error');
-                    return;
-                }
-                
-                let fromRarity = cards[0].rarity;
-                let fromIndex = RARITY_ORDER.indexOf(fromRarity);
-                
-                // Check if can upgrade
-                if (fromIndex >= RARITY_ORDER.length - 1) {
-                    showToast('Cannot merge mythic cards', 'error');
-                    return;
-                }
-                
-                let toRarity = RARITY_ORDER[fromIndex + 1];
-                let mergeKey = `${fromRarity}→${toRarity}`;
-                
-                // Calculate success chance
-                let baseChance = {
-                    'common→uncommon': 1.0,
-                    'uncommon→rare': 0.8,
-                    'rare→epic': 0.5,
-                    'epic→legendary': 0.3,
-                    'legendary→mythic': 0.1
-                }[mergeKey] || 0;
-                
-                let pityBonus = Math.min(pityCounters[mergeKey] || 0, 0.5);
-                let eventBonus = activeEventMultiplier - 1;
-                let milestoneBonus = (claimedMilestones.has(50) ? 0.05 : 0) + (claimedMilestones.has(15) ? 0.02 : 0);
-                
-                let totalChance = Math.min(baseChance + pityBonus + eventBonus + milestoneBonus, 1.0);
-                
-                // Remove merged cards
-                cards.forEach(c => removeCard(c.id));
-                
-                // Perform merge
-                if (Math.random() < totalChance) {
-                    // SUCCESS
-                    let newCard = addRandomCard(toRarity);
-                    pityCounters[mergeKey] = 0;
-                    
-                    // Visual feedback
-                    document.querySelector('.merge-chamber').style.animation = 'successFlash 0.5s';
-                    setTimeout(() => {
-                        document.querySelector('.merge-chamber').style.animation = '';
-                    }, 500);
-                    
-                    showToast(`✨ SUCCESS! Created ${newCard.word} (${toRarity})`, 'success');
-                    
-                    // Special effect for mythic
-                    if (toRarity === 'mythic') {
-                        createConfetti();
-                    }
-                    
-                    updateQuestProgress('daily', 1);
-                } else {
-                    // FAILURE
-                    let dustReward = {
-                        'common→uncommon': 5,
-                        'uncommon→rare': 10,
-                        'rare→epic': 25,
-                        'epic→legendary': 100,
-                        'legendary→mythic': 200
-                    }[mergeKey] || 5;
-                    
-                    if (claimedMilestones.has(25)) dustReward += 10;
-                    dust += dustReward;
-                    pityCounters[mergeKey] = (pityCounters[mergeKey] || 0) + 0.05;
-                    
-                    showToast(`💔 Failed +${dustReward} dust`, 'error');
-                }
-                
-                selectedCards = [];
-                saveGame(); 
-                updateUI(); 
-                updateMergeUI();
-            };
-
             function createConfetti() {
-                for (let i = 0; i < 20; i++) {
-                    let conf = document.createElement('div');
-                    conf.style.position = 'fixed';
-                    conf.style.left = Math.random() * 100 + '%';
-                    conf.style.top = '-10px';
-                    conf.style.width = '8px';
-                    conf.style.height = '8px';
-                    conf.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
-                    conf.style.borderRadius = '50%';
-                    conf.style.zIndex = '9999';
-                    conf.style.animation = `fall ${1 + Math.random()}s linear`;
-                    document.body.appendChild(conf);
-                    setTimeout(() => conf.remove(), 2000);
+                for(let i=0;i<20;i++) {
+                    let c = document.createElement('div');
+                    c.style.position = 'fixed'; c.style.left = Math.random()*100+'%'; c.style.top = '-10px';
+                    c.style.width = '8px'; c.style.height = '8px'; c.style.background = `hsl(${Math.random()*360},100%,50%)`;
+                    c.style.borderRadius = '50%'; c.style.zIndex = '9999'; c.style.animation = `fall ${1+Math.random()}s linear`;
+                    document.body.appendChild(c);
+                    setTimeout(()=>c.remove(),2000);
                 }
             }
-
-            // UI rendering
-            function updateUI() {
-                document.getElementById('totalCards').innerText = collection.length;
-                document.getElementById('uniqueCards').innerText = new Set(collection.map(c=>c.word)).size;
-                document.getElementById('dustAmount').innerText = Math.round(dust);
-                let prog = Math.round((codex.size/TOTAL_WORDS)*100);
-                document.getElementById('realmProgressFill').style.width = prog+'%';
-                document.getElementById('codexPercent').innerText = prog+'%';
-                document.getElementById('streakCount').innerText = streak;
-                document.getElementById('streakBonusPercent').innerText = streak*2;
-                document.getElementById('offlineDisplay').innerText = Math.floor(offlineAccumulated)+' dust';
-                renderQuests();
-            }
-
-            function renderQuests() {
-                let dc = document.getElementById('dailyQuestsContainer');
-                dc.innerHTML = dailyQuests.map((q,i)=>`
-                    <div class="quest-item">
-                        <div style="flex:2; font-size:16px;">${q.desc} (${q.progress}/${q.target})</div>
-                        <div><span class="badge">${q.reward}</span>
-                        ${q.progress>=q.target ? `<button class="filter-btn" onclick="claimQuest(${i},true)" style="margin-left:10px;">claim</button>` : ''}</div>
-                    </div>`).join('');
-                let wc = document.getElementById('weeklyQuestsContainer');
-                wc.innerHTML = weeklyQuests.map((q,i)=>`
-                    <div class="quest-item">
-                        <div style="font-size:16px;">${q.desc} (${q.progress}/${q.target})</div>
-                        <div><span class="badge">${q.reward}</span>
-                        ${q.progress>=q.target ? `<button class="filter-btn" onclick="claimQuest(${i},false)" style="margin-left:10px;">claim</button>` : ''}</div>
-                    </div>`).join('');
-            }
-
-            window.claimQuest = (idx, isDaily)=>{
-                let q = isDaily ? dailyQuests[idx] : weeklyQuests[idx];
-                if(!q || q.progress<q.target) return;
-                dust += q.reward;
-                (isDaily?dailyQuests:weeklyQuests).splice(idx,1);
-                showToast(`+${q.reward} dust!`,'success');
-                saveGame(); updateUI(); renderQuests();
-            };
-
-            function updateMergeUI() {
-                let search = document.getElementById('mergeSearch')?.value.toLowerCase()||'';
-                let rarity = document.getElementById('mergeRarityFilter')?.value||'all';
-                let filtered = collection.filter(c=> (rarity=='all'||c.rarity==rarity) && c.word.toLowerCase().includes(search));
-                let grid = document.getElementById('mergeCollectionGrid');
-                grid.innerHTML = filtered.map(c=>{
-                    let sel = selectedCards.includes(c.id)?'style="border:6px solid gold; transform:scale(1.02);"':'';
-                    let disabled = (selectedCards.length>0 && collection.find(c2=>c2.id==selectedCards[0])?.rarity !== c.rarity) ? 'style="opacity:0.5;"' : '';
-                    return `<div class="card ${c.rarity}" onclick="addToMerge('${c.id}')" ${sel} ${selectedCards.length>0 && collection.find(c2=>c2.id==selectedCards[0])?.rarity !== c.rarity ? 'style="opacity:0.4;"' : ''}><div class="card-word">${c.word}</div></div>`;
-                }).join('');
-                for(let i=0;i<3;i++) {
-                    let s = document.getElementById(`slot${i+1}`);
-                    if(selectedCards[i]) {
-                        let c = collection.find(c=>c.id==selectedCards[i]);
-                        s.className = `slot filled ${c.rarity}`;
-                        s.innerHTML = `<div style="font-size:16px;">${c.word}</div><div class="remove-slot" onclick="removeFromMerge(${i})">✖</div>`;
-                    } else { s.className = 'slot'; s.innerHTML = ''; }
-                }
-                document.getElementById('mergeButton').disabled = selectedCards.length!=3;
-                document.getElementById('mergeInfo').innerText = selectedCards.length===0 ? 'Select 3 cards of same rarity' : 
-                    selectedCards.length<3 ? `Selected ${selectedCards.length}/3 cards` : 'Ready to merge!';
-            }
-
-            function updateCodexUI() {
-                document.getElementById('codexCurrent').innerText = codex.size;
-                document.getElementById('codexTotal').innerText = TOTAL_WORDS;
-                let fill = (codex.size/TOTAL_WORDS)*100;
-                document.getElementById('milestoneFill').style.width = fill+'%';
-                let next = Math.ceil((codex.size+1)/5)*5; if(next>150) next=150;
-                document.getElementById('nextMilestonePreview').innerText = `next milestone: ${next} words`;
-                let sel = document.getElementById('burnCardSelect');
-                sel.innerHTML = '<option value="">select card to burn</option>';
-                collection.filter(c=>!codex.has(c.word)).forEach(c=> sel.innerHTML+=`<option value="${c.id}">${c.word} (${c.rarity})</option>`);
-                let filt = window.codexFilter || 'all';
-                let grid = document.getElementById('codexGrid'); grid.innerHTML='';
-                Array.from(codex).sort().forEach(w=>{
-                    let r='common'; for(let [rk,list] of Object.entries(WORD_POOLS)) if(list.includes(w)) r=rk;
-                    if(filt!='all' && r!=filt) return;
-                    grid.innerHTML+=`<div class="codex-card ${r}" style="background:#2a2a4a; border-radius:16px; padding:8px; text-align:center; border-left:6px solid ${r=='mythic'?'gold':r=='legendary'?'orange':r=='epic'?'purple':r=='rare'?'blue':r=='uncommon'?'green':'gray'};">${w}<br><span style="font-size:10px;">${r}</span></div>`;
-                });
-            }
-            window.previewBurn = ()=>{
-                let id = document.getElementById('burnCardSelect').value;
-                document.getElementById('burnBtn').disabled = !id;
-                document.getElementById('burnPreview').innerText = id ? `🔥 will add to codex (total ${codex.size+1})` : 'select a card';
-            };
-            window.burnSelectedCard = ()=>{
-                let id = document.getElementById('burnCardSelect').value;
-                if(id) burnCard(id);
-            };
-            window.filterCodex = (f)=>{ window.codexFilter = f; updateCodexUI(); };
-
-            window.openPack = (type)=>{
-                let cost = type=='basic'?50: type=='grand'?200:500;
-                if(dust<cost){ showToast('not enough dust','error'); return; }
-                dust-=cost;
-                let cards=[];
-                if(type=='basic') for(let i=0;i<5;i++) cards.push(addRandomCard('common'));
-                if(type=='grand'){ for(let i=0;i<4;i++) cards.push(addRandomCard('common')); cards.push(Math.random()<0.8? addRandomCard('uncommon'):addRandomCard('common')); }
-                if(type=='premium'){
-                    for(let i=0;i<3;i++) cards.push(addRandomCard('common'));
-                    cards.push(Math.random()<0.7? addRandomCard('rare'):addRandomCard('uncommon'));
-                    cards.push(Math.random()<0.3? addRandomCard('epic'):addRandomCard('rare'));
-                    if(Math.random()<0.05) cards.push(addRandomCard('mythic'));
-                }
-                document.getElementById('packResultsGrid').innerHTML = cards.map(c=>`<div class="card ${c.rarity}"><div class="card-word">${c.word}</div></div>`).join('');
-                updateQuestProgress('daily',1);
-                saveGame(); updateUI();
-            };
-
-            window.claimOfflineReward = ()=>{
-                let gain = Math.floor(offlineAccumulated);
-                if(gain>0){ dust+=gain; offlineAccumulated=0; showToast(`⏳ +${gain} dust offline!`,'success'); saveGame(); updateUI(); }
-            };
-
-            window.switchTab = (tab)=>{
-                document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-                event.target.classList.add('active');
-                document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
-                document.getElementById(tab+'Tab').style.display = 'block';
-                if(tab=='codex') updateCodexUI();
-                if(tab=='merge') updateMergeUI();
-                if(tab=='realm') { renderQuests(); checkStreakAndEvent(); updateUI(); }
-                if(tab=='events') { checkStreakAndEvent(); }
-            };
+            const style = document.createElement('style');
+            style.textContent = '@keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }';
+            document.head.appendChild(style);
 
             loadGame();
             document.getElementById('loadingOverlay').classList.add('hidden');
