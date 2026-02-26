@@ -7,7 +7,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Lexicon Cards - Enhanced</title>
+    <title>Lexicon Cards - Codex Milestones</title>
     <style>
         * {
             box-sizing: border-box;
@@ -153,32 +153,34 @@
             display: block;
         }
 
-        /* Merge Tab Specific - Fixed top, scrollable cards */
-        .merge-tab-content {
+        /* Tab Navigation */
+        .tabs {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            gap: 3px;
+            margin: 4px 0 4px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
         }
 
-        /* Fixed Merge Chamber */
-        .merge-chamber-fixed {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 8px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        .tab {
+            padding: 5px 7px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: clamp(10px, 2.5vw, 13px);
+            backdrop-filter: blur(5px);
+            white-space: nowrap;
+            flex: 0 1 auto;
         }
 
-        /* Scrollable Cards Section */
-        .merge-cards-scrollable {
-            max-height: none;
-            overflow-y: visible;
-            padding-bottom: 16px;
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
         /* Header Section */
@@ -270,36 +272,6 @@
             flex-shrink: 0;
         }
 
-        /* Tab Navigation */
-        .tabs {
-            display: flex;
-            gap: 3px;
-            margin: 4px 0 4px;
-            flex-wrap: wrap;
-            flex-shrink: 0;
-        }
-
-        .tab {
-            padding: 5px 7px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: clamp(10px, 2.5vw, 13px);
-            backdrop-filter: blur(5px);
-            white-space: nowrap;
-            flex: 0 1 auto;
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-color: transparent;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
         /* Collection Progress */
         .collection-progress {
             background: rgba(0, 0, 0, 0.3);
@@ -372,7 +344,214 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
-        /* Merge Chamber Styles */
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            padding: 4px;
+        }
+
+        /* Card Styles */
+        .card {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3/4;
+            border-radius: 8px;
+            padding: 5px 3px;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        /* Card Burn Indicators */
+        .card.burnable {
+            animation: burnGlow 2s infinite;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card.burnable::after {
+            content: '🔥';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 12px;
+            filter: drop-shadow(0 0 5px orange);
+            z-index: 5;
+        }
+
+        .card.in-codex {
+            opacity: 0.7;
+            filter: grayscale(30%);
+            position: relative;
+        }
+
+        .card.in-codex::after {
+            content: '📖';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 12px;
+            opacity: 0.7;
+            z-index: 5;
+        }
+
+        @keyframes burnGlow {
+            0% { box-shadow: 0 0 5px #ffd700; }
+            50% { box-shadow: 0 0 20px #ff6b6b, 0 0 30px #ffd700; }
+            100% { box-shadow: 0 0 5px #ffd700; }
+        }
+
+        .quick-burn {
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            background: rgba(255, 68, 68, 0.9);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 10px;
+            padding: 2px 4px;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.2s;
+            border: 1px solid #ffd700;
+        }
+
+        .card:hover .quick-burn {
+            opacity: 1;
+        }
+
+        .quick-burn:hover {
+            background: #ff4444;
+            transform: scale(1.1);
+        }
+
+        /* Rarity backgrounds */
+        .card.common { background: linear-gradient(135deg, #e0e0e0, #b0b0b0); border-bottom: 3px solid #808080; }
+        .card.uncommon { background: linear-gradient(135deg, #8bc34a, #5a9e3a); border-bottom: 3px solid #2e7d32; }
+        .card.rare { background: linear-gradient(135deg, #42a5f5, #1976d2); border-bottom: 3px solid #0d47a1; }
+        .card.epic { background: linear-gradient(135deg, #9c27b0, #6a1b9a); border-bottom: 3px solid #4a0072; color: white; }
+        .card.legendary { background: linear-gradient(135deg, #ff9800, #f57c00); border-bottom: 3px solid #bf360c; color: white; }
+        .card.mythic { background: linear-gradient(135deg, #d4af37, #b8860b); border-bottom: 3px solid #7d5e00; color: white; }
+
+        .card-word {
+            font-size: 11px;
+            font-weight: 800;
+            text-align: center;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            word-break: break-word;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .card-rarity-badge {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .card-rarity-badge.common { background: #808080; }
+        .card-rarity-badge.uncommon { background: #2e7d32; }
+        .card-rarity-badge.rare { background: #0d47a1; }
+        .card-rarity-badge.epic { background: #4a0072; }
+        .card-rarity-badge.legendary { background: #bf360c; }
+        .card-rarity-badge.mythic { background: #ffd700; }
+
+        .card-type {
+            font-size: 5px;
+            text-transform: uppercase;
+            text-align: center;
+            opacity: 0.8;
+            margin-top: auto;
+            margin-bottom: 2px;
+        }
+
+        .card-number {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 4px;
+            opacity: 0.6;
+        }
+
+        .card-count-badge {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 6px;
+            padding: 1px 3px;
+            font-size: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 25px 10px;
+            color: rgba(255, 255, 255, 0.5);
+            grid-column: 1/-1;
+        }
+
+        .empty-state-icon { font-size: 35px; margin-bottom: 10px; opacity: 0.5; }
+        .empty-state-text { font-size: 13px; margin-bottom: 12px; }
+
+        .empty-state-button {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        /* Merge Tab Specific */
+        .merge-tab-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .merge-chamber-fixed {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .merge-cards-scrollable {
+            max-height: none;
+            overflow-y: visible;
+            padding-bottom: 16px;
+        }
+
         .merge-section {
             color: white;
         }
@@ -419,7 +598,6 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* Empty slot gradients */
         .merge-slot.empty-slot-common { background: linear-gradient(135deg, rgba(224,224,224,0.3), rgba(176,176,176,0.3)); border-bottom: 3px solid #808080; }
         .merge-slot.empty-slot-uncommon { background: linear-gradient(135deg, rgba(139,195,74,0.3), rgba(90,158,58,0.3)); border-bottom: 3px solid #2e7d32; }
         .merge-slot.empty-slot-rare { background: linear-gradient(135deg, rgba(66,165,245,0.3), rgba(25,118,210,0.3)); border-bottom: 3px solid #0d47a1; }
@@ -579,129 +757,15 @@
             50% { filter: brightness(1.5) drop-shadow(0 0 10px #f44336); }
         }
 
-        /* Cards Grid */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            padding: 4px;
-        }
-
-        /* Card Styles */
-        .card {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 3/4;
+        .selection-summary {
+            background: rgba(255, 215, 0, 0.1);
             border-radius: 8px;
-            padding: 5px 3px;
-            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
-        }
-
-        .card.merge-highlight {
-            border: 2px solid #ffd700;
-            box-shadow: 0 0 15px #ffd700, 0 5px 0 rgba(0, 0, 0, 0.3);
-        }
-
-        .card.dimmed { opacity: 0.4; }
-        .card.selected { opacity: 0.2; pointer-events: none; }
-
-        /* Rarity backgrounds */
-        .card.common { background: linear-gradient(135deg, #e0e0e0, #b0b0b0); border-bottom: 3px solid #808080; }
-        .card.uncommon { background: linear-gradient(135deg, #8bc34a, #5a9e3a); border-bottom: 3px solid #2e7d32; }
-        .card.rare { background: linear-gradient(135deg, #42a5f5, #1976d2); border-bottom: 3px solid #0d47a1; }
-        .card.epic { background: linear-gradient(135deg, #9c27b0, #6a1b9a); border-bottom: 3px solid #4a0072; color: white; }
-        .card.legendary { background: linear-gradient(135deg, #ff9800, #f57c00); border-bottom: 3px solid #bf360c; color: white; }
-        .card.mythic { background: linear-gradient(135deg, #d4af37, #b8860b); border-bottom: 3px solid #7d5e00; color: white; }
-
-        .card-word {
+            padding: 6px;
+            margin: 6px 0;
             font-size: 11px;
-            font-weight: 800;
+            color: #ffd700;
+            border: 1px dashed #ffd700;
             text-align: center;
-            margin-top: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            word-break: break-word;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-
-        .card-rarity-badge {
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-
-        .card-rarity-badge.common { background: #808080; }
-        .card-rarity-badge.uncommon { background: #2e7d32; }
-        .card-rarity-badge.rare { background: #0d47a1; }
-        .card-rarity-badge.epic { background: #4a0072; }
-        .card-rarity-badge.legendary { background: #bf360c; }
-        .card-rarity-badge.mythic { background: #ffd700; }
-
-        .card-type {
-            font-size: 5px;
-            text-transform: uppercase;
-            text-align: center;
-            opacity: 0.8;
-            margin-top: auto;
-            margin-bottom: 2px;
-        }
-
-        .card-number {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            font-size: 4px;
-            opacity: 0.6;
-        }
-
-        .card-count-badge {
-            position: absolute;
-            top: 3px;
-            right: 3px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            border-radius: 6px;
-            padding: 1px 3px;
-            font-size: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 25px 10px;
-            color: rgba(255, 255, 255, 0.5);
-            grid-column: 1/-1;
-        }
-
-        .empty-state-icon { font-size: 35px; margin-bottom: 10px; opacity: 0.5; }
-        .empty-state-text { font-size: 13px; margin-bottom: 12px; }
-
-        .empty-state-button {
-            padding: 6px 12px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border: none;
-            border-radius: 50px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            display: inline-block;
-            text-decoration: none;
-            font-size: 12px;
         }
 
         /* Pack Section */
@@ -901,16 +965,305 @@
             100% { transform: translateY(100px) rotate(720deg); opacity: 0; }
         }
 
-        /* Selection Summary */
-        .selection-summary {
-            background: rgba(255, 215, 0, 0.1);
-            border-radius: 8px;
-            padding: 6px;
-            margin: 6px 0;
-            font-size: 11px;
+        /* ==================== CODEX STYLES ==================== */
+        .codex-container {
+            padding: 8px;
+            color: white;
+        }
+
+        .codex-header {
+            background: linear-gradient(135deg, #2a1a4a, #1a0a2a);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ffd70033;
+        }
+
+        .codex-title-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .codex-title-section h2 {
+            font-size: 20px;
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .codex-count {
+            font-size: 18px;
+            font-weight: bold;
+            background: rgba(255,215,0,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #ffd700;
+        }
+
+        /* Milestone Card */
+        .milestone-card {
+            background: linear-gradient(135deg, #2a2a4a, #1a1a2a);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #4a2e7a;
+        }
+
+        .milestone-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .milestone-next {
             color: #ffd700;
-            border: 1px dashed #ffd700;
+            font-weight: bold;
+        }
+
+        .milestone-bar-container {
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .milestone-bar {
+            height: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .milestone-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff6b6b);
+            transition: width 0.3s;
+            position: relative;
+            z-index: 2;
+        }
+
+        .milestone-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 10px;
+            color: #aaa;
+            position: relative;
+            z-index: 1;
+        }
+
+        .milestone-reward-preview {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(255,215,0,0.1);
+            border-radius: 8px;
+            font-size: 12px;
             text-align: center;
+            border: 1px dashed #ffd700;
+        }
+
+        /* Burn Interface */
+        .burn-interface {
+            background: linear-gradient(135deg, #3a1a2a, #2a0a1a);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ff6b6b;
+        }
+
+        .burn-interface h3 {
+            color: #ff6b6b;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .burn-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .burn-select {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .burn-select option {
+            background: #1a1a2a;
+            color: white;
+        }
+
+        .burn-button {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #ff6b6b, #ff4444);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .burn-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ff4444;
+        }
+
+        .burn-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .burn-preview {
+            background: rgba(255,215,0,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            font-size: 13px;
+            border: 1px solid #ffd700;
+        }
+
+        .burn-warning {
+            font-size: 11px;
+            color: #ff9999;
+            text-align: center;
+            padding: 4px;
+        }
+
+        /* Codex Grid */
+        .codex-grid-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0 8px;
+        }
+
+        .codex-grid-header h3 {
+            color: #ffd700;
+        }
+
+        .codex-filters {
+            display: flex;
+            gap: 4px;
+        }
+
+        .codex-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 8px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+        }
+
+        .codex-card {
+            background: linear-gradient(135deg, #2a2a4a, #1a1a2a);
+            border-radius: 12px;
+            padding: 10px 6px;
+            text-align: center;
+            border: 1px solid rgba(255,215,0,0.3);
+            transition: all 0.2s;
+            position: relative;
+            cursor: help;
+        }
+
+        .codex-card:hover {
+            transform: translateY(-3px);
+            border-color: #ffd700;
+            box-shadow: 0 5px 15px rgba(255,215,0,0.3);
+        }
+
+        .codex-card.common { border-left: 4px solid #808080; }
+        .codex-card.uncommon { border-left: 4px solid #2e7d32; }
+        .codex-card.rare { border-left: 4px solid #0d47a1; }
+        .codex-card.epic { border-left: 4px solid #4a0072; }
+        .codex-card.legendary { border-left: 4px solid #bf360c; }
+        .codex-card.mythic { 
+            border-left: 4px solid #ffd700;
+            animation: mythicPulse 2s infinite;
+        }
+
+        @keyframes mythicPulse {
+            0%, 100% { box-shadow: 0 0 5px gold; }
+            50% { box-shadow: 0 0 20px gold; }
+        }
+
+        .codex-word {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 4px;
+        }
+
+        .codex-rarity {
+            font-size: 8px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .milestone-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 10px;
+        }
+
+        .milestone-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #2a1a4a, #1a0a2a);
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            z-index: 10002;
+            animation: popupAppear 0.5s;
+            box-shadow: 0 0 50px gold;
+        }
+
+        @keyframes popupAppear {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .milestone-popup h2 {
+            color: #ffd700;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .milestone-popup .reward {
+            font-size: 18px;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255,215,0,0.2);
+            border-radius: 10px;
+        }
+
+        .milestone-popup button {
+            padding: 8px 20px;
+            background: #ffd700;
+            border: none;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -967,6 +1320,7 @@
             <button class="tab" onclick="switchTab('packs')" id="tabPacks">📦 Packs</button>
             <button class="tab" onclick="switchTab('market')" id="tabMarket">🏪 Market</button>
             <button class="tab" onclick="switchTab('gallery')" id="tabGallery">🖼️ Gallery</button>
+            <button class="tab" onclick="switchTab('codex')" id="tabCodex">📖 Codex</button>
         </div>
 
         <!-- Main Scrollable Area -->
@@ -991,7 +1345,7 @@
                 </div>
             </div>
 
-            <!-- Merge Tab - IMPROVED LAYOUT -->
+            <!-- Merge Tab -->
             <div id="mergeTab" class="tab-content">
                 <!-- Fixed Merge Chamber Section -->
                 <div class="merge-chamber-fixed">
@@ -1122,6 +1476,77 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Codex Tab -->
+            <div id="codexTab" class="tab-content">
+                <div class="codex-container">
+                    <!-- Header with Progress -->
+                    <div class="codex-header">
+                        <div class="codex-title-section">
+                            <h2>📖 WORD CODEX</h2>
+                            <div class="codex-count">
+                                <span id="codexCurrent">0</span>/<span id="codexTotal">150</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Milestone Progress Card -->
+                    <div class="milestone-card">
+                        <div class="milestone-header">
+                            <span>🏆 MILESTONE PROGRESS</span>
+                            <span class="milestone-next" id="nextMilestone">Next: 5 words</span>
+                        </div>
+                        <div class="milestone-bar-container">
+                            <div class="milestone-bar">
+                                <div class="milestone-fill" id="milestoneFill" style="width: 0%"></div>
+                            </div>
+                            <div class="milestone-markers">
+                                <span>25</span><span>50</span><span>75</span><span>100</span><span>125</span><span>150</span>
+                            </div>
+                        </div>
+                        <div class="milestone-reward-preview" id="milestonePreview">
+                            At 5 words: +1% dust from all sources
+                        </div>
+                    </div>
+                    
+                    <!-- Burn Interface -->
+                    <div class="burn-interface">
+                        <h3>🔥 BURN A CARD</h3>
+                        <div class="burn-controls">
+                            <select class="burn-select" id="burnCardSelect" onchange="previewBurn()">
+                                <option value="">Select a card to burn...</option>
+                            </select>
+                            <button class="burn-button" id="burnBtn" onclick="burnSelectedCard()" disabled>
+                                🔥 BURN FOREVER
+                            </button>
+                        </div>
+                        <div class="burn-preview" id="burnPreview">
+                            Select a card to see burn preview
+                        </div>
+                        <div class="burn-warning">
+                            ⚠️ Burned cards are PERMANENTLY removed from your collection!
+                        </div>
+                    </div>
+                    
+                    <!-- Collected Words Grid -->
+                    <div class="codex-grid-header">
+                        <h3>📚 COLLECTED WORDS</h3>
+                        <div class="codex-filters">
+                            <button class="filter-btn" onclick="filterCodex('all')">All</button>
+                            <button class="filter-btn" onclick="filterCodex('common')">C</button>
+                            <button class="filter-btn" onclick="filterCodex('uncommon')">U</button>
+                            <button class="filter-btn" onclick="filterCodex('rare')">R</button>
+                            <button class="filter-btn" onclick="filterCodex('epic')">E</button>
+                            <button class="filter-btn" onclick="filterCodex('legendary')">L</button>
+                            <button class="filter-btn" onclick="filterCodex('mythic')">M</button>
+                        </div>
+                    </div>
+                    
+                    <div class="codex-grid" id="codexGrid">
+                        <!-- Codex cards appear here -->
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Log Section -->
@@ -1149,9 +1574,13 @@
             'legendary→mythic': 0
         };
         
+        // Codex state
+        let codex = new Set();              // Words collected in codex
+        let claimedMilestones = new Set();   // Milestones already claimed
+        let codexFilters = 'all';            // Current filter for codex grid
+        
         // UI state
         let sortAscending = true;
-        let mergeHistory = [];
         
         // Constants
         const WORD_POOLS = {
@@ -1162,6 +1591,9 @@
             legendary: ['SERENDIPITY', 'EPHEMERAL', 'MELLIFLUOUS', 'ETHEREAL', 'LUMINESCENT', 'PETRICHOR', 'AURORA', 'ZEPHYR'],
             mythic: ['ABRACADABRA', 'ALAKAZAM', 'PRESTIGE', 'INFINITUM', 'OMNIVERSE', 'PRIMORDIAL', 'TRANSCENDENT']
         };
+
+        // Total unique words possible
+        const TOTAL_UNIQUE_WORDS = Object.values(WORD_POOLS).flat().length;
 
         const SUCCESS_CHANCES = {
             'common→uncommon': 1.0,
@@ -1193,6 +1625,153 @@
         const PITY_INCREMENT = 0.05;
         const MAX_PITY = 0.5;
 
+        // ==================== MILESTONE REWARDS ====================
+        
+        const MILESTONES = {
+            5: {
+                name: "Novice Scribe",
+                reward: "+1% dust from all sources",
+                effect: { type: 'dust', value: 0.01, permanent: true },
+                icon: "📝"
+            },
+            10: {
+                name: "Word Collector",
+                reward: "Unlock daily free common pack",
+                effect: { type: 'unlock', item: 'dailyPack', permanent: true },
+                icon: "🎁"
+            },
+            15: {
+                name: "Page Turner",
+                reward: "+2% merge success chance",
+                effect: { type: 'merge', value: 0.02, permanent: true },
+                icon: "📖"
+            },
+            20: {
+                name: "Bookworm",
+                reward: "5% chance to keep a card when burning",
+                effect: { type: 'keep', value: 0.05, permanent: true },
+                icon: "🐛"
+            },
+            25: {
+                name: "Linguist",
+                reward: "+10 dust from any merge failure",
+                effect: { type: 'dust', value: 10, trigger: 'mergeFail' },
+                icon: "💎"
+            },
+            30: {
+                name: "Scholar",
+                reward: "Unlock 'Word Seeker' profile title",
+                effect: { type: 'title', title: 'Word Seeker', permanent: true },
+                icon: "🎓"
+            },
+            35: {
+                name: "Lexicographer",
+                reward: "+3% all pack drop rates",
+                effect: { type: 'pack', value: 0.03, permanent: true },
+                icon: "📚"
+            },
+            40: {
+                name: "Etymologist",
+                reward: "See missing words in tooltips",
+                effect: { type: 'vision', permanent: true },
+                icon: "🔍"
+            },
+            45: {
+                name: "Polyglot",
+                reward: "+1 daily quest slot",
+                effect: { type: 'quests', value: 1, permanent: true },
+                icon: "🌍"
+            },
+            50: {
+                name: "Wordsmith",
+                reward: "+5% merge success chance",
+                effect: { type: 'merge', value: 0.05, permanent: true },
+                icon: "✒️"
+            },
+            55: {
+                name: "Poet",
+                reward: "10% chance for free re-roll on packs",
+                effect: { type: 'reroll', value: 0.1, permanent: true },
+                icon: "🎭"
+            },
+            60: {
+                name: "Scribe",
+                reward: "All future burns count double toward milestones",
+                effect: { type: 'multiplier', value: 2, permanent: true },
+                icon: "✍️"
+            },
+            65: {
+                name: "Bibliophile",
+                reward: "+2% pity build rate",
+                effect: { type: 'pity', value: 0.02, permanent: true },
+                icon: "📕"
+            },
+            70: {
+                name: "Loremaster",
+                reward: "Unlock special 'Codex' card back",
+                effect: { type: 'cosmetic', item: 'cardback', permanent: true },
+                icon: "🎨"
+            },
+            75: {
+                name: "Storyteller",
+                reward: "5% chance to find extra card in packs",
+                effect: { type: 'extra', value: 0.05, permanent: true },
+                icon: "📜"
+            },
+            80: {
+                name: "Chronicler",
+                reward: "All buffs last 20% longer",
+                effect: { type: 'duration', value: 0.2, permanent: true },
+                icon: "⏳"
+            },
+            85: {
+                name: "Archivist",
+                reward: "Organize collection by any category",
+                effect: { type: 'organization', permanent: true },
+                icon: "🗂️"
+            },
+            90: {
+                name: "Sage",
+                reward: "+8% chance for legendary cards",
+                effect: { type: 'legendary', value: 0.08, permanent: true },
+                icon: "🧙"
+            },
+            95: {
+                name: "Mystic",
+                reward: "1% chance for mythic from any source",
+                effect: { type: 'mythic', value: 0.01, permanent: true },
+                icon: "🔮"
+            },
+            100: {
+                name: "Grandmaster",
+                reward: "+10% all chances, +100 dust daily",
+                effect: { type: 'all', value: 0.1, permanent: true },
+                icon: "👑"
+            },
+            125: {
+                name: "Legendary Collector",
+                reward: "All legendary cards have 10% bonus",
+                effect: { type: 'legendary', value: 0.1, permanent: true },
+                icon: "⭐"
+            },
+            150: {
+                name: "Lexicon Master",
+                reward: "Complete collection = infinite free packs",
+                effect: { type: 'infinite', item: 'packs', permanent: true },
+                icon: "∞"
+            }
+        };
+
+        // Track active milestone bonuses
+        let activeMilestoneBonuses = {
+            dustMultiplier: 1,
+            mergeBonus: 0,
+            packLuck: 1,
+            pityRate: 1,
+            burnKeepChance: 0,
+            // Add more as needed
+        };
+
         // ==================== INITIALIZATION ====================
         
         (function init() {
@@ -1220,6 +1799,7 @@
             loadGame().then(() => {
                 document.getElementById('loadingOverlay').classList.add('hidden');
                 updateUI();
+                initCodex();
                 showToast('✨ Game ready!', 'info');
             });
         })();
@@ -1261,7 +1841,7 @@
         // ==================== CONFETTI ====================
         
         function createConfetti() {
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 30; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
                 confetti.style.left = Math.random() * 100 + '%';
@@ -1324,9 +1904,8 @@
         }
 
         function getCollectionProgress() {
-            const totalUnique = Object.values(WORD_POOLS).flat().length;
             const uniqueOwned = getUniqueCardCount();
-            return Math.round((uniqueOwned / totalUnique) * 100);
+            return Math.round((uniqueOwned / TOTAL_UNIQUE_WORDS) * 100);
         }
 
         function getFilteredCollection(searchTerm = '', rarityFilter = 'all') {
@@ -1366,6 +1945,8 @@
                             'epic→legendary': 0,
                             'legendary→mythic': 0
                         };
+                        codex = new Set(data.codex || []);
+                        claimedMilestones = new Set(data.claimedMilestones || []);
                         loaded = true;
                     }
                 } catch (e) {}
@@ -1384,6 +1965,8 @@
                             'epic→legendary': 0,
                             'legendary→mythic': 0
                         };
+                        codex = new Set(data.codex || []);
+                        claimedMilestones = new Set(data.claimedMilestones || []);
                         loaded = true;
                     } catch (e) {}
                 }
@@ -1392,13 +1975,18 @@
             if (!loaded) {
                 initializeNewGame();
             }
+            
+            // Apply any unclaimed milestones
+            checkAllMilestones();
         }
 
         async function saveGame() {
             const saveData = JSON.stringify({
                 collection: collection,
                 dust: dust,
-                pityCounters: pityCounters
+                pityCounters: pityCounters,
+                codex: Array.from(codex),
+                claimedMilestones: Array.from(claimedMilestones)
             });
             
             if (tg && tg.DeviceStorage) {
@@ -1421,6 +2009,375 @@
                 'epic→legendary': 0,
                 'legendary→mythic': 0
             };
+            codex = new Set();
+            claimedMilestones = new Set();
+        }
+
+        // ==================== CODEX FUNCTIONS ====================
+
+        function initCodex() {
+            checkAllMilestones();
+            updateCodexUI();
+            applyAllMilestoneBonuses();
+        }
+
+        function burnCard(cardId) {
+            const card = collection.find(c => c.id === cardId);
+            if (!card) return false;
+            
+            // Check if already in codex
+            if (codex.has(card.word)) {
+                showToast(`📖 "${card.word}" already in codex!`, 'error');
+                return false;
+            }
+            
+            // Check for burn keep chance from milestone
+            let keepCard = false;
+            if (activeMilestoneBonuses.burnKeepChance > 0 && Math.random() < activeMilestoneBonuses.burnKeepChance) {
+                keepCard = true;
+                showToast(`✨ Your Bookworm milestone saved this card!`, 'success');
+            }
+            
+            // Remove card from collection (unless kept)
+            if (!keepCard) {
+                removeCard(cardId);
+            }
+            
+            // Add to codex
+            codex.add(card.word);
+            
+            // Count how many words this counts as (milestone multiplier)
+            let wordCount = 1;
+            if (activeMilestoneBonuses.burnMultiplier) {
+                wordCount = activeMilestoneBonuses.burnMultiplier;
+                showToast(`🔥 Scribe milestone: Burn counted as ${wordCount} words!`, 'info');
+            }
+            
+            // Check for new milestones
+            const oldCount = codex.size - wordCount;
+            const newCount = codex.size;
+            
+            // Check each milestone from old+1 to new
+            for (let i = oldCount + 1; i <= newCount; i++) {
+                if (MILESTONES[i] && !claimedMilestones.has(i)) {
+                    claimMilestone(i);
+                }
+            }
+            
+            // Save and update
+            saveGame();
+            
+            // UI Updates
+            triggerHaptic('success');
+            showToast(`🔥 Burned ${card.word}! Added to Codex`, 'success');
+            updateLog(`📖 Added ${card.word} to Codex`, 'success');
+            
+            // Special effect
+            createCodexEffect();
+            
+            updateUI();
+            updateCodexUI();
+            
+            return true;
+        }
+
+        function claimMilestone(milestoneNumber) {
+            if (claimedMilestones.has(milestoneNumber)) return;
+            
+            const milestone = MILESTONES[milestoneNumber];
+            if (!milestone) return;
+            
+            claimedMilestones.add(milestoneNumber);
+            
+            // Apply the milestone effect
+            applyMilestoneEffect(milestone);
+            
+            // Show celebration
+            showMilestonePopup(milestoneNumber, milestone);
+            
+            // Update active bonuses
+            applyAllMilestoneBonuses();
+        }
+
+        function applyMilestoneEffect(milestone) {
+            const effect = milestone.effect;
+            
+            switch(effect.type) {
+                case 'dust':
+                    if (effect.value <= 1) {
+                        // Percentage multiplier
+                        activeMilestoneBonuses.dustMultiplier += effect.value;
+                    } else {
+                        // Flat amount
+                        activeMilestoneBonuses.flatDustBonus = (activeMilestoneBonuses.flatDustBonus || 0) + effect.value;
+                    }
+                    break;
+                case 'merge':
+                    activeMilestoneBonuses.mergeBonus += effect.value;
+                    break;
+                case 'pack':
+                    activeMilestoneBonuses.packLuck += effect.value;
+                    break;
+                case 'keep':
+                    activeMilestoneBonuses.burnKeepChance += effect.value;
+                    break;
+                case 'pity':
+                    activeMilestoneBonuses.pityRate += effect.value;
+                    break;
+                case 'multiplier':
+                    activeMilestoneBonuses.burnMultiplier = effect.value;
+                    break;
+                case 'all':
+                    activeMilestoneBonuses.allBonus = (activeMilestoneBonuses.allBonus || 1) + effect.value;
+                    break;
+                case 'legendary':
+                    activeMilestoneBonuses.legendaryChance = (activeMilestoneBonuses.legendaryChance || 0) + effect.value;
+                    break;
+                case 'mythic':
+                    activeMilestoneBonuses.mythicChance = (activeMilestoneBonuses.mythicChance || 0) + effect.value;
+                    break;
+                // Add more cases as needed
+            }
+        }
+
+        function applyAllMilestoneBonuses() {
+            // Reset and reapply all claimed milestones
+            activeMilestoneBonuses = {
+                dustMultiplier: 1,
+                mergeBonus: 0,
+                packLuck: 1,
+                pityRate: 1,
+                burnKeepChance: 0,
+                burnMultiplier: 1
+            };
+            
+            claimedMilestones.forEach(num => {
+                const milestone = MILESTONES[num];
+                if (milestone) {
+                    applyMilestoneEffect(milestone);
+                }
+            });
+        }
+
+        function showMilestonePopup(number, milestone) {
+            // Create popup element
+            const popup = document.createElement('div');
+            popup.className = 'milestone-popup';
+            popup.innerHTML = `
+                <h2>🏆 MILESTONE UNLOCKED!</h2>
+                <div style="font-size: 48px; margin: 10px;">${milestone.icon}</div>
+                <h3>${milestone.name}</h3>
+                <div class="reward">${milestone.reward}</div>
+                <p style="font-size: 12px; margin: 10px;">${codex.size} words collected</p>
+                <button onclick="this.parentElement.remove()">✨ AWESOME!</button>
+            `;
+            
+            document.body.appendChild(popup);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (popup.parentElement) popup.remove();
+            }, 5000);
+            
+            // Confetti for big milestones
+            if (number % 25 === 0 || number === 100 || number === 150) {
+                createConfetti();
+            }
+            
+            triggerHaptic('success');
+        }
+
+        function checkAllMilestones() {
+            const count = codex.size;
+            
+            // Check all milestones up to current count
+            for (let i = 5; i <= count; i += 5) {
+                if (MILESTONES[i] && !claimedMilestones.has(i)) {
+                    claimMilestone(i);
+                }
+            }
+        }
+
+        function createCodexEffect() {
+            const container = document.querySelector('.game-container');
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = '15px';
+                particle.style.height = '15px';
+                particle.style.background = i % 2 === 0 ? '#ffd700' : '#ff6b6b';
+                particle.style.borderRadius = '50%';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '9999';
+                particle.style.animation = `codexParticle ${1 + Math.random()}s ease-out forwards`;
+                container.appendChild(particle);
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+
+        // Add keyframe for codex effect
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes codexParticle {
+                0% { transform: scale(1) rotate(0deg); opacity: 1; }
+                100% { transform: scale(0) translate(${(Math.random()-0.5)*200}px, ${(Math.random()-0.5)*200}px) rotate(720deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        function previewBurn() {
+            const select = document.getElementById('burnCardSelect');
+            const cardId = select.value;
+            const preview = document.getElementById('burnPreview');
+            const burnBtn = document.getElementById('burnBtn');
+            
+            if (!cardId) {
+                preview.innerHTML = 'Select a card to see burn preview';
+                burnBtn.disabled = true;
+                return;
+            }
+            
+            const card = collection.find(c => c.id === cardId);
+            if (!card) return;
+            
+            const nextMilestone = Math.ceil((codex.size + 1) / 5) * 5;
+            const wordsNeeded = nextMilestone - (codex.size + 1);
+            
+            let multiplierText = '';
+            if (activeMilestoneBonuses.burnMultiplier > 1) {
+                multiplierText = `<br><span style="color: #ffd700;">✨ Counts as ${activeMilestoneBonuses.burnMultiplier} words!</span>`;
+            }
+            
+            let keepChanceText = '';
+            if (activeMilestoneBonuses.burnKeepChance > 0) {
+                keepChanceText = `<br><span style="color: #4caf50;">📖 ${Math.round(activeMilestoneBonuses.burnKeepChance * 100)}% chance to keep card!</span>`;
+            }
+            
+            preview.innerHTML = `
+                <strong>${card.word}</strong> (${RARITY_NAMES[card.rarity]})<br>
+                🔥 Remove from collection<br>
+                📖 Add to Codex (${codex.size + 1}/${TOTAL_UNIQUE_WORDS})<br>
+                🏆 Next milestone: ${nextMilestone} words (${wordsNeeded} more after this)${multiplierText}${keepChanceText}
+            `;
+            
+            burnBtn.disabled = false;
+        }
+
+        function burnSelectedCard() {
+            const select = document.getElementById('burnCardSelect');
+            const cardId = select.value;
+            
+            if (!cardId) {
+                showToast('Select a card to burn!', 'error');
+                return;
+            }
+            
+            const card = collection.find(c => c.id === cardId);
+            if (!card) return;
+            
+            if (confirm(`🔥 Burn ${card.word} permanently?\nThis card will be removed from your collection and added to your Codex.`)) {
+                burnCard(cardId);
+            }
+        }
+
+        function filterCodex(rarity) {
+            codexFilters = rarity;
+            updateCodexUI();
+        }
+
+        function updateCodexUI() {
+            // Update counts
+            document.getElementById('codexCurrent').textContent = codex.size;
+            document.getElementById('codexTotal').textContent = TOTAL_UNIQUE_WORDS;
+            
+            // Update milestone progress
+            const nextMilestone = Math.ceil((codex.size + 1) / 5) * 5;
+            const progress = (codex.size / 150) * 100;
+            document.getElementById('milestoneFill').style.width = progress + '%';
+            
+            if (codex.size >= 150) {
+                document.getElementById('nextMilestone').textContent = 'COMPLETE!';
+                document.getElementById('milestonePreview').textContent = '🎉 Codex Complete! Infinite free packs!';
+            } else {
+                document.getElementById('nextMilestone').textContent = `Next: ${nextMilestone} words`;
+                const nextReward = MILESTONES[nextMilestone]?.reward || 'Unknown reward';
+                document.getElementById('milestonePreview').textContent = `At ${nextMilestone} words: ${nextReward}`;
+            }
+            
+            // Update burn dropdown
+            const burnSelect = document.getElementById('burnCardSelect');
+            burnSelect.innerHTML = '<option value="">Select a card to burn...</option>';
+            
+            // Get burnable cards (not in codex)
+            const burnableCards = collection.filter(card => !codex.has(card.word));
+            
+            // Sort by rarity (highest first)
+            burnableCards.sort((a, b) => {
+                return RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity);
+            });
+            
+            burnableCards.forEach(card => {
+                const option = document.createElement('option');
+                option.value = card.id;
+                option.textContent = `${card.word} (${RARITY_NAMES[card.rarity]})`;
+                burnSelect.appendChild(option);
+            });
+            
+            if (burnableCards.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No burnable cards available';
+                option.disabled = true;
+                burnSelect.appendChild(option);
+            }
+            
+            // Update codex grid
+            const codexGrid = document.getElementById('codexGrid');
+            codexGrid.innerHTML = '';
+            
+            // Get all words in codex
+            let codexWords = Array.from(codex).sort();
+            
+            // Filter by rarity if needed
+            if (codexFilters !== 'all') {
+                codexWords = codexWords.filter(word => 
+                    Object.entries(WORD_POOLS).some(([rarity, words]) => 
+                        rarity === codexFilters && words.includes(word)
+                    )
+                );
+            }
+            
+            if (codexWords.length === 0) {
+                codexGrid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">📭 No words collected yet. Burn cards to add them!</div>';
+                return;
+            }
+            
+            codexWords.forEach(word => {
+                // Find the rarity of this word
+                let rarity = 'common';
+                for (const [r, words] of Object.entries(WORD_POOLS)) {
+                    if (words.includes(word)) {
+                        rarity = r;
+                        break;
+                    }
+                }
+                
+                const card = document.createElement('div');
+                card.className = `codex-card ${rarity}`;
+                card.innerHTML = `
+                    <div class="codex-word">${word}</div>
+                    <div class="codex-rarity">${RARITY_NAMES[rarity]}</div>
+                    <div class="milestone-badge">📖</div>
+                `;
+                
+                // Tooltip with collection info
+                const count = collection.filter(c => c.word === word).length;
+                card.title = `${word}\nCollected in Codex\nYou have ${count} in collection`;
+                
+                codexGrid.appendChild(card);
+            });
         }
 
         // ==================== MERGE FUNCTIONS ====================
@@ -1533,18 +2490,20 @@
             
             let baseChance = SUCCESS_CHANCES[mergeKey] || 0;
             let pityBonus = Math.min(pityCounters[mergeKey] || 0, MAX_PITY);
-            let totalChance = baseChance + pityBonus;
+            
+            // Apply milestone bonuses
+            let totalChance = baseChance + pityBonus + activeMilestoneBonuses.mergeBonus;
+            
+            // Apply all bonus multiplier
+            if (activeMilestoneBonuses.allBonus) {
+                totalChance *= activeMilestoneBonuses.allBonus;
+            }
+            
+            // Cap at 100%
+            totalChance = Math.min(totalChance, 1.0);
             
             // Remove merged cards
             selectedCards.forEach(id => removeCard(id));
-            
-            // Log merge attempt
-            mergeHistory.push({
-                timestamp: Date.now(),
-                fromRarity,
-                toRarity,
-                success: Math.random() < totalChance
-            });
             
             if (Math.random() < totalChance) {
                 const newCard = addRandomCard(toRarity);
@@ -1558,18 +2517,27 @@
                         createConfetti();
                     }
                     
-                    // Update log
                     updateLog(`✨ Merge success: ${newCard.word} (${RARITY_NAMES[toRarity]})`, 'success');
                 }
             } else {
-                const dustEarned = DUST_REWARDS[mergeKey] || 5;
+                let dustEarned = DUST_REWARDS[mergeKey] || 5;
+                
+                // Apply dust bonuses
+                dustEarned *= activeMilestoneBonuses.dustMultiplier;
+                if (activeMilestoneBonuses.flatDustBonus) {
+                    dustEarned += activeMilestoneBonuses.flatDustBonus;
+                }
+                
                 dust += dustEarned;
-                pityCounters[mergeKey] = (pityCounters[mergeKey] || 0) + PITY_INCREMENT;
+                
+                // Apply pity rate bonus
+                pityCounters[mergeKey] = (pityCounters[mergeKey] || 0) + (PITY_INCREMENT * activeMilestoneBonuses.pityRate);
+                
                 triggerHaptic('error');
                 document.querySelector('.merge-chamber-fixed').classList.add('merge-flash-failure');
-                showToast(`💔 Failed! +${dustEarned} dust`, 'error');
+                showToast(`💔 Failed! +${Math.round(dustEarned)} dust`, 'error');
                 animateDustChange();
-                updateLog(`💔 Merge failed +${dustEarned} dust`, 'failure');
+                updateLog(`💔 Merge failed +${Math.round(dustEarned)} dust`, 'failure');
             }
             
             setTimeout(() => {
@@ -1617,6 +2585,9 @@
                 setTimeout(() => packEl.classList.remove('opening'), 500);
             }
             
+            // Apply pack luck from milestones
+            const packLuck = activeMilestoneBonuses.packLuck || 1;
+            
             switch(packType) {
                 case 'basic':
                     cost = 50;
@@ -1625,16 +2596,38 @@
                 case 'grand':
                     cost = 200;
                     for (let i = 0; i < 4; i++) cards.push(addRandomCard('common'));
-                    cards.push(addRandomCard('uncommon'));
+                    
+                    // Higher chance for uncommon with pack luck
+                    if (Math.random() < 0.8 * packLuck) {
+                        cards.push(addRandomCard('uncommon'));
+                    } else {
+                        cards.push(addRandomCard('common'));
+                    }
                     break;
                 case 'premium':
                     cost = 500;
                     for (let i = 0; i < 3; i++) cards.push(addRandomCard('common'));
-                    cards.push(addRandomCard('rare'));
-                    if (Math.random() < 0.3) {
+                    
+                    // Better rates with pack luck
+                    const rareChance = 0.7 * packLuck;
+                    if (Math.random() < rareChance) {
+                        cards.push(addRandomCard('rare'));
+                    } else {
+                        cards.push(addRandomCard('uncommon'));
+                    }
+                    
+                    // Chance for epic with legendary milestone
+                    const epicChance = (0.3 + (activeMilestoneBonuses.legendaryChance || 0)) * packLuck;
+                    if (Math.random() < epicChance) {
                         cards.push(addRandomCard('epic'));
                     } else {
                         cards.push(addRandomCard('rare'));
+                    }
+                    
+                    // Mythic chance
+                    if (Math.random() < (activeMilestoneBonuses.mythicChance || 0)) {
+                        cards.push(addRandomCard('mythic'));
+                        showToast('✨ MYTHIC DROP! ✨', 'success');
                     }
                     break;
             }
@@ -1668,7 +2661,12 @@
             for (let i = 0; i < 6; i++) {
                 const rarity = RARITY_ORDER[Math.floor(Math.random() * 4)];
                 const word = WORD_POOLS[rarity][Math.floor(Math.random() * WORD_POOLS[rarity].length)];
-                const price = { common: 30, uncommon: 80, rare: 200, epic: 500 }[rarity] || 100;
+                let price = { common: 30, uncommon: 80, rare: 200, epic: 500 }[rarity] || 100;
+                
+                // Apply discount from milestones if any
+                if (activeMilestoneBonuses.discount) {
+                    price = Math.floor(price * (1 - activeMilestoneBonuses.discount));
+                }
                 
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'market-item';
@@ -1721,6 +2719,7 @@
             if (tabName === 'market') generateMarket();
             else if (tabName === 'gallery') updateGallery();
             else if (tabName === 'collection') updateCollectionGrid();
+            else if (tabName === 'codex') updateCodexUI();
             else if (tabName === 'merge') {
                 updateMergeUI();
                 updateSelectionSummary();
@@ -1833,7 +2832,15 @@
                 
                 let baseChance = SUCCESS_CHANCES[mergeKey] || 0;
                 let pityBonus = Math.min(pityCounters[mergeKey] || 0, MAX_PITY);
-                let totalChance = baseChance + pityBonus;
+                
+                // Apply milestone bonuses
+                let totalChance = baseChance + pityBonus + activeMilestoneBonuses.mergeBonus;
+                
+                if (activeMilestoneBonuses.allBonus) {
+                    totalChance *= activeMilestoneBonuses.allBonus;
+                }
+                
+                totalChance = Math.min(totalChance, 1.0);
                 
                 document.getElementById('targetRarityDisplay').textContent = RARITY_NAMES[toRarity];
                 
@@ -1852,8 +2859,14 @@
                 else if (pityPercent < 70) pityBar.classList.add('medium');
                 else pityBar.classList.add('high');
                 
+                let dustReward = DUST_REWARDS[mergeKey] || 5;
+                dustReward *= activeMilestoneBonuses.dustMultiplier;
+                if (activeMilestoneBonuses.flatDustBonus) {
+                    dustReward += activeMilestoneBonuses.flatDustBonus;
+                }
+                
                 document.getElementById('successPreview').textContent = `Random ${RARITY_NAMES[toRarity]}`;
-                document.getElementById('failurePreview').textContent = `${DUST_REWARDS[mergeKey]} Dust`;
+                document.getElementById('failurePreview').textContent = `${Math.round(dustReward)} Dust`;
                 
                 const mergeBtn = document.getElementById('mergeButton');
                 mergeBtn.disabled = false;
@@ -1912,6 +2925,13 @@
             const div = document.createElement('div');
             div.className = `card ${card.rarity}`;
             
+            // Add codex status class
+            if (codex.has(card.word)) {
+                div.classList.add('in-codex');
+            } else {
+                div.classList.add('burnable');
+            }
+            
             div.innerHTML = `
                 <div class="card-rarity-badge ${card.rarity}"></div>
                 <div class="card-word">${card.word}</div>
@@ -1927,9 +2947,29 @@
                 div.appendChild(badge);
             }
             
+            // Add quick burn button for burnable cards
+            if (!codex.has(card.word)) {
+                const burnBtn = document.createElement('button');
+                burnBtn.className = 'quick-burn';
+                burnBtn.innerHTML = '🔥';
+                burnBtn.title = 'Quick burn to Codex';
+                burnBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`🔥 Burn ${card.word} permanently?`)) {
+                        burnCard(card.id);
+                    }
+                };
+                div.appendChild(burnBtn);
+            }
+            
             if (isMergeable) {
                 div.onclick = () => addToMerge(card.id);
             }
+            
+            // Tooltip with codex info
+            div.title = codex.has(card.word) ? 
+                `📖 In Codex\nCannot burn again` : 
+                `🔥 Not in Codex\nClick 🔥 button to burn`;
             
             return div;
         }
@@ -1937,7 +2977,7 @@
         function updateUI() {
             document.getElementById('totalCards').textContent = collection.length;
             document.getElementById('uniqueCards').textContent = getUniqueCardCount();
-            document.getElementById('dustAmount').textContent = dust;
+            document.getElementById('dustAmount').textContent = Math.round(dust);
             
             const progress = getCollectionProgress();
             document.getElementById('progressFill').style.width = progress + '%';
@@ -1949,6 +2989,8 @@
                 updateMergeUI();
             } else if (document.getElementById('galleryTab').classList.contains('active')) {
                 updateGallery();
+            } else if (document.getElementById('codexTab').classList.contains('active')) {
+                updateCodexUI();
             }
         }
 
@@ -1970,6 +3012,10 @@
         window.toggleSound = toggleSound;
         window.filterCollection = filterCollection;
         window.sortMergeCards = sortMergeCards;
+        window.burnCard = burnCard;
+        window.burnSelectedCard = burnSelectedCard;
+        window.previewBurn = previewBurn;
+        window.filterCodex = filterCodex;
 
         // Handle viewport changes
         window.addEventListener('resize', () => {
