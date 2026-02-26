@@ -119,6 +119,135 @@
             font-size: 20px;
         }
         
+        /* Account Actions */
+        .account-actions {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,215,0,0.3);
+        }
+        
+        .account-actions-title {
+            color: gold;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .reset-btn {
+            flex: 1;
+            background: #2a2a4a;
+            color: #ffc107;
+            border: 1px solid #ffc107;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .reset-btn:hover {
+            background: #ffc107;
+            color: #0a0a1a;
+        }
+        
+        .delete-btn {
+            flex: 1;
+            background: #2a1a1a;
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .delete-btn:hover {
+            background: #ff6b6b;
+            color: #0a0a1a;
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background: #1a1a3a;
+            border: 2px solid gold;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 300px;
+            text-align: center;
+        }
+        
+        .modal-title {
+            color: gold;
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .modal-text {
+            color: #ccc;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal-confirm {
+            flex: 1;
+            background: gold;
+            color: #0a0a1a;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .modal-confirm.delete {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .modal-cancel {
+            flex: 1;
+            background: #2a2a4a;
+            color: white;
+            border: 1px solid #666;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
         /* Merge Chamber */
         .merge-chamber {
             background: #1a1a3a;
@@ -525,6 +654,18 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
     </div>
+    
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">Confirm Action</div>
+            <div class="modal-text" id="modalText">Are you sure?</div>
+            <div class="modal-buttons">
+                <button class="modal-cancel" onclick="hideModal()">Cancel</button>
+                <button class="modal-confirm" id="modalConfirmBtn" onclick="executeConfirmedAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
 
     <div class="game-container">
         <!-- Stats -->
@@ -573,6 +714,15 @@
                     <h4 style="color: gold; margin: 16px 0 8px;">Recent Cards</h4>
                     <div class="cards-grid" id="recentCardsGrid">
                         <!-- Recent cards will be shown here -->
+                    </div>
+                    
+                    <!-- Account Actions -->
+                    <div class="account-actions">
+                        <div class="account-actions-title">⚔️ Account Management</div>
+                        <div class="action-buttons">
+                            <button class="reset-btn" onclick="showResetConfirmation()">⟲ Reset Account</button>
+                            <button class="delete-btn" onclick="showDeleteConfirmation()">🗑️ Delete Account</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -665,6 +815,9 @@
             'legendary→mythic': 0
         };
         
+        // Modal State
+        let pendingAction = null;
+        
         // Card Pools
         const WORDS = {
             common: ['SUN', 'MOON', 'STAR', 'TREE', 'FIRE', 'WATER', 'WIND', 'ROCK', 'BIRD', 'FISH'],
@@ -744,6 +897,121 @@
                     pityCounters: pityCounters
                 }));
             } catch (e) {}
+        }
+        
+        // Reset Account
+        function resetAccount() {
+            // Reset to initial state
+            collection = [];
+            for (let i = 0; i < 8; i++) {
+                collection.push({
+                    id: Date.now() + i + Math.random(),
+                    word: WORDS.common[Math.floor(Math.random() * WORDS.common.length)],
+                    rarity: 'common'
+                });
+            }
+            collection.push({
+                id: Date.now() + 100 + Math.random(),
+                word: WORDS.uncommon[Math.floor(Math.random() * WORDS.uncommon.length)],
+                rarity: 'uncommon'
+            });
+            
+            dust = 150;
+            pityCounters = {
+                'uncommon→rare': 0,
+                'rare→epic': 0,
+                'epic→legendary': 0,
+                'legendary→mythic': 0
+            };
+            selectedCards = [];
+            
+            saveGame();
+            updateUI();
+            
+            // If in merge tab, refresh the grid
+            if (document.getElementById('mergeTab').style.display !== 'none') {
+                renderMergeGrid();
+            }
+            
+            showToast('Account reset successfully!');
+        }
+        
+        // Delete Account
+        function deleteAccount() {
+            // Clear everything
+            collection = [];
+            dust = 0;
+            pityCounters = {
+                'uncommon→rare': 0,
+                'rare→epic': 0,
+                'epic→legendary': 0,
+                'legendary→mythic': 0
+            };
+            selectedCards = [];
+            
+            // Clear storage
+            try {
+                localStorage.removeItem('lexiconCards');
+            } catch (e) {}
+            
+            // Show empty state
+            updateUI();
+            
+            // If in merge tab, refresh the grid
+            if (document.getElementById('mergeTab').style.display !== 'none') {
+                renderMergeGrid();
+            }
+            
+            showToast('Account deleted. Start fresh!');
+        }
+        
+        // Modal Functions
+        function showModal(title, text, action, isDelete = false) {
+            pendingAction = action;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').textContent = text;
+            
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            confirmBtn.textContent = isDelete ? 'Delete' : 'Reset';
+            if (isDelete) {
+                confirmBtn.classList.add('delete');
+            } else {
+                confirmBtn.classList.remove('delete');
+            }
+            
+            document.getElementById('confirmModal').classList.add('show');
+        }
+        
+        function hideModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+            pendingAction = null;
+        }
+        
+        function executeConfirmedAction() {
+            if (pendingAction === 'reset') {
+                resetAccount();
+            } else if (pendingAction === 'delete') {
+                deleteAccount();
+            }
+            hideModal();
+        }
+        
+        function showResetConfirmation() {
+            showModal(
+                'Reset Account',
+                'Are you sure you want to reset your account? Your progress will be lost.',
+                'reset',
+                false
+            );
+        }
+        
+        function showDeleteConfirmation() {
+            showModal(
+                'Delete Account',
+                '⚠️ WARNING: This will permanently delete ALL your cards and progress. This action cannot be undone!',
+                'delete',
+                true
+            );
         }
         
         // Helper Functions
