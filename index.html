@@ -148,6 +148,9 @@
 
         /* log */
         .log-section { background: #0a0a1a; border-radius: 40px; padding: 10px 22px; color: #ccc; font-size: 12px; margin-top: 8px; border: 2px solid #b8860b; backdrop-filter: blur(5px); }
+        
+        /* animation */
+        @keyframes successFlash { 0% { box-shadow: 0 0 10px gold; } 50% { box-shadow: 0 0 50px #4caf50; } 100% { box-shadow: 0 0 10px gold; } }
     </style>
 </head>
 <body>
@@ -219,7 +222,7 @@
                 </div>
             </div>
 
-            <!-- MERGE TAB -->
+            <!-- MERGE TAB (FIXED) -->
             <div id="mergeTab" class="tab-content" style="display:none;">
                 <div class="merge-chamber">
                     <div class="slots">
@@ -231,6 +234,7 @@
                         <button class="filter-btn" onclick="quickFillMerge()" style="font-size:16px; padding:10px 25px;">✨ quick fill</button>
                         <button class="filter-btn" id="mergeButton" onclick="performMerge()" disabled style="font-size:16px; padding:10px 25px; background:gold; color:black;">merge (3)</button>
                     </div>
+                    <div id="mergeInfo" style="text-align:center; color:#aaa; font-size:14px;">Select 3 cards of same rarity</div>
                 </div>
                 <div class="filter-bar">
                     <input type="text" class="search-box" id="mergeSearch" placeholder="🔍 search card..." oninput="updateMergeUI()">
@@ -456,32 +460,186 @@
 
             function removeCard(id) { let idx = collection.findIndex(c=>c.id==id); if(idx>=0) { collection.splice(idx,1); return true; } return false; }
 
-            function performMerge() {
-                if(selectedCards.length!=3) return;
-                let cards = collection.filter(c=>selectedCards.includes(c.id));
-                if(cards.length!=3 || new Set(cards.map(c=>c.rarity)).size!=1) return;
-                let rar = cards[0].rarity;
-                let idx = RARITY_ORDER.indexOf(rar); if(idx>=RARITY_ORDER.length-1) return;
-                let target = RARITY_ORDER[idx+1];
-                let key = `${rar}→${target}`;
-                let base = {'common→uncommon':1.0,'uncommon→rare':0.8,'rare→epic':0.5,'epic→legendary':0.3,'legendary→mythic':0.1}[key]||0;
-                let pity = Math.min(pityCounters[key]||0,0.5);
-                let chance = Math.min(base + pity + (activeEventMultiplier-1) + (claimedMilestones.has(50)?0.05:0), 1.0);
-                selectedCards.forEach(id=>removeCard(id));
-                if(Math.random()<chance){
-                    let newC = addRandomCard(target);
-                    pityCounters[key]=0;
-                    showToast(`✨ success: ${newC.word}`,'success');
-                    updateQuestProgress('daily',1);
-                } else {
-                    let dustReward = {'common→uncommon':5,'uncommon→rare':10,'rare→epic':25,'epic→legendary':100,'legendary→mythic':200}[key]||5;
-                    if(claimedMilestones.has(25)) dustReward+=10;
-                    dust += dustReward;
-                    pityCounters[key] = (pityCounters[key]||0)+0.05;
-                    showToast(`💔 failed +${dustReward} dust`,'error');
+            // ---------- FIXED MERGE FUNCTIONS ----------
+            window.addToMerge = function(cardId) {
+                let card = collection.find(c => c.id == cardId);
+                if (!card) return;
+                
+                // Check if card is already selected
+                if (selectedCards.includes(cardId)) {
+                    showToast('Card already selected', 'error');
+                    return;
                 }
-                selectedCards=[];
-                saveGame(); updateUI(); updateMergeUI();
+                
+                // Check if we already have 3 cards
+                if (selectedCards.length >= 3) {
+                    showToast('Maximum 3 cards can be selected', 'error');
+                    return;
+                }
+                
+                // Check if all selected cards are same rarity
+                if (selectedCards.length > 0) {
+                    let firstCard = collection.find(c => c.id == selectedCards[0]);
+                    if (firstCard.rarity !== card.rarity) {
+                        showToast(`Can only merge cards of the same rarity (${firstCard.rarity})`, 'error');
+                        return;
+                    }
+                }
+                
+                // Check if card is mythic (can't merge mythic)
+                if (card.rarity === 'mythic') {
+                    showToast('Mythic cards cannot be merged', 'error');
+                    return;
+                }
+                
+                selectedCards.push(cardId);
+                triggerHaptic();
+                updateMergeUI();
+                showToast(`Selected ${selectedCards.length}/3 cards`, 'info');
+            };
+
+            window.removeFromMerge = function(index) {
+                if (index < selectedCards.length) {
+                    selectedCards.splice(index, 1);
+                    updateMergeUI();
+                    triggerHaptic();
+                }
+            };
+
+            window.quickFillMerge = function() {
+                if (selectedCards.length === 0) {
+                    showToast('Select a first card first', 'error');
+                    return;
+                }
+                
+                let firstCard = collection.find(c => c.id == selectedCards[0]);
+                if (!firstCard) return;
+                
+                // Get available cards of same rarity not already selected
+                let available = collection.filter(c => 
+                    c.rarity === firstCard.rarity && 
+                    !selectedCards.includes(c.id) &&
+                    c.rarity !== 'mythic'
+                );
+                
+                let needed = 3 - selectedCards.length;
+                let toAdd = available.slice(0, needed);
+                
+                toAdd.forEach(c => selectedCards.push(c.id));
+                
+                if (toAdd.length > 0) {
+                    showToast(`Added ${toAdd.length} cards`, 'success');
+                    updateMergeUI();
+                    triggerHaptic();
+                } else {
+                    showToast('No more cards available of this rarity', 'error');
+                }
+            };
+
+            window.performMerge = function() {
+                if (selectedCards.length !== 3) {
+                    showToast('Select exactly 3 cards to merge', 'error');
+                    return;
+                }
+                
+                let cards = collection.filter(c => selectedCards.includes(c.id));
+                if (cards.length !== 3) return;
+                
+                // Verify all same rarity
+                let rarities = [...new Set(cards.map(c => c.rarity))];
+                if (rarities.length !== 1) {
+                    showToast('Cards must be the same rarity', 'error');
+                    return;
+                }
+                
+                let fromRarity = cards[0].rarity;
+                let fromIndex = RARITY_ORDER.indexOf(fromRarity);
+                
+                // Check if can upgrade
+                if (fromIndex >= RARITY_ORDER.length - 1) {
+                    showToast('Cannot merge mythic cards', 'error');
+                    return;
+                }
+                
+                let toRarity = RARITY_ORDER[fromIndex + 1];
+                let mergeKey = `${fromRarity}→${toRarity}`;
+                
+                // Calculate success chance
+                let baseChance = {
+                    'common→uncommon': 1.0,
+                    'uncommon→rare': 0.8,
+                    'rare→epic': 0.5,
+                    'epic→legendary': 0.3,
+                    'legendary→mythic': 0.1
+                }[mergeKey] || 0;
+                
+                let pityBonus = Math.min(pityCounters[mergeKey] || 0, 0.5);
+                let eventBonus = activeEventMultiplier - 1;
+                let milestoneBonus = (claimedMilestones.has(50) ? 0.05 : 0) + (claimedMilestones.has(15) ? 0.02 : 0);
+                
+                let totalChance = Math.min(baseChance + pityBonus + eventBonus + milestoneBonus, 1.0);
+                
+                // Remove merged cards
+                cards.forEach(c => removeCard(c.id));
+                
+                // Perform merge
+                if (Math.random() < totalChance) {
+                    // SUCCESS
+                    let newCard = addRandomCard(toRarity);
+                    pityCounters[mergeKey] = 0;
+                    
+                    // Visual feedback
+                    document.querySelector('.merge-chamber').style.animation = 'successFlash 0.5s';
+                    setTimeout(() => {
+                        document.querySelector('.merge-chamber').style.animation = '';
+                    }, 500);
+                    
+                    showToast(`✨ SUCCESS! Created ${newCard.word} (${toRarity})`, 'success');
+                    
+                    // Special effect for mythic
+                    if (toRarity === 'mythic') {
+                        createConfetti();
+                    }
+                    
+                    updateQuestProgress('daily', 1);
+                } else {
+                    // FAILURE
+                    let dustReward = {
+                        'common→uncommon': 5,
+                        'uncommon→rare': 10,
+                        'rare→epic': 25,
+                        'epic→legendary': 100,
+                        'legendary→mythic': 200
+                    }[mergeKey] || 5;
+                    
+                    if (claimedMilestones.has(25)) dustReward += 10;
+                    dust += dustReward;
+                    pityCounters[mergeKey] = (pityCounters[mergeKey] || 0) + 0.05;
+                    
+                    showToast(`💔 Failed +${dustReward} dust`, 'error');
+                }
+                
+                selectedCards = [];
+                saveGame(); 
+                updateUI(); 
+                updateMergeUI();
+            };
+
+            function createConfetti() {
+                for (let i = 0; i < 20; i++) {
+                    let conf = document.createElement('div');
+                    conf.style.position = 'fixed';
+                    conf.style.left = Math.random() * 100 + '%';
+                    conf.style.top = '-10px';
+                    conf.style.width = '8px';
+                    conf.style.height = '8px';
+                    conf.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    conf.style.borderRadius = '50%';
+                    conf.style.zIndex = '9999';
+                    conf.style.animation = `fall ${1 + Math.random()}s linear`;
+                    document.body.appendChild(conf);
+                    setTimeout(() => conf.remove(), 2000);
+                }
             }
 
             // UI rendering
@@ -531,7 +689,8 @@
                 let grid = document.getElementById('mergeCollectionGrid');
                 grid.innerHTML = filtered.map(c=>{
                     let sel = selectedCards.includes(c.id)?'style="border:6px solid gold; transform:scale(1.02);"':'';
-                    return `<div class="card ${c.rarity}" onclick="addToMerge('${c.id}')" ${sel}><div class="card-word">${c.word}</div></div>`;
+                    let disabled = (selectedCards.length>0 && collection.find(c2=>c2.id==selectedCards[0])?.rarity !== c.rarity) ? 'style="opacity:0.5;"' : '';
+                    return `<div class="card ${c.rarity}" onclick="addToMerge('${c.id}')" ${sel} ${selectedCards.length>0 && collection.find(c2=>c2.id==selectedCards[0])?.rarity !== c.rarity ? 'style="opacity:0.4;"' : ''}><div class="card-word">${c.word}</div></div>`;
                 }).join('');
                 for(let i=0;i<3;i++) {
                     let s = document.getElementById(`slot${i+1}`);
@@ -542,19 +701,9 @@
                     } else { s.className = 'slot'; s.innerHTML = ''; }
                 }
                 document.getElementById('mergeButton').disabled = selectedCards.length!=3;
+                document.getElementById('mergeInfo').innerText = selectedCards.length===0 ? 'Select 3 cards of same rarity' : 
+                    selectedCards.length<3 ? `Selected ${selectedCards.length}/3 cards` : 'Ready to merge!';
             }
-
-            window.addToMerge = (id)=>{
-                if(selectedCards.length<3 && !selectedCards.includes(id)){ selectedCards.push(id); triggerHaptic(); updateMergeUI(); }
-            };
-            window.removeFromMerge = (i)=>{ if(i<selectedCards.length){ selectedCards.splice(i,1); updateMergeUI(); }};
-            window.quickFillMerge = ()=>{
-                if(selectedCards.length==0) return;
-                let first = collection.find(c=>c.id==selectedCards[0]); if(!first) return;
-                let same = collection.filter(c=>c.rarity==first.rarity && !selectedCards.includes(c.id));
-                while(selectedCards.length<3 && same.length) selectedCards.push(same.shift().id);
-                updateMergeUI();
-            };
 
             function updateCodexUI() {
                 document.getElementById('codexCurrent').innerText = codex.size;
