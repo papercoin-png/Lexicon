@@ -7,7 +7,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Lexicon Cards - Full Screen</title>
+    <title>Lexicon Cards - Enhanced</title>
     <style>
         * {
             box-sizing: border-box;
@@ -29,7 +29,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 0; /* Remove padding for full fill */
+            padding: 0;
             height: 100vh;
             height: 100dvh;
         }
@@ -37,14 +37,11 @@
         .game-container {
             max-width: 1200px;
             width: 100%;
-            height: 100%; /* Full height */
+            height: 100%;
             height: 100dvh;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border-radius: 0; /* Remove border radius for full fill */
-            padding: 12px 12px 8px 12px; /* Adjusted padding */
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            border: none; /* Remove border for full fill */
+            padding: 8px 8px 4px 8px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -112,90 +109,76 @@
             text-align: center;
         }
 
-        .toast.success { 
-            border-left: 4px solid #4caf50;
-            border-right: 4px solid #4caf50;
-        }
-        .toast.error { 
-            border-left: 4px solid #f44336;
-            border-right: 4px solid #f44336;
-        }
-        .toast.info { 
-            border-left: 4px solid #ffd700;
-            border-right: 4px solid #ffd700;
-        }
+        .toast.success { border-left: 4px solid #4caf50; border-right: 4px solid #4caf50; }
+        .toast.error { border-left: 4px solid #f44336; border-right: 4px solid #f44336; }
+        .toast.info { border-left: 4px solid #ffd700; border-right: 4px solid #ffd700; }
 
         @keyframes slideDown {
             from { transform: translateY(-100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* Scrollable Content - Fixed for proper scrolling */
-        .scrollable-content {
+        /* Main Scrollable Area */
+        .main-scrollable {
             flex: 1;
-            min-height: 0; /* Critical for flex scrolling */
+            min-height: 0;
             overflow-y: auto;
             overflow-x: hidden;
             padding-right: 4px;
-            margin-top: 8px;
-            margin-bottom: 4px;
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.2);
         }
 
-        .scrollable-content::-webkit-scrollbar {
+        .main-scrollable::-webkit-scrollbar {
             width: 6px;
         }
 
-        .scrollable-content::-webkit-scrollbar-track {
+        .main-scrollable::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 10px;
         }
 
-        .scrollable-content::-webkit-scrollbar-thumb {
+        .main-scrollable::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.3);
             border-radius: 10px;
         }
 
-        /* Tab Content - All tabs use flex column for proper scrolling */
+        /* Tab Content */
         .tab-content {
             display: none;
-            height: 100%;
-            flex-direction: column;
-            overflow: hidden; /* Important - content will scroll inside */
+            width: 100%;
         }
 
         .tab-content.active {
-            display: flex;
+            display: block;
         }
 
-        /* Merge Tab Specific Layout - FIXED for scrolling */
-        .merge-tab-layout {
+        /* Merge Tab Specific - Fixed top, scrollable cards */
+        .merge-tab-content {
             display: flex;
             flex-direction: column;
-            height: 100%;
-            overflow: hidden;
+            gap: 12px;
         }
 
-        /* Fixed top section for merge chamber */
-        .merge-fixed-top {
-            flex-shrink: 0; /* Prevents shrinking */
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 16px;
-            margin-bottom: 12px;
-            padding: 8px;
-        }
-
-        /* Scrollable cards section */
-        .merge-scrollable-cards {
-            flex: 1;
-            min-height: 0; /* Critical for scrolling */
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-right: 4px;
-            background: rgba(0, 0, 0, 0.2);
+        /* Fixed Merge Chamber */
+        .merge-chamber-fixed {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 16px;
             padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Scrollable Cards Section */
+        .merge-cards-scrollable {
+            max-height: none;
+            overflow-y: visible;
+            padding-bottom: 16px;
         }
 
         /* Header Section */
@@ -203,9 +186,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
             color: white;
             flex-shrink: 0;
         }
@@ -213,11 +196,11 @@
         .title-section {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .title {
-            font-size: clamp(18px, 4vw, 24px);
+            font-size: clamp(16px, 4vw, 22px);
             font-weight: 800;
             background: linear-gradient(135deg, #ffd700, #ffa500);
             -webkit-background-clip: text;
@@ -228,9 +211,9 @@
 
         .stats {
             display: flex;
-            gap: clamp(8px, 2vw, 15px);
+            gap: clamp(6px, 2vw, 12px);
             background: rgba(0, 0, 0, 0.3);
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-radius: 50px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             flex-wrap: wrap;
@@ -238,18 +221,18 @@
 
         .stat-item {
             text-align: center;
-            min-width: 45px;
+            min-width: 40px;
         }
 
         .stat-label {
-            font-size: 9px;
+            font-size: 8px;
             color: #aaa;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .stat-value {
-            font-size: clamp(14px, 3.5vw, 20px);
+            font-size: clamp(12px, 3.5vw, 18px);
             font-weight: bold;
             color: white;
             line-height: 1.2;
@@ -271,8 +254,8 @@
 
         /* Sound Toggle */
         .sound-toggle {
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -281,7 +264,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.2s;
             margin-left: auto;
             flex-shrink: 0;
@@ -290,14 +273,14 @@
         /* Tab Navigation */
         .tabs {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             margin: 4px 0 4px;
             flex-wrap: wrap;
             flex-shrink: 0;
         }
 
         .tab {
-            padding: 6px 8px;
+            padding: 5px 7px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 50px;
@@ -305,7 +288,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: clamp(11px, 2.5vw, 14px);
+            font-size: clamp(10px, 2.5vw, 13px);
             backdrop-filter: blur(5px);
             white-space: nowrap;
             flex: 0 1 auto;
@@ -321,8 +304,8 @@
         .collection-progress {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 20px;
-            padding: 6px 12px;
-            margin-bottom: 8px;
+            padding: 4px 10px;
+            margin-bottom: 6px;
             flex-shrink: 0;
         }
 
@@ -342,25 +325,62 @@
         }
 
         .progress-text {
-            font-size: 10px;
+            font-size: 9px;
             color: #aaa;
             margin-top: 2px;
             text-align: right;
         }
 
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 6px;
+            margin: 8px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: white;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: #ffd700;
+            color: #1a1a2e;
+            border-color: #ffd700;
+        }
+
+        .search-box {
+            flex: 1;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: white;
+            font-size: 11px;
+            min-width: 100px;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         /* Merge Chamber Styles */
         .merge-section {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 16px;
-            padding: 12px;
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .merge-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: #ffd700;
             display: flex;
             align-items: center;
@@ -371,41 +391,41 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 12px;
+            gap: 12px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
 
         .merge-slots {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
         }
 
         .merge-slot {
-            width: 65px;
-            height: 85px;
-            border-radius: 10px;
+            width: 60px;
+            height: 80px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
             transition: all 0.3s;
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.5);
-            font-size: 9px;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
+            font-size: 8px;
             text-align: center;
             padding: 4px;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* Empty slot rarity gradients */
-        .merge-slot.empty-slot-common { background: linear-gradient(135deg, rgba(224,224,224,0.3), rgba(176,176,176,0.3)); border-bottom: 4px solid #808080; }
-        .merge-slot.empty-slot-uncommon { background: linear-gradient(135deg, rgba(139,195,74,0.3), rgba(90,158,58,0.3)); border-bottom: 4px solid #2e7d32; }
-        .merge-slot.empty-slot-rare { background: linear-gradient(135deg, rgba(66,165,245,0.3), rgba(25,118,210,0.3)); border-bottom: 4px solid #0d47a1; }
-        .merge-slot.empty-slot-epic { background: linear-gradient(135deg, rgba(156,39,176,0.3), rgba(106,27,154,0.3)); border-bottom: 4px solid #4a0072; }
-        .merge-slot.empty-slot-legendary { background: linear-gradient(135deg, rgba(255,152,0,0.3), rgba(245,124,0,0.3)); border-bottom: 4px solid #bf360c; }
-        .merge-slot.empty-slot-mythic { background: linear-gradient(135deg, rgba(212,175,55,0.3), rgba(184,134,11,0.3)); border-bottom: 4px solid #7d5e00; }
+        /* Empty slot gradients */
+        .merge-slot.empty-slot-common { background: linear-gradient(135deg, rgba(224,224,224,0.3), rgba(176,176,176,0.3)); border-bottom: 3px solid #808080; }
+        .merge-slot.empty-slot-uncommon { background: linear-gradient(135deg, rgba(139,195,74,0.3), rgba(90,158,58,0.3)); border-bottom: 3px solid #2e7d32; }
+        .merge-slot.empty-slot-rare { background: linear-gradient(135deg, rgba(66,165,245,0.3), rgba(25,118,210,0.3)); border-bottom: 3px solid #0d47a1; }
+        .merge-slot.empty-slot-epic { background: linear-gradient(135deg, rgba(156,39,176,0.3), rgba(106,27,154,0.3)); border-bottom: 3px solid #4a0072; }
+        .merge-slot.empty-slot-legendary { background: linear-gradient(135deg, rgba(255,152,0,0.3), rgba(245,124,0,0.3)); border-bottom: 3px solid #bf360c; }
+        .merge-slot.empty-slot-mythic { background: linear-gradient(135deg, rgba(212,175,55,0.3), rgba(184,134,11,0.3)); border-bottom: 3px solid #7d5e00; }
 
         .merge-slot.filled {
             border: 2px solid;
@@ -413,18 +433,12 @@
             background: white;
         }
 
-        .merge-slot.filled.common { background: linear-gradient(135deg, #e0e0e0, #b0b0b0); border-bottom: 4px solid #808080; }
-        .merge-slot.filled.uncommon { background: linear-gradient(135deg, #8bc34a, #5a9e3a); border-bottom: 4px solid #2e7d32; }
-        .merge-slot.filled.rare { background: linear-gradient(135deg, #42a5f5, #1976d2); border-bottom: 4px solid #0d47a1; }
-        .merge-slot.filled.epic { background: linear-gradient(135deg, #9c27b0, #6a1b9a); border-bottom: 4px solid #4a0072; color: white; }
-        .merge-slot.filled.legendary { background: linear-gradient(135deg, #ff9800, #f57c00); border-bottom: 4px solid #bf360c; color: white; }
-        .merge-slot.filled.mythic { background: linear-gradient(135deg, #d4af37, #b8860b); border-bottom: 4px solid #7d5e00; color: white; animation: mythicSlotPulse 2s infinite; }
-
-        @keyframes mythicSlotPulse {
-            0% { border-bottom-color: #ffd700; }
-            50% { border-bottom-color: #ffffff; }
-            100% { border-bottom-color: #ffd700; }
-        }
+        .merge-slot.filled.common { background: linear-gradient(135deg, #e0e0e0, #b0b0b0); border-bottom: 3px solid #808080; }
+        .merge-slot.filled.uncommon { background: linear-gradient(135deg, #8bc34a, #5a9e3a); border-bottom: 3px solid #2e7d32; }
+        .merge-slot.filled.rare { background: linear-gradient(135deg, #42a5f5, #1976d2); border-bottom: 3px solid #0d47a1; }
+        .merge-slot.filled.epic { background: linear-gradient(135deg, #9c27b0, #6a1b9a); border-bottom: 3px solid #4a0072; color: white; }
+        .merge-slot.filled.legendary { background: linear-gradient(135deg, #ff9800, #f57c00); border-bottom: 3px solid #bf360c; color: white; }
+        .merge-slot.filled.mythic { background: linear-gradient(135deg, #d4af37, #b8860b); border-bottom: 3px solid #7d5e00; color: white; }
 
         @keyframes slotPop {
             0% { transform: scale(0.8); }
@@ -432,35 +446,35 @@
             100% { transform: scale(1); }
         }
 
-        .slot-word { font-weight: bold; font-size: 11px; margin-bottom: 2px; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-        .slot-rarity { font-size: 6px; text-transform: uppercase; opacity: 0.9; }
+        .slot-word { font-weight: bold; font-size: 10px; margin-bottom: 2px; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        .slot-rarity { font-size: 5px; text-transform: uppercase; opacity: 0.9; }
 
         .remove-slot {
             position: absolute;
-            top: -6px;
-            right: -6px;
-            width: 16px;
-            height: 16px;
+            top: -5px;
+            right: -5px;
+            width: 15px;
+            height: 15px;
             background: #f44336;
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 9px;
             cursor: pointer;
             border: 2px solid white;
             z-index: 10;
         }
 
         .quick-fill-btn {
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
-            font-size: 18px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -473,26 +487,26 @@
 
         .merge-info-panel {
             background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 10px;
-            margin-top: 8px;
+            border-radius: 10px;
+            padding: 8px;
+            margin-top: 6px;
         }
 
         .target-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            font-size: 13px;
+            margin-bottom: 6px;
+            font-size: 12px;
         }
 
         .target-rarity { font-weight: bold; color: #ffd700; }
 
         .chance-display {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             text-align: center;
-            margin: 8px 0;
+            margin: 6px 0;
             transition: all 0.3s;
         }
 
@@ -502,10 +516,10 @@
 
         .pity-bar-container {
             width: 100%;
-            height: 6px;
+            height: 5px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            margin: 8px 0;
+            border-radius: 2.5px;
+            margin: 6px 0;
             overflow: hidden;
         }
 
@@ -522,16 +536,16 @@
             display: flex;
             justify-content: space-between;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-            padding: 8px;
-            margin: 6px 0;
-            font-size: 12px;
+            border-radius: 5px;
+            padding: 6px;
+            margin: 4px 0;
+            font-size: 11px;
         }
 
         .merge-button {
             width: 100%;
-            padding: 12px;
-            font-size: 15px;
+            padding: 10px;
+            font-size: 14px;
             font-weight: bold;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border: none;
@@ -539,7 +553,7 @@
             color: white;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .merge-button:hover:not(:disabled) {
@@ -565,11 +579,11 @@
             50% { filter: brightness(1.5) drop-shadow(0 0 10px #f44336); }
         }
 
-        /* Cards Grid - Fixed for proper display */
+        /* Cards Grid */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            gap: 6px;
             padding: 4px;
         }
 
@@ -579,8 +593,8 @@
             width: 100%;
             aspect-ratio: 3/4;
             border-radius: 8px;
-            padding: 6px 3px;
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.5);
+            padding: 5px 3px;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -590,36 +604,30 @@
 
         .card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 9px 0 rgba(0, 0, 0, 0.3), 0 10px 25px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
         }
 
         .card.merge-highlight {
             border: 2px solid #ffd700;
-            box-shadow: 0 0 15px #ffd700, 0 6px 0 rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 15px #ffd700, 0 5px 0 rgba(0, 0, 0, 0.3);
         }
 
-        .card.dimmed { opacity: 0.5; }
-        .card.selected { opacity: 0.3; pointer-events: none; }
+        .card.dimmed { opacity: 0.4; }
+        .card.selected { opacity: 0.2; pointer-events: none; }
 
         /* Rarity backgrounds */
-        .card.common { background: linear-gradient(135deg, #e0e0e0, #b0b0b0); border-bottom: 4px solid #808080; }
-        .card.uncommon { background: linear-gradient(135deg, #8bc34a, #5a9e3a); border-bottom: 4px solid #2e7d32; }
-        .card.rare { background: linear-gradient(135deg, #42a5f5, #1976d2); border-bottom: 4px solid #0d47a1; }
-        .card.epic { background: linear-gradient(135deg, #9c27b0, #6a1b9a); border-bottom: 4px solid #4a0072; color: white; }
-        .card.legendary { background: linear-gradient(135deg, #ff9800, #f57c00); border-bottom: 4px solid #bf360c; color: white; }
-        .card.mythic { background: linear-gradient(135deg, #d4af37, #b8860b); border-bottom: 4px solid #7d5e00; color: white; animation: mythicPulse 2s infinite; }
-
-        @keyframes mythicPulse {
-            0% { border-bottom-color: #ffd700; }
-            50% { border-bottom-color: #ffffff; }
-            100% { border-bottom-color: #ffd700; }
-        }
+        .card.common { background: linear-gradient(135deg, #e0e0e0, #b0b0b0); border-bottom: 3px solid #808080; }
+        .card.uncommon { background: linear-gradient(135deg, #8bc34a, #5a9e3a); border-bottom: 3px solid #2e7d32; }
+        .card.rare { background: linear-gradient(135deg, #42a5f5, #1976d2); border-bottom: 3px solid #0d47a1; }
+        .card.epic { background: linear-gradient(135deg, #9c27b0, #6a1b9a); border-bottom: 3px solid #4a0072; color: white; }
+        .card.legendary { background: linear-gradient(135deg, #ff9800, #f57c00); border-bottom: 3px solid #bf360c; color: white; }
+        .card.mythic { background: linear-gradient(135deg, #d4af37, #b8860b); border-bottom: 3px solid #7d5e00; color: white; }
 
         .card-word {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             word-break: break-word;
@@ -630,8 +638,8 @@
             position: absolute;
             top: 3px;
             left: 3px;
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
             border: 1px solid rgba(255,255,255,0.5);
         }
@@ -644,7 +652,7 @@
         .card-rarity-badge.mythic { background: #ffd700; }
 
         .card-type {
-            font-size: 6px;
+            font-size: 5px;
             text-transform: uppercase;
             text-align: center;
             opacity: 0.8;
@@ -654,9 +662,9 @@
 
         .card-number {
             position: absolute;
-            bottom: 3px;
-            right: 3px;
-            font-size: 5px;
+            bottom: 2px;
+            right: 2px;
+            font-size: 4px;
             opacity: 0.6;
         }
 
@@ -666,25 +674,25 @@
             right: 3px;
             background: rgba(0, 0, 0, 0.7);
             color: white;
-            border-radius: 8px;
+            border-radius: 6px;
             padding: 1px 3px;
-            font-size: 7px;
+            font-size: 6px;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 30px 15px;
+            padding: 25px 10px;
             color: rgba(255, 255, 255, 0.5);
             grid-column: 1/-1;
         }
 
-        .empty-state-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
-        .empty-state-text { font-size: 14px; margin-bottom: 16px; }
+        .empty-state-icon { font-size: 35px; margin-bottom: 10px; opacity: 0.5; }
+        .empty-state-text { font-size: 13px; margin-bottom: 12px; }
 
         .empty-state-button {
-            padding: 8px 16px;
+            padding: 6px 12px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             border: none;
             border-radius: 50px;
@@ -693,36 +701,35 @@
             cursor: pointer;
             display: inline-block;
             text-decoration: none;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         /* Pack Section */
         .pack-section {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             justify-content: center;
-            margin-bottom: 12px;
+            margin: 8px 0;
             flex-wrap: wrap;
-            flex-shrink: 0;
         }
 
         .pack {
             flex: 1;
-            min-width: 90px;
-            padding: 12px 6px;
+            min-width: 80px;
+            padding: 10px 4px;
             background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 12px;
+            border-radius: 10px;
             text-align: center;
             color: white;
             cursor: pointer;
             transition: all 0.3s;
             border: 2px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
         }
 
         .pack:hover {
             transform: translateY(-3px);
-            box-shadow: 0 9px 0 rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
         }
 
         .pack.opening { animation: packShake 0.5s ease; }
@@ -734,9 +741,9 @@
             75% { transform: rotate(5deg) scale(1.05); }
         }
 
-        .pack-icon { font-size: 28px; margin-bottom: 4px; }
-        .pack-name { font-size: 14px; font-weight: bold; }
-        .pack-price { font-size: 10px; opacity: 0.9; }
+        .pack-icon { font-size: 24px; margin-bottom: 4px; }
+        .pack-name { font-size: 12px; font-weight: bold; }
+        .pack-price { font-size: 9px; opacity: 0.9; }
 
         .pack-result-card {
             animation: cardReveal 0.3s ease forwards;
@@ -751,48 +758,46 @@
         /* Market Section */
         .market-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
-            padding: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+            padding: 6px;
             background: rgba(0, 0, 0, 0.2);
-            border-radius: 16px;
-            max-height: 100%;
-            overflow-y: auto;
+            border-radius: 12px;
         }
 
         .market-item {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 10px;
+            border-radius: 10px;
+            padding: 8px;
             color: white;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
         }
 
-        .market-price { font-size: 16px; font-weight: bold; color: #ffd700; }
+        .market-price { font-size: 14px; font-weight: bold; color: #ffd700; }
 
         .buy-button {
-            padding: 5px;
+            padding: 4px;
             background: linear-gradient(135deg, #4caf50, #45a049);
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             color: white;
             font-weight: bold;
             cursor: pointer;
-            font-size: 12px;
-            box-shadow: 0 3px 0 #2e7d32;
+            font-size: 11px;
+            box-shadow: 0 2px 0 #2e7d32;
         }
 
         /* Gallery Section */
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
-            padding: 8px;
-            min-height: 150px;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            padding: 6px;
+            min-height: 120px;
         }
 
         .gallery-card {
@@ -818,7 +823,7 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
         .gallery-card-back {
@@ -828,16 +833,16 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             text-align: center;
-            padding: 10px;
+            padding: 8px;
         }
 
         .gallery-empty {
             text-align: center;
             color: rgba(255, 255, 255, 0.5);
-            padding: 30px;
+            padding: 25px;
             grid-column: 1/-1;
         }
 
@@ -845,11 +850,11 @@
         .log-section {
             margin-top: 4px;
             background: rgba(0, 0, 0, 0.4);
-            border-radius: 6px;
-            padding: 6px;
+            border-radius: 5px;
+            padding: 5px;
             color: white;
-            font-size: 11px;
-            max-height: 32px;
+            font-size: 10px;
+            max-height: 28px;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.1);
             flex-shrink: 0;
@@ -865,17 +870,17 @@
         .tg-header {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             margin-bottom: 4px;
             color: white;
-            font-size: 11px;
+            font-size: 10px;
             opacity: 0.8;
             flex-shrink: 0;
         }
         
         .tg-avatar {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea, #764ba2);
             flex-shrink: 0;
@@ -884,8 +889,8 @@
         /* Confetti */
         .confetti {
             position: fixed;
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: gold;
             animation: confetti 1s ease-out forwards;
             z-index: 10001;
@@ -894,6 +899,18 @@
         @keyframes confetti {
             0% { transform: translateY(0) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100px) rotate(720deg); opacity: 0; }
+        }
+
+        /* Selection Summary */
+        .selection-summary {
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+            padding: 6px;
+            margin: 6px 0;
+            font-size: 11px;
+            color: #ffd700;
+            border: 1px dashed #ffd700;
+            text-align: center;
         }
     </style>
 </head>
@@ -952,77 +969,102 @@
             <button class="tab" onclick="switchTab('gallery')" id="tabGallery">🖼️ Gallery</button>
         </div>
 
-        <!-- Scrollable Content Area -->
-        <div class="scrollable-content" id="mainScrollable">
+        <!-- Main Scrollable Area -->
+        <div class="main-scrollable" id="mainScrollable">
             <!-- Collection Tab -->
             <div id="collectionTab" class="tab-content active">
-                <div class="collection-header" style="display: flex; justify-content: space-between; margin-bottom: 8px; color: white;">
-                    <h3 style="font-size: 14px;">Your Collection</h3>
+                <!-- Filter Bar -->
+                <div class="filter-bar">
+                    <input type="text" class="search-box" id="collectionSearch" placeholder="🔍 Search cards..." oninput="filterCollection()">
+                    <select class="filter-btn" id="rarityFilter" onchange="filterCollection()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
+                        <option value="all">All</option>
+                        <option value="common">Common</option>
+                        <option value="uncommon">Uncommon</option>
+                        <option value="rare">Rare</option>
+                        <option value="epic">Epic</option>
+                        <option value="legendary">Legendary</option>
+                        <option value="mythic">Mythic</option>
+                    </select>
                 </div>
-                <div class="cards-grid" id="collectionGrid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="cards-grid" id="collectionGrid">
                     <!-- Cards will be dynamically inserted here -->
                 </div>
             </div>
 
-            <!-- Merge Tab - RESTRUCTURED FOR SCROLLING -->
+            <!-- Merge Tab - IMPROVED LAYOUT -->
             <div id="mergeTab" class="tab-content">
-                <div class="merge-tab-layout">
-                    <!-- Fixed top section with merge chamber -->
-                    <div class="merge-fixed-top">
-                        <div class="merge-section">
-                            <div class="merge-title">
-                                <span>🔄 Merge Chamber</span>
+                <!-- Fixed Merge Chamber Section -->
+                <div class="merge-chamber-fixed">
+                    <div class="merge-section">
+                        <div class="merge-title">
+                            <span>🔄 Merge Chamber</span>
+                        </div>
+                        
+                        <div class="merge-slots-container">
+                            <div class="merge-slots">
+                                <div class="merge-slot empty-slot-common" id="slot1" onclick="removeFromMerge(0)"></div>
+                                <div class="merge-slot empty-slot-uncommon" id="slot2" onclick="removeFromMerge(1)"></div>
+                                <div class="merge-slot empty-slot-rare" id="slot3" onclick="removeFromMerge(2)"></div>
                             </div>
-                            
-                            <div class="merge-slots-container">
-                                <div class="merge-slots">
-                                    <div class="merge-slot empty-slot-common" id="slot1" onclick="removeFromMerge(0)"></div>
-                                    <div class="merge-slot empty-slot-uncommon" id="slot2" onclick="removeFromMerge(1)"></div>
-                                    <div class="merge-slot empty-slot-rare" id="slot3" onclick="removeFromMerge(2)"></div>
-                                </div>
-                                <div class="quick-fill-btn" id="quickFillBtn" onclick="quickFillMerge()" data-tooltip="Auto-fill">✨</div>
-                            </div>
+                            <div class="quick-fill-btn" id="quickFillBtn" onclick="quickFillMerge()">✨</div>
+                        </div>
 
-                            <div class="merge-info-panel" id="mergeInfoPanel">
-                                <div class="target-info">
-                                    <span>Target:</span>
-                                    <span class="target-rarity" id="targetRarityDisplay">None</span>
-                                </div>
-                                <div class="chance-display" id="chanceDisplay">0%</div>
-                                <div class="pity-bar-container">
-                                    <div class="pity-bar-fill" id="pityBar" style="width: 0%"></div>
-                                </div>
-                                <div class="preview-box">
-                                    <span>Success:</span>
-                                    <span id="successPreview">---</span>
-                                </div>
-                                <div class="preview-box">
-                                    <span>Failure:</span>
-                                    <span id="failurePreview">---</span>
-                                </div>
-                                <button class="merge-button" id="mergeButton" onclick="performMerge()" disabled>
-                                    Select 3 cards
-                                </button>
+                        <!-- Selection Summary -->
+                        <div class="selection-summary" id="selectionSummary">
+                            Click cards below to select them
+                        </div>
+
+                        <div class="merge-info-panel" id="mergeInfoPanel">
+                            <div class="target-info">
+                                <span>Target:</span>
+                                <span class="target-rarity" id="targetRarityDisplay">None</span>
                             </div>
+                            <div class="chance-display" id="chanceDisplay">0%</div>
+                            <div class="pity-bar-container">
+                                <div class="pity-bar-fill" id="pityBar" style="width: 0%"></div>
+                            </div>
+                            <div class="preview-box">
+                                <span>Success:</span>
+                                <span id="successPreview">---</span>
+                            </div>
+                            <div class="preview-box">
+                                <span>Failure:</span>
+                                <span id="failurePreview">---</span>
+                            </div>
+                            <button class="merge-button" id="mergeButton" onclick="performMerge()" disabled>
+                                Select 3 cards to merge
+                            </button>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Scrollable cards section -->
-                    <div class="merge-scrollable-cards">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: white;">
-                            <span style="font-size: 13px; font-weight: bold;">Available Cards</span>
-                            <span class="selection-indicator" id="mergeSelectionIndicator" style="font-size: 11px; color: #ffd700;"></span>
-                        </div>
-                        <div class="cards-grid" id="mergeCollectionGrid">
-                            <!-- Cards will be dynamically inserted here -->
-                        </div>
+                <!-- Scrollable Cards Section -->
+                <div class="merge-cards-scrollable">
+                    <!-- Filter Bar for Merge -->
+                    <div class="filter-bar">
+                        <input type="text" class="search-box" id="mergeSearch" placeholder="🔍 Search cards..." oninput="updateMergeUI()">
+                        <select class="filter-btn" id="mergeRarityFilter" onchange="updateMergeUI()" style="background: rgba(255,255,255,0.1); color: white;">
+                            <option value="all">All</option>
+                            <option value="common">Common</option>
+                            <option value="uncommon">Uncommon</option>
+                            <option value="rare">Rare</option>
+                            <option value="epic">Epic</option>
+                            <option value="legendary">Legendary</option>
+                            <option value="mythic">Mythic</option>
+                        </select>
+                        <button class="filter-btn" onclick="sortMergeCards()" id="sortBtn">⬇️ Sort</button>
+                    </div>
+                    
+                    <!-- Cards Grid -->
+                    <div class="cards-grid" id="mergeCollectionGrid">
+                        <!-- Cards will be dynamically inserted here -->
                     </div>
                 </div>
             </div>
 
             <!-- Packs Tab -->
             <div id="packsTab" class="tab-content">
-                <h3 style="color: white; margin-bottom: 10px; font-size: 15px;">📦 Open Packs</h3>
+                <h3 style="color: white; margin-bottom: 8px; font-size: 14px;">📦 Open Packs</h3>
                 
                 <div class="pack-section">
                     <div class="pack" onclick="openPack('basic')" id="basicPack">
@@ -1042,9 +1084,9 @@
                     </div>
                 </div>
 
-                <div id="packResults" style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 10px;">
-                    <h4 style="color: white; margin-bottom: 8px; font-size: 13px;">Opened Cards</h4>
-                    <div class="cards-grid" id="packResultsGrid" style="grid-template-columns: repeat(3, 1fr); min-height: 120px;">
+                <div id="packResults" style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 8px;">
+                    <h4 style="color: white; margin-bottom: 6px; font-size: 12px;">Opened Cards</h4>
+                    <div class="cards-grid" id="packResultsGrid" style="grid-template-columns: repeat(3, 1fr); min-height: 100px;">
                         <!-- Pack results appear here -->
                     </div>
                 </div>
@@ -1052,11 +1094,11 @@
 
             <!-- Market Tab -->
             <div id="marketTab" class="tab-content">
-                <h3 style="color: white; margin-bottom: 10px; font-size: 15px;">🏪 Trading Post</h3>
+                <h3 style="color: white; margin-bottom: 8px; font-size: 14px;">🏪 Trading Post</h3>
                 
-                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                    <button class="tab" style="padding: 5px 10px; font-size: 12px;" onclick="showMarket('buy')">Buy Cards</button>
-                    <button class="tab" style="padding: 5px 10px; font-size: 12px;" onclick="showMarket('sell')">Sell Cards</button>
+                <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                    <button class="tab" style="padding: 4px 8px; font-size: 11px;" onclick="showMarket('buy')">Buy Cards</button>
+                    <button class="tab" style="padding: 4px 8px; font-size: 11px;" onclick="showMarket('sell')">Sell Cards</button>
                 </div>
                 
                 <div class="market-grid" id="marketGrid">
@@ -1066,9 +1108,9 @@
 
             <!-- Gallery Tab -->
             <div id="galleryTab" class="tab-content">
-                <h3 style="color: white; margin-bottom: 10px; font-size: 15px;">🖼️ Gallery</h3>
+                <h3 style="color: white; margin-bottom: 8px; font-size: 14px;">🖼️ Gallery</h3>
                 
-                <div style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 12px;">
+                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 10px;">
                     <div class="gallery-grid" id="galleryDisplay">
                         <!-- Gallery cards appear here -->
                     </div>
@@ -1082,7 +1124,7 @@
             </div>
         </div>
 
-        <!-- Log Section - Simplified -->
+        <!-- Log Section -->
         <div class="log-section" id="logMessages">
             <div class="log-entry">✨ Welcome to Lexicon Cards!</div>
         </div>
@@ -1106,6 +1148,10 @@
             'epic→legendary': 0,
             'legendary→mythic': 0
         };
+        
+        // UI state
+        let sortAscending = true;
+        let mergeHistory = [];
         
         // Constants
         const WORD_POOLS = {
@@ -1168,9 +1214,7 @@
                         telegramUser = tg.initDataUnsafe.user;
                     }
                 }
-            } catch (e) {
-                console.error('Telegram init error:', e);
-            }
+            } catch (e) {}
             
             displayTelegramUser();
             loadGame().then(() => {
@@ -1285,10 +1329,21 @@
             return Math.round((uniqueOwned / totalUnique) * 100);
         }
 
-        function getSortedCollection() {
-            return [...collection].sort((a, b) => {
-                const rarityIndex = RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
-                if (rarityIndex !== 0) return rarityIndex;
+        function getFilteredCollection(searchTerm = '', rarityFilter = 'all') {
+            return collection.filter(card => {
+                const matchesSearch = card.word.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesRarity = rarityFilter === 'all' || card.rarity === rarityFilter;
+                return matchesSearch && matchesRarity;
+            });
+        }
+
+        function getSortedCollection(cards) {
+            return [...cards].sort((a, b) => {
+                if (!sortAscending) {
+                    return RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity);
+                }
+                const rarityCompare = RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
+                if (rarityCompare !== 0) return rarityCompare;
                 return a.word.localeCompare(b.word);
             });
         }
@@ -1396,6 +1451,9 @@
             
             triggerHaptic('selection');
             selectedCards.push(cardId);
+            
+            // Update selection summary
+            updateSelectionSummary();
             updateMergeUI();
             return true;
         }
@@ -1404,7 +1462,20 @@
             if (index < selectedCards.length) {
                 triggerHaptic('selection');
                 selectedCards.splice(index, 1);
+                updateSelectionSummary();
                 updateMergeUI();
+            }
+        }
+
+        function updateSelectionSummary() {
+            const summary = document.getElementById('selectionSummary');
+            if (selectedCards.length === 0) {
+                summary.textContent = 'Click cards below to select them';
+            } else {
+                const firstCard = collection.find(c => c.id === selectedCards[0]);
+                if (firstCard) {
+                    summary.textContent = `Selected: ${selectedCards.length}/3 ${RARITY_NAMES[firstCard.rarity]} cards`;
+                }
             }
         }
 
@@ -1433,6 +1504,7 @@
             
             triggerHaptic('success');
             showToast(`✨ Auto-filled with ${cardsToAdd.length} cards`, 'success');
+            updateSelectionSummary();
             updateMergeUI();
         }
 
@@ -1466,41 +1538,69 @@
             // Remove merged cards
             selectedCards.forEach(id => removeCard(id));
             
+            // Log merge attempt
+            mergeHistory.push({
+                timestamp: Date.now(),
+                fromRarity,
+                toRarity,
+                success: Math.random() < totalChance
+            });
+            
             if (Math.random() < totalChance) {
                 const newCard = addRandomCard(toRarity);
                 if (newCard) {
                     pityCounters[mergeKey] = 0;
                     triggerHaptic('success');
-                    document.querySelector('.merge-section').classList.add('merge-flash-success');
+                    document.querySelector('.merge-chamber-fixed').classList.add('merge-flash-success');
                     showToast(`✨ SUCCESS! Created ${newCard.word} (${RARITY_NAMES[toRarity]})`, 'success');
                     
                     if (toRarity === 'mythic') {
                         createConfetti();
                     }
+                    
+                    // Update log
+                    updateLog(`✨ Merge success: ${newCard.word} (${RARITY_NAMES[toRarity]})`, 'success');
                 }
             } else {
                 const dustEarned = DUST_REWARDS[mergeKey] || 5;
                 dust += dustEarned;
                 pityCounters[mergeKey] = (pityCounters[mergeKey] || 0) + PITY_INCREMENT;
                 triggerHaptic('error');
-                document.querySelector('.merge-section').classList.add('merge-flash-failure');
+                document.querySelector('.merge-chamber-fixed').classList.add('merge-flash-failure');
                 showToast(`💔 Failed! +${dustEarned} dust`, 'error');
                 animateDustChange();
+                updateLog(`💔 Merge failed +${dustEarned} dust`, 'failure');
             }
             
             setTimeout(() => {
-                document.querySelector('.merge-section').classList.remove('merge-flash-success', 'merge-flash-failure');
+                document.querySelector('.merge-chamber-fixed').classList.remove('merge-flash-success', 'merge-flash-failure');
             }, 500);
             
             selectedCards = [];
+            updateSelectionSummary();
             saveGame();
             updateUI();
+        }
+
+        function updateLog(message, type = 'info') {
+            const logEl = document.getElementById('logMessages');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            logEl.innerHTML = '';
+            logEl.appendChild(entry);
         }
 
         function animateDustChange() {
             const dustEl = document.getElementById('dustAmount');
             dustEl.classList.add('dust-change');
             setTimeout(() => dustEl.classList.remove('dust-change'), 500);
+        }
+
+        function sortMergeCards() {
+            sortAscending = !sortAscending;
+            document.getElementById('sortBtn').textContent = sortAscending ? '⬇️ Sort' : '⬆️ Sort';
+            updateMergeUI();
         }
 
         // ==================== PACK FUNCTIONS ====================
@@ -1554,6 +1654,7 @@
             });
             
             showToast(`📦 Opened ${packType} pack!`, 'info');
+            updateLog(`📦 Opened ${packType} pack`, 'info');
             saveGame();
             updateUI();
         }
@@ -1572,8 +1673,8 @@
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'market-item';
                 itemDiv.innerHTML = `
-                    <div style="font-size: 18px; font-weight: bold; text-align: center;">${word}</div>
-                    <div style="text-align: center; font-size: 10px;">${RARITY_NAMES[rarity]}</div>
+                    <div style="font-size: 16px; font-weight: bold; text-align: center;">${word}</div>
+                    <div style="text-align: center; font-size: 9px;">${RARITY_NAMES[rarity]}</div>
                     <div class="market-price">${price} Dust</div>
                     <button class="buy-button" onclick="buyCard('${word}', '${rarity}', ${price})">Buy</button>
                 `;
@@ -1600,6 +1701,7 @@
             });
             
             showToast(`🛒 Purchased ${word} (${RARITY_NAMES[rarity]})`, 'success');
+            updateLog(`🛒 Bought ${word} (${RARITY_NAMES[rarity]})`, 'success');
             saveGame();
             updateUI();
             generateMarket();
@@ -1619,24 +1721,34 @@
             if (tabName === 'market') generateMarket();
             else if (tabName === 'gallery') updateGallery();
             else if (tabName === 'collection') updateCollectionGrid();
-            else if (tabName === 'merge') updateMergeUI();
+            else if (tabName === 'merge') {
+                updateMergeUI();
+                updateSelectionSummary();
+            }
             
             // Scroll to top when switching tabs
             document.getElementById('mainScrollable').scrollTop = 0;
         }
 
+        function filterCollection() {
+            updateCollectionGrid();
+        }
+
         function updateCollectionGrid() {
-            const grid = document.getElementById('collectionGrid');
-            const sortedCards = getSortedCollection();
+            const searchTerm = document.getElementById('collectionSearch').value;
+            const rarityFilter = document.getElementById('rarityFilter').value;
             
+            const filteredCards = getFilteredCollection(searchTerm, rarityFilter);
+            const sortedCards = getSortedCollection(filteredCards);
+            
+            const grid = document.getElementById('collectionGrid');
             grid.innerHTML = '';
             
             if (sortedCards.length === 0) {
                 grid.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">📭</div>
-                        <div class="empty-state-text">No cards in your collection</div>
-                        <button class="empty-state-button" onclick="switchTab('packs')">Open Packs</button>
+                        <div class="empty-state-icon">🔍</div>
+                        <div class="empty-state-text">No cards match your filters</div>
                     </div>
                 `;
                 return;
@@ -1648,21 +1760,20 @@
         }
 
         function updateMergeUI() {
-            const sortedCards = getSortedCollection();
-            const mergeGrid = document.getElementById('mergeCollectionGrid');
+            const searchTerm = document.getElementById('mergeSearch')?.value || '';
+            const rarityFilter = document.getElementById('mergeRarityFilter')?.value || 'all';
             
+            let filteredCards = getFilteredCollection(searchTerm, rarityFilter);
+            
+            // If we have selected cards, only show cards of that rarity or dimmed others
             let mergeRarity = null;
             if (selectedCards.length > 0) {
                 const firstCard = collection.find(c => c.id === selectedCards[0]);
                 if (firstCard) mergeRarity = firstCard.rarity;
             }
             
-            const indicator = document.getElementById('mergeSelectionIndicator');
-            if (mergeRarity) {
-                indicator.textContent = `${RARITY_NAMES[mergeRarity]} (${selectedCards.length}/3)`;
-            } else {
-                indicator.textContent = 'Click a card to start';
-            }
+            const sortedCards = getSortedCollection(filteredCards);
+            const mergeGrid = document.getElementById('mergeCollectionGrid');
             
             mergeGrid.innerHTML = '';
             
@@ -1746,7 +1857,7 @@
                 
                 const mergeBtn = document.getElementById('mergeButton');
                 mergeBtn.disabled = false;
-                mergeBtn.textContent = `MERGE (${Math.round(totalChance * 100)}%)`;
+                mergeBtn.textContent = `MERGE (${Math.round(totalChance * 100)}% chance)`;
             } else {
                 document.getElementById('targetRarityDisplay').textContent = 'None';
                 document.getElementById('chanceDisplay').textContent = '0%';
@@ -1756,7 +1867,7 @@
                 
                 const mergeBtn = document.getElementById('mergeButton');
                 mergeBtn.disabled = true;
-                mergeBtn.textContent = `Select ${3 - selectedCards.length} more`;
+                mergeBtn.textContent = `Select ${3 - selectedCards.length} more card(s)`;
             }
             
             const quickFill = document.getElementById('quickFillBtn');
@@ -1857,6 +1968,8 @@
         window.buyCard = buyCard;
         window.showMarket = showMarket;
         window.toggleSound = toggleSound;
+        window.filterCollection = filterCollection;
+        window.sortMergeCards = sortMergeCards;
 
         // Handle viewport changes
         window.addEventListener('resize', () => {
