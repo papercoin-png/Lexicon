@@ -119,6 +119,111 @@
             font-size: 20px;
         }
         
+        /* Offline Earnings */
+        .offline-earnings {
+            background: linear-gradient(135deg, #2a2a4a, #1a1a3a);
+            border: 2px solid gold;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .offline-earnings::before {
+            content: '⏳';
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            font-size: 40px;
+            opacity: 0.1;
+        }
+        
+        .earnings-title {
+            color: gold;
+            font-size: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .earnings-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .earning-item {
+            flex: 1;
+        }
+        
+        .earning-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+        
+        .earning-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: gold;
+        }
+        
+        .earning-sub {
+            font-size: 11px;
+            color: #4caf50;
+        }
+        
+        .collect-btn {
+            background: gold;
+            color: #0a0a1a;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+        
+        .collect-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255,215,0,0.5);
+        }
+        
+        .collect-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .collect-btn.collectable {
+            animation: collectPulse 1.5s infinite;
+        }
+        
+        @keyframes collectPulse {
+            0%, 100% { box-shadow: 0 0 10px gold; }
+            50% { box-shadow: 0 0 30px gold; }
+        }
+        
+        .time-bar {
+            width: 100%;
+            height: 4px;
+            background: #0a0a1a;
+            border-radius: 2px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .time-progress {
+            height: 100%;
+            background: gold;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
         /* Account Actions */
         .account-actions {
             margin-top: 24px;
@@ -132,31 +237,8 @@
             font-size: 16px;
         }
         
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-        }
-        
-        .reset-btn {
-            flex: 1;
-            background: #2a2a4a;
-            color: #ffc107;
-            border: 1px solid #ffc107;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .reset-btn:hover {
-            background: #ffc107;
-            color: #0a0a1a;
-        }
-        
         .delete-btn {
-            flex: 1;
+            width: 100%;
             background: #2a1a1a;
             color: #ff6b6b;
             border: 1px solid #ff6b6b;
@@ -223,18 +305,13 @@
         
         .modal-confirm {
             flex: 1;
-            background: gold;
-            color: #0a0a1a;
+            background: #ff6b6b;
+            color: white;
             border: none;
             padding: 12px;
             border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-        }
-        
-        .modal-confirm.delete {
-            background: #ff6b6b;
-            color: white;
         }
         
         .modal-cancel {
@@ -662,7 +739,7 @@
             <div class="modal-text" id="modalText">Are you sure?</div>
             <div class="modal-buttons">
                 <button class="modal-cancel" onclick="hideModal()">Cancel</button>
-                <button class="modal-confirm" id="modalConfirmBtn" onclick="executeConfirmedAction()">Confirm</button>
+                <button class="modal-confirm" id="modalConfirmBtn" onclick="executeConfirmedAction()">Delete</button>
             </div>
         </div>
     </div>
@@ -699,6 +776,38 @@
                     <div class="realm-title">Welcome to the REALM</div>
                     <p style="margin-bottom: 16px; color: #ccc;">Collect words, merge cards, and unlock rare lexicon!</p>
                     
+                    <!-- Offline Earnings -->
+                    <div class="offline-earnings">
+                        <div class="earnings-title">
+                            <span>⏳ Offline Accumulation</span>
+                        </div>
+                        
+                        <div class="earnings-stats">
+                            <div class="earning-item">
+                                <div class="earning-label">ACCUMULATED</div>
+                                <div class="earning-value" id="accumulatedDust">0</div>
+                                <div class="earning-sub">dust</div>
+                            </div>
+                            <div class="earning-item">
+                                <div class="earning-label">RATE</div>
+                                <div class="earning-value">1</div>
+                                <div class="earning-sub">per 5 min</div>
+                            </div>
+                        </div>
+                        
+                        <div class="time-bar">
+                            <div class="time-progress" id="timeProgress" style="width: 0%"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-bottom: 10px;">
+                            <span id="timeUntilNext">Next: 5:00</span>
+                            <span>Max: 24 hours</span>
+                        </div>
+                        
+                        <button class="collect-btn" id="collectBtn" onclick="collectOfflineDust()" disabled>
+                            Collect Dust
+                        </button>
+                    </div>
+                    
                     <!-- Collection Progress -->
                     <div style="background: #2a2a4a; border-radius: 10px; padding: 12px; margin-bottom: 16px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
@@ -719,10 +828,7 @@
                     <!-- Account Actions -->
                     <div class="account-actions">
                         <div class="account-actions-title">⚔️ Account Management</div>
-                        <div class="action-buttons">
-                            <button class="reset-btn" onclick="showResetConfirmation()">⟲ Reset Account</button>
-                            <button class="delete-btn" onclick="showDeleteConfirmation()">🗑️ Delete Account</button>
-                        </div>
+                        <button class="delete-btn" onclick="showDeleteConfirmation()">🗑️ Delete Account</button>
                     </div>
                 </div>
             </div>
@@ -815,8 +921,18 @@
             'legendary→mythic': 0
         };
         
+        // Offline Earnings State
+        let lastLoginTime = Date.now();
+        let accumulatedOfflineDust = 0;
+        const DUST_PER_INTERVAL = 1; // 1 dust per interval
+        const INTERVAL_MS = 5 * 60 * 1000; // 5 minutes in milliseconds
+        const MAX_ACCUMULATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+        
         // Modal State
         let pendingAction = null;
+        
+        // Timer for offline progress
+        let offlineTimer = null;
         
         // Card Pools
         const WORDS = {
@@ -871,6 +987,9 @@
             
             // Load saved game if exists
             loadGame();
+            
+            // Start offline timer
+            startOfflineTimer();
         }
         
         // Storage functions
@@ -882,6 +1001,14 @@
                     collection = data.collection || collection;
                     dust = data.dust || 150;
                     pityCounters = data.pityCounters || pityCounters;
+                    lastLoginTime = data.lastLoginTime || Date.now();
+                    accumulatedOfflineDust = data.accumulatedOfflineDust || 0;
+                    
+                    // Calculate offline earnings since last login
+                    calculateOfflineEarnings();
+                } else {
+                    // First time - set last login
+                    lastLoginTime = Date.now();
                 }
             } catch (e) {}
             
@@ -894,14 +1021,92 @@
                 localStorage.setItem('lexiconCards', JSON.stringify({
                     collection: collection,
                     dust: dust,
-                    pityCounters: pityCounters
+                    pityCounters: pityCounters,
+                    lastLoginTime: lastLoginTime,
+                    accumulatedOfflineDust: accumulatedOfflineDust
                 }));
             } catch (e) {}
         }
         
-        // Reset Account
-        function resetAccount() {
-            // Reset to initial state
+        // Offline Earnings Functions
+        function calculateOfflineEarnings() {
+            const now = Date.now();
+            const timeDiff = Math.min(now - lastLoginTime, MAX_ACCUMULATION_MS);
+            const intervals = Math.floor(timeDiff / INTERVAL_MS);
+            accumulatedOfflineDust = intervals * DUST_PER_INTERVAL;
+            
+            // Update last login time to now for next calculation
+            lastLoginTime = now;
+            saveGame();
+        }
+        
+        function startOfflineTimer() {
+            if (offlineTimer) clearInterval(offlineTimer);
+            
+            offlineTimer = setInterval(() => {
+                // Add dust every 5 minutes if under max
+                const timeSinceLastAccumulation = Date.now() - lastLoginTime;
+                if (timeSinceLastAccumulation >= INTERVAL_MS && accumulatedOfflineDust < MAX_ACCUMULATION_MS / INTERVAL_MS * DUST_PER_INTERVAL) {
+                    accumulatedOfflineDust += DUST_PER_INTERVAL;
+                    lastLoginTime = Date.now();
+                    saveGame();
+                }
+                updateOfflineUI();
+            }, 1000); // Check every second for smooth progress bar
+        }
+        
+        function updateOfflineUI() {
+            const accumulatedEl = document.getElementById('accumulatedDust');
+            const collectBtn = document.getElementById('collectBtn');
+            const timeProgress = document.getElementById('timeProgress');
+            const timeUntilNext = document.getElementById('timeUntilNext');
+            
+            if (accumulatedEl) {
+                accumulatedEl.textContent = accumulatedOfflineDust;
+            }
+            
+            if (collectBtn) {
+                if (accumulatedOfflineDust > 0) {
+                    collectBtn.disabled = false;
+                    collectBtn.classList.add('collectable');
+                    collectBtn.textContent = `Collect ${accumulatedOfflineDust} Dust`;
+                } else {
+                    collectBtn.disabled = true;
+                    collectBtn.classList.remove('collectable');
+                    collectBtn.textContent = 'Collect Dust';
+                }
+            }
+            
+            if (timeProgress) {
+                const timeSinceLast = Date.now() - lastLoginTime;
+                const progress = Math.min((timeSinceLast / INTERVAL_MS) * 100, 100);
+                timeProgress.style.width = progress + '%';
+            }
+            
+            if (timeUntilNext) {
+                const timeSinceLast = Date.now() - lastLoginTime;
+                const timeRemaining = Math.max(INTERVAL_MS - timeSinceLast, 0);
+                const minutes = Math.floor(timeRemaining / 60000);
+                const seconds = Math.floor((timeRemaining % 60000) / 1000);
+                timeUntilNext.textContent = `Next: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+        
+        window.collectOfflineDust = function() {
+            if (accumulatedOfflineDust > 0) {
+                dust += accumulatedOfflineDust;
+                accumulatedOfflineDust = 0;
+                lastLoginTime = Date.now();
+                saveGame();
+                updateUI();
+                updateOfflineUI();
+                showToast(`✨ Collected ${accumulatedOfflineDust} dust!`);
+            }
+        };
+        
+        // Delete Account (now gives starter pack)
+        function deleteAccount() {
+            // Reset to starter pack (8 common + 1 uncommon + 150 dust)
             collection = [];
             for (let i = 0; i < 8; i++) {
                 collection.push({
@@ -923,62 +1128,27 @@
                 'epic→legendary': 0,
                 'legendary→mythic': 0
             };
+            accumulatedOfflineDust = 0;
+            lastLoginTime = Date.now();
             selectedCards = [];
             
             saveGame();
             updateUI();
+            updateOfflineUI();
             
             // If in merge tab, refresh the grid
             if (document.getElementById('mergeTab').style.display !== 'none') {
                 renderMergeGrid();
             }
             
-            showToast('Account reset successfully!');
-        }
-        
-        // Delete Account
-        function deleteAccount() {
-            // Clear everything
-            collection = [];
-            dust = 0;
-            pityCounters = {
-                'uncommon→rare': 0,
-                'rare→epic': 0,
-                'epic→legendary': 0,
-                'legendary→mythic': 0
-            };
-            selectedCards = [];
-            
-            // Clear storage
-            try {
-                localStorage.removeItem('lexiconCards');
-            } catch (e) {}
-            
-            // Show empty state
-            updateUI();
-            
-            // If in merge tab, refresh the grid
-            if (document.getElementById('mergeTab').style.display !== 'none') {
-                renderMergeGrid();
-            }
-            
-            showToast('Account deleted. Start fresh!');
+            showToast('Account reset to starter pack!');
         }
         
         // Modal Functions
-        function showModal(title, text, action, isDelete = false) {
+        function showModal(title, text, action) {
             pendingAction = action;
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalText').textContent = text;
-            
-            const confirmBtn = document.getElementById('modalConfirmBtn');
-            confirmBtn.textContent = isDelete ? 'Delete' : 'Reset';
-            if (isDelete) {
-                confirmBtn.classList.add('delete');
-            } else {
-                confirmBtn.classList.remove('delete');
-            }
-            
             document.getElementById('confirmModal').classList.add('show');
         }
         
@@ -988,29 +1158,17 @@
         }
         
         function executeConfirmedAction() {
-            if (pendingAction === 'reset') {
-                resetAccount();
-            } else if (pendingAction === 'delete') {
+            if (pendingAction === 'delete') {
                 deleteAccount();
             }
             hideModal();
         }
         
-        function showResetConfirmation() {
-            showModal(
-                'Reset Account',
-                'Are you sure you want to reset your account? Your progress will be lost.',
-                'reset',
-                false
-            );
-        }
-        
         function showDeleteConfirmation() {
             showModal(
                 'Delete Account',
-                '⚠️ WARNING: This will permanently delete ALL your cards and progress. This action cannot be undone!',
-                'delete',
-                true
+                '⚠️ Reset to starter pack? You will receive 8 common cards, 1 uncommon card, and 150 dust.',
+                'delete'
             );
         }
         
@@ -1049,6 +1207,9 @@
                 renderMergeGrid();
                 updateMergeButton();
             }
+            
+            // Update offline UI
+            updateOfflineUI();
         }
         
         function updateRealmTab() {
