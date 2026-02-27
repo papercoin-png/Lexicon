@@ -325,16 +325,13 @@
             cursor: pointer;
         }
         
-        /* Merge Chamber - UPDATED: removed sticky positioning */
+        /* Merge Chamber */
         .merge-chamber {
             background: #1a1a3a;
             border-radius: 20px;
             padding: 20px;
             margin-bottom: 16px;
             border: 2px solid gold;
-            /* position: sticky removed - now scrolls naturally */
-            /* top: 0 removed */
-            /* z-index: 10 removed */
         }
         
         .chamber-title {
@@ -344,7 +341,7 @@
             font-size: 18px;
         }
         
-        /* Merge Size Selector - NEW */
+        /* Merge Size Selector */
         .merge-size-selector {
             display: flex;
             justify-content: center;
@@ -483,9 +480,27 @@
             box-shadow: 0 4px 0 rgba(0,0,0,0.3);
         }
         
+        /* NEW: Stacked card visual effect */
+        .card.stacked {
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3), 2px 2px 0 rgba(255,215,0,0.3), 4px 4px 0 rgba(255,215,0,0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* NEW: Partial selection indicator for stacked cards */
+        .card.partial-selected {
+            opacity: 0.7;
+            border: 3px solid gold;
+            transform: scale(0.98);
+        }
+        
         .card:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+        }
+        
+        .card.stacked:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.3), 3px 3px 0 rgba(255,215,0,0.4), 6px 6px 0 rgba(255,215,0,0.2);
         }
         
         .card.common { background: linear-gradient(135deg, #a0a0a0, #707070); }
@@ -536,10 +551,27 @@
             top: 4px;
             right: 4px;
             background: rgba(0,0,0,0.7);
-            padding: 2px 4px;
-            border-radius: 8px;
-            font-size: 9px;
+            padding: 4px 6px;
+            border-radius: 12px;
+            font-size: 11px;
             border: 1px solid gold;
+            font-weight: bold;
+            min-width: 28px;
+            text-align: center;
+        }
+        
+        /* NEW: Selected count for stacked cards */
+        .card-selected-count {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            background: gold;
+            color: #0a0a1a;
+            padding: 2px 4px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: bold;
+            border: 1px solid white;
         }
         
         /* Merge Button */
@@ -868,13 +900,13 @@
                 </div>
             </div>
             
-            <!-- Merge Tab (UPDATED with Multi-Merge) -->
+            <!-- Merge Tab (with stacked cards) -->
             <div id="mergeTab" style="display: none;">
-                <!-- Merge Chamber (Sticky removed - now scrolls naturally) -->
+                <!-- Merge Chamber -->
                 <div class="merge-chamber">
                     <div class="chamber-title">MERGE CHAMBER</div>
                     
-                    <!-- NEW: Merge Size Selector -->
+                    <!-- Merge Size Selector -->
                     <div class="merge-size-selector">
                         <button class="size-btn active" onclick="setMergeSize(3)">3 Cards</button>
                         <button class="size-btn" onclick="setMergeSize(4)">4 Cards</button>
@@ -958,7 +990,7 @@
         let collection = [];
         let dust = 150;
         let selectedCards = [];
-        let mergeSize = 3; // NEW: default to 3 cards
+        let mergeSize = 3;
         let pityCounters = {
             'uncommon→rare': 0,
             'rare→epic': 0,
@@ -995,7 +1027,7 @@
             epic: 'EPIC', legendary: 'LEGENDARY', mythic: 'MYTHIC'
         };
         
-        // UPDATED: Success chances for different merge sizes
+        // Success chances for different merge sizes
         const SUCCESS_CHANCES = {
             '3:common→uncommon': 1.0,
             '3:uncommon→rare': 0.8,
@@ -1016,7 +1048,7 @@
             '5:legendary→mythic': 0.3
         };
         
-        // UPDATED: Dust rewards based on merge size
+        // Dust rewards based on merge size
         const DUST_REWARDS = {
             '3:common→uncommon': 5,
             '3:uncommon→rare': 10,
@@ -1040,7 +1072,7 @@
         const PITY_INCREMENT = 0.05;
         const MAX_PITY = 0.5;
         
-        // NEW: Set merge size
+        // Set merge size
         window.setMergeSize = function(size) {
             mergeSize = size;
             
@@ -1074,17 +1106,32 @@
         // Initialize with some cards
         function initializeGame() {
             collection = [];
-            for (let i = 0; i < 8; i++) {
+            // Add some duplicates for testing stacked cards
+            for (let i = 0; i < 12; i++) {
                 collection.push({
                     id: Date.now() + i + Math.random(),
-                    word: WORDS.common[Math.floor(Math.random() * WORDS.common.length)],
+                    word: 'SUN',
                     rarity: 'common'
                 });
             }
+            for (let i = 0; i < 5; i++) {
+                collection.push({
+                    id: Date.now() + 100 + i + Math.random(),
+                    word: 'MOON',
+                    rarity: 'common'
+                });
+            }
+            for (let i = 0; i < 3; i++) {
+                collection.push({
+                    id: Date.now() + 200 + i + Math.random(),
+                    word: 'FLAME',
+                    rarity: 'uncommon'
+                });
+            }
             collection.push({
-                id: Date.now() + 100 + Math.random(),
-                word: WORDS.uncommon[Math.floor(Math.random() * WORDS.uncommon.length)],
-                rarity: 'uncommon'
+                id: Date.now() + 300 + Math.random(),
+                word: 'DRAGON',
+                rarity: 'rare'
             });
             
             loadGame();
@@ -1343,47 +1390,80 @@
             document.getElementById('scrollableContent').scrollTop = 0;
         };
         
-        // Card Creation
-        function createCardElement(card, isMergeable = false, highlightRarity = null) {
+        // Card Creation - UPDATED to handle stacked cards
+        function createCardElement(card, isMergeable = false, highlightRarity = null, stackInfo = null) {
             const div = document.createElement('div');
             div.className = `card ${card.rarity}`;
             
-            if (isMergeable && selectedCards.includes(card.id)) {
+            // Add stacked class if this card has multiple copies
+            if (stackInfo && stackInfo.count > 1) {
+                div.classList.add('stacked');
+            }
+            
+            // Check if this specific card ID is selected
+            const isSelected = selectedCards.includes(card.id);
+            
+            // For stacked cards, we need to check if any copies of this card type are selected
+            let selectedCount = 0;
+            if (stackInfo) {
+                selectedCount = selectedCards.filter(id => {
+                    const c = collection.find(coll => coll.id === id);
+                    return c && c.word === card.word && c.rarity === card.rarity;
+                }).length;
+                
+                if (selectedCount > 0 && selectedCount < stackInfo.count) {
+                    div.classList.add('partial-selected');
+                }
+            }
+            
+            if (isMergeable && isSelected) {
                 div.classList.add('selected');
             }
-            if (highlightRarity && card.rarity === highlightRarity && !selectedCards.includes(card.id)) {
+            if (highlightRarity && card.rarity === highlightRarity && !isSelected) {
                 div.classList.add('highlight');
             }
             if (highlightRarity && card.rarity !== highlightRarity && selectedCards.length > 0) {
                 div.classList.add('dimmed');
             }
             
-            const count = collection.filter(c => c.word === card.word && c.rarity === card.rarity).length;
-            
             div.innerHTML = `
                 <div class="card-word">${card.word}</div>
                 <div class="card-rarity">${RARITY_NAMES[card.rarity]}</div>
-                ${count > 1 ? `<div class="card-count">x${count}</div>` : ''}
+                ${stackInfo ? `<div class="card-count">x${stackInfo.count}</div>` : ''}
+                ${selectedCount > 0 ? `<div class="card-selected-count">${selectedCount}/${stackInfo ? stackInfo.count : 1}</div>` : ''}
             `;
             
             if (isMergeable) {
-                div.onclick = () => addToMerge(card.id);
+                div.onclick = () => addToMerge(card, stackInfo);
             }
             
             return div;
         }
         
-        // Merge Functions
-        window.addToMerge = function(cardId) {
-            let card = collection.find(c => c.id === cardId);
-            if (!card) return;
+        // UPDATED: Add to merge function now accepts a card and optional stackInfo
+        window.addToMerge = function(card, stackInfo = null) {
+            // If this is a stacked card, we need to find an available copy to add
+            if (stackInfo && stackInfo.count > 1) {
+                // Find an unselected copy of this card type
+                const availableCopy = collection.find(c => 
+                    c.word === card.word && 
+                    c.rarity === card.rarity && 
+                    !selectedCards.includes(c.id)
+                );
+                
+                if (availableCopy) {
+                    card = availableCopy;
+                } else {
+                    showToast('No available copies of this card to select');
+                    return;
+                }
+            }
             
-            if (selectedCards.includes(cardId)) {
+            if (selectedCards.includes(card.id)) {
                 showToast('Card already selected');
                 return;
             }
             
-            // UPDATED: Check max based on mergeSize
             if (selectedCards.length >= mergeSize) {
                 showToast(`Maximum ${mergeSize} cards`);
                 return;
@@ -1402,7 +1482,7 @@
                 return;
             }
             
-            selectedCards.push(cardId);
+            selectedCards.push(card.id);
             renderMergeGrid();
             updateMergeButton();
         };
@@ -1522,6 +1602,7 @@
             updateMergeButton();
         };
         
+        // UPDATED: Render merge grid with stacked cards
         function renderMergeGrid() {
             let grid = document.getElementById('mergeGrid');
             if (!grid) return;
@@ -1539,23 +1620,48 @@
                 return;
             }
             
+            // Group cards by word and rarity
+            const groupedCards = {};
+            collection.forEach(card => {
+                const key = `${card.word}|${card.rarity}`;
+                if (!groupedCards[key]) {
+                    groupedCards[key] = {
+                        cards: [],
+                        word: card.word,
+                        rarity: card.rarity,
+                        count: 0
+                    };
+                }
+                groupedCards[key].cards.push(card);
+                groupedCards[key].count++;
+            });
+            
             let highlightRarity = null;
             if (selectedCards.length > 0) {
                 let firstCard = collection.find(c => c.id === selectedCards[0]);
                 if (firstCard) highlightRarity = firstCard.rarity;
             }
             
-            let sortedCards = [...collection].sort((a, b) => {
-                let rarityCompare = RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
+            // Convert grouped cards to array and sort
+            const groupedArray = Object.values(groupedCards).sort((a, b) => {
+                const rarityCompare = RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
                 if (rarityCompare !== 0) return rarityCompare;
                 return a.word.localeCompare(b.word);
             });
             
-            sortedCards.forEach(card => {
-                grid.appendChild(createCardElement(card, true, highlightRarity));
+            // Create a card element for each group (stack)
+            groupedArray.forEach(group => {
+                // Use the first card as representative
+                const representativeCard = group.cards[0];
+                const stackInfo = {
+                    count: group.count,
+                    cards: group.cards
+                };
+                
+                grid.appendChild(createCardElement(representativeCard, true, highlightRarity, stackInfo));
             });
             
-            // Update slots (now 5 slots)
+            // Update slots
             for (let i = 1; i <= 5; i++) {
                 let slot = document.getElementById(`slot${i}`);
                 if (!slot) continue;
