@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ages of Discovery: Blueprint Edition</title>
+    <title>Ages of Discovery: Civilization</title>
     <style>
         * {
             margin: 0;
@@ -72,18 +72,18 @@
         /* Tab Navigation */
         .tabs {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 4px;
             margin-bottom: 8px;
         }
 
         .tab {
-            padding: 8px;
+            padding: 8px 4px;
             background: #1a1f2e;
             border: none;
             color: #a0a0a0;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             cursor: pointer;
         }
@@ -438,6 +438,11 @@
             padding: 6px;
             font-size: 10px;
             text-align: center;
+            cursor: pointer;
+        }
+
+        .combo-item:hover {
+            background: #ffd70010;
         }
 
         .combo-formula {
@@ -458,6 +463,7 @@
             text-align: center;
             font-size: 12px;
             margin-bottom: 8px;
+            cursor: pointer;
         }
 
         .gate-name {
@@ -470,7 +476,7 @@
             font-size: 10px;
         }
 
-        /* Expedition */
+        /* Expedition Buttons */
         .expedition-btn {
             width: 100%;
             margin-top: 4px;
@@ -483,7 +489,12 @@
             cursor: pointer;
         }
 
-        /* Modal */
+        .civ-btn {
+            background: #2a4a4a;
+            margin-top: 8px;
+        }
+
+        /* Civilization Modal */
         .modal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -491,8 +502,9 @@
             display: none;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
             z-index: 1000;
+            backdrop-filter: blur(5px);
         }
 
         .modal.active {
@@ -502,37 +514,115 @@
         .modal-content {
             background: #0f1424;
             border-radius: 24px;
-            padding: 20px;
+            padding: 15px;
             border: 2px solid #ffd700;
-            max-width: 300px;
-            max-height: 80vh;
+            max-width: 380px;
+            width: 100%;
+            max-height: 90vh;
             overflow-y: auto;
         }
 
-        /* Museum Stats */
-        .museum-stats {
+        /* Civ Game Styles */
+        .civ-resources {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
             margin-bottom: 12px;
         }
 
-        .stat-box {
+        .civ-resource-box {
             background: #1a1f2e;
             border-radius: 8px;
-            padding: 8px;
+            padding: 6px 3px;
             text-align: center;
         }
 
-        .stat-value {
+        .civ-resource-value {
             color: #ffd700;
-            font-size: 18px;
+            font-size: 14px;
             font-weight: bold;
         }
 
-        .stat-label {
+        .civ-resource-label {
             color: #a0a0a0;
-            font-size: 9px;
+            font-size: 8px;
+        }
+
+        .civ-stats {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .civ-stat-badge {
+            background: #2a1f0a;
+            border-radius: 20px;
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .civ-map {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            margin-bottom: 12px;
+            background: #0a0f1a;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .civ-tile {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .civ-tile:hover {
+            transform: scale(0.95);
+        }
+
+        .civ-preview {
+            background: #0a0f1a;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 12px;
+        }
+
+        .civ-preview-title {
+            color: #ffd700;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .civ-letters-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            min-height: 30px;
+        }
+
+        .civ-letter-badge {
+            background: #ffd70020;
+            padding: 4px 8px;
+            border-radius: 12px;
+            border: 1px solid #ffd700;
+            font-size: 11px;
+        }
+
+        .civ-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
         }
 
         /* Notification */
@@ -547,7 +637,7 @@
             border-radius: 30px;
             font-size: 12px;
             font-weight: bold;
-            z-index: 1000;
+            z-index: 2000;
             animation: slideDown 0.3s;
         }
 
@@ -579,6 +669,7 @@
             <button class="tab active" onclick="switchTab('forge')" id="tab-forge">🔨 Forge</button>
             <button class="tab" onclick="switchTab('blueprints')" id="tab-blueprints">📜 Blueprints</button>
             <button class="tab" onclick="switchTab('museum')" id="tab-museum">🏛️ Museum</button>
+            <button class="tab" onclick="switchTab('civ')" id="tab-civ">🏙️ Civilization</button>
         </div>
 
         <!-- Current Age -->
@@ -595,7 +686,7 @@
         <!-- Timeline -->
         <div class="timeline" id="timeline"></div>
 
-        <!-- FORGE TAB (Default) -->
+        <!-- FORGE TAB -->
         <div id="forge-tab">
             <!-- Letters -->
             <div class="letters-section">
@@ -639,7 +730,7 @@
             </button>
         </div>
 
-        <!-- BLUEPRINTS TAB (Hidden by default) -->
+        <!-- BLUEPRINTS TAB -->
         <div id="blueprints-tab" style="display: none;">
             <div class="section-header" style="margin-bottom: 8px;">
                 <span>📜 Available Blueprints</span>
@@ -657,24 +748,24 @@
             </div>
         </div>
 
-        <!-- MUSEUM TAB (Hidden by default) -->
+        <!-- MUSEUM TAB -->
         <div id="museum-tab" style="display: none;">
-            <div class="museum-stats">
-                <div class="stat-box">
-                    <div class="stat-value" id="museum-words">0</div>
-                    <div class="stat-label">Words Found</div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;">
+                <div class="civ-resource-box">
+                    <div class="civ-resource-value" id="museum-words">0</div>
+                    <div class="civ-resource-label">Words Found</div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="museum-blueprints">0</div>
-                    <div class="stat-label">Blueprints</div>
+                <div class="civ-resource-box">
+                    <div class="civ-resource-value" id="museum-blueprints">0</div>
+                    <div class="civ-resource-label">Blueprints</div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="museum-artifacts">0</div>
-                    <div class="stat-label">Artifacts</div>
+                <div class="civ-resource-box">
+                    <div class="civ-resource-value" id="museum-artifacts">0</div>
+                    <div class="civ-resource-label">Artifacts</div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="museum-mastery">0%</div>
-                    <div class="stat-label">Mastery</div>
+                <div class="civ-resource-box">
+                    <div class="civ-resource-value" id="museum-mastery">0%</div>
+                    <div class="civ-resource-label">Mastery</div>
                 </div>
             </div>
 
@@ -683,6 +774,92 @@
 
             <div class="section-header" style="margin-top: 12px;">📚 Age Mastery</div>
             <div id="mastery-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 4px;"></div>
+        </div>
+
+        <!-- CIVILIZATION TAB -->
+        <div id="civ-tab" style="display: none;">
+            <button class="expedition-btn civ-btn" onclick="startCivGame()">
+                🏛️ Start Rune Civilization
+            </button>
+            
+            <div style="background: #1a1f2e; border-radius: 12px; padding: 12px; margin-top: 12px;">
+                <div style="color: #ffd700; font-size: 14px; margin-bottom: 8px;">🏙️ How to Play</div>
+                <ul style="color: #a0a0a0; font-size: 11px; list-style-position: inside; padding-left: 5px;">
+                    <li>Send scouts to explore tiles</li>
+                    <li>Collect letters from different terrains</li>
+                    <li>End turn to auto-collect adjacent tiles</li>
+                    <li>Build structures for bonuses</li>
+                    <li>Transfer letters to main game</li>
+                </ul>
+                <div style="color: #7fffd4; font-size: 10px; margin-top: 8px; text-align: center;">
+                    New civilization available daily!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CIVILIZATION MODAL -->
+    <div class="modal" id="civ-modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                <h3 style="color: #ffd700;">🏛️ Rune Civilization</h3>
+                <span style="color: #7fffd4; background: #1a1f2e; padding: 4px 10px; border-radius: 20px;">Turn <span id="civ-turn">1</span></span>
+            </div>
+            
+            <!-- Resources -->
+            <div class="civ-resources">
+                <div class="civ-resource-box">
+                    <div class="civ-resource-value" id="civ-food">10</div>
+                    <div class="civ-resource-label">🍎 Food</div>
+                </div>
+                <div class="civ-resource-box">
+                    <div class="civ-resource-value" id="civ-gold">5</div>
+                    <div class="civ-resource-label">🪙 Gold</div>
+                </div>
+                <div class="civ-resource-box">
+                    <div class="civ-resource-value" id="civ-knowledge">0</div>
+                    <div class="civ-resource-label">📚 Knowledge</div>
+                </div>
+                <div class="civ-resource-box">
+                    <div class="civ-resource-value" id="civ-storage">0/20</div>
+                    <div class="civ-resource-label">📦 Storage</div>
+                </div>
+            </div>
+            
+            <!-- Stats -->
+            <div class="civ-stats">
+                <div class="civ-stat-badge">
+                    <span>👥</span> <span id="civ-pop">3</span>
+                </div>
+                <div class="civ-stat-badge">
+                    <span>🛡️</span> <span id="civ-scouts">2</span>
+                </div>
+                <div class="civ-stat-badge">
+                    <span>🏠</span> <span id="civ-buildings">0</span>
+                </div>
+            </div>
+            
+            <!-- Game Map -->
+            <div class="civ-map" id="civ-map"></div>
+            
+            <!-- Collected Letters Preview -->
+            <div class="civ-preview">
+                <div class="civ-preview-title">📦 Collected This Turn:</div>
+                <div class="civ-letters-preview" id="civ-letters-preview"></div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="civ-actions">
+                <button class="btn btn-secondary" onclick="endCivTurn()">⏭️ End Turn</button>
+                <button class="btn btn-secondary" onclick="buyCivScout()">🛡️ Scout (10🪙)</button>
+                <button class="btn btn-secondary" onclick="buildGranary()">🏠 Granary (15🍎)</button>
+                <button class="btn btn-secondary" onclick="buildMarket()">🏪 Market (15🪙)</button>
+                <button class="btn btn-secondary" onclick="buildLibrary()">📚 Library (15📚)</button>
+                <button class="btn btn-primary" onclick="collectCivLetters()">📦 Transfer to Game</button>
+            </div>
+            
+            <!-- Close Button -->
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="closeCivModal()">Close</button>
         </div>
     </div>
 
@@ -703,7 +880,7 @@
             <p style="color: white; font-size: 12px; margin-bottom: 15px;">
                 Words have faded from the world. But hidden within them are blueprints, artifacts, and ancient knowledge.<br><br>
                 Craft words to discover blueprints. Research them to unlock permanent upgrades. Build your museum of discoveries.<br><br>
-                <span style="color: #7fffd4;">Each word you craft may reveal a secret...</span>
+                <span style="color: #7fffd4;">New: Lead your civilization to find rare letters!</span>
             </p>
             <button class="btn btn-primary" style="width: 100%;" onclick="closeLoreModal()">Begin Discovery</button>
         </div>
@@ -820,37 +997,37 @@
             
             // Buildings
             'SHELTER': { type: 'building', effect: 'Daily bonus +2 letters', cost: 25, lore: 'A place to rest' },
-            'LIBRARY': { type: 'building', effect: 'Knowledge +5 per day', cost: 40, lore: 'Preserves wisdom' },
-            'FORGE': { type: 'building', effect: 'Tools last longer', cost: 30, lore: 'Fire and metal' },
+            'KNOWLEDGE': { type: 'building', effect: 'Knowledge +5 per day', cost: 40, lore: 'Preserves wisdom' },
+            'METALWORKING': { type: 'building', effect: 'Tools last longer', cost: 30, lore: 'Fire and metal' },
             
             // Knowledge
-            'WRITING': { type: 'knowledge', effect: 'Words worth +2 points', cost: 35, lore: 'Recorded history' },
+            'FARMING': { type: 'knowledge', effect: 'Words worth +2 points', cost: 35, lore: 'Recorded history' },
             'ALCHEMY': { type: 'knowledge', effect: 'Fuse 2 letters into 1', cost: 45, lore: 'Transformation' },
             'ASTRONOMY': { type: 'knowledge', effect: 'Stars reveal secrets', cost: 50, lore: 'Map the heavens' },
             
             // Artifacts (special ones)
-            'STONE_TABLET': { type: 'artifact', effect: 'Permanent +5 max letters', cost: 60, lore: 'First written word' },
-            'BRONZE_COMPASS': { type: 'artifact', effect: 'Expeditions find +1 letter', cost: 55, lore: 'Guides the way' },
-            'IRON_CROWN': { type: 'artifact', effect: 'All words +3 points', cost: 70, lore: 'Symbol of rule' },
-            'GOLDEN_HARP': { type: 'artifact', effect: 'Music soothes, +10 daily', cost: 65, lore: 'Sounds of joy' },
-            'CRYSTAL_BALL': { type: 'artifact', effect: 'See future words', cost: 80, lore: 'Glimpse of fate' },
-            'COSMIC_KEY': { type: 'artifact', effect: 'Unlock any age', cost: 100, lore: 'Opens all doors' }
+            'WATER': { type: 'artifact', effect: 'Permanent +5 max letters', cost: 60, lore: 'First written word' },
+            'TRADE': { type: 'artifact', effect: 'Expeditions find +1 letter', cost: 55, lore: 'Guides the way' },
+            'KINGSHIP': { type: 'artifact', effect: 'All words +3 points', cost: 70, lore: 'Symbol of rule' },
+            'CELEBRATION': { type: 'artifact', effect: 'Music soothes, +10 daily', cost: 65, lore: 'Sounds of joy' },
+            'SORCERY': { type: 'artifact', effect: 'See future words', cost: 80, lore: 'Glimpse of fate' },
+            'UNIVERSE': { type: 'artifact', effect: 'Unlock any age', cost: 100, lore: 'Opens all doors' }
         };
 
         const COMBOS = [
-            { needs: ['FIRE', 'STONE'], result: 'FLINT', newWord: 'FLINT' },
-            { needs: ['WATER', 'EARTH'], result: 'CLAY', newWord: 'CLAY' },
-            { needs: ['METAL', 'FIRE'], result: 'SWORD', newWord: 'SWORD' },
-            { needs: ['WOOD', 'STONE'], result: 'HUT', newWord: 'HUT' }
+            { needs: ['FIRE', 'STONE'], result: 'FLINT' },
+            { needs: ['WATER', 'EARTH'], result: 'CLAY' },
+            { needs: ['METAL', 'FIRE'], result: 'SWORD' },
+            { needs: ['WOOD', 'STONE'], result: 'HUT' }
         ];
 
         const ARTIFACTS = [
-            { name: 'Stone Tablet', found: false, bonus: 'Max letters +5', lore: 'The first written word' },
-            { name: 'Bronze Compass', found: false, bonus: 'Expeditions +1', lore: 'Guided ancient traders' },
-            { name: 'Iron Crown', found: false, bonus: 'Words +3 points', lore: 'Worn by the first king' },
-            { name: 'Golden Harp', found: false, bonus: 'Daily +10', lore: 'Played for the gods' },
-            { name: 'Crystal Ball', found: false, bonus: 'See the future', lore: 'Gaze into infinity' },
-            { name: 'Cosmic Key', found: false, bonus: 'Unlock anything', lore: 'Made from starlight' }
+            { name: 'Stone Tablet', bonus: 'Max letters +5', lore: 'The first written word' },
+            { name: 'Bronze Compass', bonus: 'Expeditions +1', lore: 'Guided ancient traders' },
+            { name: 'Iron Crown', bonus: 'Words +3 points', lore: 'Worn by the first king' },
+            { name: 'Golden Harp', bonus: 'Daily +10', lore: 'Played for the gods' },
+            { name: 'Crystal Ball', bonus: 'See the future', lore: 'Gaze into infinity' },
+            { name: 'Cosmic Key', bonus: 'Unlock anything', lore: 'Made from starlight' }
         ];
 
         // ==================== GAME STATE ====================
@@ -862,9 +1039,9 @@
             knowledge: 0,
             selectedLetters: [],
             completedAges: [],
-            blueprints: [], // Discovered but not researched
-            researched: [], // Researched blueprints
-            artifacts: [], // Found artifacts
+            blueprints: [],
+            researched: [],
+            artifacts: [],
             combosDone: [],
             permanentBonuses: {
                 maxLetters: 0,
@@ -872,6 +1049,31 @@
                 wordPoints: 0,
                 dailyBonus: 0
             }
+        };
+
+        // ==================== CIVILIZATION STATE ====================
+        let civGame = {
+            map: [],
+            settlement: {
+                x: 4,
+                y: 4,
+                population: 3,
+                storage: 20,
+                storageUsed: 0,
+                collectedLetters: {},
+                buildings: []
+            },
+            scouts: [
+                { x: 3, y: 4, movesLeft: 3 },
+                { x: 4, y: 3, movesLeft: 3 }
+            ],
+            resources: {
+                food: 10,
+                gold: 5,
+                knowledge: 0
+            },
+            turn: 1,
+            revealedTiles: []
         };
 
         // ==================== INITIALIZATION ====================
@@ -911,15 +1113,18 @@
             document.getElementById('tab-forge').classList.remove('active');
             document.getElementById('tab-blueprints').classList.remove('active');
             document.getElementById('tab-museum').classList.remove('active');
+            document.getElementById('tab-civ').classList.remove('active');
             
             document.getElementById('tab-forge').classList.toggle('active', tab === 'forge');
             document.getElementById('tab-blueprints').classList.toggle('active', tab === 'blueprints');
             document.getElementById('tab-museum').classList.toggle('active', tab === 'museum');
+            document.getElementById('tab-civ').classList.toggle('active', tab === 'civ');
             
             // Show/hide tabs
             document.getElementById('forge-tab').style.display = tab === 'forge' ? 'block' : 'none';
             document.getElementById('blueprints-tab').style.display = tab === 'blueprints' ? 'block' : 'none';
             document.getElementById('museum-tab').style.display = tab === 'museum' ? 'block' : 'none';
+            document.getElementById('civ-tab').style.display = tab === 'civ' ? 'block' : 'none';
             
             if (tab === 'blueprints') updateBlueprintsTab();
             if (tab === 'museum') updateMuseumTab();
@@ -938,10 +1143,10 @@
             const ageWords = age.words.filter(w => gameState.discoveredWords.includes(w)).length;
             const ageBlueprints = gameState.researched.filter(b => {
                 // Check if blueprint is from this age (simplified)
-                return b === 'PICKAXE' || b === 'CAMPFIRE' || b === 'SHELTER';
+                return b === 'PICKAXE' || b === 'CAMPFIRE' || b === 'SHELTER' || b === 'WATER' || b === 'FARMING';
             }).length;
             
-            const totalProgress = ageWords + ageBlueprints;
+            const totalProgress = ageWords + Math.min(ageBlueprints, age.requiredBlueprints);
             const maxProgress = age.words.length + age.requiredBlueprints;
             const progress = (totalProgress / maxProgress) * 100;
             document.getElementById('age-progress').style.width = `${Math.min(progress, 100)}%`;
@@ -1029,7 +1234,7 @@
                     card.style.background = '#ffd70010';
                     
                     let blueprintText = '';
-                    if (WORD_DB[word].blueprint && !gameState.blueprints.includes(WORD_DB[word].blueprint)) {
+                    if (WORD_DB[word].blueprint && !gameState.blueprints.includes(WORD_DB[word].blueprint) && !gameState.researched.includes(WORD_DB[word].blueprint)) {
                         blueprintText = `<div style="color: #7fffd4; font-size: 8px;">📜 Blueprint inside</div>`;
                     }
                     
@@ -1095,7 +1300,7 @@
             const wordsFound = age.words.filter(w => gameState.discoveredWords.includes(w)).length;
             const blueprintsFound = gameState.researched.filter(b => {
                 // Check if blueprint is from this age (simplified)
-                return b === 'PICKAXE' || b === 'CAMPFIRE' || b === 'SHELTER';
+                return b === 'PICKAXE' || b === 'CAMPFIRE' || b === 'SHELTER' || b === 'WATER' || b === 'FARMING';
             }).length;
             
             if (wordsFound >= age.words.length && blueprintsFound >= age.requiredBlueprints) {
@@ -1374,9 +1579,9 @@
                 
                 // Apply permanent bonus based on blueprint
                 if (name === 'PICKAXE') gameState.permanentBonuses.maxLetters += 2;
-                if (name === 'LIBRARY') gameState.permanentBonuses.dailyBonus += 5;
+                if (name === 'KNOWLEDGE') gameState.permanentBonuses.dailyBonus += 5;
                 if (name === 'ALCHEMY') { /* Fuse ability - handled elsewhere */ }
-                if (name === 'BRONZE_COMPASS') gameState.permanentBonuses.expeditionBonus += 1;
+                if (name === 'TRADE') gameState.permanentBonuses.expeditionBonus += 1;
                 
                 showNotification(`🔬 Researched: ${name}!`);
                 saveGame();
@@ -1421,6 +1626,416 @@
                 saveGame();
                 updateUI();
             }
+        }
+
+        // ==================== CIVILIZATION GAME ====================
+        function startCivGame() {
+            // Check daily limit
+            const today = new Date().toDateString();
+            const lastCiv = localStorage.getItem('lastCiv');
+            
+            if (lastCiv === today) {
+                // Load existing game
+                const saved = localStorage.getItem('civGame');
+                if (saved) {
+                    civGame = JSON.parse(saved);
+                }
+            } else {
+                // New game
+                initCivMap();
+                localStorage.setItem('lastCiv', today);
+            }
+            
+            updateCivMap();
+            document.getElementById('civ-modal').classList.add('active');
+        }
+
+        function initCivMap() {
+            // Reset civ game
+            civGame = {
+                map: [],
+                settlement: {
+                    x: 4,
+                    y: 4,
+                    population: 3,
+                    storage: 20,
+                    storageUsed: 0,
+                    collectedLetters: {},
+                    buildings: []
+                },
+                scouts: [
+                    { x: 3, y: 4, movesLeft: 3 },
+                    { x: 4, y: 3, movesLeft: 3 }
+                ],
+                resources: {
+                    food: 10,
+                    gold: 5,
+                    knowledge: 0
+                },
+                turn: 1,
+                revealedTiles: [`4,4`] // Settlement tile revealed
+            };
+            
+            // Create 8x8 map
+            for (let y = 0; y < 8; y++) {
+                const row = [];
+                for (let x = 0; x < 8; x++) {
+                    // Different terrain types
+                    const terrainRand = Math.random();
+                    let terrain;
+                    
+                    if (terrainRand < 0.4) terrain = 'plains';
+                    else if (terrainRand < 0.7) terrain = 'forest';
+                    else if (terrainRand < 0.9) terrain = 'mountain';
+                    else terrain = 'ruins';
+                    
+                    // Generate letter based on terrain
+                    let letter;
+                    if (terrain === 'plains') {
+                        const common = 'AEIOU';
+                        letter = common[Math.floor(Math.random() * common.length)];
+                    } else if (terrain === 'forest') {
+                        const uncommon = 'RSTN';
+                        letter = uncommon[Math.floor(Math.random() * uncommon.length)];
+                    } else if (terrain === 'mountain') {
+                        const rare = 'ZQXJKVWY';
+                        letter = rare[Math.floor(Math.random() * rare.length)];
+                    } else {
+                        // Ruins - rare or artifact
+                        if (Math.random() < 0.3) {
+                            letter = '?'; // Artifact
+                        } else {
+                            const veryRare = 'ZQXJ';
+                            letter = veryRare[Math.floor(Math.random() * veryRare.length)];
+                        }
+                    }
+                    
+                    row.push({
+                        x, y,
+                        terrain,
+                        letter,
+                        collected: false
+                    });
+                }
+                civGame.map.push(row);
+            }
+            
+            // Settlement tile is special
+            civGame.map[4][4].terrain = 'city';
+            civGame.map[4][4].letter = '🏛️';
+        }
+
+        function updateCivMap() {
+            const mapDiv = document.getElementById('civ-map');
+            mapDiv.innerHTML = '';
+            
+            // Update resource displays
+            document.getElementById('civ-turn').textContent = civGame.turn;
+            document.getElementById('civ-food').textContent = civGame.resources.food;
+            document.getElementById('civ-gold').textContent = civGame.resources.gold;
+            document.getElementById('civ-knowledge').textContent = civGame.resources.knowledge;
+            document.getElementById('civ-pop').textContent = civGame.settlement.population;
+            document.getElementById('civ-scouts').textContent = civGame.scouts.length;
+            document.getElementById('civ-buildings').textContent = civGame.settlement.buildings.length;
+            document.getElementById('civ-storage').textContent = `${civGame.settlement.storageUsed}/${civGame.settlement.storage}`;
+            
+            // Show collected letters preview
+            const preview = document.getElementById('civ-letters-preview');
+            preview.innerHTML = '';
+            
+            Object.entries(civGame.settlement.collectedLetters).forEach(([letter, count]) => {
+                preview.innerHTML += `<span class="civ-letter-badge">${letter} x${count}</span>`;
+            });
+            
+            // Draw map
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    const tile = civGame.map[y][x];
+                    const isRevealed = civGame.revealedTiles.includes(`${x},${y}`);
+                    const isSettlement = (x === civGame.settlement.x && y === civGame.settlement.y);
+                    
+                    // Check if scout is here
+                    const scoutHere = civGame.scouts.find(s => s.x === x && s.y === y);
+                    
+                    const div = document.createElement('div');
+                    div.className = 'civ-tile';
+                    
+                    // Style based on terrain
+                    let bgColor = '#2a2a2a';
+                    if (isSettlement) bgColor = '#4a3f2c';
+                    else if (tile.terrain === 'forest') bgColor = '#1a4a1a';
+                    else if (tile.terrain === 'mountain') bgColor = '#4a4a4a';
+                    else if (tile.terrain === 'ruins') bgColor = '#4a2a4a';
+                    
+                    div.style.backgroundColor = bgColor;
+                    div.style.border = `1px solid ${isRevealed ? '#ffd700' : '#404040'}`;
+                    
+                    if (scoutHere) {
+                        div.innerHTML = '🛡️';
+                        div.style.fontSize = '14px';
+                    } else if (isRevealed) {
+                        if (tile.collected) {
+                            div.innerHTML = '✓';
+                            div.style.color = '#a0a0a0';
+                        } else {
+                            div.textContent = tile.letter;
+                            div.style.color = tile.letter === '?' ? '#ff99ff' : '#ffd700';
+                        }
+                    } else {
+                        div.innerHTML = '🌫️';
+                        div.style.opacity = '0.5';
+                        div.style.fontSize = '12px';
+                    }
+                    
+                    // Click to move scout
+                    if (!isRevealed && civGame.scouts.some(s => s.movesLeft > 0)) {
+                        div.style.cursor = 'pointer';
+                        div.onclick = () => moveCivScout(x, y);
+                    }
+                    
+                    mapDiv.appendChild(div);
+                }
+            }
+        }
+
+        function moveCivScout(x, y) {
+            // Find a scout with moves left
+            const scout = civGame.scouts.find(s => s.movesLeft > 0);
+            if (!scout) {
+                showNotification('❌ No scouts with moves left');
+                return;
+            }
+            
+            // Calculate distance (simplified - allow any adjacent move)
+            const dx = Math.abs(scout.x - x);
+            const dy = Math.abs(scout.y - y);
+            
+            if (dx + dy !== 1) {
+                showNotification('❌ Scouts can only move to adjacent tiles');
+                return;
+            }
+            
+            // Move scout
+            scout.x = x;
+            scout.y = y;
+            scout.movesLeft--;
+            
+            // Reveal tile
+            civGame.revealedTiles.push(`${x},${y}`);
+            const tile = civGame.map[y][x];
+            
+            // Collect letter if not collected
+            if (!tile.collected && tile.letter !== '?') {
+                // Add to settlement storage
+                civGame.settlement.collectedLetters[tile.letter] = 
+                    (civGame.settlement.collectedLetters[tile.letter] || 0) + 1;
+                civGame.settlement.storageUsed++;
+                tile.collected = true;
+                
+                // Resources based on terrain
+                if (tile.terrain === 'plains') civGame.resources.food += 2;
+                if (tile.terrain === 'forest') civGame.resources.gold += 1;
+                if (tile.terrain === 'mountain') civGame.resources.knowledge += 1;
+                
+                showNotification(`📜 Scout found: ${tile.letter}`);
+            } else if (tile.letter === '?') {
+                // Found artifact!
+                showNotification('🏺 Scout found ancient ruins!');
+                
+                // 50% chance of artifact
+                if (Math.random() < 0.5) {
+                    const artifacts = ['Stone Tablet', 'Bronze Compass', 'Crystal Ball'];
+                    const artifact = artifacts[Math.floor(Math.random() * artifacts.length)];
+                    
+                    if (!gameState.artifacts.includes(artifact)) {
+                        gameState.artifacts.push(artifact);
+                        showNotification(`🏺 Discovered: ${artifact}!`);
+                    }
+                }
+                
+                // Always get something
+                civGame.resources.gold += 5;
+                civGame.resources.knowledge += 3;
+                tile.collected = true;
+                tile.letter = '?'; // Keep as artifact marker
+            }
+            
+            // Save game state
+            localStorage.setItem('civGame', JSON.stringify(civGame));
+            updateCivMap();
+        }
+
+        function endCivTurn() {
+            // Reset scout moves
+            civGame.scouts.forEach(s => s.movesLeft = 3);
+            
+            // Settlement auto-collects from adjacent tiles
+            const adjacent = [
+                [-1,0], [1,0], [0,-1], [0,1]
+            ];
+            
+            adjacent.forEach(([dx, dy]) => {
+                const x = civGame.settlement.x + dx;
+                const y = civGame.settlement.y + dy;
+                
+                if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+                    const tile = civGame.map[y][x];
+                    if (!tile.collected && tile.letter !== '?') {
+                        // Population determines collection rate
+                        for (let i = 0; i < civGame.settlement.population; i++) {
+                            if (Math.random() < 0.3) { // 30% chance per pop
+                                civGame.settlement.collectedLetters[tile.letter] = 
+                                    (civGame.settlement.collectedLetters[tile.letter] || 0) + 1;
+                                civGame.settlement.storageUsed++;
+                                tile.collected = true;
+                                
+                                // Resources
+                                if (tile.terrain === 'plains') civGame.resources.food += 1;
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Buildings generate resources
+            civGame.settlement.buildings.forEach(building => {
+                if (building === 'granary') civGame.resources.food += 3;
+                if (building === 'market') civGame.resources.gold += 2;
+                if (building === 'library') civGame.resources.knowledge += 2;
+            });
+            
+            // Consume food
+            civGame.resources.food -= civGame.settlement.population;
+            
+            // Check if starving
+            if (civGame.resources.food < 0) {
+                civGame.settlement.population = Math.max(1, civGame.settlement.population + civGame.resources.food);
+                civGame.resources.food = 0;
+                showNotification('⚠️ Starvation! Population decreased');
+            }
+            
+            // Grow population if enough food
+            if (civGame.resources.food >= 15) {
+                civGame.settlement.population++;
+                civGame.resources.food -= 10;
+                showNotification('👶 Population grew!');
+            }
+            
+            // Check storage
+            if (civGame.settlement.storageUsed >= civGame.settlement.storage) {
+                showNotification('⚠️ Storage full! Transfer letters to main game');
+            }
+            
+            civGame.turn++;
+            
+            // Save game state
+            localStorage.setItem('civGame', JSON.stringify(civGame));
+            updateCivMap();
+        }
+
+        function buyCivScout() {
+            if (civGame.resources.gold >= 10) {
+                civGame.resources.gold -= 10;
+                
+                // Add new scout at settlement
+                civGame.scouts.push({
+                    x: civGame.settlement.x,
+                    y: civGame.settlement.y,
+                    movesLeft: 3
+                });
+                
+                showNotification('🛡️ New scout hired!');
+                
+                // Save game state
+                localStorage.setItem('civGame', JSON.stringify(civGame));
+                updateCivMap();
+            } else {
+                showNotification('❌ Need 10 gold');
+            }
+        }
+
+        function buildGranary() {
+            if (civGame.resources.food >= 15 && !civGame.settlement.buildings.includes('granary')) {
+                civGame.resources.food -= 15;
+                civGame.settlement.buildings.push('granary');
+                showNotification('🏠 Granary built! +3 food per turn');
+                
+                // Save game state
+                localStorage.setItem('civGame', JSON.stringify(civGame));
+                updateCivMap();
+            } else if (civGame.settlement.buildings.includes('granary')) {
+                showNotification('❌ Granary already built');
+            } else {
+                showNotification('❌ Need 15 food');
+            }
+        }
+
+        function buildMarket() {
+            if (civGame.resources.gold >= 15 && !civGame.settlement.buildings.includes('market')) {
+                civGame.resources.gold -= 15;
+                civGame.settlement.buildings.push('market');
+                showNotification('🏪 Market built! +2 gold per turn');
+                
+                // Save game state
+                localStorage.setItem('civGame', JSON.stringify(civGame));
+                updateCivMap();
+            } else if (civGame.settlement.buildings.includes('market')) {
+                showNotification('❌ Market already built');
+            } else {
+                showNotification('❌ Need 15 gold');
+            }
+        }
+
+        function buildLibrary() {
+            if (civGame.resources.knowledge >= 15 && !civGame.settlement.buildings.includes('library')) {
+                civGame.resources.knowledge -= 15;
+                civGame.settlement.buildings.push('library');
+                showNotification('📚 Library built! +2 knowledge per turn');
+                
+                // Save game state
+                localStorage.setItem('civGame', JSON.stringify(civGame));
+                updateCivMap();
+            } else if (civGame.settlement.buildings.includes('library')) {
+                showNotification('❌ Library already built');
+            } else {
+                showNotification('❌ Need 15 knowledge');
+            }
+        }
+
+        function collectCivLetters() {
+            // Transfer collected letters to main game
+            let total = 0;
+            Object.entries(civGame.settlement.collectedLetters).forEach(([letter, count]) => {
+                gameState.letters[letter] = (gameState.letters[letter] || 0) + count;
+                total += count;
+            });
+            
+            // Bonus knowledge to main game
+            if (civGame.resources.knowledge > 0) {
+                gameState.knowledge += civGame.resources.knowledge;
+            }
+            
+            // Clear collected letters
+            civGame.settlement.collectedLetters = {};
+            civGame.settlement.storageUsed = 0;
+            
+            showNotification(`📦 Transferred ${total} letters to main game!`);
+            
+            // Save both games
+            saveGame();
+            localStorage.setItem('civGame', JSON.stringify(civGame));
+            
+            // Update UI
+            updateUI();
+            updateCivMap();
+        }
+
+        function closeCivModal() {
+            document.getElementById('civ-modal').classList.remove('active');
+            
+            // Auto-collect letters when closing
+            collectCivLetters();
         }
 
         // ==================== UTILITIES ====================
@@ -1481,6 +2096,16 @@
         window.researchBlueprint = researchBlueprint;
         window.closeDiscoveryModal = closeDiscoveryModal;
         window.closeLoreModal = closeLoreModal;
+        
+        // Civilization functions
+        window.startCivGame = startCivGame;
+        window.endCivTurn = endCivTurn;
+        window.buyCivScout = buyCivScout;
+        window.buildGranary = buildGranary;
+        window.buildMarket = buildMarket;
+        window.buildLibrary = buildLibrary;
+        window.collectCivLetters = collectCivLetters;
+        window.closeCivModal = closeCivModal;
 
         // Start
         initGame();
