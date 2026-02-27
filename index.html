@@ -436,91 +436,31 @@
             font-weight: bold;
         }
         
-        /* Preview Carousel */
-        .preview-area {
-            margin: 15px 0;
-            padding: 10px;
-            background: rgba(255,215,0,0.1);
-            border-radius: 12px;
-        }
-        
-        .preview-title {
-            color: gold;
-            font-size: 14px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        
-        .preview-carousel {
+        /* NEW: Slot Indicators (Circles) */
+        .slot-indicators {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             justify-content: center;
-            min-height: 70px;
+            margin: 8px 0 12px 0;
         }
         
-        .mini-card {
-            width: 50px;
-            height: 60px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.1s;
-            border: 1px solid gold;
-            box-shadow: 0 2px 0 rgba(0,0,0,0.3);
-            position: relative;
+        .slot-circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #2a2a4a;
+            border: 1px solid rgba(255,215,0,0.3);
+            transition: all 0.2s;
         }
         
-        .mini-card:hover:not(.disabled) {
-            transform: scale(1.1);
-            z-index: 10;
+        .slot-circle.filled {
+            background: gold;
+            box-shadow: 0 0 10px gold;
+            border-color: gold;
         }
         
-        .mini-card:active:not(.disabled) {
-            transform: scale(0.95);
-        }
-        
-        .mini-card.disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            pointer-events: none;
-            border-color: #666;
-        }
-        
-        .mini-card .abbrev {
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 2px;
-        }
-        
-        .mini-card .chance {
-            background: rgba(0,0,0,0.7);
-            padding: 2px 4px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: bold;
-            min-width: 30px;
-        }
-        
-        .mini-card.common { background: linear-gradient(135deg, #a0a0a0, #707070); }
-        .mini-card.uncommon { background: linear-gradient(135deg, #4caf50, #2e7d32); }
-        .mini-card.rare { background: linear-gradient(135deg, #2196f3, #0d47a1); }
-        .mini-card.epic { background: linear-gradient(135deg, #9c27b0, #4a0072); }
-        .mini-card.legendary { background: linear-gradient(135deg, #ff9800, #bf360c); }
-        .mini-card.mythic { background: linear-gradient(135deg, #ffd700, #b8860b); }
-        
-        .mini-card.click-flash {
-            animation: miniFlash 0.2s ease;
-        }
-        
-        @keyframes miniFlash {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.9); opacity: 0.8; }
-            100% { transform: scale(1); }
+        .slot-circle.inactive {
+            opacity: 0.2;
         }
         
         .preview-text {
@@ -1004,7 +944,7 @@
                 </div>
             </div>
             
-            <!-- Merge Tab (with stacked cards and clickable preview) -->
+            <!-- Merge Tab (with stacked cards and circle indicators) -->
             <div id="mergeTab" style="display: none;">
                 <!-- Merge Chamber -->
                 <div class="merge-chamber">
@@ -1025,11 +965,18 @@
                         <div class="slot" id="slot5"></div>
                     </div>
                     
-                    <!-- Preview Carousel - Clickable Mini Cards -->
-                    <div class="preview-area">
-                        <div class="preview-title">POSSIBLE RESULTS</div>
-                        <div class="preview-carousel" id="resultPreview"></div>
+                    <!-- NEW: Circle Indicators -->
+                    <div class="slot-indicators">
+                        <div class="slot-circle" id="circle1"></div>
+                        <div class="slot-circle" id="circle2"></div>
+                        <div class="slot-circle" id="circle3"></div>
+                        <div class="slot-circle" id="circle4"></div>
+                        <div class="slot-circle" id="circle5"></div>
                     </div>
+                    
+                    <!-- Preview Text and Chance Display (unchanged) -->
+                    <div class="preview-text" id="previewText">Select cards of the same rarity</div>
+                    <div class="chance-display" id="chanceDisplay"></div>
                     
                     <!-- Quick Fill and Merge Button Row -->
                     <div class="action-row">
@@ -1178,6 +1125,26 @@
         const PITY_INCREMENT = 0.05;
         const MAX_PITY = 0.5;
         
+        // NEW: Update circle indicators
+        function updateSlotIndicators() {
+            for (let i = 1; i <= 5; i++) {
+                const circle = document.getElementById(`circle${i}`);
+                if (!circle) continue;
+                
+                if (i <= mergeSize) {
+                    circle.classList.remove('inactive');
+                    if (selectedCards.length >= i) {
+                        circle.classList.add('filled');
+                    } else {
+                        circle.classList.remove('filled');
+                    }
+                } else {
+                    circle.classList.add('inactive');
+                    circle.classList.remove('filled');
+                }
+            }
+        }
+        
         // Set merge size
         window.setMergeSize = function(size) {
             mergeSize = size;
@@ -1205,9 +1172,9 @@
                 }
             }
             
+            updateSlotIndicators();
             renderMergeGrid();
             updateMergeButton();
-            updatePreviewCarousel();
         };
         
         // Initialize with some cards
@@ -1387,7 +1354,7 @@
             
             if (document.getElementById('mergeTab').style.display !== 'none') {
                 renderMergeGrid();
-                updatePreviewCarousel();
+                updateSlotIndicators();
             }
             
             showToast('Account reset to starter pack!');
@@ -1455,7 +1422,7 @@
             if (document.getElementById('mergeTab').style.display !== 'none') {
                 renderMergeGrid();
                 updateMergeButton();
-                updatePreviewCarousel();
+                updateSlotIndicators();
             }
             
             updateOfflineUI();
@@ -1490,7 +1457,7 @@
             if (tab === 'merge') {
                 renderMergeGrid();
                 updateMergeButton();
-                updatePreviewCarousel();
+                updateSlotIndicators();
             } else if (tab === 'realm') {
                 updateRealmTab();
             } else if (tab === 'packs') {
@@ -1590,14 +1557,14 @@
             selectedCards.push(card.id);
             renderMergeGrid();
             updateMergeButton();
-            updatePreviewCarousel();
+            updateSlotIndicators();
         };
         
         window.removeFromMerge = function(index) {
             selectedCards.splice(index, 1);
             renderMergeGrid();
             updateMergeButton();
-            updatePreviewCarousel();
+            updateSlotIndicators();
         };
         
         window.quickFillMerge = function() {
@@ -1625,7 +1592,7 @@
                 showToast(`✨ Added ${toAdd.length} cards`);
                 renderMergeGrid();
                 updateMergeButton();
-                updatePreviewCarousel();
+                updateSlotIndicators();
             } else {
                 showToast('No matching cards available');
             }
@@ -1665,87 +1632,6 @@
             };
         }
         
-        // NEW: Attempt merge with specific target card
-        window.attemptSpecificMerge = function(targetWord, targetRarity) {
-            if (!isMergePossible()) {
-                showToast('Select cards first');
-                return;
-            }
-            
-            const details = getCurrentMergeDetails();
-            if (!details) return;
-            
-            // Verify target matches expected rarity
-            if (targetRarity !== details.toRarity) {
-                showToast('Invalid target');
-                return;
-            }
-            
-            // Add click animation
-            const miniCards = document.querySelectorAll('.mini-card');
-            miniCards.forEach(card => {
-                if (card.querySelector('.abbrev')?.textContent === targetWord.substring(0,2)) {
-                    card.classList.add('click-flash');
-                    setTimeout(() => card.classList.remove('click-flash'), 200);
-                }
-            });
-            
-            // Get cards to remove
-            const cards = collection.filter(c => selectedCards.includes(c.id));
-            
-            // Remove selected cards
-            cards.forEach(c => {
-                let index = collection.findIndex(coll => coll.id === c.id);
-                if (index !== -1) collection.splice(index, 1);
-            });
-            
-            selectedCards = [];
-            
-            // Determine success
-            if (Math.random() < details.chance) {
-                // SUCCESS - create the specific clicked card
-                let newCard = {
-                    id: Date.now() + Math.random(),
-                    word: targetWord,
-                    rarity: targetRarity
-                };
-                collection.push(newCard);
-                
-                // Reset pity
-                pityCounters[details.pityKey] = 0;
-                
-                showToast(`✨ SUCCESS! Got ${newCard.word}`);
-                
-                document.querySelector('.merge-chamber').classList.add('merge-flash-success');
-                setTimeout(() => {
-                    document.querySelector('.merge-chamber').classList.remove('merge-flash-success');
-                }, 500);
-                
-                if (targetRarity === 'mythic') {
-                    showToast('🎉 MYTHIC UNLOCKED!');
-                }
-            } else {
-                // FAILURE - give dust
-                let dustReward = DUST_REWARDS[details.mergeKey] || 5;
-                dust += dustReward;
-                
-                pityCounters[details.pityKey] = (pityCounters[details.pityKey] || 0) + PITY_INCREMENT;
-                
-                showToast(`💔 Failed +${dustReward} dust`);
-                
-                document.querySelector('.merge-chamber').classList.add('merge-flash-failure');
-                setTimeout(() => {
-                    document.querySelector('.merge-chamber').classList.remove('merge-flash-failure');
-                }, 500);
-            }
-            
-            saveGame();
-            updateUI();
-            renderMergeGrid();
-            updateMergeButton();
-            updatePreviewCarousel();
-        };
-        
         // Original random merge (for the merge button)
         window.performMerge = function() {
             if (!isMergePossible()) {
@@ -1759,9 +1645,10 @@
             // Get a random word from target rarity
             const randomWord = WORDS[details.toRarity][Math.floor(Math.random() * WORDS[details.toRarity].length)];
             
-            // Use the same logic as specific merge but with random word
+            // Get cards to remove
             const cards = collection.filter(c => selectedCards.includes(c.id));
             
+            // Remove selected cards
             cards.forEach(c => {
                 let index = collection.findIndex(coll => coll.id === c.id);
                 if (index !== -1) collection.splice(index, 1);
@@ -1769,6 +1656,7 @@
             
             selectedCards = [];
             
+            // Determine success
             if (Math.random() < details.chance) {
                 let newCard = {
                     id: Date.now() + Math.random(),
@@ -1807,68 +1695,8 @@
             updateUI();
             renderMergeGrid();
             updateMergeButton();
-            updatePreviewCarousel();
+            updateSlotIndicators();
         };
-        
-        // NEW: Update preview carousel with clickable mini-cards
-        function updatePreviewCarousel() {
-            const preview = document.getElementById('resultPreview');
-            if (!preview) return;
-            
-            preview.innerHTML = '';
-            
-            if (!isMergePossible()) {
-                // Show placeholder cards
-                for (let i = 0; i < 4; i++) {
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'mini-card disabled';
-                    placeholder.innerHTML = `
-                        <div class="abbrev">??</div>
-                        <div class="chance">-</div>
-                    `;
-                    preview.appendChild(placeholder);
-                }
-                return;
-            }
-            
-            const details = getCurrentMergeDetails();
-            if (!details) return;
-            
-            // Get up to 4 words from target rarity
-            const possibleWords = WORDS[details.toRarity].slice(0, 4);
-            const chancePercent = Math.round(details.chance * 100);
-            
-            // Create clickable mini-card for each possible word
-            possibleWords.forEach(word => {
-                const miniCard = document.createElement('div');
-                miniCard.className = `mini-card ${details.toRarity}`;
-                
-                // 2-letter abbreviation
-                const abbrev = word.substring(0, 2);
-                
-                miniCard.innerHTML = `
-                    <div class="abbrev">${abbrev}</div>
-                    <div class="chance">${chancePercent}%</div>
-                `;
-                
-                // Make it clickable
-                miniCard.onclick = () => attemptSpecificMerge(word, details.toRarity);
-                
-                preview.appendChild(miniCard);
-            });
-            
-            // Fill remaining slots with placeholders if needed
-            const remaining = 4 - possibleWords.length;
-            for (let i = 0; i < remaining; i++) {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'mini-card disabled';
-                placeholder.innerHTML = `
-                    <div class="abbrev">--</div>
-                    <div class="chance">-</div>
-                `;
-                preview.appendChild(placeholder);
-            }
-        }
         
         // Render merge grid
         function renderMergeGrid() {
@@ -1952,22 +1780,36 @@
                     slot.innerHTML = '';
                 }
             }
+            
+            updateSlotIndicators();
         }
         
         function updateMergeButton() {
             let btn = document.getElementById('mergeBtn');
             let quickFill = document.getElementById('quickFillBtn');
+            let preview = document.getElementById('previewText');
+            let chanceDisplay = document.getElementById('chanceDisplay');
             
-            if (!btn) return;
+            if (!btn || !preview || !chanceDisplay) return;
             
             if (isMergePossible()) {
                 const details = getCurrentMergeDetails();
                 const chancePercent = Math.round(details.chance * 100);
                 
+                preview.textContent = `Merge ${mergeSize} ${RARITY_NAMES[details.fromRarity]} → ${RARITY_NAMES[details.toRarity]}`;
+                chanceDisplay.textContent = `${chancePercent}% chance`;
+                
+                chanceDisplay.className = 'chance-display';
+                if (details.chance >= 0.7) chanceDisplay.classList.add('chance-high');
+                else if (details.chance >= 0.4) chanceDisplay.classList.add('chance-medium');
+                else chanceDisplay.classList.add('chance-low');
+                
                 btn.disabled = false;
                 btn.classList.add('ready');
                 btn.textContent = `MERGE (${chancePercent}%)`;
             } else {
+                preview.textContent = `Select ${mergeSize - selectedCards.length} more card(s) of same rarity`;
+                chanceDisplay.textContent = '';
                 btn.disabled = true;
                 btn.classList.remove('ready');
                 btn.textContent = `MERGE (select ${mergeSize - selectedCards.length} more)`;
