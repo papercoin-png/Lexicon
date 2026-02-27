@@ -4,7 +4,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lexicon Cards</title>
+    <title>Lexicon Cards · Multi-Merge</title>
     <style>
         * { 
             margin: 0; 
@@ -344,11 +344,40 @@
             font-size: 18px;
         }
         
+        /* Merge Size Selector - NEW */
+        .merge-size-selector {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .size-btn {
+            background: #2a2a4a;
+            color: white;
+            border: 1px solid #555;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 60px;
+        }
+        
+        .size-btn.active {
+            background: gold;
+            color: #0a0a1a;
+            border-color: gold;
+            box-shadow: 0 0 10px gold;
+        }
+        
         .slots {
             display: flex;
             gap: 10px;
             justify-content: center;
             margin: 20px 0;
+            flex-wrap: wrap;
         }
         
         .slot {
@@ -367,6 +396,12 @@
             text-align: center;
             padding: 5px;
             transition: all 0.3s;
+            opacity: 1;
+        }
+        
+        .slot.inactive {
+            opacity: 0.3;
+            border-color: #666;
         }
         
         .slot.filled {
@@ -833,16 +868,25 @@
                 </div>
             </div>
             
-            <!-- Merge Tab -->
+            <!-- Merge Tab (UPDATED with Multi-Merge) -->
             <div id="mergeTab" style="display: none;">
                 <!-- Merge Chamber (Sticky) -->
                 <div class="merge-chamber">
                     <div class="chamber-title">MERGE CHAMBER</div>
                     
+                    <!-- NEW: Merge Size Selector -->
+                    <div class="merge-size-selector">
+                        <button class="size-btn active" onclick="setMergeSize(3)">3 Cards</button>
+                        <button class="size-btn" onclick="setMergeSize(4)">4 Cards</button>
+                        <button class="size-btn" onclick="setMergeSize(5)">5 Cards</button>
+                    </div>
+                    
                     <div class="slots">
                         <div class="slot" id="slot1"></div>
                         <div class="slot" id="slot2"></div>
                         <div class="slot" id="slot3"></div>
+                        <div class="slot" id="slot4"></div>
+                        <div class="slot" id="slot5"></div>
                     </div>
                     
                     <!-- Quick Fill -->
@@ -851,12 +895,12 @@
                     </div>
                     
                     <!-- Preview & Chance -->
-                    <div class="preview-text" id="previewText">Select 3 cards of the same rarity</div>
+                    <div class="preview-text" id="previewText">Select cards of the same rarity</div>
                     <div class="chance-display" id="chanceDisplay"></div>
                     
                     <!-- Merge Button -->
                     <button class="merge-button" id="mergeBtn" onclick="performMerge()" disabled>
-                        MERGE (select 3 cards)
+                        MERGE (select cards)
                     </button>
                 </div>
                 
@@ -914,6 +958,7 @@
         let collection = [];
         let dust = 150;
         let selectedCards = [];
+        let mergeSize = 3; // NEW: default to 3 cards
         let pityCounters = {
             'uncommon→rare': 0,
             'rare→epic': 0,
@@ -924,14 +969,14 @@
         // Offline Earnings State
         let lastLoginTime = Date.now();
         let accumulatedOfflineDust = 0;
-        const DUST_PER_INTERVAL = 1; // 1 dust per interval
-        const INTERVAL_MS = 5 * 60 * 1000; // 5 minutes in milliseconds
-        const MAX_ACCUMULATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+        const DUST_PER_INTERVAL = 1;
+        const INTERVAL_MS = 5 * 60 * 1000;
+        const MAX_ACCUMULATION_MS = 24 * 60 * 60 * 1000;
         
         // Modal State
         let pendingAction = null;
         
-        // Timer for offline progress
+        // Timer
         let offlineTimer = null;
         
         // Card Pools
@@ -950,24 +995,81 @@
             epic: 'EPIC', legendary: 'LEGENDARY', mythic: 'MYTHIC'
         };
         
+        // UPDATED: Success chances for different merge sizes
         const SUCCESS_CHANCES = {
-            'common→uncommon': 1.0,
-            'uncommon→rare': 0.8,
-            'rare→epic': 0.5,
-            'epic→legendary': 0.3,
-            'legendary→mythic': 0.1
+            '3:common→uncommon': 1.0,
+            '3:uncommon→rare': 0.8,
+            '3:rare→epic': 0.5,
+            '3:epic→legendary': 0.3,
+            '3:legendary→mythic': 0.1,
+            
+            '4:common→uncommon': 1.0,
+            '4:uncommon→rare': 0.9,
+            '4:rare→epic': 0.65,
+            '4:epic→legendary': 0.45,
+            '4:legendary→mythic': 0.2,
+            
+            '5:common→uncommon': 1.0,
+            '5:uncommon→rare': 1.0,
+            '5:rare→epic': 0.8,
+            '5:epic→legendary': 0.6,
+            '5:legendary→mythic': 0.3
         };
         
+        // UPDATED: Dust rewards based on merge size
         const DUST_REWARDS = {
-            'common→uncommon': 5,
-            'uncommon→rare': 10,
-            'rare→epic': 25,
-            'epic→legendary': 100,
-            'legendary→mythic': 200
+            '3:common→uncommon': 5,
+            '3:uncommon→rare': 10,
+            '3:rare→epic': 25,
+            '3:epic→legendary': 100,
+            '3:legendary→mythic': 200,
+            
+            '4:common→uncommon': 7,
+            '4:uncommon→rare': 15,
+            '4:rare→epic': 37,
+            '4:epic→legendary': 150,
+            '4:legendary→mythic': 300,
+            
+            '5:common→uncommon': 10,
+            '5:uncommon→rare': 20,
+            '5:rare→epic': 50,
+            '5:epic→legendary': 200,
+            '5:legendary→mythic': 400
         };
         
         const PITY_INCREMENT = 0.05;
         const MAX_PITY = 0.5;
+        
+        // NEW: Set merge size
+        window.setMergeSize = function(size) {
+            mergeSize = size;
+            
+            // Update UI
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.size-btn')[size-3].classList.add('active');
+            
+            // Clear selection if too many cards selected
+            if (selectedCards.length > mergeSize) {
+                selectedCards = selectedCards.slice(0, mergeSize);
+            }
+            
+            // Update slot visibility
+            for (let i = 1; i <= 5; i++) {
+                let slot = document.getElementById(`slot${i}`);
+                if (slot) {
+                    if (i <= mergeSize) {
+                        slot.classList.remove('inactive');
+                    } else {
+                        slot.classList.add('inactive');
+                    }
+                }
+            }
+            
+            renderMergeGrid();
+            updateMergeButton();
+        };
         
         // Initialize with some cards
         function initializeGame() {
@@ -985,11 +1087,11 @@
                 rarity: 'uncommon'
             });
             
-            // Load saved game if exists
             loadGame();
-            
-            // Start offline timer
             startOfflineTimer();
+            
+            // Initialize merge size UI
+            setMergeSize(3);
         }
         
         // Storage functions
@@ -1004,15 +1106,12 @@
                     lastLoginTime = data.lastLoginTime || Date.now();
                     accumulatedOfflineDust = data.accumulatedOfflineDust || 0;
                     
-                    // Calculate offline earnings since last login
                     calculateOfflineEarnings();
                 } else {
-                    // First time - set last login
                     lastLoginTime = Date.now();
                 }
             } catch (e) {}
             
-            // Hide loading overlay
             document.getElementById('loadingOverlay').classList.add('hidden');
         }
         
@@ -1034,8 +1133,6 @@
             const timeDiff = Math.min(now - lastLoginTime, MAX_ACCUMULATION_MS);
             const intervals = Math.floor(timeDiff / INTERVAL_MS);
             accumulatedOfflineDust = intervals * DUST_PER_INTERVAL;
-            
-            // Update last login time to now for next calculation
             lastLoginTime = now;
             saveGame();
         }
@@ -1044,7 +1141,6 @@
             if (offlineTimer) clearInterval(offlineTimer);
             
             offlineTimer = setInterval(() => {
-                // Add dust every 5 minutes if under max
                 const timeSinceLastAccumulation = Date.now() - lastLoginTime;
                 if (timeSinceLastAccumulation >= INTERVAL_MS && accumulatedOfflineDust < MAX_ACCUMULATION_MS / INTERVAL_MS * DUST_PER_INTERVAL) {
                     accumulatedOfflineDust += DUST_PER_INTERVAL;
@@ -1052,7 +1148,7 @@
                     saveGame();
                 }
                 updateOfflineUI();
-            }, 1000); // Check every second for smooth progress bar
+            }, 1000);
         }
         
         function updateOfflineUI() {
@@ -1104,9 +1200,8 @@
             }
         };
         
-        // Delete Account (now gives starter pack)
+        // Delete Account
         function deleteAccount() {
-            // Reset to starter pack (8 common + 1 uncommon + 150 dust)
             collection = [];
             for (let i = 0; i < 8; i++) {
                 collection.push({
@@ -1136,7 +1231,6 @@
             updateUI();
             updateOfflineUI();
             
-            // If in merge tab, refresh the grid
             if (document.getElementById('mergeTab').style.display !== 'none') {
                 renderMergeGrid();
             }
@@ -1208,7 +1302,6 @@
                 updateMergeButton();
             }
             
-            // Update offline UI
             updateOfflineUI();
         }
         
@@ -1216,7 +1309,6 @@
             const grid = document.getElementById('recentCardsGrid');
             grid.innerHTML = '';
             
-            // Show 3 most recent cards
             const recent = [...collection].reverse().slice(0, 3);
             recent.forEach(card => {
                 const cardEl = createCardElement(card);
@@ -1248,7 +1340,6 @@
                 document.getElementById('packResultsGrid').innerHTML = '';
             }
             
-            // Scroll to top
             document.getElementById('scrollableContent').scrollTop = 0;
         };
         
@@ -1287,19 +1378,17 @@
             let card = collection.find(c => c.id === cardId);
             if (!card) return;
             
-            // Check if already selected
             if (selectedCards.includes(cardId)) {
                 showToast('Card already selected');
                 return;
             }
             
-            // Check max 3 cards
-            if (selectedCards.length >= 3) {
-                showToast('Maximum 3 cards');
+            // UPDATED: Check max based on mergeSize
+            if (selectedCards.length >= mergeSize) {
+                showToast(`Maximum ${mergeSize} cards`);
                 return;
             }
             
-            // Check same rarity
             if (selectedCards.length > 0) {
                 let firstCard = collection.find(c => c.id === selectedCards[0]);
                 if (firstCard.rarity !== card.rarity) {
@@ -1308,7 +1397,6 @@
                 }
             }
             
-            // Check not mythic
             if (card.rarity === 'mythic') {
                 showToast('Mythic cards cannot be merged');
                 return;
@@ -1331,7 +1419,7 @@
                 return;
             }
             
-            if (selectedCards.length >= 3) return;
+            if (selectedCards.length >= mergeSize) return;
             
             let firstCard = collection.find(c => c.id === selectedCards[0]);
             if (!firstCard) return;
@@ -1341,7 +1429,7 @@
                 !selectedCards.includes(c.id)
             );
             
-            let needed = 3 - selectedCards.length;
+            let needed = mergeSize - selectedCards.length;
             let toAdd = matchingCards.slice(0, needed);
             
             toAdd.forEach(card => selectedCards.push(card.id));
@@ -1356,26 +1444,23 @@
         };
         
         window.performMerge = function() {
-            if (selectedCards.length !== 3) {
-                showToast('Select 3 cards first');
+            if (selectedCards.length !== mergeSize) {
+                showToast(`Select ${mergeSize} cards first`);
                 return;
             }
             
-            // Get the cards
             let cards = collection.filter(c => selectedCards.includes(c.id));
-            if (cards.length !== 3) {
+            if (cards.length !== mergeSize) {
                 showToast('Error finding cards');
                 return;
             }
             
-            // Verify same rarity
             let fromRarity = cards[0].rarity;
             if (!cards.every(c => c.rarity === fromRarity)) {
                 showToast('Cards must be same rarity');
                 return;
             }
             
-            // Get target rarity
             let fromIndex = RARITY_ORDER.indexOf(fromRarity);
             if (fromIndex === -1 || fromIndex >= RARITY_ORDER.length - 1) {
                 showToast('Cannot merge these cards');
@@ -1383,25 +1468,21 @@
             }
             
             let toRarity = RARITY_ORDER[fromIndex + 1];
-            let mergeKey = `${fromRarity}→${toRarity}`;
+            let mergeKey = `${mergeSize}:${fromRarity}→${toRarity}`;
+            let pityKey = `${fromRarity}→${toRarity}`;
             
-            // Calculate chance with pity
             let baseChance = SUCCESS_CHANCES[mergeKey] || 0;
-            let pityBonus = Math.min(pityCounters[mergeKey] || 0, MAX_PITY);
+            let pityBonus = Math.min(pityCounters[pityKey] || 0, MAX_PITY);
             let totalChance = baseChance + pityBonus;
             
-            // Remove the merged cards
             cards.forEach(c => {
                 let index = collection.findIndex(coll => coll.id === c.id);
                 if (index !== -1) collection.splice(index, 1);
             });
             
-            // Clear selection
             selectedCards = [];
             
-            // Attempt merge
             if (Math.random() < totalChance) {
-                // Success
                 let newCard = {
                     id: Date.now() + Math.random(),
                     word: WORDS[toRarity][Math.floor(Math.random() * WORDS[toRarity].length)],
@@ -1409,12 +1490,10 @@
                 };
                 collection.push(newCard);
                 
-                // Reset pity
-                pityCounters[mergeKey] = 0;
+                pityCounters[pityKey] = 0;
                 
                 showToast(`✨ SUCCESS! Got ${newCard.word} (${RARITY_NAMES[toRarity]})`);
                 
-                // Visual feedback
                 document.querySelector('.merge-chamber').classList.add('merge-flash-success');
                 setTimeout(() => {
                     document.querySelector('.merge-chamber').classList.remove('merge-flash-success');
@@ -1424,23 +1503,19 @@
                     showToast('🎉 MYTHIC UNLOCKED!');
                 }
             } else {
-                // Failure - give dust
                 let dustReward = DUST_REWARDS[mergeKey] || 5;
                 dust += dustReward;
                 
-                // Increase pity
-                pityCounters[mergeKey] = (pityCounters[mergeKey] || 0) + PITY_INCREMENT;
+                pityCounters[pityKey] = (pityCounters[pityKey] || 0) + PITY_INCREMENT;
                 
                 showToast(`💔 Failed +${dustReward} dust`);
                 
-                // Visual feedback
                 document.querySelector('.merge-chamber').classList.add('merge-flash-failure');
                 setTimeout(() => {
                     document.querySelector('.merge-chamber').classList.remove('merge-flash-failure');
                 }, 500);
             }
             
-            // Update UI
             saveGame();
             updateUI();
             renderMergeGrid();
@@ -1464,14 +1539,12 @@
                 return;
             }
             
-            // Determine highlight rarity
             let highlightRarity = null;
             if (selectedCards.length > 0) {
                 let firstCard = collection.find(c => c.id === selectedCards[0]);
                 if (firstCard) highlightRarity = firstCard.rarity;
             }
             
-            // Sort by rarity then word
             let sortedCards = [...collection].sort((a, b) => {
                 let rarityCompare = RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
                 if (rarityCompare !== 0) return rarityCompare;
@@ -1482,25 +1555,31 @@
                 grid.appendChild(createCardElement(card, true, highlightRarity));
             });
             
-            // Update slots
-            for (let i = 0; i < 3; i++) {
-                let slot = document.getElementById(`slot${i+1}`);
+            // Update slots (now 5 slots)
+            for (let i = 1; i <= 5; i++) {
+                let slot = document.getElementById(`slot${i}`);
                 if (!slot) continue;
                 
-                if (selectedCards[i]) {
-                    let card = collection.find(c => c.id === selectedCards[i]);
+                if (i <= mergeSize && selectedCards[i-1]) {
+                    let card = collection.find(c => c.id === selectedCards[i-1]);
                     if (card) {
                         slot.className = `slot filled ${card.rarity}`;
                         slot.innerHTML = `
                             <div>${card.word}</div>
                             <div style="font-size: 8px; margin-top: 4px;">${RARITY_NAMES[card.rarity]}</div>
-                            <div class="remove-slot" onclick="removeFromMerge(${i})">✕</div>
+                            <div class="remove-slot" onclick="removeFromMerge(${i-1})">✕</div>
                         `;
                         continue;
                     }
                 }
-                slot.className = 'slot';
-                slot.innerHTML = '';
+                
+                if (i <= mergeSize) {
+                    slot.className = 'slot';
+                    slot.innerHTML = '';
+                } else {
+                    slot.className = 'slot inactive';
+                    slot.innerHTML = '';
+                }
             }
         }
         
@@ -1512,21 +1591,21 @@
             
             if (!btn || !preview || !chanceDisplay) return;
             
-            if (selectedCards.length === 3) {
+            if (selectedCards.length === mergeSize) {
                 let firstCard = collection.find(c => c.id === selectedCards[0]);
                 if (firstCard) {
                     let fromIndex = RARITY_ORDER.indexOf(firstCard.rarity);
                     let toRarity = RARITY_ORDER[fromIndex + 1];
-                    let mergeKey = `${firstCard.rarity}→${toRarity}`;
+                    let mergeKey = `${mergeSize}:${firstCard.rarity}→${toRarity}`;
+                    let pityKey = `${firstCard.rarity}→${toRarity}`;
                     
                     let baseChance = SUCCESS_CHANCES[mergeKey] || 0;
-                    let pityBonus = Math.min(pityCounters[mergeKey] || 0, MAX_PITY);
+                    let pityBonus = Math.min(pityCounters[pityKey] || 0, MAX_PITY);
                     let totalChance = baseChance + pityBonus;
                     
-                    preview.textContent = `Merge 3 ${RARITY_NAMES[firstCard.rarity]} → ${RARITY_NAMES[toRarity]}`;
+                    preview.textContent = `Merge ${mergeSize} ${RARITY_NAMES[firstCard.rarity]} → ${RARITY_NAMES[toRarity]}`;
                     chanceDisplay.textContent = `${Math.round(totalChance * 100)}% chance`;
                     
-                    // Color code chance
                     chanceDisplay.className = 'chance-display';
                     if (totalChance >= 0.7) chanceDisplay.classList.add('chance-high');
                     else if (totalChance >= 0.4) chanceDisplay.classList.add('chance-medium');
@@ -1537,16 +1616,15 @@
                     btn.textContent = `MERGE (${Math.round(totalChance * 100)}%)`;
                 }
             } else {
-                preview.textContent = `Select ${3 - selectedCards.length} more card(s)`;
+                preview.textContent = `Select ${mergeSize - selectedCards.length} more card(s)`;
                 chanceDisplay.textContent = '';
                 btn.disabled = true;
                 btn.classList.remove('ready');
-                btn.textContent = `MERGE (select ${3 - selectedCards.length} more)`;
+                btn.textContent = `MERGE (select ${mergeSize - selectedCards.length} more)`;
             }
             
-            // Update quick fill button
             if (quickFill) {
-                if (selectedCards.length === 0 || selectedCards.length >= 3) {
+                if (selectedCards.length === 0 || selectedCards.length >= mergeSize) {
                     quickFill.disabled = true;
                 } else {
                     quickFill.disabled = false;
@@ -1559,7 +1637,6 @@
             let cost = 0;
             let cards = [];
             
-            // Animate pack
             let packEl = document.getElementById(packType + 'Pack');
             if (packEl) {
                 packEl.classList.add('opening');
@@ -1568,7 +1645,7 @@
             
             switch(packType) {
                 case 'basic':
-                    cost = 1; // Changed from 50 to 1
+                    cost = 1;
                     for (let i = 0; i < 5; i++) {
                         cards.push({
                             id: Date.now() + i + Math.random(),
@@ -1630,7 +1707,6 @@
             dust -= cost;
             collection.push(...cards);
             
-            // Show results
             let resultsGrid = document.getElementById('packResultsGrid');
             resultsGrid.innerHTML = '';
             cards.forEach((card, index) => {
@@ -1649,7 +1725,7 @@
         initializeGame();
         updateUI();
         
-        // Add some CSS for merge flashes
+        // Add CSS for merge flashes
         const style = document.createElement('style');
         style.textContent = `
             .merge-flash-success {
