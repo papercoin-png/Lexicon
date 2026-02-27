@@ -4,7 +4,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lexicon Cards · Enchanted Forest</title>
+    <title>Lexicon Cards · Glimmerlands</title>
     <style>
         /* ----- ENCHANTED FOREST THEME (rich jewel tones + bioluminescence) ----- */
         * { 
@@ -168,7 +168,8 @@
             box-shadow: inset 0 0 6px #ffefb0;
         }
         
-        .realm-content {
+        /* Glimmerlands Map Styles */
+        .glimmerlands-content {
             background: #1d3a24;
             border-radius: 40px 40px 30px 30px;
             padding: 24px 20px;
@@ -177,17 +178,6 @@
             backdrop-filter: blur(4px);
             position: relative;
             background-image: linear-gradient(145deg, #254f2a, #153718);
-        }
-        .realm-content::before {
-            content: '✨🌿✨';
-            position: absolute;
-            font-size: 42px;
-            bottom: 0px; right: 10px;
-            opacity: 0.25;
-            transform: rotate(-5deg);
-            color: #ffe3a0;
-            text-shadow: 0 0 20px gold;
-            pointer-events: none;
         }
         
         .realm-title {
@@ -199,64 +189,169 @@
             border-bottom: 2px solid #cbaa55;
             padding-bottom: 12px;
             font-weight: 700;
-        }
-        
-        .offline-earnings {
-            background: #1d4324;
-            border: 3px solid #fbdd88;
-            border-radius: 40px;
-            padding: 20px;
-            margin-bottom: 22px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: inset 0 0 40px #4d7a42, 0 10px 0 #1f421f;
-            background-image: radial-gradient(circle at 70% 20%, #4cae4c, transparent 70%);
-        }
-        
-        .earnings-title {
-            color: #fff1b5;
-            font-size: 20px;
-            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-weight: 600;
+            justify-content: space-between;
         }
         
-        .earnings-stats {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 18px;
+        .power-badge {
+            font-size: 16px;
+            background: #2d4a2d;
+            padding: 6px 12px;
+            border-radius: 40px;
+            border: 1px solid #f9cf6b;
+            color: #fff2b0;
         }
         
-        .earning-item {
-            flex: 1;
-            background: rgba(10, 30, 10, 0.5);
+        .map-container {
+            background: #1a3e1f;
             border-radius: 30px;
-            padding: 10px 5px;
-            border: 1px solid #eac468;
-            backdrop-filter: blur(2px);
+            padding: 20px 15px;
+            border: 3px solid #cbaa55;
+            margin-bottom: 20px;
+            position: relative;
+            background-image: radial-gradient(circle at 30% 40%, #2f6930, #123012);
         }
         
-        .earning-label {
-            font-size: 12px;
-            color: #cbdea8;
-            margin-bottom: 6px;
+        .map-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        .map-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .territory-plot {
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            background: #1e471e;
+            border: 2px solid #8f874a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 0 #0e2d0e;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .territory-plot.owned {
+            border-color: #ffd966;
+            box-shadow: 0 0 20px rgba(255, 235, 120, 0.3), 0 4px 0 #2d5a2d;
+            background: #2d632d;
+        }
+        
+        .territory-plot.fallow {
+            opacity: 0.6;
+            filter: grayscale(50%);
+            border-color: #a58f5a;
+        }
+        
+        .territory-plot.locked {
+            opacity: 0.3;
+            filter: grayscale(80%);
+            border-color: #5a5a3a;
+            background: #2a3a2a;
+        }
+        
+        .plot-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+        
+        .plot-name {
+            font-weight: 800;
+            font-size: 7px;
             text-transform: uppercase;
         }
         
-        .earning-value {
-            font-size: 32px;
-            font-weight: 800;
-            color: #fce777;
-            text-shadow: 0 0 20px #fce570, 0 2px 0 #6b4f1a;
-            line-height: 1;
+        .plot-income {
+            font-size: 8px;
+            color: #ffecaa;
         }
         
-        .earning-sub {
+        .plot-status {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 8px;
+        }
+        
+        .tier-label {
+            color: #ffecaa;
             font-size: 12px;
-            color: #a7f07a;
-            font-weight: 500;
+            margin-right: 10px;
+            font-weight: 600;
+        }
+        
+        .power-meter {
+            background: #1f4227;
+            border-radius: 30px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #b89f5a;
+        }
+        
+        .power-meter-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #fff2b0;
+        }
+        
+        .power-bar-bg {
+            width: 100%;
+            height: 20px;
+            background: #103010;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 1px solid #8f9f5a;
+        }
+        
+        .power-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #b4e87a, #ffe174);
+            width: 0%;
+            transition: width 0.5s;
+            border-radius: 30px;
+            box-shadow: 0 0 20px #e0ffa0;
+        }
+        
+        .next-tier {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #c9e8a0;
+        }
+        
+        .income-panel {
+            background: #1d4825;
+            border-radius: 30px;
+            padding: 20px;
+            border: 2px solid #eac261;
+            margin-bottom: 20px;
+        }
+        
+        .income-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .income-rate {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff2a0;
+            text-shadow: 0 2px 0 #3a5a2a;
         }
         
         .collect-btn {
@@ -269,7 +364,6 @@
             width: 100%;
             cursor: pointer;
             transition: all 0.2s;
-            margin-top: 12px;
             color: #162310;
             box-shadow: 0 8px 0 #6f4f1c, 0 10px 20px black;
             border: 2px solid #ffe694;
@@ -319,112 +413,16 @@
             will-change: width;
         }
         
-        .account-actions {
-            margin-top: 28px;
-            padding-top: 22px;
-            border-top: 3px dashed #a58f4b;
+        .fallow-warning {
+            background: #5a4a2a;
+            border-radius: 20px;
+            padding: 12px;
+            margin: 15px 0;
+            border-left: 5px solid #ffb86b;
+            font-size: 13px;
         }
         
-        .account-actions-title {
-            color: #fbe593;
-            margin-bottom: 15px;
-            font-size: 20px;
-            font-weight: 600;
-        }
-        
-        .delete-btn {
-            width: 100%;
-            background: #4a322a;
-            color: #ffe09f;
-            border: 2px solid #cb8e5a;
-            padding: 16px;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 7px 0 #2d1f1a;
-        }
-        
-        .delete-btn:hover {
-            background: #6d4d42;
-            color: #ffefc0;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 0 #2d1f1a;
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(5, 20, 5, 0.9);
-            backdrop-filter: blur(8px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        
-        .modal.show {
-            opacity: 1;
-            pointer-events: all;
-        }
-        
-        .modal-content {
-            background: #1b4525;
-            border: 4px solid #fcd67c;
-            border-radius: 60px;
-            padding: 30px 25px;
-            max-width: 320px;
-            text-align: center;
-            box-shadow: 0 20px 0 #0b350b, 0 0 70px #b9ff8a;
-        }
-        
-        .modal-title {
-            color: #ffe882;
-            font-size: 28px;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 0 #3f6a2a;
-        }
-        
-        .modal-text {
-            color: #e9f0c3;
-            margin-bottom: 25px;
-            font-size: 17px;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .modal-confirm {
-            flex: 1;
-            background: #b55a3a;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            border: 2px solid #ffb082;
-            font-size: 16px;
-        }
-        
-        .modal-cancel {
-            flex: 1;
-            background: #3b6a42;
-            color: white;
-            border: 2px solid #b0dd94;
-            padding: 14px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
+        /* Merge Chamber Styles (unchanged but enhanced) */
         .merge-chamber {
             background: #1b4727;
             border-radius: 80px 80px 40px 40px;
@@ -444,9 +442,6 @@
             letter-spacing: 2px;
             font-weight: 700;
             text-shadow: 0 0 15px #fdffc0, 0 3px 0 #336633;
-            white-space: nowrap;
-            overflow: hidden;
-            max-width: 100%;
         }
         
         .reset-btn {
@@ -953,15 +948,120 @@
             text-align: center;
             text-shadow: 0 2px 0 #2d602d;
         }
-
-        /* Optimized rendering classes */
-        .card-placeholder {
-            aspect-ratio: 1.5/2.25;
-            width: 90%;
-            max-width: 110px;
-            border-radius: 8px 12px 8px 12px;
-            background: rgba(30, 50, 30, 0.3);
-            border: 2px dashed #7a9f5a;
+        
+        .territory-expand {
+            animation: expandPulse 1s ease;
+        }
+        
+        @keyframes expandPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 50px gold; }
+        }
+        
+        .account-actions {
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 3px dashed #a58f4b;
+        }
+        
+        .account-actions-title {
+            color: #fbe593;
+            margin-bottom: 15px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .delete-btn {
+            width: 100%;
+            background: #4a322a;
+            color: #ffe09f;
+            border: 2px solid #cb8e5a;
+            padding: 16px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 7px 0 #2d1f1a;
+        }
+        
+        .delete-btn:hover {
+            background: #6d4d42;
+            color: #ffefc0;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 0 #2d1f1a;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5, 20, 5, 0.9);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background: #1b4525;
+            border: 4px solid #fcd67c;
+            border-radius: 60px;
+            padding: 30px 25px;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 20px 0 #0b350b, 0 0 70px #b9ff8a;
+        }
+        
+        .modal-title {
+            color: #ffe882;
+            font-size: 28px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 0 #3f6a2a;
+        }
+        
+        .modal-text {
+            color: #e9f0c3;
+            margin-bottom: 25px;
+            font-size: 17px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .modal-confirm {
+            flex: 1;
+            background: #b55a3a;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #ffb082;
+            font-size: 16px;
+        }
+        
+        .modal-cancel {
+            flex: 1;
+            background: #3b6a42;
+            color: white;
+            border: 2px solid #b0dd94;
+            padding: 14px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -998,32 +1098,59 @@
         </div>
         
         <div class="tabs">
-            <div class="tab active" data-tab="realm">REALM</div>
-            <div class="tab" data-tab="merge">MERGE</div>
-            <div class="tab" data-tab="packs">PACKS</div>
+            <div class="tab active" data-tab="glimmerlands">🌍 GLIMMERLANDS</div>
+            <div class="tab" data-tab="merge">⚗️ MERGE</div>
+            <div class="tab" data-tab="packs">📦 PACKS</div>
         </div>
         
         <div class="scrollable-content" id="scrollableContent">
-            <div id="realmTab">
-                <div class="realm-content">
-                    <div class="realm-title">🌳 Enchanted Realm</div>
-                    <p style="margin-bottom: 18px; color: #e5f5c5; font-size: 16px;">Magical words await in the glowing woods...</p>
+            <!-- Glimmerlands Tab (Replaces Realm) -->
+            <div id="glimmerlandsTab">
+                <div class="glimmerlands-content">
+                    <div class="realm-title">
+                        <span>🌳 The Glimmerlands</span>
+                        <span class="power-badge" id="powerValue">0 Power</span>
+                    </div>
                     
-                    <div class="offline-earnings">
-                        <div class="earnings-title">
-                            <span>✨ Glowing Accumulation</span>
+                    <!-- Power Meter -->
+                    <div class="power-meter">
+                        <div class="power-meter-header">
+                            <span>Forest Influence</span>
+                            <span id="currentPower">0</span>
+                        </div>
+                        <div class="power-bar-bg">
+                            <div class="power-bar-fill" id="powerBarFill" style="width: 0%"></div>
+                        </div>
+                        <div class="next-tier" id="nextTierText">Next Territory: Whispering Woods (50 Power)</div>
+                    </div>
+                    
+                    <!-- Territory Map -->
+                    <div class="map-container">
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <span class="tier-label">YOUR KINGDOM</span>
+                        </div>
+                        <div class="map-grid" id="territoryMap">
+                            <!-- Generated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Income Panel -->
+                    <div class="income-panel">
+                        <div class="income-header">
+                            <span>✨ Territory Yield</span>
+                            <span class="income-rate" id="hourlyRate">0</span>
                         </div>
                         
-                        <div class="earnings-stats">
-                            <div class="earning-item">
-                                <div class="earning-label">ACCUMULATED</div>
-                                <div class="earning-value" id="accumulatedDust">0</div>
-                                <div class="earning-sub">magic dust</div>
+                        <div class="earnings-stats" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                            <div style="flex: 1; background: #1f4a2a; border-radius: 20px; padding: 10px; text-align: center;">
+                                <div style="font-size: 12px; color: #ccf0aa;">ACCUMULATED</div>
+                                <div style="font-size: 28px; font-weight: 800; color: #f9e268;" id="accumulatedDust">0</div>
+                                <div style="font-size: 10px;">dust</div>
                             </div>
-                            <div class="earning-item">
-                                <div class="earning-label">RATE</div>
-                                <div class="earning-value">1</div>
-                                <div class="earning-sub">per 5 min</div>
+                            <div style="flex: 1; background: #1f4a2a; border-radius: 20px; padding: 10px; text-align: center;">
+                                <div style="font-size: 12px; color: #ccf0aa;">PER HOUR</div>
+                                <div style="font-size: 28px; font-weight: 800; color: #f9e268;" id="hourlyRateDisplay">0</div>
+                                <div style="font-size: 10px;">dust</div>
                             </div>
                         </div>
                         
@@ -1035,22 +1162,18 @@
                             <span>Max 24h</span>
                         </div>
                         
+                        <!-- Fallow Warning (hidden by default) -->
+                        <div class="fallow-warning" id="fallowWarning" style="display: none;">
+                            ⚠️ Some lands are fallow. Merge matching rarities to restore them.
+                        </div>
+                        
                         <button class="collect-btn" id="collectBtn" disabled>
-                            Collect Dust
+                            Collect Territory Dust
                         </button>
                     </div>
                     
-                    <div style="background: #1f4a2a; border-radius: 30px; padding: 16px; margin-bottom: 20px; border: 2px solid #dbb15a;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px;">
-                            <span>🌿 Lexicon Growth</span>
-                            <span id="progressPercent">0%</span>
-                        </div>
-                        <div style="width: 100%; height: 16px; background: #0d3a0d; border-radius: 20px; overflow: hidden; border: 1px solid #aac288;">
-                            <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #b0f07a, #f9e87a); border-radius: 20px; box-shadow: 0 0 20px #b0ff8a;"></div>
-                        </div>
-                    </div>
-                    
-                    <h4 style="color: #f8efb0; margin: 16px 0 10px; font-size: 18px; display: flex; align-items: center; gap: 8px;">✨ Recent Whispers</h4>
+                    <!-- Recent Discoveries -->
+                    <h4 style="color: #f8efb0; margin: 16px 0 10px; font-size: 18px;">✨ Recent Discoveries</h4>
                     <div class="cards-grid" id="recentCardsGrid"></div>
                     
                     <div class="account-actions">
@@ -1060,6 +1183,7 @@
                 </div>
             </div>
             
+            <!-- Merge Tab (Unchanged but enhanced with fallow restoration) -->
             <div id="mergeTab" style="display: none;">
                 <div class="merge-chamber" id="mergeChamber">
                     <div class="chamber-title">✧ MERGE CHAMBER ✧</div>
@@ -1099,6 +1223,7 @@
                 </div>
             </div>
             
+            <!-- Packs Tab (Unchanged) -->
             <div id="packsTab" style="display: none;">
                 <div class="packs-content">
                     <div class="pack-title">🌙 MYSTIC PACKS</div>
@@ -1132,42 +1257,39 @@
     
     <script>
         (function() {
-            // ---------- OPTIMIZED LEXICON CARDS ----------
-            // Performance improvements:
-            // 1. Debounced saves and UI updates
-            // 2. Cached grouped card data
-            // 3. RAF throttled animations
-            // 4. Optimized event delegation
-            // 5. Reduced DOM operations
-            // 6. Memoized calculations
+            // ---------- LEXICON CARDS · GLIMMERLANDS EDITION ----------
+            // Complete with Territory Control System
             
             let tg = window.Telegram?.WebApp;
             if (tg) { tg.ready(); tg.expand(); if (tg.setHeaderColor) tg.setHeaderColor('#0a0a1a'); if (tg.setBackgroundColor) tg.setBackgroundColor('#0a0a1a'); }
             
-            // Game State
-            let collection = [];
-            let dust = 150;
-            let selectedCards = [];
-            let mergeSize = 3;
-            let pityCounters = { 'uncommon→rare': 0, 'rare→epic': 0, 'epic→legendary': 0, 'legendary→mythic': 0 };
+            // ==================== GAME CONSTANTS ====================
             
-            // Offline Earnings State
-            let lastLoginTime = Date.now();
-            let accumulatedOfflineDust = 0;
-            const DUST_PER_INTERVAL = 1;
-            const INTERVAL_MS = 5 * 60 * 1000;
-            const MAX_ACCUMULATION_MS = 24 * 60 * 60 * 1000;
+            // Card Rarities and Power Values
+            const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
+            const RARITY_NAMES = { common:'COMMON', uncommon:'UNCOMMON', rare:'RARE', epic:'EPIC', legendary:'LEGENDARY', mythic:'MYTHIC' };
             
-            // UI State
-            let activeTab = 'realm';
-            let rafTimer = null;
-            let saveTimeout = null;
-            let uiUpdateTimeout = null;
-            let cachedGroupedData = null;
-            let lastCollectionVersion = 0;
-            let collectionVersion = 0;
+            const POWER_VALUES = {
+                'common': 1,
+                'uncommon': 3,
+                'rare': 10,
+                'epic': 25,
+                'legendary': 75,
+                'mythic': 200
+            };
             
-            // Card Pools
+            // Territory Definitions
+            const TERRITORIES = [
+                { tier: 1, name: 'Sunlit Glade', icon: '☀️', plots: 3, baseIncome: 1, powerReq: 0, rarity: 'common' },
+                { tier: 2, name: 'Whispering Woods', icon: '🌫️', plots: 3, baseIncome: 3, powerReq: 50, rarity: 'uncommon' },
+                { tier: 3, name: 'Crystal Grove', icon: '💎', plots: 2, baseIncome: 8, powerReq: 150, rarity: 'rare' },
+                { tier: 4, name: 'Fae Meadow', icon: '🦋', plots: 2, baseIncome: 20, powerReq: 400, rarity: 'epic' },
+                { tier: 5, name: 'Ancient Mire', icon: '🌑', plots: 1, baseIncome: 50, powerReq: 1000, rarity: 'legendary' },
+                { tier: 6, name: 'Dragon\'s Rest', icon: '🐉', plots: 1, baseIncome: 150, powerReq: 2500, rarity: 'mythic' },
+                { tier: 7, name: 'Starfall Peak', icon: '⛰️', plots: 1, baseIncome: 400, powerReq: 5000, rarity: 'mythic' }
+            ];
+            
+            // Word Pools
             const WORDS = {
                 common: ['SUN', 'MOON', 'STAR', 'TREE', 'FIRE', 'WATER', 'WIND', 'ROCK', 'BIRD', 'FISH'],
                 uncommon: ['FLAME', 'OCEAN', 'FOREST', 'THUNDER', 'SHADOW', 'CRYSTAL', 'EMBER', 'FROST'],
@@ -1177,9 +1299,7 @@
                 mythic: ['ABRACADABRA', 'ALAKAZAM', 'PRESTIGE', 'OMNIVERSE']
             };
             
-            const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
-            const RARITY_NAMES = { common:'COMMON', uncommon:'UNCOMMON', rare:'RARE', epic:'EPIC', legendary:'LEGENDARY', mythic:'MYTHIC' };
-            
+            // Merge Mechanics
             const SUCCESS_CHANCES = {
                 '3:common→uncommon':1.0,'3:uncommon→rare':0.8,'3:rare→epic':0.5,'3:epic→legendary':0.3,'3:legendary→mythic':0.1,
                 '4:common→uncommon':1.0,'4:uncommon→rare':0.9,'4:rare→epic':0.65,'4:epic→legendary':0.45,'4:legendary→mythic':0.2,
@@ -1195,7 +1315,36 @@
             const PITY_INCREMENT = 0.05;
             const MAX_PITY = 0.5;
             
-            // DOM Element cache
+            // Fallow System
+            const FALLOW_DAYS = 3; // Days until land goes fallow
+            const FALLOW_PENALTY = 0.5; // 50% income
+            const MS_PER_DAY = 24 * 60 * 60 * 1000;
+            
+            // ==================== GAME STATE ====================
+            
+            let collection = [];
+            let dust = 150;
+            let selectedCards = [];
+            let mergeSize = 3;
+            let pityCounters = { 'uncommon→rare': 0, 'rare→epic': 0, 'epic→legendary': 0, 'legendary→mythic': 0 };
+            
+            // Territory State
+            let lastLoginTime = Date.now();
+            let accumulatedOfflineDust = 0;
+            let lastFallowCheck = Date.now();
+            let fallowLands = {}; // Track which plots are fallow { plotId: lastActiveTimestamp }
+            
+            // UI State
+            let activeTab = 'glimmerlands';
+            let rafTimer = null;
+            let saveTimeout = null;
+            let uiUpdateTimeout = null;
+            let cachedGroupedData = null;
+            let lastCollectionVersion = 0;
+            let collectionVersion = 0;
+            
+            // ==================== DOM ELEMENTS ====================
+            
             const dom = {
                 totalCards: document.getElementById('totalCards'),
                 uniqueCards: document.getElementById('uniqueCards'),
@@ -1204,8 +1353,6 @@
                 collectBtn: document.getElementById('collectBtn'),
                 timeProgress: document.getElementById('timeProgress'),
                 timeUntilNext: document.getElementById('timeUntilNext'),
-                progressBar: document.getElementById('progressBar'),
-                progressPercent: document.getElementById('progressPercent'),
                 recentCardsGrid: document.getElementById('recentCardsGrid'),
                 mergeGrid: document.getElementById('mergeGrid'),
                 packResultsGrid: document.getElementById('packResultsGrid'),
@@ -1220,7 +1367,15 @@
                 modalTitle: document.getElementById('modalTitle'),
                 modalText: document.getElementById('modalText'),
                 modalConfirm: document.getElementById('modalConfirmBtn'),
-                modalCancel: document.getElementById('modalCancelBtn')
+                modalCancel: document.getElementById('modalCancelBtn'),
+                powerValue: document.getElementById('powerValue'),
+                currentPower: document.getElementById('currentPower'),
+                powerBarFill: document.getElementById('powerBarFill'),
+                nextTierText: document.getElementById('nextTierText'),
+                territoryMap: document.getElementById('territoryMap'),
+                hourlyRate: document.getElementById('hourlyRate'),
+                hourlyRateDisplay: document.getElementById('hourlyRateDisplay'),
+                fallowWarning: document.getElementById('fallowWarning')
             };
             
             const circles = [
@@ -1231,62 +1386,345 @@
                 document.getElementById('circle5')
             ];
             
-            // Helper functions
-            function debouncedSave() {
-                if (saveTimeout) clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(() => {
-                    try {
-                        localStorage.setItem('lexiconCards', JSON.stringify({ 
-                            collection, 
-                            dust, 
-                            pityCounters, 
-                            lastLoginTime, 
-                            accumulatedOfflineDust 
-                        }));
-                        saveTimeout = null;
-                    } catch (e) {}
-                }, 200);
+            // ==================== CORE FUNCTIONS ====================
+            
+            // Calculate total power from collection
+            function calculateTotalPower() {
+                return collection.reduce((total, card) => total + (POWER_VALUES[card.rarity] || 0), 0);
             }
             
-            function debouncedUIUpdate() {
-                if (uiUpdateTimeout) cancelAnimationFrame(uiUpdateTimeout);
-                uiUpdateTimeout = requestAnimationFrame(() => {
-                    updateStats();
-                    if (activeTab === 'realm') updateRealmTab();
-                    else if (activeTab === 'merge') {
-                        renderMergeGrid();
-                        updateMergeUI();
-                    }
-                    updateOfflineUI();
-                    uiUpdateTimeout = null;
-                });
-            }
-            
-            function incrementCollectionVersion() {
-                collectionVersion++;
-                cachedGroupedData = null;
-            }
-            
+            // Get unique card count
             function getUniqueCardCount() {
                 return new Set(collection.map(c => c.word + c.rarity)).size;
             }
             
-            function getCollectionProgress() {
-                const total = Object.values(WORDS).flat().length;
-                const owned = getUniqueCardCount();
-                return Math.round((owned / total) * 100);
+            // Calculate hourly income from territories
+            function calculateHourlyIncome() {
+                const power = calculateTotalPower();
+                let income = 0;
+                const now = Date.now();
+                
+                TERRITORIES.forEach((territory, tierIndex) => {
+                    if (power >= territory.powerReq) {
+                        // Check if this territory is fallow
+                        const isFallow = checkTerritoryFallow(tierIndex, now);
+                        
+                        for (let i = 0; i < territory.plots; i++) {
+                            const plotId = `t${tierIndex}_p${i}`;
+                            const plotFallow = isFallow || (fallowLands[plotId] && (now - fallowLands[plotId] > FALLOW_DAYS * MS_PER_DAY));
+                            
+                            if (plotFallow) {
+                                income += territory.baseIncome * FALLOW_PENALTY;
+                            } else {
+                                income += territory.baseIncome;
+                            }
+                        }
+                    }
+                });
+                
+                return income;
             }
             
+            // Check if a territory is fallow based on last merge of its dominant rarity
+            function checkTerritoryFallow(tierIndex, now) {
+                const territory = TERRITORIES[tierIndex];
+                if (!territory) return false;
+                
+                // Find the last merge time for this territory's rarity
+                const lastMerge = lastMergeTimes[territory.rarity] || 0;
+                return (now - lastMerge) > FALLOW_DAYS * MS_PER_DAY;
+            }
+            
+            // Track last merge times per rarity (for fallow system)
+            let lastMergeTimes = {
+                'common': Date.now(),
+                'uncommon': Date.now(),
+                'rare': Date.now(),
+                'epic': Date.now(),
+                'legendary': Date.now(),
+                'mythic': Date.now()
+            };
+            
+            // Update last merge time
+            function updateLastMergeTime(rarity) {
+                lastMergeTimes[rarity] = Date.now();
+                
+                // Also update specific plots if they were fallow
+                const now = Date.now();
+                const power = calculateTotalPower();
+                
+                TERRITORIES.forEach((territory, tierIndex) => {
+                    if (territory.rarity === rarity && power >= territory.powerReq) {
+                        for (let i = 0; i < territory.plots; i++) {
+                            const plotId = `t${tierIndex}_p${i}`;
+                            delete fallowLands[plotId]; // Remove fallow status
+                        }
+                    }
+                });
+                
+                updateFallowWarning();
+            }
+            
+            // Update fallow warning visibility
+            function updateFallowWarning() {
+                if (!dom.fallowWarning) return;
+                
+                const now = Date.now();
+                const power = calculateTotalPower();
+                let hasFallow = false;
+                
+                TERRITORIES.forEach((territory, tierIndex) => {
+                    if (power >= territory.powerReq) {
+                        const lastMerge = lastMergeTimes[territory.rarity] || 0;
+                        if ((now - lastMerge) > FALLOW_DAYS * MS_PER_DAY) {
+                            hasFallow = true;
+                        }
+                    }
+                });
+                
+                dom.fallowWarning.style.display = hasFallow ? 'block' : 'none';
+            }
+            
+            // Render territory map
+            function renderTerritoryMap() {
+                if (!dom.territoryMap) return;
+                
+                const power = calculateTotalPower();
+                const now = Date.now();
+                let html = '';
+                
+                TERRITORIES.forEach((territory, tierIndex) => {
+                    const row = document.createElement('div');
+                    row.className = 'map-row';
+                    
+                    // Add tier label
+                    const label = document.createElement('span');
+                    label.className = 'tier-label';
+                    label.textContent = `T${territory.tier}`;
+                    row.appendChild(label);
+                    
+                    // Add plots
+                    const isUnlocked = power >= territory.powerReq;
+                    
+                    for (let i = 0; i < territory.plots; i++) {
+                        const plot = document.createElement('div');
+                        plot.className = 'territory-plot';
+                        
+                        const plotId = `t${tierIndex}_p${i}`;
+                        const lastMerge = lastMergeTimes[territory.rarity] || 0;
+                        const isFallow = isUnlocked && ((now - lastMerge) > FALLOW_DAYS * MS_PER_DAY);
+                        
+                        if (!isUnlocked) {
+                            plot.classList.add('locked');
+                        } else if (isFallow) {
+                            plot.classList.add('fallow');
+                        } else {
+                            plot.classList.add('owned');
+                        }
+                        
+                        plot.innerHTML = `
+                            <div class="plot-icon">${territory.icon}</div>
+                            <div class="plot-name">${territory.name.split(' ')[0]}</div>
+                            <div class="plot-income">${isUnlocked ? (isFallow ? Math.floor(territory.baseIncome * FALLOW_PENALTY) : territory.baseIncome) : '🔒'}/h</div>
+                            <div class="plot-status">${isFallow ? '⚠️' : (isUnlocked ? '✨' : '')}</div>
+                        `;
+                        
+                        row.appendChild(plot);
+                    }
+                    
+                    dom.territoryMap.appendChild(row);
+                });
+            }
+            
+            // Update power meter and next tier
+            function updatePowerMeter() {
+                const power = calculateTotalPower();
+                if (dom.powerValue) dom.powerValue.textContent = `${power} Power`;
+                if (dom.currentPower) dom.currentPower.textContent = power;
+                
+                // Find next tier
+                let nextTier = null;
+                for (let i = 0; i < TERRITORIES.length; i++) {
+                    if (power < TERRITORIES[i].powerReq) {
+                        nextTier = TERRITORIES[i];
+                        break;
+                    }
+                }
+                
+                if (nextTier) {
+                    const progress = (power / nextTier.powerReq) * 100;
+                    if (dom.powerBarFill) dom.powerBarFill.style.width = Math.min(progress, 100) + '%';
+                    if (dom.nextTierText) dom.nextTierText.textContent = `Next: ${nextTier.name} (${nextTier.powerReq} Power)`;
+                } else {
+                    if (dom.powerBarFill) dom.powerBarFill.style.width = '100%';
+                    if (dom.nextTierText) dom.nextTierText.textContent = `✨ All territories unlocked!`;
+                }
+            }
+            
+            // Check for territory unlocks
+            function checkTerritoryUnlocks(oldPower, newPower) {
+                TERRITORIES.forEach(territory => {
+                    if (oldPower < territory.powerReq && newPower >= territory.powerReq) {
+                        showToast(`✨ New territory unlocked: ${territory.name}!`);
+                        
+                        // Trigger animation on map
+                        if (dom.territoryMap) {
+                            dom.territoryMap.classList.add('territory-expand');
+                            setTimeout(() => dom.territoryMap.classList.remove('territory-expand'), 1000);
+                        }
+                    }
+                });
+            }
+            
+            // Update UI with latest stats
             function updateStats() {
+                const power = calculateTotalPower();
+                const oldPower = dom.currentPower ? parseInt(dom.currentPower.textContent) || 0 : 0;
+                
                 if (dom.totalCards) dom.totalCards.textContent = collection.length;
                 if (dom.uniqueCards) dom.uniqueCards.textContent = getUniqueCardCount();
                 if (dom.dustAmount) dom.dustAmount.textContent = dust;
-                const p = getCollectionProgress();
-                if (dom.progressBar) dom.progressBar.style.width = p + '%';
-                if (dom.progressPercent) dom.progressPercent.textContent = p + '%';
+                
+                // Update power and check unlocks
+                updatePowerMeter();
+                if (oldPower !== power) {
+                    checkTerritoryUnlocks(oldPower, power);
+                }
+                
+                // Update income display
+                const hourly = calculateHourlyIncome();
+                if (dom.hourlyRate) dom.hourlyRate.textContent = `${hourly}/h`;
+                if (dom.hourlyRateDisplay) dom.hourlyRateDisplay.textContent = hourly;
+                
+                // Re-render map if needed (power changed)
+                if (dom.territoryMap) {
+                    dom.territoryMap.innerHTML = '';
+                    renderTerritoryMap();
+                }
+                
+                updateFallowWarning();
             }
             
-            // Card grouping with cache
+            // Offline earnings with territory system
+            function calculateOfflineEarnings() {
+                const now = Date.now();
+                const timeDiff = Math.min(now - lastLoginTime, 24 * 60 * 60 * 1000);
+                
+                // Income is based on territory!
+                const hourlyRate = calculateHourlyIncome();
+                const hoursPassed = timeDiff / (1000 * 60 * 60);
+                
+                accumulatedOfflineDust = Math.floor(hourlyRate * hoursPassed);
+                lastLoginTime = now;
+                debouncedSave();
+            }
+            
+            // Collect offline dust
+            function collectOfflineDust() {
+                if (accumulatedOfflineDust > 0) {
+                    dust += accumulatedOfflineDust;
+                    accumulatedOfflineDust = 0;
+                    lastLoginTime = Date.now();
+                    debouncedSave();
+                    debouncedUIUpdate();
+                    showToast(`✨ Collected ${accumulatedOfflineDust} dust from your lands!`);
+                }
+            }
+            
+            // Update offline UI
+            function updateOfflineUI() {
+                if (dom.accumulatedDust) dom.accumulatedDust.textContent = accumulatedOfflineDust;
+                
+                if (dom.collectBtn) {
+                    if (accumulatedOfflineDust > 0) {
+                        dom.collectBtn.disabled = false;
+                        dom.collectBtn.classList.add('collectable');
+                        dom.collectBtn.textContent = `Collect ${accumulatedOfflineDust} Dust`;
+                    } else {
+                        dom.collectBtn.disabled = true;
+                        dom.collectBtn.classList.remove('collectable');
+                        dom.collectBtn.textContent = 'Collect Territory Dust';
+                    }
+                }
+                
+                if (dom.timeProgress) {
+                    const p = Math.min(((Date.now() - lastLoginTime) / (60 * 60 * 1000)) * 100, 100);
+                    dom.timeProgress.style.width = p + '%';
+                }
+                
+                if (dom.timeUntilNext) {
+                    const r = Math.max(60 * 60 * 1000 - (Date.now() - lastLoginTime), 0);
+                    const m = Math.floor(r / 60000);
+                    const s = Math.floor((r % 60000) / 1000);
+                    dom.timeUntilNext.textContent = `Next hour: ${m}:${s.toString().padStart(2, '0')}`;
+                }
+            }
+            
+            // ==================== MERGE FUNCTIONS (Enhanced) ====================
+            
+            function performMerge() {
+                if (!isMergePossible()) {
+                    showToast('Select cards');
+                    return;
+                }
+                
+                const details = getCurrentMergeDetails();
+                if (!details) return;
+                
+                const randomWord = WORDS[details.toRarity][Math.floor(Math.random() * WORDS[details.toRarity].length)];
+                const cards = collection.filter(c => selectedCards.includes(c.id));
+                const oldPower = calculateTotalPower();
+                
+                // Remove merged cards
+                cards.forEach(c => {
+                    const idx = collection.findIndex(coll => coll.id === c.id);
+                    if (idx !== -1) collection.splice(idx, 1);
+                });
+                
+                selectedCards = [];
+                
+                if (Math.random() < details.chance) {
+                    // SUCCESS
+                    const newCard = { id: Date.now() + Math.random(), word: randomWord, rarity: details.toRarity };
+                    collection.push(newCard);
+                    pityCounters[details.pityKey] = 0;
+                    
+                    // Update last merge time for the target rarity
+                    updateLastMergeTime(details.toRarity);
+                    
+                    showToast(`✨ SUCCESS! Got ${newCard.word}`);
+                    if (dom.mergeChamber) {
+                        dom.mergeChamber.classList.add('merge-flash-success');
+                        setTimeout(() => dom.mergeChamber.classList.remove('merge-flash-success'), 500);
+                    }
+                    if (details.toRarity === 'mythic') showToast('🎉 MYTHIC UNLOCKED!');
+                } else {
+                    // FAILURE
+                    const dustReward = DUST_REWARDS[details.mergeKey] || 5;
+                    dust += dustReward;
+                    pityCounters[details.pityKey] = (pityCounters[details.pityKey] || 0) + PITY_INCREMENT;
+                    
+                    // Update last merge time for the source rarity (since we merged but failed)
+                    updateLastMergeTime(details.fromRarity);
+                    
+                    showToast(`💔 Failed +${dustReward} dust`);
+                    if (dom.mergeChamber) {
+                        dom.mergeChamber.classList.add('merge-flash-failure');
+                        setTimeout(() => dom.mergeChamber.classList.remove('merge-flash-failure'), 500);
+                    }
+                }
+                
+                // Check territory unlocks with new power
+                const newPower = calculateTotalPower();
+                checkTerritoryUnlocks(oldPower, newPower);
+                
+                incrementCollectionVersion();
+                debouncedSave();
+                debouncedUIUpdate();
+            }
+            
+            // ==================== CARD MANAGEMENT ====================
+            
             function getGroupedCards() {
                 if (cachedGroupedData && lastCollectionVersion === collectionVersion) {
                     return cachedGroupedData;
@@ -1320,7 +1758,6 @@
                 return sorted;
             }
             
-            // Optimized card element creation with pooling (simplified)
             function createCardElement(card, isMergeable = false, highlightRarity = null, stackInfo = null) {
                 const div = document.createElement('div');
                 div.className = `card ${card.rarity}`;
@@ -1364,176 +1801,6 @@
                 return div;
             }
             
-            // Event handlers using delegation
-            function handleCardClick(e) {
-                const cardDiv = e.target.closest('.card');
-                if (!cardDiv || activeTab !== 'merge') return;
-                
-                const card = cardDiv._cardData;
-                const stackInfo = cardDiv._stackInfo;
-                if (!card) return;
-                
-                if (stackInfo && stackInfo.count > 1) {
-                    const selectedFromStack = selectedCards.filter(id => stackInfo.cardIds.has(id));
-                    
-                    if (selectedFromStack.length === stackInfo.count) {
-                        const toRemove = selectedFromStack[selectedFromStack.length - 1];
-                        const idx = selectedCards.indexOf(toRemove);
-                        if (idx !== -1) {
-                            selectedCards.splice(idx, 1);
-                            showToast(`Removed ${card.word}`);
-                        }
-                    } else if (selectedFromStack.length > 0 && selectedFromStack.length < stackInfo.count) {
-                        const unselected = stackInfo.cards.find(c => !selectedCards.includes(c.id));
-                        if (unselected && canAddToMerge(unselected)) {
-                            selectedCards.push(unselected.id);
-                            showToast(`Added ${unselected.word}`);
-                        }
-                    } else {
-                        const unselected = stackInfo.cards.find(c => !selectedCards.includes(c.id));
-                        if (unselected && canAddToMerge(unselected)) {
-                            selectedCards.push(unselected.id);
-                            showToast(`Added ${unselected.word}`);
-                        }
-                    }
-                } else {
-                    if (selectedCards.includes(card.id)) {
-                        const idx = selectedCards.indexOf(card.id);
-                        selectedCards.splice(idx, 1);
-                        showToast(`Removed ${card.word}`);
-                    } else if (canAddToMerge(card)) {
-                        selectedCards.push(card.id);
-                        showToast(`Added ${card.word}`);
-                    }
-                }
-                
-                incrementCollectionVersion();
-                debouncedUIUpdate();
-                updateResetBtnState();
-            }
-            
-            function canAddToMerge(card) {
-                if (selectedCards.length >= mergeSize) {
-                    showToast(`Max ${mergeSize} cards`);
-                    return false;
-                }
-                if (selectedCards.length > 0) {
-                    const first = collection.find(c => c.id === selectedCards[0]);
-                    if (first && first.rarity !== card.rarity) {
-                        showToast('Cards must be same rarity');
-                        return false;
-                    }
-                }
-                if (card.rarity === 'mythic') {
-                    showToast('Mythic cannot be merged');
-                    return false;
-                }
-                return true;
-            }
-            
-            // Merge functions
-            function isMergePossible() {
-                if (selectedCards.length !== mergeSize) return false;
-                const cards = collection.filter(c => selectedCards.includes(c.id));
-                if (cards.length !== mergeSize) return false;
-                const first = cards[0].rarity;
-                return cards.every(c => c.rarity === first) && first !== 'mythic';
-            }
-            
-            function getCurrentMergeDetails() {
-                if (!isMergePossible()) return null;
-                const first = collection.find(c => c.id === selectedCards[0]);
-                const from = first.rarity;
-                const to = RARITY_ORDER[RARITY_ORDER.indexOf(from) + 1];
-                const key = mergeSize + ':' + from + '→' + to;
-                const pityKey = from + '→' + to;
-                const base = SUCCESS_CHANCES[key] || 0;
-                const bonus = Math.min(pityCounters[pityKey] || 0, MAX_PITY);
-                return { fromRarity: from, toRarity: to, mergeKey: key, pityKey: pityKey, chance: base + bonus };
-            }
-            
-            function performMerge() {
-                if (!isMergePossible()) {
-                    showToast('Select cards');
-                    return;
-                }
-                
-                const details = getCurrentMergeDetails();
-                if (!details) return;
-                
-                const randomWord = WORDS[details.toRarity][Math.floor(Math.random() * WORDS[details.toRarity].length)];
-                const cards = collection.filter(c => selectedCards.includes(c.id));
-                
-                cards.forEach(c => {
-                    const idx = collection.findIndex(coll => coll.id === c.id);
-                    if (idx !== -1) collection.splice(idx, 1);
-                });
-                
-                selectedCards = [];
-                
-                if (Math.random() < details.chance) {
-                    const newCard = { id: Date.now() + Math.random(), word: randomWord, rarity: details.toRarity };
-                    collection.push(newCard);
-                    pityCounters[details.pityKey] = 0;
-                    showToast(`✨ SUCCESS! Got ${newCard.word}`);
-                    if (dom.mergeChamber) {
-                        dom.mergeChamber.classList.add('merge-flash-success');
-                        setTimeout(() => dom.mergeChamber.classList.remove('merge-flash-success'), 500);
-                    }
-                    if (details.toRarity === 'mythic') showToast('🎉 MYTHIC UNLOCKED!');
-                } else {
-                    const dustReward = DUST_REWARDS[details.mergeKey] || 5;
-                    dust += dustReward;
-                    pityCounters[details.pityKey] = (pityCounters[details.pityKey] || 0) + PITY_INCREMENT;
-                    showToast(`💔 Failed +${dustReward} dust`);
-                    if (dom.mergeChamber) {
-                        dom.mergeChamber.classList.add('merge-flash-failure');
-                        setTimeout(() => dom.mergeChamber.classList.remove('merge-flash-failure'), 500);
-                    }
-                }
-                
-                incrementCollectionVersion();
-                debouncedSave();
-                debouncedUIUpdate();
-            }
-            
-            function resetSelection() {
-                if (selectedCards.length === 0) {
-                    showToast('No cards to clear');
-                    return;
-                }
-                selectedCards = [];
-                showToast('Selection cleared');
-                incrementCollectionVersion();
-                debouncedUIUpdate();
-            }
-            
-            function quickFillMerge() {
-                if (selectedCards.length === 0) {
-                    showToast('Select a first card');
-                    return;
-                }
-                if (selectedCards.length >= mergeSize) return;
-                
-                const first = collection.find(c => c.id === selectedCards[0]);
-                if (!first) return;
-                
-                const matching = collection.filter(c => c.rarity === first.rarity && !selectedCards.includes(c.id));
-                const need = mergeSize - selectedCards.length;
-                const toAdd = matching.slice(0, need);
-                
-                toAdd.forEach(c => selectedCards.push(c.id));
-                
-                if (toAdd.length > 0) {
-                    showToast(`✨ Added ${toAdd.length} cards`);
-                    incrementCollectionVersion();
-                    debouncedUIUpdate();
-                } else {
-                    showToast('No matching cards');
-                }
-            }
-            
-            // UI Rendering
             function renderMergeGrid() {
                 if (!dom.mergeGrid || activeTab !== 'merge') return;
                 
@@ -1564,62 +1831,8 @@
                 updateMergeButtonState();
             }
             
-            function updateMergeButtonState() {
-                if (!dom.previewText || !dom.chanceDisplay || !dom.mergeBtn || !dom.quickFillBtn) return;
-                
-                if (isMergePossible()) {
-                    const d = getCurrentMergeDetails();
-                    const percent = Math.round(d.chance * 100);
-                    
-                    dom.previewText.textContent = `Merge ${mergeSize} ${RARITY_NAMES[d.fromRarity]} → ${RARITY_NAMES[d.toRarity]}`;
-                    dom.chanceDisplay.textContent = `${percent}% chance`;
-                    
-                    dom.chanceDisplay.className = 'chance-display';
-                    if (d.chance >= 0.7) dom.chanceDisplay.classList.add('chance-high');
-                    else if (d.chance >= 0.4) dom.chanceDisplay.classList.add('chance-medium');
-                    else dom.chanceDisplay.classList.add('chance-low');
-                    
-                    dom.mergeBtn.disabled = false;
-                    dom.mergeBtn.classList.add('ready');
-                } else {
-                    dom.previewText.textContent = `Select ${mergeSize - selectedCards.length} more same-rarity`;
-                    dom.chanceDisplay.textContent = '';
-                    dom.mergeBtn.disabled = true;
-                    dom.mergeBtn.classList.remove('ready');
-                }
-                
-                dom.quickFillBtn.disabled = selectedCards.length === 0 || selectedCards.length >= mergeSize;
-            }
-            
-            function updateMergeUI() {
-                updateMergeButtonState();
-                updateSlotIndicators();
-                updateResetBtnState();
-            }
-            
-            function updateSlotIndicators() {
-                for (let i = 0; i < 5; i++) {
-                    if (!circles[i]) continue;
-                    if (i < mergeSize) {
-                        circles[i].classList.remove('inactive');
-                        if (selectedCards.length > i) circles[i].classList.add('filled');
-                        else circles[i].classList.remove('filled');
-                    } else {
-                        circles[i].classList.add('inactive');
-                        circles[i].classList.remove('filled');
-                    }
-                }
-            }
-            
-            function updateResetBtnState() {
-                if (dom.resetBtn) {
-                    dom.resetBtn.disabled = selectedCards.length === 0;
-                    dom.resetBtn.style.opacity = selectedCards.length === 0 ? '0.3' : '1';
-                }
-            }
-            
             function updateRealmTab() {
-                if (!dom.recentCardsGrid || activeTab !== 'realm') return;
+                if (!dom.recentCardsGrid || activeTab !== 'glimmerlands') return;
                 
                 const recent = [...collection].reverse().slice(0, 3);
                 if (recent.length === 0) {
@@ -1633,56 +1846,8 @@
                 dom.recentCardsGrid.appendChild(fragment);
             }
             
-            // Offline earnings
-            function calculateOfflineEarnings() {
-                const now = Date.now();
-                const timeDiff = Math.min(now - lastLoginTime, MAX_ACCUMULATION_MS);
-                const intervals = Math.floor(timeDiff / INTERVAL_MS);
-                accumulatedOfflineDust = intervals * DUST_PER_INTERVAL;
-                lastLoginTime = now;
-                debouncedSave();
-            }
+            // ==================== PACK FUNCTIONS ====================
             
-            function collectOfflineDust() {
-                if (accumulatedOfflineDust > 0) {
-                    dust += accumulatedOfflineDust;
-                    accumulatedOfflineDust = 0;
-                    lastLoginTime = Date.now();
-                    debouncedSave();
-                    debouncedUIUpdate();
-                    showToast('✨ Collected!');
-                }
-            }
-            
-            function updateOfflineUI() {
-                if (dom.accumulatedDust) dom.accumulatedDust.textContent = accumulatedOfflineDust;
-                
-                if (dom.collectBtn) {
-                    if (accumulatedOfflineDust > 0) {
-                        dom.collectBtn.disabled = false;
-                        dom.collectBtn.classList.add('collectable');
-                        dom.collectBtn.textContent = `Collect ${accumulatedOfflineDust} Dust`;
-                    } else {
-                        dom.collectBtn.disabled = true;
-                        dom.collectBtn.classList.remove('collectable');
-                        dom.collectBtn.textContent = 'Collect Dust';
-                    }
-                }
-                
-                if (dom.timeProgress) {
-                    const p = Math.min(((Date.now() - lastLoginTime) / INTERVAL_MS) * 100, 100);
-                    dom.timeProgress.style.width = p + '%';
-                }
-                
-                if (dom.timeUntilNext) {
-                    const r = Math.max(INTERVAL_MS - (Date.now() - lastLoginTime), 0);
-                    const m = Math.floor(r / 60000);
-                    const s = Math.floor((r % 60000) / 1000);
-                    dom.timeUntilNext.textContent = `Next: ${m}:${s.toString().padStart(2, '0')}`;
-                }
-            }
-            
-            // Packs
             function openPack(packType) {
                 let cost = 0;
                 let cards = [];
@@ -1754,8 +1919,17 @@
                     return;
                 }
                 
+                const oldPower = calculateTotalPower();
                 dust -= cost;
                 collection.push(...cards);
+                
+                // Update last merge time for common cards (since packs give common)
+                updateLastMergeTime('common');
+                
+                // Check territory unlocks
+                const newPower = calculateTotalPower();
+                checkTerritoryUnlocks(oldPower, newPower);
+                
                 incrementCollectionVersion();
                 
                 if (dom.packResultsGrid) {
@@ -1775,20 +1949,231 @@
                 debouncedUIUpdate();
             }
             
-            // Modal functions
-            function showModal(title, text, action) {
-                if (dom.modalTitle) dom.modalTitle.textContent = title;
-                if (dom.modalText) dom.modalText.textContent = text;
-                dom.confirmModal._pendingAction = action;
-                dom.confirmModal.classList.add('show');
+            // ==================== UTILITY FUNCTIONS ====================
+            
+            function incrementCollectionVersion() {
+                collectionVersion++;
+                cachedGroupedData = null;
             }
             
-            function hideModal() {
-                dom.confirmModal.classList.remove('show');
-                dom.confirmModal._pendingAction = null;
+            function debouncedSave() {
+                if (saveTimeout) clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    try {
+                        localStorage.setItem('lexiconCardsGlimmerlands', JSON.stringify({ 
+                            collection, 
+                            dust, 
+                            pityCounters,
+                            lastMergeTimes,
+                            lastLoginTime, 
+                            accumulatedOfflineDust 
+                        }));
+                        saveTimeout = null;
+                    } catch (e) {}
+                }, 200);
             }
+            
+            function debouncedUIUpdate() {
+                if (uiUpdateTimeout) cancelAnimationFrame(uiUpdateTimeout);
+                uiUpdateTimeout = requestAnimationFrame(() => {
+                    updateStats();
+                    if (activeTab === 'glimmerlands') {
+                        updateRealmTab();
+                        updateOfflineUI();
+                    } else if (activeTab === 'merge') {
+                        renderMergeGrid();
+                        updateMergeUI();
+                    }
+                    uiUpdateTimeout = null;
+                });
+            }
+            
+            function showToast(msg) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = msg;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+            }
+            
+            // ==================== MERGE UI FUNCTIONS ====================
+            
+            function isMergePossible() {
+                if (selectedCards.length !== mergeSize) return false;
+                const cards = collection.filter(c => selectedCards.includes(c.id));
+                if (cards.length !== mergeSize) return false;
+                const first = cards[0].rarity;
+                return cards.every(c => c.rarity === first) && first !== 'mythic';
+            }
+            
+            function getCurrentMergeDetails() {
+                if (!isMergePossible()) return null;
+                const first = collection.find(c => c.id === selectedCards[0]);
+                const from = first.rarity;
+                const to = RARITY_ORDER[RARITY_ORDER.indexOf(from) + 1];
+                const key = mergeSize + ':' + from + '→' + to;
+                const pityKey = from + '→' + to;
+                const base = SUCCESS_CHANCES[key] || 0;
+                const bonus = Math.min(pityCounters[pityKey] || 0, MAX_PITY);
+                return { fromRarity: from, toRarity: to, mergeKey: key, pityKey: pityKey, chance: base + bonus };
+            }
+            
+            function updateMergeButtonState() {
+                if (!dom.previewText || !dom.chanceDisplay || !dom.mergeBtn || !dom.quickFillBtn) return;
+                
+                if (isMergePossible()) {
+                    const d = getCurrentMergeDetails();
+                    const percent = Math.round(d.chance * 100);
+                    
+                    dom.previewText.textContent = `Merge ${mergeSize} ${RARITY_NAMES[d.fromRarity]} → ${RARITY_NAMES[d.toRarity]}`;
+                    dom.chanceDisplay.textContent = `${percent}% chance`;
+                    
+                    dom.chanceDisplay.className = 'chance-display';
+                    if (d.chance >= 0.7) dom.chanceDisplay.classList.add('chance-high');
+                    else if (d.chance >= 0.4) dom.chanceDisplay.classList.add('chance-medium');
+                    else dom.chanceDisplay.classList.add('chance-low');
+                    
+                    dom.mergeBtn.disabled = false;
+                    dom.mergeBtn.classList.add('ready');
+                } else {
+                    dom.previewText.textContent = `Select ${mergeSize - selectedCards.length} more same-rarity`;
+                    dom.chanceDisplay.textContent = '';
+                    dom.mergeBtn.disabled = true;
+                    dom.mergeBtn.classList.remove('ready');
+                }
+                
+                dom.quickFillBtn.disabled = selectedCards.length === 0 || selectedCards.length >= mergeSize;
+            }
+            
+            function updateMergeUI() {
+                updateMergeButtonState();
+                updateSlotIndicators();
+                if (dom.resetBtn) {
+                    dom.resetBtn.disabled = selectedCards.length === 0;
+                    dom.resetBtn.style.opacity = selectedCards.length === 0 ? '0.3' : '1';
+                }
+            }
+            
+            function updateSlotIndicators() {
+                for (let i = 0; i < 5; i++) {
+                    if (!circles[i]) continue;
+                    if (i < mergeSize) {
+                        circles[i].classList.remove('inactive');
+                        if (selectedCards.length > i) circles[i].classList.add('filled');
+                        else circles[i].classList.remove('filled');
+                    } else {
+                        circles[i].classList.add('inactive');
+                        circles[i].classList.remove('filled');
+                    }
+                }
+            }
+            
+            function canAddToMerge(card) {
+                if (selectedCards.length >= mergeSize) {
+                    showToast(`Max ${mergeSize} cards`);
+                    return false;
+                }
+                if (selectedCards.length > 0) {
+                    const first = collection.find(c => c.id === selectedCards[0]);
+                    if (first && first.rarity !== card.rarity) {
+                        showToast('Cards must be same rarity');
+                        return false;
+                    }
+                }
+                if (card.rarity === 'mythic') {
+                    showToast('Mythic cannot be merged');
+                    return false;
+                }
+                return true;
+            }
+            
+            function handleCardClick(e) {
+                const cardDiv = e.target.closest('.card');
+                if (!cardDiv || activeTab !== 'merge') return;
+                
+                const card = cardDiv._cardData;
+                const stackInfo = cardDiv._stackInfo;
+                if (!card) return;
+                
+                if (stackInfo && stackInfo.count > 1) {
+                    const selectedFromStack = selectedCards.filter(id => stackInfo.cardIds.has(id));
+                    
+                    if (selectedFromStack.length === stackInfo.count) {
+                        const toRemove = selectedFromStack[selectedFromStack.length - 1];
+                        const idx = selectedCards.indexOf(toRemove);
+                        if (idx !== -1) {
+                            selectedCards.splice(idx, 1);
+                            showToast(`Removed ${card.word}`);
+                        }
+                    } else if (selectedFromStack.length > 0 && selectedFromStack.length < stackInfo.count) {
+                        const unselected = stackInfo.cards.find(c => !selectedCards.includes(c.id));
+                        if (unselected && canAddToMerge(unselected)) {
+                            selectedCards.push(unselected.id);
+                            showToast(`Added ${unselected.word}`);
+                        }
+                    } else {
+                        const unselected = stackInfo.cards.find(c => !selectedCards.includes(c.id));
+                        if (unselected && canAddToMerge(unselected)) {
+                            selectedCards.push(unselected.id);
+                            showToast(`Added ${unselected.word}`);
+                        }
+                    }
+                } else {
+                    if (selectedCards.includes(card.id)) {
+                        const idx = selectedCards.indexOf(card.id);
+                        selectedCards.splice(idx, 1);
+                        showToast(`Removed ${card.word}`);
+                    } else if (canAddToMerge(card)) {
+                        selectedCards.push(card.id);
+                        showToast(`Added ${card.word}`);
+                    }
+                }
+                
+                incrementCollectionVersion();
+                debouncedUIUpdate();
+                updateMergeUI();
+            }
+            
+            function resetSelection() {
+                if (selectedCards.length === 0) {
+                    showToast('No cards to clear');
+                    return;
+                }
+                selectedCards = [];
+                showToast('Selection cleared');
+                incrementCollectionVersion();
+                debouncedUIUpdate();
+            }
+            
+            function quickFillMerge() {
+                if (selectedCards.length === 0) {
+                    showToast('Select a first card');
+                    return;
+                }
+                if (selectedCards.length >= mergeSize) return;
+                
+                const first = collection.find(c => c.id === selectedCards[0]);
+                if (!first) return;
+                
+                const matching = collection.filter(c => c.rarity === first.rarity && !selectedCards.includes(c.id));
+                const need = mergeSize - selectedCards.length;
+                const toAdd = matching.slice(0, need);
+                
+                toAdd.forEach(c => selectedCards.push(c.id));
+                
+                if (toAdd.length > 0) {
+                    showToast(`✨ Added ${toAdd.length} cards`);
+                    incrementCollectionVersion();
+                    debouncedUIUpdate();
+                } else {
+                    showToast('No matching cards');
+                }
+            }
+            
+            // ==================== ACCOUNT MANAGEMENT ====================
             
             function deleteAccount() {
+                // Reset to starter collection
                 collection = [];
                 for (let i = 0; i < 8; i++) {
                     collection.push({ 
@@ -1809,28 +2194,46 @@
                 lastLoginTime = Date.now();
                 selectedCards = [];
                 
+                // Reset last merge times
+                const now = Date.now();
+                lastMergeTimes = {
+                    'common': now,
+                    'uncommon': now,
+                    'rare': now,
+                    'epic': now,
+                    'legendary': now,
+                    'mythic': now
+                };
+                
+                fallowLands = {};
+                
                 incrementCollectionVersion();
                 debouncedSave();
                 debouncedUIUpdate();
                 showToast('Account reset to starter pack!');
             }
             
-            function showToast(msg) {
-                const toast = document.createElement('div');
-                toast.className = 'toast';
-                toast.textContent = msg;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 2000);
+            function showModal(title, text, action) {
+                if (dom.modalTitle) dom.modalTitle.textContent = title;
+                if (dom.modalText) dom.modalText.textContent = text;
+                dom.confirmModal._pendingAction = action;
+                dom.confirmModal.classList.add('show');
             }
             
-            // Tab switching
+            function hideModal() {
+                dom.confirmModal.classList.remove('show');
+                dom.confirmModal._pendingAction = null;
+            }
+            
+            // ==================== TAB SWITCHING ====================
+            
             function switchTab(tab) {
                 activeTab = tab;
                 
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
                 
-                ['realm', 'merge', 'packs'].forEach(t => {
+                ['glimmerlands', 'merge', 'packs'].forEach(t => {
                     const el = document.getElementById(t + 'Tab');
                     if (el) el.style.display = t === tab ? 'block' : 'none';
                 });
@@ -1838,8 +2241,9 @@
                 if (tab === 'merge') {
                     incrementCollectionVersion();
                     renderMergeGrid();
-                } else if (tab === 'realm') {
+                } else if (tab === 'glimmerlands') {
                     updateRealmTab();
+                    renderTerritoryMap();
                 } else if (tab === 'packs' && dom.packResultsGrid) {
                     dom.packResultsGrid.innerHTML = '';
                 }
@@ -1847,7 +2251,8 @@
                 document.getElementById('scrollableContent').scrollTop = 0;
             }
             
-            // Event setup using delegation
+            // ==================== EVENT SETUP ====================
+            
             function setupEventDelegation() {
                 // Tab clicks
                 document.querySelectorAll('.tab').forEach(tab => {
@@ -1857,7 +2262,7 @@
                     });
                 });
                 
-                // Merge grid clicks (delegation)
+                // Merge grid clicks
                 if (dom.mergeGrid) {
                     dom.mergeGrid.addEventListener('click', handleCardClick);
                 }
@@ -1923,7 +2328,8 @@
                 });
             }
             
-            // Timer setup (optimized with RAF)
+            // ==================== TIMER ====================
+            
             function startOptimizedTimer() {
                 let lastUpdate = 0;
                 
@@ -1938,15 +2344,17 @@
                 rafTimer = requestAnimationFrame(tick);
             }
             
-            // Initialize game
+            // ==================== INITIALIZATION ====================
+            
             function initializeGame() {
                 try {
-                    const saved = localStorage.getItem('lexiconCards');
+                    const saved = localStorage.getItem('lexiconCardsGlimmerlands');
                     if (saved) {
                         const data = JSON.parse(saved);
                         collection = data.collection || collection;
                         dust = data.dust || 150;
                         pityCounters = data.pityCounters || pityCounters;
+                        lastMergeTimes = data.lastMergeTimes || lastMergeTimes;
                         lastLoginTime = data.lastLoginTime || Date.now();
                         accumulatedOfflineDust = data.accumulatedOfflineDust || 0;
                     } else {
@@ -1978,6 +2386,16 @@
                             rarity: 'rare' 
                         });
                         lastLoginTime = Date.now();
+                        
+                        const now = Date.now();
+                        lastMergeTimes = {
+                            'common': now,
+                            'uncommon': now,
+                            'rare': now,
+                            'epic': now,
+                            'legendary': now,
+                            'mythic': now
+                        };
                     }
                 } catch (e) {}
                 
@@ -1988,13 +2406,15 @@
                     dom.loadingOverlay.classList.add('hidden');
                 }
                 
+                // Initial render
+                renderTerritoryMap();
                 updateStats();
                 updateRealmTab();
                 updateOfflineUI();
                 startOptimizedTimer();
             }
             
-            // Kick off
+            // Start the game
             setupEventDelegation();
             initializeGame();
         })();
