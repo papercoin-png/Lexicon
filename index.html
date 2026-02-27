@@ -1,2423 +1,799 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lexicon Cards · Glimmerlands</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexicon Forge - Word Crafting Game</title>
     <style>
-        /* ----- ENCHANTED FOREST THEME (rich jewel tones + bioluminescence) ----- */
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            font-family: 'Segoe UI', 'Palatino', 'Georgia', system-ui, sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
-        body { 
-            background: #0c1f0a;
-            color: #f5efe0; 
+
+        body {
+            background: linear-gradient(135deg, #1e2c3a, #0f1a24);
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            padding: 8px;
-            position: relative;
-            background-image: 
-                radial-gradient(ellipse at 20% 30%, #1f4a1a 0%, transparent 40%),
-                radial-gradient(ellipse at 90% 80%, #2a5a2a 0%, transparent 45%),
-                repeating-linear-gradient(45deg, rgba(100, 150, 50, 0.15) 0px, rgba(100, 150, 50, 0.15) 2px, transparent 2px, transparent 10px);
+            align-items: center;
+            padding: 16px;
         }
 
-        body::before {
-            content: '';
+        #game-container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffd700, #ffae42);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .resources {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 15px;
+            border-radius: 50px;
+            border: 1px solid #ffd700;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Village Section */
+        .village-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            color: #ffd700;
+            font-size: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .village-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            font-size: 12px;
+        }
+
+        .stat-value {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Letter Collection */
+        .letters-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 6px;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 20px;
+        }
+
+        .letter-tile {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #4a3f2c, #2a2318);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .letter-tile.selected {
+            transform: scale(0.95);
+            border-color: #ffae42;
+            box-shadow: 0 0 15px #ffd700;
+        }
+
+        .letter-tile.empty {
+            opacity: 0.3;
+            border-color: #666;
+            cursor: not-allowed;
+        }
+
+        .letter-count {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: #ffd700;
+            color: #1e2c3a;
+            font-size: 10px;
+            padding: 2px 4px;
+            border-radius: 50%;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        /* Word Crafting Area */
+        .crafting-area {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px dashed #ffd700;
+        }
+
+        .current-word {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .word-letters {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffd700;
+            letter-spacing: 8px;
+            margin-bottom: 5px;
+            min-height: 54px;
+        }
+
+        .word-hint {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+
+        .crafting-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd700, #ffae42);
+            color: #1e2c3a;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Available Words Grid */
+        .words-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .word-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .word-card:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .word-card.craftable {
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .word-name {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .word-letters-req {
+            color: #a0a0a0;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .word-desc {
+            color: white;
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ffd700;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        @keyframes slideDown {
+            from {
+                top: -100px;
+                opacity: 0;
+            }
+            to {
+                top: 20px;
+                opacity: 1;
+            }
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffae42);
+            transition: width 0.3s ease;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            background: 
-                radial-gradient(circle at 15% 25%, rgba(255, 255, 150, 0.2) 0%, transparent 8%),
-                radial-gradient(circle at 75% 40%, rgba(150, 255, 200, 0.18) 0%, transparent 12%),
-                radial-gradient(circle at 45% 80%, rgba(255, 200, 100, 0.15) 0%, transparent 10%),
-                radial-gradient(circle at 90% 15%, rgba(200, 150, 255, 0.2) 0%, transparent 15%),
-                radial-gradient(circle at 10% 90%, rgba(100, 255, 200, 0.15) 0%, transparent 10%);
-            animation: floatGlow 20s infinite alternate ease-in-out;
-            z-index: 0;
-        }
-
-        @keyframes floatGlow {
-            0% { opacity: 0.4; transform: translate(0, 0) scale(1); }
-            50% { opacity: 0.8; transform: translate(-0.5%, -0.5%) scale(1.02); }
-            100% { opacity: 0.5; transform: translate(0.5%, 0.5%) scale(0.98); }
-        }
-        
-        .game-container { 
-            max-width: 500px; 
-            width: 100%; 
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            position: relative;
-            z-index: 5;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        .stats-bar {
-            background: #2d3e2a;
-            border-radius: 30px 30px 20px 20px;
-            padding: 16px 12px;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 14px;
-            border: 2px solid #c9a758;
-            box-shadow: 0 8px 0 #1d2e1a, inset 0 0 20px rgba(255, 215, 0, 0.3);
-            position: relative;
-            backdrop-filter: blur(4px);
-            background-image: linear-gradient(145deg, #3a5535, #1f3a1c);
-        }
-        .stats-bar::after {
-            content: '';
-            position: absolute;
-            top: 3px; left: 10px; right: 10px;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, #ffecaa, transparent);
-            border-radius: 50%;
-            filter: blur(2px);
-        }
-        
-        .stat-item { 
-            text-align: center; 
-            flex: 1;
-        }
-        
-        .stat-label { 
-            font-size: 12px; 
-            color: #d4cfb0; 
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-        
-        .stat-value { 
-            font-size: 28px; 
-            font-weight: 800; 
-            color: #f9e268;
-            text-shadow: 0 0 12px #f9c978, 0 2px 0 #5f4a1a;
-            line-height: 1.2;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 14px 4px;
-            background: #1f3a28;
-            border: 2px solid #7ea85e;
-            border-radius: 40px 40px 12px 12px;
-            text-align: center;
-            color: #fef8dd;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.25s;
-            font-weight: 600;
-            letter-spacing: 1.2px;
-            font-size: 16px;
-            box-shadow: 0 6px 0 #143814, 0 0 15px rgba(170, 240, 100, 0.3);
-            backdrop-filter: blur(2px);
-            text-transform: uppercase;
-        }
-        
-        .tab.active {
-            background: #6f9a4b;
-            color: #0f2a0a;
-            border-color: #ffde9e;
-            box-shadow: 0 0 30px #c6ff8a, 0 6px 0 #2d632d;
-            font-weight: 800;
-            transform: translateY(-3px);
-            text-shadow: 0 1px 0 white;
-        }
-        
-        .scrollable-content {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 5px;
-            min-height: 0;
-            scrollbar-width: thin;
-            scrollbar-color: #f0cf7a #1e3d1e;
-            will-change: transform;
-        }
-        
-        .scrollable-content::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .scrollable-content::-webkit-scrollbar-track {
-            background: #1a3a1a;
-            border-radius: 10px;
-            border: 1px solid #7aa55a;
-        }
-        
-        .scrollable-content::-webkit-scrollbar-thumb {
-            background: linear-gradient(145deg, #fad675, #cb9f3c);
-            border-radius: 10px;
-            box-shadow: inset 0 0 6px #ffefb0;
-        }
-        
-        /* Glimmerlands Map Styles */
-        .glimmerlands-content {
-            background: #1d3a24;
-            border-radius: 40px 40px 30px 30px;
-            padding: 24px 20px;
-            border: 2px solid #eac261;
-            box-shadow: 0 15px 0 #0e2b10, inset 0 0 40px rgba(210, 240, 140, 0.4);
-            backdrop-filter: blur(4px);
-            position: relative;
-            background-image: linear-gradient(145deg, #254f2a, #153718);
-        }
-        
-        .realm-title {
-            color: #f9efb2;
-            margin-bottom: 16px;
-            font-size: 28px;
-            text-shadow: 0 0 15px #ebffb0, 0 3px 0 #3a622a;
-            letter-spacing: 1.5px;
-            border-bottom: 2px solid #cbaa55;
-            padding-bottom: 12px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .power-badge {
-            font-size: 16px;
-            background: #2d4a2d;
-            padding: 6px 12px;
-            border-radius: 40px;
-            border: 1px solid #f9cf6b;
-            color: #fff2b0;
-        }
-        
-        .map-container {
-            background: #1a3e1f;
-            border-radius: 30px;
-            padding: 20px 15px;
-            border: 3px solid #cbaa55;
-            margin-bottom: 20px;
-            position: relative;
-            background-image: radial-gradient(circle at 30% 40%, #2f6930, #123012);
-        }
-        
-        .map-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin: 15px 0;
-        }
-        
-        .map-row {
-            display: flex;
-            gap: 8px;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
             justify-content: center;
-        }
-        
-        .territory-plot {
-            width: 70px;
-            height: 70px;
-            border-radius: 20px;
-            background: #1e471e;
-            border: 2px solid #8f874a;
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            text-align: center;
-            transition: all 0.3s;
-            box-shadow: 0 4px 0 #0e2d0e;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .territory-plot.owned {
-            border-color: #ffd966;
-            box-shadow: 0 0 20px rgba(255, 235, 120, 0.3), 0 4px 0 #2d5a2d;
-            background: #2d632d;
-        }
-        
-        .territory-plot.fallow {
-            opacity: 0.6;
-            filter: grayscale(50%);
-            border-color: #a58f5a;
-        }
-        
-        .territory-plot.locked {
-            opacity: 0.3;
-            filter: grayscale(80%);
-            border-color: #5a5a3a;
-            background: #2a3a2a;
-        }
-        
-        .plot-icon {
-            font-size: 20px;
-            margin-bottom: 2px;
-        }
-        
-        .plot-name {
-            font-weight: 800;
-            font-size: 7px;
-            text-transform: uppercase;
-        }
-        
-        .plot-income {
-            font-size: 8px;
-            color: #ffecaa;
-        }
-        
-        .plot-status {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            font-size: 8px;
-        }
-        
-        .tier-label {
-            color: #ffecaa;
-            font-size: 12px;
-            margin-right: 10px;
-            font-weight: 600;
-        }
-        
-        .power-meter {
-            background: #1f4227;
-            border-radius: 30px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 2px solid #b89f5a;
-        }
-        
-        .power-meter-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            color: #fff2b0;
-        }
-        
-        .power-bar-bg {
-            width: 100%;
-            height: 20px;
-            background: #103010;
-            border-radius: 30px;
-            overflow: hidden;
-            border: 1px solid #8f9f5a;
-        }
-        
-        .power-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #b4e87a, #ffe174);
-            width: 0%;
-            transition: width 0.5s;
-            border-radius: 30px;
-            box-shadow: 0 0 20px #e0ffa0;
-        }
-        
-        .next-tier {
-            margin-top: 8px;
-            font-size: 12px;
-            color: #c9e8a0;
-        }
-        
-        .income-panel {
-            background: #1d4825;
-            border-radius: 30px;
-            padding: 20px;
-            border: 2px solid #eac261;
-            margin-bottom: 20px;
-        }
-        
-        .income-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .income-rate {
-            font-size: 24px;
-            font-weight: 800;
-            color: #fff2a0;
-            text-shadow: 0 2px 0 #3a5a2a;
-        }
-        
-        .collect-btn {
-            background: linear-gradient(145deg, #eab44f, #c18429);
-            border: none;
-            padding: 18px;
-            border-radius: 60px;
-            font-size: 20px;
-            font-weight: 800;
-            width: 100%;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #162310;
-            box-shadow: 0 8px 0 #6f4f1c, 0 10px 20px black;
-            border: 2px solid #ffe694;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        .collect-btn:hover:not(:disabled) {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 0 #6f4f1c, 0 15px 25px black;
-            background: linear-gradient(145deg, #f5ca6b, #da9f3a);
-        }
-        
-        .collect-btn:disabled {
-            opacity: 0.3;
-            filter: grayscale(60%);
-            transform: none;
-            box-shadow: 0 5px 0 #3f3f1f;
-        }
-        
-        .collect-btn.collectable {
-            animation: collectPulse 1.8s infinite;
-            background: linear-gradient(145deg, #f7cf70, #e0a63a);
-        }
-        
-        @keyframes collectPulse {
-            0%, 100% { box-shadow: 0 8px 0 #6f4f1c, 0 0 20px #ffdfa0; }
-            50% { box-shadow: 0 8px 0 #6f4f1c, 0 0 50px #fff3b0; }
-        }
-        
-        .time-bar {
-            width: 100%;
-            height: 10px;
-            background: #143814;
-            border-radius: 20px;
-            margin: 16px 0 10px;
-            overflow: hidden;
-            border: 1px solid #af9f5a;
-        }
-        
-        .time-progress {
-            height: 100%;
-            background: linear-gradient(90deg, #c9f2a2, #f9f0b0);
-            box-shadow: 0 0 20px #eaffb0;
-            width: 0%;
-            transition: width 0.3s;
-            will-change: width;
-        }
-        
-        .fallow-warning {
-            background: #5a4a2a;
-            border-radius: 20px;
-            padding: 12px;
-            margin: 15px 0;
-            border-left: 5px solid #ffb86b;
-            font-size: 13px;
-        }
-        
-        /* Merge Chamber Styles (unchanged but enhanced) */
-        .merge-chamber {
-            background: #1b4727;
-            border-radius: 80px 80px 40px 40px;
-            padding: 28px 22px;
-            margin-bottom: 20px;
-            border: 4px solid #f5cf7a;
-            box-shadow: inset 0 0 50px #57a055, 0 15px 0 #0d3b0d;
-            position: relative;
-            background-image: radial-gradient(circle at 30% 30%, #4a954a, #15441c);
-        }
-        
-        .chamber-title {
-            color: #fff0bb;
-            text-align: center;
-            margin-bottom: 18px;
-            font-size: 22px;
-            letter-spacing: 2px;
-            font-weight: 700;
-            text-shadow: 0 0 15px #fdffc0, 0 3px 0 #336633;
-        }
-        
-        .reset-btn {
-            position: absolute;
-            top: 15px;
-            right: 18px;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #4f824f;
-            border: 3px solid #fbdf9a;
-            color: #ffefc0;
-            font-size: 26px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            z-index: 10;
-            box-shadow: 0 5px 0 #1e521e, 0 0 20px #b3ffa0;
-            font-weight: bold;
-        }
-        
-        .reset-btn:hover:not(:disabled) {
-            background: #72b572;
-            color: white;
-            transform: rotate(180deg) scale(1.1);
-            box-shadow: 0 0 30px #ebffb0, 0 5px 0 #1e521e;
-        }
-        
-        .reset-btn:disabled {
-            opacity: 0.2;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        
-        .merge-size-selector {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 28px;
-        }
-        
-        .size-btn {
-            background: #295229;
-            color: #fbeecc;
-            border: 2px solid #bd9d4b;
-            padding: 10px 22px;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            min-width: 80px;
-            box-shadow: 0 6px 0 #173317, 0 0 10px #8bb477;
-            text-transform: uppercase;
-        }
-        
-        .size-btn.active {
-            background: #ceaa54;
-            color: #1f3815;
-            border-color: #fff1b5;
-            box-shadow: 0 0 30px #ffde8a, 0 6px 0 #5e4a1a;
-            font-weight: 800;
-            transform: scale(1.05);
-        }
-        
-        .slot-indicators {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin: 15px 0 20px;
-        }
-        
-        .slot-circle {
-            width: 24px;
-            height: 24px;
-            border-radius: 30% 70% 40% 60% / 50% 40% 60% 50%;
-            background: #3c6e3c;
-            border: 2px solid #7baa48;
-            transition: all 0.3s;
-            box-shadow: 0 4px 0 #1a471a;
-            transform: rotate(15deg);
-        }
-        
-        .slot-circle.filled {
-            background: #b5ff8f;
-            box-shadow: 0 0 30px #adff86, 0 4px 0 #368036;
-            border-color: #fdffcf;
-            transform: rotate(0deg) scale(1.2);
-        }
-        
-        .slot-circle.inactive {
-            opacity: 0.2;
-            filter: grayscale(80%);
-        }
-        
-        .preview-text {
-            text-align: center;
-            margin: 15px 0 8px;
-            color: #fbeeae;
-            font-size: 18px;
-            min-height: 28px;
-            font-weight: 500;
-            text-shadow: 0 2px 0 #2b5720;
-        }
-        
-        .chance-display {
-            text-align: center;
-            margin: 5px 0 12px;
-            font-size: 28px;
-            font-weight: 800;
-            text-shadow: 0 3px 0 #1e3d1e;
-        }
-        
-        .chance-high { color: #aaff9a; text-shadow: 0 0 25px #a0ffa0, 0 3px 0 #1e5a1e; }
-        .chance-medium { color: #ffe574; text-shadow: 0 0 25px #ffe574, 0 3px 0 #5e4f1a; }
-        .chance-low { color: #ffb09c; text-shadow: 0 0 20px #ffb09c, 0 3px 0 #7a342a; }
-        
-        .action-row {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-        
-        .quick-fill-btn {
-            width: 100%;
-            background: #3c783c;
-            color: #fcf5c0;
-            border: 2px solid #ebc468;
-            padding: 10px 6px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 6px 0 #1f4f1f;
-            text-transform: uppercase;
-            line-height: 1.2;
-        }
-        
-        .quick-fill-btn:hover:not(:disabled) {
-            background: #589f58;
-            color: #ffffe0;
-            border-color: #ffeaa0;
-            transform: translateY(-3px);
-            box-shadow: 0 9px 0 #1f4f1f;
-        }
-        
-        .quick-fill-btn:disabled {
-            opacity: 0.2;
-            filter: grayscale(80%);
-        }
-        
-        .merge-button {
-            flex: 2;
-            padding: 12px 6px;
-            background: linear-gradient(145deg, #f7ca5a, #d99f30);
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 800;
-            cursor: pointer;
-            color: #14200c;
-            transition: all 0.2s;
-            box-shadow: 0 8px 0 #8b611f;
-            border: 3px solid #fff1b0;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            line-height: 1.2;
-        }
-        
-        .merge-button:hover:not(:disabled) {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 0 #8b611f, 0 0 40px #ffefb0;
-            background: linear-gradient(145deg, #ffdb77, #ecb142);
-        }
-        
-        .merge-button:disabled {
-            opacity: 0.4;
-            filter: grayscale(70%);
-            transform: none;
-            box-shadow: 0 4px 0 #5e451a;
-        }
-        
-        .merge-button.ready {
-            animation: mergePulse 1.8s infinite;
-        }
-        
-        @keyframes mergePulse {
-            0% { box-shadow: 0 8px 0 #8b611f, 0 0 20px #ffefb0; }
-            50% { box-shadow: 0 8px 0 #8b611f, 0 0 60px #ffffc0; }
-        }
-        
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 8px;
-            justify-items: center;
-            align-items: center;
-            contain: content;
-        }
-        
-        .card {
-            aspect-ratio: 1.5/2.25;
-            width: 90%;
-            max-width: 110px;
-            border-radius: 8px 12px 8px 12px;
-            padding: 3px 2px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 2px solid rgba(255, 255, 200, 0.7);
-            font-weight: bold;
-            text-align: center;
-            transition: all 0.2s;
-            position: relative;
-            box-shadow: 0 4px 0 #1a3b1a, 0 0 12px rgba(255, 215, 0, 0.4);
-            background-size: cover;
-            color: #1f2b0f;
-            text-shadow: 0 1px 2px rgba(255, 255, 200, 0.8);
-            background-image: radial-gradient(circle at 20% 20%, rgba(255,255,220,0.5), transparent 60%);
-            will-change: transform, box-shadow;
-        }
-
-        .card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(0,0,0,0.1) 6px, rgba(0,0,0,0.1) 8px);
-            pointer-events: none;
-        }
-
-        .card.stacked {
-            box-shadow: 0 4px 0 #1f4a1f, 2px 3px 0 rgba(255, 215, 0, 0.3), 4px 6px 0 rgba(200, 255, 150, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        .card.partial-selected {
-            opacity: 0.8;
-            border: 2px solid #feffbe;
-            transform: scale(0.95);
-            box-shadow: 0 0 25px #fdffb5, 0 4px 0 #1f4a1f;
-        }
-        
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 0 #1a3b1a, 0 0 25px #fefecd;
-        }
-        
-        .card.common { 
-            background: linear-gradient(145deg, #b59765, #8b6f48); 
-            border-color: #c8b18b;
-            color: #281f0f;
-            text-shadow: 0 1px 0 #e5d5b0;
-        }
-        .card.uncommon { 
-            background: linear-gradient(145deg, #2a9d4f, #1b793a); 
-            border-color: #b0ff9a;
-            color: #f5ffe1;
-            text-shadow: 0 1px 0 #1e5a1e;
-        }
-        .card.rare { 
-            background: linear-gradient(145deg, #4169e1, #1e3f9c); 
-            border-color: #aac9ff;
-            color: #f0f8ff;
-            text-shadow: 0 1px 0 #0b1f5a;
-        }
-        .card.epic { 
-            background: linear-gradient(145deg, #b380ff, #7a3fd6); 
-            border-color: #eac3ff;
-            color: #f7f0ff;
-            text-shadow: 0 1px 0 #3a1f6a;
-        }
-        .card.legendary { 
-            background: linear-gradient(145deg, #ffae42, #d1760f); 
-            border-color: #ffeaa0;
-            color: #2f1d0a;
-            text-shadow: 0 1px 0 #ffe29a;
-        }
-        .card.mythic { 
-            background: linear-gradient(145deg, #f5e56b, #d4af37); 
-            border-color: #fffcd1;
-            color: #242103;
-            text-shadow: 0 0 5px white, 0 1px 0 #ffe074;
-            animation: mythicPulse 2.5s infinite;
-        }
-        
-        @keyframes mythicPulse {
-            0% { box-shadow: 0 4px 0 #6b4f1a, 0 0 15px #fff3b0; }
-            50% { box-shadow: 0 4px 0 #6b4f1a, 0 0 35px #ffffd0; }
-        }
-        
-        .card.selected { 
-            border: 3px solid #f9f3b0;
-            transform: scale(1.0);
-            opacity: 0.8;
-            box-shadow: 0 0 35px #fefec9, 0 4px 0 #1f4a1f;
-        }
-        
-        .card.dimmed {
-            opacity: 0.25;
-            filter: grayscale(60%);
-        }
-        
-        .card.highlight {
-            border: 2px solid #fffbb0;
-            box-shadow: 0 0 30px #ffffb0, 0 4px 0 #1f4a1f;
-        }
-        
-        .card-word {
-            font-size: 10px;
-            font-weight: 800;
-            margin-bottom: 1px;
-            letter-spacing: 0.2px;
-            background: rgba(0,0,0,0.2);
-            padding: 1px 3px;
-            border-radius: 20px;
-            backdrop-filter: blur(2px);
-        }
-        
-        .card-rarity {
-            font-size: 6px;
-            text-transform: uppercase;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 1px 3px;
-            border-radius: 20px;
-            color: #fffde5;
-            text-shadow: 0 1px 2px black;
-            font-weight: 600;
-            letter-spacing: 0.2px;
-            backdrop-filter: blur(2px);
-        }
-        
-        .card-count {
-            position: absolute;
-            top: 1px;
-            right: 2px;
-            background: #1f411f;
-            padding: 1px 4px;
-            border-radius: 30%;
-            font-size: 7px;
-            border: 1px solid #f9e481;
-            color: #fffbc2;
-            font-weight: 800;
-            box-shadow: 0 1px 0 #0a1f0a;
-        }
-        
-        .card-selected-count {
-            position: absolute;
-            bottom: 1px;
-            left: 2px;
-            background: #fff5b0;
-            color: #1d421d;
-            padding: 1px 3px;
-            border-radius: 15px;
-            font-size: 5px;
-            font-weight: 800;
-            border: 1px solid gold;
-        }
-        
-        .packs-content {
-            background: #1d4527;
-            border-radius: 50px;
-            padding: 28px 20px;
-            border: 4px solid #f5cf70;
-            box-shadow: inset 0 0 50px #51a051, 0 15px 0 #124012;
-            background-image: radial-gradient(circle at 70% 20%, #64a064, #194419);
-        }
-        
-        .pack-title {
-            color: #fff0bb;
-            margin-bottom: 25px;
-            font-size: 30px;
-            font-weight: 700;
-            text-shadow: 0 0 20px #ffefb0, 0 3px 0 #2d662d;
-        }
-        
-        .pack-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-        
-        .pack {
-            background: #2a632a;
-            border: 3px solid #ffd966;
-            border-radius: 40px;
-            padding: 18px 6px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.25s;
-            box-shadow: 0 9px 0 #1f571f, 0 0 25px #98d47a;
-        }
-        
-        .pack:hover {
-            transform: translateY(-6px);
-            background: #3c853c;
-            border-color: #fff3b3;
-            box-shadow: 0 15px 0 #1f571f, 0 0 40px #baffa0;
-        }
-        
-        .pack-icon {
-            font-size: 40px;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 4px 2px black);
-        }
-        
-        .pack-name {
-            font-size: 18px;
-            font-weight: 800;
-            color: #fffbc2;
-            text-shadow: 0 2px 0 #0f3f0f;
-        }
-        
-        .pack-price {
-            font-size: 14px;
-            color: #d0f0a0;
-            font-weight: 600;
-        }
-        
-        .pack.opening {
-            animation: packShake 0.6s ease;
-        }
-        
-        @keyframes packShake {
-            0%,100%{ transform: rotate(0deg); }
-            25%{ transform: rotate(8deg) scale(1.1); }
-            50%{ transform: rotate(-8deg) scale(1.15); }
-            75%{ transform: rotate(4deg) scale(1.1); }
-        }
-        
-        .pack-result-card {
-            animation: cardReveal 0.4s ease forwards;
-            opacity: 0;
-            transform: scale(0);
-        }
-        
-        @keyframes cardReveal {
-            to { opacity: 1; transform: scale(1); }
-        }
-        
-        .toast {
-            position: fixed;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1d4a1d;
-            color: #fffed6;
-            padding: 16px 32px;
-            border-radius: 80px;
-            border: 4px solid #ffd966;
             z-index: 2000;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 12px 0 #0f3a0f, 0 0 50px #d4ffaa;
-            backdrop-filter: blur(8px);
-            text-align: center;
-            pointer-events: none;
         }
-        
-        .loading-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #0d2a0d;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.3s;
-        }
-        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-        .loading-spinner {
-            width: 70px; height: 70px;
-            border: 6px solid #5e9f5e;
-            border-radius: 50%;
-            border-top-color: #fde482;
-            animation: spin 1s infinite;
-            box-shadow: 0 0 40px #b9ff8a;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .empty-state {
-            text-align: center; padding: 40px 20px; color: #d0ecb0; grid-column: 1/-1;
-        }
-        .empty-state-icon { font-size: 60px; margin-bottom: 15px; opacity: 0.8; filter: drop-shadow(0 0 20px cyan); }
-        .empty-state-text { font-size: 18px; margin-bottom: 18px; }
-        .empty-state-button { background: #eab952; color: #1e401e; border: none; padding: 12px 28px; border-radius: 60px; font-weight: 800; cursor: pointer; box-shadow: 0 7px 0 #5f481a; font-size: 16px; }
 
-        .merge-flash-success { animation: successFlash 0.6s; }
-        .merge-flash-failure { animation: failureFlash 0.6s; }
-        @keyframes successFlash { 50% { box-shadow: 0 0 80px #aaffaa, 0 15px 0 #1d4f1d; } }
-        @keyframes failureFlash { 50% { box-shadow: 0 0 80px #ffa07a, 0 15px 0 #541e1e; } }
-        
-        .collection-heading {
-            color: #fff2b0;
-            margin-bottom: 16px;
-            font-size: 18px;
-            text-align: center;
-            text-shadow: 0 2px 0 #2d602d;
-        }
-        
-        .territory-expand {
-            animation: expandPulse 1s ease;
-        }
-        
-        @keyframes expandPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); box-shadow: 0 0 50px gold; }
-        }
-        
-        .account-actions {
-            margin-top: 28px;
-            padding-top: 22px;
-            border-top: 3px dashed #a58f4b;
-        }
-        
-        .account-actions-title {
-            color: #fbe593;
-            margin-bottom: 15px;
-            font-size: 20px;
-            font-weight: 600;
-        }
-        
-        .delete-btn {
-            width: 100%;
-            background: #4a322a;
-            color: #ffe09f;
-            border: 2px solid #cb8e5a;
-            padding: 16px;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 7px 0 #2d1f1a;
-        }
-        
-        .delete-btn:hover {
-            background: #6d4d42;
-            color: #ffefc0;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 0 #2d1f1a;
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(5, 20, 5, 0.9);
-            backdrop-filter: blur(8px);
+        .modal.active {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
         }
-        
-        .modal.show {
-            opacity: 1;
-            pointer-events: all;
-        }
-        
+
         .modal-content {
-            background: #1b4525;
-            border: 4px solid #fcd67c;
-            border-radius: 60px;
-            padding: 30px 25px;
-            max-width: 320px;
+            background: #1e2c3a;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            border: 2px solid #ffd700;
             text-align: center;
-            box-shadow: 0 20px 0 #0b350b, 0 0 70px #b9ff8a;
         }
-        
+
         .modal-title {
-            color: #ffe882;
+            color: #ffd700;
             font-size: 28px;
             margin-bottom: 15px;
-            text-shadow: 0 2px 0 #3f6a2a;
         }
-        
+
         .modal-text {
-            color: #e9f0c3;
-            margin-bottom: 25px;
-            font-size: 17px;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .modal-confirm {
-            flex: 1;
-            background: #b55a3a;
             color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            border: 2px solid #ffb082;
-            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.6;
         }
-        
-        .modal-cancel {
-            flex: 1;
-            background: #3b6a42;
-            color: white;
-            border: 2px solid #b0dd94;
-            padding: 14px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
+
+        /* Responsive */
+        @media (max-width: 400px) {
+            .letters-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            
+            .words-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .village-stats {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-    </div>
-    
-    <div class="modal" id="confirmModal">
-        <div class="modal-content">
-            <div class="modal-title" id="modalTitle">Confirm Action</div>
-            <div class="modal-text" id="modalText">Are you sure?</div>
-            <div class="modal-buttons">
-                <button class="modal-cancel" id="modalCancelBtn">Cancel</button>
-                <button class="modal-confirm" id="modalConfirmBtn">Delete</button>
+    <div id="game-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="title">📖 LEXICON FORGE</div>
+            <div class="resources" id="score-display">0</div>
+        </div>
+
+        <!-- Village Section -->
+        <div class="village-section">
+            <div class="section-title">
+                <span>🏡 Your Village</span>
+                <span style="font-size: 12px; color: #a0a0a0;">Phase 1: Hamlet</span>
             </div>
+            <div class="village-stats">
+                <div class="stat-card">
+                    <div class="stat-label">Buildings</div>
+                    <div class="stat-value" id="buildings-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Villagers</div>
+                    <div class="stat-value" id="villagers-count">1</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Words Found</div>
+                    <div class="stat-value" id="words-found">0/12</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="village-progress" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Letter Collection -->
+        <div class="section-title">
+            <span>🔤 Your Letters</span>
+            <span style="font-size: 12px; color: #a0a0a0;">Click to select/deselect</span>
+        </div>
+        <div class="letters-grid" id="letters-grid"></div>
+
+        <!-- Crafting Area -->
+        <div class="crafting-area">
+            <div class="current-word">
+                <div class="word-letters" id="current-word-display"></div>
+                <div class="word-hint" id="word-hint">Select letters to craft a word</div>
+            </div>
+            <div class="crafting-controls">
+                <button class="btn btn-primary" id="craft-btn" disabled>Craft Word 🔨</button>
+                <button class="btn btn-secondary" id="clear-btn">Clear ✕</button>
+            </div>
+        </div>
+
+        <!-- Available Words -->
+        <div class="section-title">
+            <span>📜 Words to Discover</span>
+            <span style="font-size: 12px; color: #a0a0a0;">Click a word to autofill</span>
+        </div>
+        <div class="words-grid" id="words-grid"></div>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div class="modal" id="welcome-modal">
+        <div class="modal-content">
+            <div class="modal-title">📖 Welcome, Lexicographer!</div>
+            <div class="modal-text">
+                The world has fallen into linguistic decay. Your job is to restore it by crafting words from letters.<br><br>
+                Start by crafting basic words like FIRE, HUT, and AXE to build your village.<br><br>
+                <span style="color: #ffd700;">Click on letters to select them, then click Craft!</span>
+            </div>
+            <button class="btn btn-primary" onclick="closeWelcomeModal()">Begin Your Journey</button>
         </div>
     </div>
 
-    <div class="game-container">
-        <div class="stats-bar">
-            <div class="stat-item">
-                <div class="stat-label">CARDS</div>
-                <div class="stat-value" id="totalCards">0</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">UNIQUE</div>
-                <div class="stat-value" id="uniqueCards">0</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">DUST</div>
-                <div class="stat-value" id="dustAmount">150</div>
-            </div>
-        </div>
-        
-        <div class="tabs">
-            <div class="tab active" data-tab="glimmerlands">🌍 GLIMMERLANDS</div>
-            <div class="tab" data-tab="merge">⚗️ MERGE</div>
-            <div class="tab" data-tab="packs">📦 PACKS</div>
-        </div>
-        
-        <div class="scrollable-content" id="scrollableContent">
-            <!-- Glimmerlands Tab (Replaces Realm) -->
-            <div id="glimmerlandsTab">
-                <div class="glimmerlands-content">
-                    <div class="realm-title">
-                        <span>🌳 The Glimmerlands</span>
-                        <span class="power-badge" id="powerValue">0 Power</span>
-                    </div>
-                    
-                    <!-- Power Meter -->
-                    <div class="power-meter">
-                        <div class="power-meter-header">
-                            <span>Forest Influence</span>
-                            <span id="currentPower">0</span>
-                        </div>
-                        <div class="power-bar-bg">
-                            <div class="power-bar-fill" id="powerBarFill" style="width: 0%"></div>
-                        </div>
-                        <div class="next-tier" id="nextTierText">Next Territory: Whispering Woods (50 Power)</div>
-                    </div>
-                    
-                    <!-- Territory Map -->
-                    <div class="map-container">
-                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                            <span class="tier-label">YOUR KINGDOM</span>
-                        </div>
-                        <div class="map-grid" id="territoryMap">
-                            <!-- Generated by JavaScript -->
-                        </div>
-                    </div>
-                    
-                    <!-- Income Panel -->
-                    <div class="income-panel">
-                        <div class="income-header">
-                            <span>✨ Territory Yield</span>
-                            <span class="income-rate" id="hourlyRate">0</span>
-                        </div>
-                        
-                        <div class="earnings-stats" style="display: flex; gap: 15px; margin-bottom: 15px;">
-                            <div style="flex: 1; background: #1f4a2a; border-radius: 20px; padding: 10px; text-align: center;">
-                                <div style="font-size: 12px; color: #ccf0aa;">ACCUMULATED</div>
-                                <div style="font-size: 28px; font-weight: 800; color: #f9e268;" id="accumulatedDust">0</div>
-                                <div style="font-size: 10px;">dust</div>
-                            </div>
-                            <div style="flex: 1; background: #1f4a2a; border-radius: 20px; padding: 10px; text-align: center;">
-                                <div style="font-size: 12px; color: #ccf0aa;">PER HOUR</div>
-                                <div style="font-size: 28px; font-weight: 800; color: #f9e268;" id="hourlyRateDisplay">0</div>
-                                <div style="font-size: 10px;">dust</div>
-                            </div>
-                        </div>
-                        
-                        <div class="time-bar">
-                            <div class="time-progress" id="timeProgress" style="width: 0%"></div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 14px; color: #ccf0aa; margin-bottom: 12px;">
-                            <span id="timeUntilNext">Next: 5:00</span>
-                            <span>Max 24h</span>
-                        </div>
-                        
-                        <!-- Fallow Warning (hidden by default) -->
-                        <div class="fallow-warning" id="fallowWarning" style="display: none;">
-                            ⚠️ Some lands are fallow. Merge matching rarities to restore them.
-                        </div>
-                        
-                        <button class="collect-btn" id="collectBtn" disabled>
-                            Collect Territory Dust
-                        </button>
-                    </div>
-                    
-                    <!-- Recent Discoveries -->
-                    <h4 style="color: #f8efb0; margin: 16px 0 10px; font-size: 18px;">✨ Recent Discoveries</h4>
-                    <div class="cards-grid" id="recentCardsGrid"></div>
-                    
-                    <div class="account-actions">
-                        <div class="account-actions-title">⚔️ Mystic Account</div>
-                        <button class="delete-btn" id="deleteAccountBtn">🗑️ Delete Account</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Merge Tab (Unchanged but enhanced with fallow restoration) -->
-            <div id="mergeTab" style="display: none;">
-                <div class="merge-chamber" id="mergeChamber">
-                    <div class="chamber-title">✧ MERGE CHAMBER ✧</div>
-                    
-                    <div class="reset-btn" id="resetBtn" title="Clear selection">↺</div>
-                    
-                    <div class="merge-size-selector">
-                        <button class="size-btn active" data-size="3">3</button>
-                        <button class="size-btn" data-size="4">4</button>
-                        <button class="size-btn" data-size="5">5</button>
-                    </div>
-                    
-                    <div class="slot-indicators">
-                        <div class="slot-circle" id="circle1"></div>
-                        <div class="slot-circle" id="circle2"></div>
-                        <div class="slot-circle" id="circle3"></div>
-                        <div class="slot-circle" id="circle4"></div>
-                        <div class="slot-circle" id="circle5"></div>
-                    </div>
-                    
-                    <div class="preview-text" id="previewText">Select same-rarity cards</div>
-                    <div class="chance-display" id="chanceDisplay"></div>
-                    
-                    <div class="action-row">
-                        <div class="quick-fill">
-                            <button class="quick-fill-btn" id="quickFillBtn" disabled>✨ Quick Fill</button>
-                        </div>
-                        <button class="merge-button" id="mergeBtn" disabled>
-                            MERGE
-                        </button>
-                    </div>
-                </div>
-                
-                <div style="background: #1c4828; border-radius: 50px; padding: 20px 16px; margin-top: 12px; border: 2px solid #e9c469;">
-                    <h3 class="collection-heading">✨ Your Magical Collection</h3>
-                    <div class="cards-grid" id="mergeGrid"></div>
-                </div>
-            </div>
-            
-            <!-- Packs Tab (Unchanged) -->
-            <div id="packsTab" style="display: none;">
-                <div class="packs-content">
-                    <div class="pack-title">🌙 MYSTIC PACKS</div>
-                    
-                    <div class="pack-grid">
-                        <div class="pack" data-pack="basic">
-                            <div class="pack-icon">📦</div>
-                            <div class="pack-name">BASIC</div>
-                            <div class="pack-price">1 Dust</div>
-                        </div>
-                        <div class="pack" data-pack="grand">
-                            <div class="pack-icon">🎁</div>
-                            <div class="pack-name">GRAND</div>
-                            <div class="pack-price">200 Dust</div>
-                        </div>
-                        <div class="pack" data-pack="premium">
-                            <div class="pack-icon">💎</div>
-                            <div class="pack-name">PREMIUM</div>
-                            <div class="pack-price">500 Dust</div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 25px;">
-                        <h4 style="color: #ffefb0; margin-bottom: 15px; font-size: 18px;">✨ Newly Discovered</h4>
-                        <div class="cards-grid" id="packResultsGrid"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <script>
-        (function() {
-            // ---------- LEXICON CARDS · GLIMMERLANDS EDITION ----------
-            // Complete with Territory Control System
+        // Game State
+        let gameState = {
+            letters: {},
+            score: 0,
+            village: {
+                buildings: [],
+                villagers: 1,
+                phase: 'hamlet'
+            },
+            discoveredWords: [],
+            selectedLetters: []
+        };
+
+        // Word Database
+        const WORD_DB = {
+            // Phase 1: Hamlet Words (Basic survival)
+            'FIRE': { letters: ['F','I','R','E'], desc: 'Light and warmth', building: 'Campfire', points: 10 },
+            'HUT': { letters: ['H','U','T'], desc: 'Basic shelter', building: 'Hut', points: 15 },
+            'AXE': { letters: ['A','X','E'], desc: 'Chop wood', building: 'Woodcutter', points: 20 },
+            'WELL': { letters: ['W','E','L','L'], desc: 'Fresh water', building: 'Well', points: 25 },
+            'BED': { letters: ['B','E','D'], desc: 'Rest your head', building: 'Bed', points: 15 },
             
-            let tg = window.Telegram?.WebApp;
-            if (tg) { tg.ready(); tg.expand(); if (tg.setHeaderColor) tg.setHeaderColor('#0a0a1a'); if (tg.setBackgroundColor) tg.setBackgroundColor('#0a0a1a'); }
+            // Phase 2: Village Words
+            'FOREST': { letters: ['F','O','R','E','S','T'], desc: 'Generates wood letters', building: 'Forest', points: 50, phase: 2 },
+            'FIELD': { letters: ['F','I','E','L','D'], desc: 'Grows food', building: 'Field', points: 40, phase: 2 },
+            'OVEN': { letters: ['O','V','E','N'], desc: 'Cook food', building: 'Oven', points: 35, phase: 2 },
+            'LIBRARY': { letters: ['L','I','B','R','A','R','Y'], desc: 'Find rare letters', building: 'Library', points: 60, phase: 2 },
             
-            // ==================== GAME CONSTANTS ====================
-            
-            // Card Rarities and Power Values
-            const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
-            const RARITY_NAMES = { common:'COMMON', uncommon:'UNCOMMON', rare:'RARE', epic:'EPIC', legendary:'LEGENDARY', mythic:'MYTHIC' };
-            
-            const POWER_VALUES = {
-                'common': 1,
-                'uncommon': 3,
-                'rare': 10,
-                'epic': 25,
-                'legendary': 75,
-                'mythic': 200
-            };
-            
-            // Territory Definitions
-            const TERRITORIES = [
-                { tier: 1, name: 'Sunlit Glade', icon: '☀️', plots: 3, baseIncome: 1, powerReq: 0, rarity: 'common' },
-                { tier: 2, name: 'Whispering Woods', icon: '🌫️', plots: 3, baseIncome: 3, powerReq: 50, rarity: 'uncommon' },
-                { tier: 3, name: 'Crystal Grove', icon: '💎', plots: 2, baseIncome: 8, powerReq: 150, rarity: 'rare' },
-                { tier: 4, name: 'Fae Meadow', icon: '🦋', plots: 2, baseIncome: 20, powerReq: 400, rarity: 'epic' },
-                { tier: 5, name: 'Ancient Mire', icon: '🌑', plots: 1, baseIncome: 50, powerReq: 1000, rarity: 'legendary' },
-                { tier: 6, name: 'Dragon\'s Rest', icon: '🐉', plots: 1, baseIncome: 150, powerReq: 2500, rarity: 'mythic' },
-                { tier: 7, name: 'Starfall Peak', icon: '⛰️', plots: 1, baseIncome: 400, powerReq: 5000, rarity: 'mythic' }
-            ];
-            
-            // Word Pools
-            const WORDS = {
-                common: ['SUN', 'MOON', 'STAR', 'TREE', 'FIRE', 'WATER', 'WIND', 'ROCK', 'BIRD', 'FISH'],
-                uncommon: ['FLAME', 'OCEAN', 'FOREST', 'THUNDER', 'SHADOW', 'CRYSTAL', 'EMBER', 'FROST'],
-                rare: ['PHOENIX', 'DRAGON', 'UNICORN', 'SPHINX', 'ILLUSION', 'NIGHTMARE'],
-                epic: ['ENIGMA', 'ETERNITY', 'COSMOS', 'NEBULA', 'GALAXY', 'DIMENSION'],
-                legendary: ['SERENDIPITY', 'ETHEREAL', 'LUMINESCENT', 'AURORA', 'ZEPHYR'],
-                mythic: ['ABRACADABRA', 'ALAKAZAM', 'PRESTIGE', 'OMNIVERSE']
-            };
-            
-            // Merge Mechanics
-            const SUCCESS_CHANCES = {
-                '3:common→uncommon':1.0,'3:uncommon→rare':0.8,'3:rare→epic':0.5,'3:epic→legendary':0.3,'3:legendary→mythic':0.1,
-                '4:common→uncommon':1.0,'4:uncommon→rare':0.9,'4:rare→epic':0.65,'4:epic→legendary':0.45,'4:legendary→mythic':0.2,
-                '5:common→uncommon':1.0,'5:uncommon→rare':1.0,'5:rare→epic':0.8,'5:epic→legendary':0.6,'5:legendary→mythic':0.3
-            };
-            
-            const DUST_REWARDS = {
-                '3:common→uncommon':5,'3:uncommon→rare':10,'3:rare→epic':25,'3:epic→legendary':100,'3:legendary→mythic':200,
-                '4:common→uncommon':7,'4:uncommon→rare':15,'4:rare→epic':37,'4:epic→legendary':150,'4:legendary→mythic':300,
-                '5:common→uncommon':10,'5:uncommon→rare':20,'5:rare→epic':50,'5:epic→legendary':200,'5:legendary→mythic':400
-            };
-            
-            const PITY_INCREMENT = 0.05;
-            const MAX_PITY = 0.5;
-            
-            // Fallow System
-            const FALLOW_DAYS = 3; // Days until land goes fallow
-            const FALLOW_PENALTY = 0.5; // 50% income
-            const MS_PER_DAY = 24 * 60 * 60 * 1000;
-            
-            // ==================== GAME STATE ====================
-            
-            let collection = [];
-            let dust = 150;
-            let selectedCards = [];
-            let mergeSize = 3;
-            let pityCounters = { 'uncommon→rare': 0, 'rare→epic': 0, 'epic→legendary': 0, 'legendary→mythic': 0 };
-            
-            // Territory State
-            let lastLoginTime = Date.now();
-            let accumulatedOfflineDust = 0;
-            let lastFallowCheck = Date.now();
-            let fallowLands = {}; // Track which plots are fallow { plotId: lastActiveTimestamp }
-            
-            // UI State
-            let activeTab = 'glimmerlands';
-            let rafTimer = null;
-            let saveTimeout = null;
-            let uiUpdateTimeout = null;
-            let cachedGroupedData = null;
-            let lastCollectionVersion = 0;
-            let collectionVersion = 0;
-            
-            // ==================== DOM ELEMENTS ====================
-            
-            const dom = {
-                totalCards: document.getElementById('totalCards'),
-                uniqueCards: document.getElementById('uniqueCards'),
-                dustAmount: document.getElementById('dustAmount'),
-                accumulatedDust: document.getElementById('accumulatedDust'),
-                collectBtn: document.getElementById('collectBtn'),
-                timeProgress: document.getElementById('timeProgress'),
-                timeUntilNext: document.getElementById('timeUntilNext'),
-                recentCardsGrid: document.getElementById('recentCardsGrid'),
-                mergeGrid: document.getElementById('mergeGrid'),
-                packResultsGrid: document.getElementById('packResultsGrid'),
-                previewText: document.getElementById('previewText'),
-                chanceDisplay: document.getElementById('chanceDisplay'),
-                mergeBtn: document.getElementById('mergeBtn'),
-                quickFillBtn: document.getElementById('quickFillBtn'),
-                resetBtn: document.getElementById('resetBtn'),
-                mergeChamber: document.getElementById('mergeChamber'),
-                loadingOverlay: document.getElementById('loadingOverlay'),
-                confirmModal: document.getElementById('confirmModal'),
-                modalTitle: document.getElementById('modalTitle'),
-                modalText: document.getElementById('modalText'),
-                modalConfirm: document.getElementById('modalConfirmBtn'),
-                modalCancel: document.getElementById('modalCancelBtn'),
-                powerValue: document.getElementById('powerValue'),
-                currentPower: document.getElementById('currentPower'),
-                powerBarFill: document.getElementById('powerBarFill'),
-                nextTierText: document.getElementById('nextTierText'),
-                territoryMap: document.getElementById('territoryMap'),
-                hourlyRate: document.getElementById('hourlyRate'),
-                hourlyRateDisplay: document.getElementById('hourlyRateDisplay'),
-                fallowWarning: document.getElementById('fallowWarning')
-            };
-            
-            const circles = [
-                document.getElementById('circle1'),
-                document.getElementById('circle2'),
-                document.getElementById('circle3'),
-                document.getElementById('circle4'),
-                document.getElementById('circle5')
-            ];
-            
-            // ==================== CORE FUNCTIONS ====================
-            
-            // Calculate total power from collection
-            function calculateTotalPower() {
-                return collection.reduce((total, card) => total + (POWER_VALUES[card.rarity] || 0), 0);
-            }
-            
-            // Get unique card count
-            function getUniqueCardCount() {
-                return new Set(collection.map(c => c.word + c.rarity)).size;
-            }
-            
-            // Calculate hourly income from territories
-            function calculateHourlyIncome() {
-                const power = calculateTotalPower();
-                let income = 0;
-                const now = Date.now();
-                
-                TERRITORIES.forEach((territory, tierIndex) => {
-                    if (power >= territory.powerReq) {
-                        // Check if this territory is fallow
-                        const isFallow = checkTerritoryFallow(tierIndex, now);
-                        
-                        for (let i = 0; i < territory.plots; i++) {
-                            const plotId = `t${tierIndex}_p${i}`;
-                            const plotFallow = isFallow || (fallowLands[plotId] && (now - fallowLands[plotId] > FALLOW_DAYS * MS_PER_DAY));
-                            
-                            if (plotFallow) {
-                                income += territory.baseIncome * FALLOW_PENALTY;
-                            } else {
-                                income += territory.baseIncome;
-                            }
-                        }
-                    }
-                });
-                
-                return income;
-            }
-            
-            // Check if a territory is fallow based on last merge of its dominant rarity
-            function checkTerritoryFallow(tierIndex, now) {
-                const territory = TERRITORIES[tierIndex];
-                if (!territory) return false;
-                
-                // Find the last merge time for this territory's rarity
-                const lastMerge = lastMergeTimes[territory.rarity] || 0;
-                return (now - lastMerge) > FALLOW_DAYS * MS_PER_DAY;
-            }
-            
-            // Track last merge times per rarity (for fallow system)
-            let lastMergeTimes = {
-                'common': Date.now(),
-                'uncommon': Date.now(),
-                'rare': Date.now(),
-                'epic': Date.now(),
-                'legendary': Date.now(),
-                'mythic': Date.now()
-            };
-            
-            // Update last merge time
-            function updateLastMergeTime(rarity) {
-                lastMergeTimes[rarity] = Date.now();
-                
-                // Also update specific plots if they were fallow
-                const now = Date.now();
-                const power = calculateTotalPower();
-                
-                TERRITORIES.forEach((territory, tierIndex) => {
-                    if (territory.rarity === rarity && power >= territory.powerReq) {
-                        for (let i = 0; i < territory.plots; i++) {
-                            const plotId = `t${tierIndex}_p${i}`;
-                            delete fallowLands[plotId]; // Remove fallow status
-                        }
-                    }
-                });
-                
-                updateFallowWarning();
-            }
-            
-            // Update fallow warning visibility
-            function updateFallowWarning() {
-                if (!dom.fallowWarning) return;
-                
-                const now = Date.now();
-                const power = calculateTotalPower();
-                let hasFallow = false;
-                
-                TERRITORIES.forEach((territory, tierIndex) => {
-                    if (power >= territory.powerReq) {
-                        const lastMerge = lastMergeTimes[territory.rarity] || 0;
-                        if ((now - lastMerge) > FALLOW_DAYS * MS_PER_DAY) {
-                            hasFallow = true;
-                        }
-                    }
-                });
-                
-                dom.fallowWarning.style.display = hasFallow ? 'block' : 'none';
-            }
-            
-            // Render territory map
-            function renderTerritoryMap() {
-                if (!dom.territoryMap) return;
-                
-                const power = calculateTotalPower();
-                const now = Date.now();
-                let html = '';
-                
-                TERRITORIES.forEach((territory, tierIndex) => {
-                    const row = document.createElement('div');
-                    row.className = 'map-row';
-                    
-                    // Add tier label
-                    const label = document.createElement('span');
-                    label.className = 'tier-label';
-                    label.textContent = `T${territory.tier}`;
-                    row.appendChild(label);
-                    
-                    // Add plots
-                    const isUnlocked = power >= territory.powerReq;
-                    
-                    for (let i = 0; i < territory.plots; i++) {
-                        const plot = document.createElement('div');
-                        plot.className = 'territory-plot';
-                        
-                        const plotId = `t${tierIndex}_p${i}`;
-                        const lastMerge = lastMergeTimes[territory.rarity] || 0;
-                        const isFallow = isUnlocked && ((now - lastMerge) > FALLOW_DAYS * MS_PER_DAY);
-                        
-                        if (!isUnlocked) {
-                            plot.classList.add('locked');
-                        } else if (isFallow) {
-                            plot.classList.add('fallow');
-                        } else {
-                            plot.classList.add('owned');
-                        }
-                        
-                        plot.innerHTML = `
-                            <div class="plot-icon">${territory.icon}</div>
-                            <div class="plot-name">${territory.name.split(' ')[0]}</div>
-                            <div class="plot-income">${isUnlocked ? (isFallow ? Math.floor(territory.baseIncome * FALLOW_PENALTY) : territory.baseIncome) : '🔒'}/h</div>
-                            <div class="plot-status">${isFallow ? '⚠️' : (isUnlocked ? '✨' : '')}</div>
-                        `;
-                        
-                        row.appendChild(plot);
-                    }
-                    
-                    dom.territoryMap.appendChild(row);
-                });
-            }
-            
-            // Update power meter and next tier
-            function updatePowerMeter() {
-                const power = calculateTotalPower();
-                if (dom.powerValue) dom.powerValue.textContent = `${power} Power`;
-                if (dom.currentPower) dom.currentPower.textContent = power;
-                
-                // Find next tier
-                let nextTier = null;
-                for (let i = 0; i < TERRITORIES.length; i++) {
-                    if (power < TERRITORIES[i].powerReq) {
-                        nextTier = TERRITORIES[i];
-                        break;
-                    }
-                }
-                
-                if (nextTier) {
-                    const progress = (power / nextTier.powerReq) * 100;
-                    if (dom.powerBarFill) dom.powerBarFill.style.width = Math.min(progress, 100) + '%';
-                    if (dom.nextTierText) dom.nextTierText.textContent = `Next: ${nextTier.name} (${nextTier.powerReq} Power)`;
-                } else {
-                    if (dom.powerBarFill) dom.powerBarFill.style.width = '100%';
-                    if (dom.nextTierText) dom.nextTierText.textContent = `✨ All territories unlocked!`;
-                }
-            }
-            
-            // Check for territory unlocks
-            function checkTerritoryUnlocks(oldPower, newPower) {
-                TERRITORIES.forEach(territory => {
-                    if (oldPower < territory.powerReq && newPower >= territory.powerReq) {
-                        showToast(`✨ New territory unlocked: ${territory.name}!`);
-                        
-                        // Trigger animation on map
-                        if (dom.territoryMap) {
-                            dom.territoryMap.classList.add('territory-expand');
-                            setTimeout(() => dom.territoryMap.classList.remove('territory-expand'), 1000);
-                        }
-                    }
-                });
-            }
-            
-            // Update UI with latest stats
-            function updateStats() {
-                const power = calculateTotalPower();
-                const oldPower = dom.currentPower ? parseInt(dom.currentPower.textContent) || 0 : 0;
-                
-                if (dom.totalCards) dom.totalCards.textContent = collection.length;
-                if (dom.uniqueCards) dom.uniqueCards.textContent = getUniqueCardCount();
-                if (dom.dustAmount) dom.dustAmount.textContent = dust;
-                
-                // Update power and check unlocks
-                updatePowerMeter();
-                if (oldPower !== power) {
-                    checkTerritoryUnlocks(oldPower, power);
-                }
-                
-                // Update income display
-                const hourly = calculateHourlyIncome();
-                if (dom.hourlyRate) dom.hourlyRate.textContent = `${hourly}/h`;
-                if (dom.hourlyRateDisplay) dom.hourlyRateDisplay.textContent = hourly;
-                
-                // Re-render map if needed (power changed)
-                if (dom.territoryMap) {
-                    dom.territoryMap.innerHTML = '';
-                    renderTerritoryMap();
-                }
-                
-                updateFallowWarning();
-            }
-            
-            // Offline earnings with territory system
-            function calculateOfflineEarnings() {
-                const now = Date.now();
-                const timeDiff = Math.min(now - lastLoginTime, 24 * 60 * 60 * 1000);
-                
-                // Income is based on territory!
-                const hourlyRate = calculateHourlyIncome();
-                const hoursPassed = timeDiff / (1000 * 60 * 60);
-                
-                accumulatedOfflineDust = Math.floor(hourlyRate * hoursPassed);
-                lastLoginTime = now;
-                debouncedSave();
-            }
-            
-            // Collect offline dust
-            function collectOfflineDust() {
-                if (accumulatedOfflineDust > 0) {
-                    dust += accumulatedOfflineDust;
-                    accumulatedOfflineDust = 0;
-                    lastLoginTime = Date.now();
-                    debouncedSave();
-                    debouncedUIUpdate();
-                    showToast(`✨ Collected ${accumulatedOfflineDust} dust from your lands!`);
-                }
-            }
-            
-            // Update offline UI
-            function updateOfflineUI() {
-                if (dom.accumulatedDust) dom.accumulatedDust.textContent = accumulatedOfflineDust;
-                
-                if (dom.collectBtn) {
-                    if (accumulatedOfflineDust > 0) {
-                        dom.collectBtn.disabled = false;
-                        dom.collectBtn.classList.add('collectable');
-                        dom.collectBtn.textContent = `Collect ${accumulatedOfflineDust} Dust`;
-                    } else {
-                        dom.collectBtn.disabled = true;
-                        dom.collectBtn.classList.remove('collectable');
-                        dom.collectBtn.textContent = 'Collect Territory Dust';
-                    }
-                }
-                
-                if (dom.timeProgress) {
-                    const p = Math.min(((Date.now() - lastLoginTime) / (60 * 60 * 1000)) * 100, 100);
-                    dom.timeProgress.style.width = p + '%';
-                }
-                
-                if (dom.timeUntilNext) {
-                    const r = Math.max(60 * 60 * 1000 - (Date.now() - lastLoginTime), 0);
-                    const m = Math.floor(r / 60000);
-                    const s = Math.floor((r % 60000) / 1000);
-                    dom.timeUntilNext.textContent = `Next hour: ${m}:${s.toString().padStart(2, '0')}`;
-                }
-            }
-            
-            // ==================== MERGE FUNCTIONS (Enhanced) ====================
-            
-            function performMerge() {
-                if (!isMergePossible()) {
-                    showToast('Select cards');
-                    return;
-                }
-                
-                const details = getCurrentMergeDetails();
-                if (!details) return;
-                
-                const randomWord = WORDS[details.toRarity][Math.floor(Math.random() * WORDS[details.toRarity].length)];
-                const cards = collection.filter(c => selectedCards.includes(c.id));
-                const oldPower = calculateTotalPower();
-                
-                // Remove merged cards
-                cards.forEach(c => {
-                    const idx = collection.findIndex(coll => coll.id === c.id);
-                    if (idx !== -1) collection.splice(idx, 1);
-                });
-                
-                selectedCards = [];
-                
-                if (Math.random() < details.chance) {
-                    // SUCCESS
-                    const newCard = { id: Date.now() + Math.random(), word: randomWord, rarity: details.toRarity };
-                    collection.push(newCard);
-                    pityCounters[details.pityKey] = 0;
-                    
-                    // Update last merge time for the target rarity
-                    updateLastMergeTime(details.toRarity);
-                    
-                    showToast(`✨ SUCCESS! Got ${newCard.word}`);
-                    if (dom.mergeChamber) {
-                        dom.mergeChamber.classList.add('merge-flash-success');
-                        setTimeout(() => dom.mergeChamber.classList.remove('merge-flash-success'), 500);
-                    }
-                    if (details.toRarity === 'mythic') showToast('🎉 MYTHIC UNLOCKED!');
-                } else {
-                    // FAILURE
-                    const dustReward = DUST_REWARDS[details.mergeKey] || 5;
-                    dust += dustReward;
-                    pityCounters[details.pityKey] = (pityCounters[details.pityKey] || 0) + PITY_INCREMENT;
-                    
-                    // Update last merge time for the source rarity (since we merged but failed)
-                    updateLastMergeTime(details.fromRarity);
-                    
-                    showToast(`💔 Failed +${dustReward} dust`);
-                    if (dom.mergeChamber) {
-                        dom.mergeChamber.classList.add('merge-flash-failure');
-                        setTimeout(() => dom.mergeChamber.classList.remove('merge-flash-failure'), 500);
-                    }
-                }
-                
-                // Check territory unlocks with new power
-                const newPower = calculateTotalPower();
-                checkTerritoryUnlocks(oldPower, newPower);
-                
-                incrementCollectionVersion();
-                debouncedSave();
-                debouncedUIUpdate();
-            }
-            
-            // ==================== CARD MANAGEMENT ====================
-            
-            function getGroupedCards() {
-                if (cachedGroupedData && lastCollectionVersion === collectionVersion) {
-                    return cachedGroupedData;
-                }
-                
-                const grouped = {};
-                collection.forEach(c => {
-                    const key = c.word + '|' + c.rarity;
-                    if (!grouped[key]) {
-                        grouped[key] = { 
-                            cards: [], 
-                            word: c.word, 
-                            rarity: c.rarity, 
-                            count: 0,
-                            cardIds: new Set()
-                        };
-                    }
-                    grouped[key].cards.push(c);
-                    grouped[key].count++;
-                    grouped[key].cardIds.add(c.id);
-                });
-                
-                const sorted = Object.values(grouped).sort((a, b) => {
-                    const r = RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
-                    if (r !== 0) return r;
-                    return a.word.localeCompare(b.word);
-                });
-                
-                cachedGroupedData = sorted;
-                lastCollectionVersion = collectionVersion;
-                return sorted;
-            }
-            
-            function createCardElement(card, isMergeable = false, highlightRarity = null, stackInfo = null) {
-                const div = document.createElement('div');
-                div.className = `card ${card.rarity}`;
-                
-                const isSelected = selectedCards.includes(card.id);
-                let selectedCount = 0;
-                
-                if (stackInfo && stackInfo.count > 1) {
-                    div.classList.add('stacked');
-                    
-                    if (stackInfo.cardIds) {
-                        selectedCount = selectedCards.filter(id => stackInfo.cardIds.has(id)).length;
-                        if (selectedCount > 0 && selectedCount < stackInfo.count) {
-                            div.classList.add('partial-selected');
-                        }
-                    }
-                }
-                
-                if (isMergeable && isSelected) div.classList.add('selected');
-                if (highlightRarity && card.rarity === highlightRarity && !isSelected) div.classList.add('highlight');
-                if (highlightRarity && card.rarity !== highlightRarity && selectedCards.length > 0) div.classList.add('dimmed');
-                
-                let html = `<div class="card-word">${card.word}</div>`;
-                html += `<div class="card-rarity">${RARITY_NAMES[card.rarity]}</div>`;
-                
-                if (stackInfo && stackInfo.count > 1) {
-                    html += `<div class="card-count">x${stackInfo.count}</div>`;
-                }
-                
-                if (selectedCount > 0) {
-                    html += `<div class="card-selected-count">${selectedCount}/${stackInfo ? stackInfo.count : 1}</div>`;
-                }
-                
-                div.innerHTML = html;
-                
-                if (isMergeable) {
-                    div._cardData = card;
-                    div._stackInfo = stackInfo;
-                }
-                
-                return div;
-            }
-            
-            function renderMergeGrid() {
-                if (!dom.mergeGrid || activeTab !== 'merge') return;
-                
-                const grouped = getGroupedCards();
-                if (grouped.length === 0) {
-                    dom.mergeGrid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No cards to merge</div><button class="empty-state-button" data-switch-tab="packs">Open Packs</button></div>';
-                    return;
-                }
-                
-                let highlight = null;
-                if (selectedCards.length > 0) {
-                    const first = collection.find(c => c.id === selectedCards[0]);
-                    if (first) highlight = first.rarity;
-                }
-                
-                const fragment = document.createDocumentFragment();
-                grouped.forEach(g => {
-                    fragment.appendChild(createCardElement(g.cards[0], true, highlight, { 
-                        count: g.count, 
-                        cards: g.cards,
-                        cardIds: g.cardIds
-                    }));
-                });
-                
-                dom.mergeGrid.innerHTML = '';
-                dom.mergeGrid.appendChild(fragment);
-                updateSlotIndicators();
-                updateMergeButtonState();
-            }
-            
-            function updateRealmTab() {
-                if (!dom.recentCardsGrid || activeTab !== 'glimmerlands') return;
-                
-                const recent = [...collection].reverse().slice(0, 3);
-                if (recent.length === 0) {
-                    dom.recentCardsGrid.innerHTML = '<div class="empty-state">No cards yet</div>';
-                    return;
-                }
-                
-                const fragment = document.createDocumentFragment();
-                recent.forEach(c => fragment.appendChild(createCardElement(c)));
-                dom.recentCardsGrid.innerHTML = '';
-                dom.recentCardsGrid.appendChild(fragment);
-            }
-            
-            // ==================== PACK FUNCTIONS ====================
-            
-            function openPack(packType) {
-                let cost = 0;
-                let cards = [];
-                const packEl = document.querySelector(`[data-pack="${packType}"]`);
-                
-                if (packEl) {
-                    packEl.classList.add('opening');
-                    setTimeout(() => packEl.classList.remove('opening'), 500);
-                }
-                
-                switch (packType) {
-                    case 'basic':
-                        cost = 1;
-                        for (let i = 0; i < 5; i++) {
-                            cards.push({ 
-                                id: Date.now() + i + Math.random(), 
-                                word: WORDS.common[Math.floor(Math.random() * WORDS.common.length)], 
-                                rarity: 'common' 
-                            });
-                        }
-                        break;
-                    case 'grand':
-                        cost = 200;
-                        for (let i = 0; i < 4; i++) {
-                            cards.push({ 
-                                id: Date.now() + i + Math.random(), 
-                                word: WORDS.common[Math.floor(Math.random() * WORDS.common.length)], 
-                                rarity: 'common' 
-                            });
-                        }
-                        cards.push({ 
-                            id: Date.now() + 5 + Math.random(), 
-                            word: WORDS.uncommon[Math.floor(Math.random() * WORDS.uncommon.length)], 
-                            rarity: 'uncommon' 
-                        });
-                        break;
-                    case 'premium':
-                        cost = 500;
-                        for (let i = 0; i < 3; i++) {
-                            cards.push({ 
-                                id: Date.now() + i + Math.random(), 
-                                word: WORDS.common[Math.floor(Math.random() * WORDS.common.length)], 
-                                rarity: 'common' 
-                            });
-                        }
-                        if (Math.random() < 0.3) {
-                            cards.push({ 
-                                id: Date.now() + 4 + Math.random(), 
-                                word: WORDS.epic[Math.floor(Math.random() * WORDS.epic.length)], 
-                                rarity: 'epic' 
-                            });
-                        } else {
-                            cards.push({ 
-                                id: Date.now() + 4 + Math.random(), 
-                                word: WORDS.rare[Math.floor(Math.random() * WORDS.rare.length)], 
-                                rarity: 'rare' 
-                            });
-                        }
-                        cards.push({ 
-                            id: Date.now() + 5 + Math.random(), 
-                            word: WORDS.rare[Math.floor(Math.random() * WORDS.rare.length)], 
-                            rarity: 'rare' 
-                        });
-                        break;
-                }
-                
-                if (dust < cost) {
-                    showToast('Not enough dust');
-                    return;
-                }
-                
-                const oldPower = calculateTotalPower();
-                dust -= cost;
-                collection.push(...cards);
-                
-                // Update last merge time for common cards (since packs give common)
-                updateLastMergeTime('common');
-                
-                // Check territory unlocks
-                const newPower = calculateTotalPower();
-                checkTerritoryUnlocks(oldPower, newPower);
-                
-                incrementCollectionVersion();
-                
-                if (dom.packResultsGrid) {
-                    const fragment = document.createDocumentFragment();
-                    cards.forEach((c, idx) => {
-                        const cardEl = createCardElement(c);
-                        cardEl.style.animationDelay = idx * 0.1 + 's';
-                        cardEl.classList.add('pack-result-card');
-                        fragment.appendChild(cardEl);
-                    });
-                    dom.packResultsGrid.innerHTML = '';
-                    dom.packResultsGrid.appendChild(fragment);
-                }
-                
-                showToast(`📦 Opened ${packType} pack!`);
-                debouncedSave();
-                debouncedUIUpdate();
-            }
-            
-            // ==================== UTILITY FUNCTIONS ====================
-            
-            function incrementCollectionVersion() {
-                collectionVersion++;
-                cachedGroupedData = null;
-            }
-            
-            function debouncedSave() {
-                if (saveTimeout) clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(() => {
-                    try {
-                        localStorage.setItem('lexiconCardsGlimmerlands', JSON.stringify({ 
-                            collection, 
-                            dust, 
-                            pityCounters,
-                            lastMergeTimes,
-                            lastLoginTime, 
-                            accumulatedOfflineDust 
-                        }));
-                        saveTimeout = null;
-                    } catch (e) {}
-                }, 200);
-            }
-            
-            function debouncedUIUpdate() {
-                if (uiUpdateTimeout) cancelAnimationFrame(uiUpdateTimeout);
-                uiUpdateTimeout = requestAnimationFrame(() => {
-                    updateStats();
-                    if (activeTab === 'glimmerlands') {
-                        updateRealmTab();
-                        updateOfflineUI();
-                    } else if (activeTab === 'merge') {
-                        renderMergeGrid();
-                        updateMergeUI();
-                    }
-                    uiUpdateTimeout = null;
-                });
-            }
-            
-            function showToast(msg) {
-                const toast = document.createElement('div');
-                toast.className = 'toast';
-                toast.textContent = msg;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 2000);
-            }
-            
-            // ==================== MERGE UI FUNCTIONS ====================
-            
-            function isMergePossible() {
-                if (selectedCards.length !== mergeSize) return false;
-                const cards = collection.filter(c => selectedCards.includes(c.id));
-                if (cards.length !== mergeSize) return false;
-                const first = cards[0].rarity;
-                return cards.every(c => c.rarity === first) && first !== 'mythic';
-            }
-            
-            function getCurrentMergeDetails() {
-                if (!isMergePossible()) return null;
-                const first = collection.find(c => c.id === selectedCards[0]);
-                const from = first.rarity;
-                const to = RARITY_ORDER[RARITY_ORDER.indexOf(from) + 1];
-                const key = mergeSize + ':' + from + '→' + to;
-                const pityKey = from + '→' + to;
-                const base = SUCCESS_CHANCES[key] || 0;
-                const bonus = Math.min(pityCounters[pityKey] || 0, MAX_PITY);
-                return { fromRarity: from, toRarity: to, mergeKey: key, pityKey: pityKey, chance: base + bonus };
-            }
-            
-            function updateMergeButtonState() {
-                if (!dom.previewText || !dom.chanceDisplay || !dom.mergeBtn || !dom.quickFillBtn) return;
-                
-                if (isMergePossible()) {
-                    const d = getCurrentMergeDetails();
-                    const percent = Math.round(d.chance * 100);
-                    
-                    dom.previewText.textContent = `Merge ${mergeSize} ${RARITY_NAMES[d.fromRarity]} → ${RARITY_NAMES[d.toRarity]}`;
-                    dom.chanceDisplay.textContent = `${percent}% chance`;
-                    
-                    dom.chanceDisplay.className = 'chance-display';
-                    if (d.chance >= 0.7) dom.chanceDisplay.classList.add('chance-high');
-                    else if (d.chance >= 0.4) dom.chanceDisplay.classList.add('chance-medium');
-                    else dom.chanceDisplay.classList.add('chance-low');
-                    
-                    dom.mergeBtn.disabled = false;
-                    dom.mergeBtn.classList.add('ready');
-                } else {
-                    dom.previewText.textContent = `Select ${mergeSize - selectedCards.length} more same-rarity`;
-                    dom.chanceDisplay.textContent = '';
-                    dom.mergeBtn.disabled = true;
-                    dom.mergeBtn.classList.remove('ready');
-                }
-                
-                dom.quickFillBtn.disabled = selectedCards.length === 0 || selectedCards.length >= mergeSize;
-            }
-            
-            function updateMergeUI() {
-                updateMergeButtonState();
-                updateSlotIndicators();
-                if (dom.resetBtn) {
-                    dom.resetBtn.disabled = selectedCards.length === 0;
-                    dom.resetBtn.style.opacity = selectedCards.length === 0 ? '0.3' : '1';
-                }
-            }
-            
-            function updateSlotIndicators() {
-                for (let i = 0; i < 5; i++) {
-                    if (!circles[i]) continue;
-                    if (i < mergeSize) {
-                        circles[i].classList.remove('inactive');
-                        if (selectedCards.length > i) circles[i].classList.add('filled');
-                        else circles[i].classList.remove('filled');
-                    } else {
-                        circles[i].classList.add('inactive');
-                        circles[i].classList.remove('filled');
-                    }
-                }
-            }
-            
-            function canAddToMerge(card) {
-                if (selectedCards.length >= mergeSize) {
-                    showToast(`Max ${mergeSize} cards`);
-                    return false;
-                }
-                if (selectedCards.length > 0) {
-                    const first = collection.find(c => c.id === selectedCards[0]);
-                    if (first && first.rarity !== card.rarity) {
-                        showToast('Cards must be same rarity');
-                        return false;
-                    }
-                }
-                if (card.rarity === 'mythic') {
-                    showToast('Mythic cannot be merged');
-                    return false;
-                }
-                return true;
-            }
-            
-            function handleCardClick(e) {
-                const cardDiv = e.target.closest('.card');
-                if (!cardDiv || activeTab !== 'merge') return;
-                
-                const card = cardDiv._cardData;
-                const stackInfo = cardDiv._stackInfo;
-                if (!card) return;
-                
-                if (stackInfo && stackInfo.count > 1) {
-                    const selectedFromStack = selectedCards.filter(id => stackInfo.cardIds.has(id));
-                    
-                    if (selectedFromStack.length === stackInfo.count) {
-                        const toRemove = selectedFromStack[selectedFromStack.length - 1];
-                        const idx = selectedCards.indexOf(toRemove);
-                        if (idx !== -1) {
-                            selectedCards.splice(idx, 1);
-                            showToast(`Removed ${card.word}`);
-                        }
-                    } else if (selectedFromStack.length > 0 && selectedFromStack.length < stackInfo.count) {
-                        const unselected = stackInfo.cards.find(c => !selectedCards.includes(c.id));
-                        if (unselected && canAddToMerge(unselected)) {
-                            selectedCards.push(unselected.id);
-                            showToast(`Added ${unselected.word}`);
-                        }
-                    } else {
-                        const unselected = stackInfo.cards.find(c => !selectedCards.includes(c.id));
-                        if (unselected && canAddToMerge(unselected)) {
-                            selectedCards.push(unselected.id);
-                            showToast(`Added ${unselected.word}`);
-                        }
-                    }
-                } else {
-                    if (selectedCards.includes(card.id)) {
-                        const idx = selectedCards.indexOf(card.id);
-                        selectedCards.splice(idx, 1);
-                        showToast(`Removed ${card.word}`);
-                    } else if (canAddToMerge(card)) {
-                        selectedCards.push(card.id);
-                        showToast(`Added ${card.word}`);
-                    }
-                }
-                
-                incrementCollectionVersion();
-                debouncedUIUpdate();
-                updateMergeUI();
-            }
-            
-            function resetSelection() {
-                if (selectedCards.length === 0) {
-                    showToast('No cards to clear');
-                    return;
-                }
-                selectedCards = [];
-                showToast('Selection cleared');
-                incrementCollectionVersion();
-                debouncedUIUpdate();
-            }
-            
-            function quickFillMerge() {
-                if (selectedCards.length === 0) {
-                    showToast('Select a first card');
-                    return;
-                }
-                if (selectedCards.length >= mergeSize) return;
-                
-                const first = collection.find(c => c.id === selectedCards[0]);
-                if (!first) return;
-                
-                const matching = collection.filter(c => c.rarity === first.rarity && !selectedCards.includes(c.id));
-                const need = mergeSize - selectedCards.length;
-                const toAdd = matching.slice(0, need);
-                
-                toAdd.forEach(c => selectedCards.push(c.id));
-                
-                if (toAdd.length > 0) {
-                    showToast(`✨ Added ${toAdd.length} cards`);
-                    incrementCollectionVersion();
-                    debouncedUIUpdate();
-                } else {
-                    showToast('No matching cards');
-                }
-            }
-            
-            // ==================== ACCOUNT MANAGEMENT ====================
-            
-            function deleteAccount() {
-                // Reset to starter collection
-                collection = [];
-                for (let i = 0; i < 8; i++) {
-                    collection.push({ 
-                        id: Date.now() + i + Math.random(), 
-                        word: WORDS.common[Math.floor(Math.random() * WORDS.common.length)], 
-                        rarity: 'common' 
-                    });
-                }
-                collection.push({ 
-                    id: Date.now() + 100 + Math.random(), 
-                    word: WORDS.uncommon[Math.floor(Math.random() * WORDS.uncommon.length)], 
-                    rarity: 'uncommon' 
-                });
-                
-                dust = 150;
-                pityCounters = { 'uncommon→rare': 0, 'rare→epic': 0, 'epic→legendary': 0, 'legendary→mythic': 0 };
-                accumulatedOfflineDust = 0;
-                lastLoginTime = Date.now();
-                selectedCards = [];
-                
-                // Reset last merge times
-                const now = Date.now();
-                lastMergeTimes = {
-                    'common': now,
-                    'uncommon': now,
-                    'rare': now,
-                    'epic': now,
-                    'legendary': now,
-                    'mythic': now
+            // Phase 3: Kingdom Words
+            'KNIGHT': { letters: ['K','N','I','G','H','T'], desc: 'Defend your realm', building: 'Knight', points: 70, phase: 3 },
+            'FEAST': { letters: ['F','E','A','S','T'], desc: 'Celebrate!', building: 'Feast Hall', points: 45, phase: 3 },
+            'GARDEN': { letters: ['G','A','R','D','E','N'], desc: 'Grow herbs', building: 'Garden', points: 55, phase: 3 }
+        };
+
+        // Initialize game
+        function initGame() {
+            // Load saved game or start new
+            const saved = localStorage.getItem('lexiconForge');
+            if (saved) {
+                gameState = JSON.parse(saved);
+            } else {
+                // Start with some basic letters
+                gameState.letters = {
+                    'A': 2, 'B': 1, 'C': 1, 'D': 1, 'E': 3, 'F': 1, 'G': 1, 'H': 1,
+                    'I': 2, 'J': 0, 'K': 0, 'L': 1, 'M': 0, 'N': 2, 'O': 2, 'P': 0,
+                    'Q': 0, 'R': 2, 'S': 1, 'T': 2, 'U': 1, 'V': 0, 'W': 1, 'X': 0,
+                    'Y': 0, 'Z': 0
                 };
-                
-                fallowLands = {};
-                
-                incrementCollectionVersion();
-                debouncedSave();
-                debouncedUIUpdate();
-                showToast('Account reset to starter pack!');
+                gameState.score = 0;
+                gameState.discoveredWords = [];
+                gameState.selectedLetters = [];
             }
             
-            function showModal(title, text, action) {
-                if (dom.modalTitle) dom.modalTitle.textContent = title;
-                if (dom.modalText) dom.modalText.textContent = text;
-                dom.confirmModal._pendingAction = action;
-                dom.confirmModal.classList.add('show');
+            updateUI();
+            
+            // Show welcome modal for new players
+            if (!saved) {
+                document.getElementById('welcome-modal').classList.add('active');
             }
+        }
+
+        // Save game
+        function saveGame() {
+            localStorage.setItem('lexiconForge', JSON.stringify(gameState));
+        }
+
+        // Update all UI elements
+        function updateUI() {
+            updateLettersGrid();
+            updateWordsGrid();
+            updateCraftButton();
+            updateVillageStats();
+            updateCurrentWordDisplay();
+            document.getElementById('score-display').textContent = gameState.score;
             
-            function hideModal() {
-                dom.confirmModal.classList.remove('show');
-                dom.confirmModal._pendingAction = null;
-            }
+            // Update words found count
+            const totalWords = Object.keys(WORD_DB).length;
+            document.getElementById('words-found').textContent = `${gameState.discoveredWords.length}/${totalWords}`;
+        }
+
+        // Update letters grid
+        function updateLettersGrid() {
+            const grid = document.getElementById('letters-grid');
+            grid.innerHTML = '';
             
-            // ==================== TAB SWITCHING ====================
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
             
-            function switchTab(tab) {
-                activeTab = tab;
+            alphabet.forEach(letter => {
+                const count = gameState.letters[letter] || 0;
+                const tile = document.createElement('div');
+                tile.className = `letter-tile ${count === 0 ? 'empty' : ''} ${gameState.selectedLetters.includes(letter) ? 'selected' : ''}`;
+                tile.textContent = letter;
                 
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-                
-                ['glimmerlands', 'merge', 'packs'].forEach(t => {
-                    const el = document.getElementById(t + 'Tab');
-                    if (el) el.style.display = t === tab ? 'block' : 'none';
-                });
-                
-                if (tab === 'merge') {
-                    incrementCollectionVersion();
-                    renderMergeGrid();
-                } else if (tab === 'glimmerlands') {
-                    updateRealmTab();
-                    renderTerritoryMap();
-                } else if (tab === 'packs' && dom.packResultsGrid) {
-                    dom.packResultsGrid.innerHTML = '';
+                if (count > 0) {
+                    const countBadge = document.createElement('span');
+                    countBadge.className = 'letter-count';
+                    countBadge.textContent = count;
+                    tile.appendChild(countBadge);
+                    
+                    tile.onclick = () => toggleLetter(letter);
                 }
                 
-                document.getElementById('scrollableContent').scrollTop = 0;
+                grid.appendChild(tile);
+            });
+        }
+
+        // Update words grid
+        function updateWordsGrid() {
+            const grid = document.getElementById('words-grid');
+            grid.innerHTML = '';
+            
+            Object.entries(WORD_DB).forEach(([word, data]) => {
+                if (gameState.discoveredWords.includes(word)) return;
+                
+                const card = document.createElement('div');
+                card.className = `word-card ${canCraftWord(word) ? 'craftable' : ''}`;
+                
+                // Check if we can auto-fill
+                const canAutofill = canCraftWord(word);
+                
+                card.innerHTML = `
+                    <div class="word-name">${word}</div>
+                    <div class="word-letters-req">${data.letters.join(' ')}</div>
+                    <div class="word-desc">${data.desc}</div>
+                    ${data.building ? `<div class="word-desc" style="color: #ffd700;">🏗️ Unlocks: ${data.building}</div>` : ''}
+                `;
+                
+                if (canAutofill) {
+                    card.onclick = () => autofillWord(word);
+                }
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Toggle letter selection
+        function toggleLetter(letter) {
+            const index = gameState.selectedLetters.indexOf(letter);
+            if (index === -1) {
+                // Check if we have enough of this letter
+                const currentCount = gameState.selectedLetters.filter(l => l === letter).length;
+                if (currentCount < (gameState.letters[letter] || 0)) {
+                    gameState.selectedLetters.push(letter);
+                }
+            } else {
+                gameState.selectedLetters.splice(index, 1);
             }
             
-            // ==================== EVENT SETUP ====================
+            updateUI();
+        }
+
+        // Clear selected letters
+        function clearSelection() {
+            gameState.selectedLetters = [];
+            updateUI();
+        }
+
+        // Check if a word can be crafted
+        function canCraftWord(word) {
+            const wordData = WORD_DB[word];
+            if (!wordData) return false;
             
-            function setupEventDelegation() {
-                // Tab clicks
-                document.querySelectorAll('.tab').forEach(tab => {
-                    tab.addEventListener('click', (e) => {
-                        const tabName = e.currentTarget.dataset.tab;
-                        if (tabName) switchTab(tabName);
-                    });
-                });
-                
-                // Merge grid clicks
-                if (dom.mergeGrid) {
-                    dom.mergeGrid.addEventListener('click', handleCardClick);
+            // Check if already discovered
+            if (gameState.discoveredWords.includes(word)) return false;
+            
+            // Check if we have the letters
+            const lettersNeeded = [...wordData.letters];
+            const lettersAvailable = {...gameState.letters};
+            
+            for (const letter of lettersNeeded) {
+                if (!lettersAvailable[letter] || lettersAvailable[letter] === 0) {
+                    return false;
                 }
-                
-                // Pack clicks
-                document.querySelectorAll('[data-pack]').forEach(pack => {
-                    pack.addEventListener('click', (e) => {
-                        const packType = e.currentTarget.dataset.pack;
-                        openPack(packType);
-                    });
-                });
-                
-                // Size selector
-                document.querySelectorAll('[data-size]').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const size = parseInt(e.currentTarget.dataset.size, 10);
-                        mergeSize = size;
-                        document.querySelectorAll('[data-size]').forEach(b => b.classList.remove('active'));
-                        e.currentTarget.classList.add('active');
-                        
-                        if (selectedCards.length > mergeSize) {
-                            selectedCards = selectedCards.slice(0, mergeSize);
-                        }
-                        
-                        updateSlotIndicators();
-                        incrementCollectionVersion();
-                        renderMergeGrid();
-                        updateMergeButtonState();
-                    });
-                });
-                
-                // Action buttons
-                if (dom.mergeBtn) dom.mergeBtn.addEventListener('click', performMerge);
-                if (dom.quickFillBtn) dom.quickFillBtn.addEventListener('click', quickFillMerge);
-                if (dom.resetBtn) dom.resetBtn.addEventListener('click', resetSelection);
-                if (dom.collectBtn) dom.collectBtn.addEventListener('click', collectOfflineDust);
-                
-                // Delete account
-                document.getElementById('deleteAccountBtn')?.addEventListener('click', () => {
-                    showModal('Delete Account', 'Reset to starter pack? You will receive 8 common, 1 uncommon, 150 dust.', 'delete');
-                });
-                
-                // Modal buttons
-                if (dom.modalCancel) {
-                    dom.modalCancel.addEventListener('click', hideModal);
-                }
-                
-                if (dom.modalConfirm) {
-                    dom.modalConfirm.addEventListener('click', () => {
-                        if (dom.confirmModal._pendingAction === 'delete') {
-                            deleteAccount();
-                        }
-                        hideModal();
-                    });
-                }
-                
-                // Empty state button delegation
-                document.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('empty-state-button')) {
-                        const tab = e.target.dataset.switchTab;
-                        if (tab) switchTab(tab);
-                    }
-                });
+                lettersAvailable[letter]--;
             }
             
-            // ==================== TIMER ====================
+            return true;
+        }
+
+        // Craft current word
+        function craftWord() {
+            const word = gameState.selectedLetters.join('');
             
-            function startOptimizedTimer() {
-                let lastUpdate = 0;
-                
-                function tick(now) {
-                    if (now - lastUpdate >= 1000) {
-                        updateOfflineUI();
-                        lastUpdate = now;
-                    }
-                    rafTimer = requestAnimationFrame(tick);
+            if (WORD_DB[word] && canCraftWord(word)) {
+                // Consume letters
+                for (const letter of gameState.selectedLetters) {
+                    gameState.letters[letter]--;
                 }
                 
-                rafTimer = requestAnimationFrame(tick);
-            }
-            
-            // ==================== INITIALIZATION ====================
-            
-            function initializeGame() {
-                try {
-                    const saved = localStorage.getItem('lexiconCardsGlimmerlands');
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        collection = data.collection || collection;
-                        dust = data.dust || 150;
-                        pityCounters = data.pityCounters || pityCounters;
-                        lastMergeTimes = data.lastMergeTimes || lastMergeTimes;
-                        lastLoginTime = data.lastLoginTime || Date.now();
-                        accumulatedOfflineDust = data.accumulatedOfflineDust || 0;
-                    } else {
-                        // Starter collection
-                        for (let i = 0; i < 12; i++) {
-                            collection.push({ 
-                                id: Date.now() + i + Math.random(), 
-                                word: 'SUN', 
-                                rarity: 'common' 
-                            });
-                        }
-                        for (let i = 0; i < 5; i++) {
-                            collection.push({ 
-                                id: Date.now() + 100 + i + Math.random(), 
-                                word: 'MOON', 
-                                rarity: 'common' 
-                            });
-                        }
-                        for (let i = 0; i < 3; i++) {
-                            collection.push({ 
-                                id: Date.now() + 200 + i + Math.random(), 
-                                word: 'FLAME', 
-                                rarity: 'uncommon' 
-                            });
-                        }
-                        collection.push({ 
-                            id: Date.now() + 300 + Math.random(), 
-                            word: 'DRAGON', 
-                            rarity: 'rare' 
-                        });
-                        lastLoginTime = Date.now();
-                        
-                        const now = Date.now();
-                        lastMergeTimes = {
-                            'common': now,
-                            'uncommon': now,
-                            'rare': now,
-                            'epic': now,
-                            'legendary': now,
-                            'mythic': now
-                        };
-                    }
-                } catch (e) {}
+                // Add to discovered words
+                gameState.discoveredWords.push(word);
                 
-                calculateOfflineEarnings();
-                incrementCollectionVersion();
+                // Add score
+                gameState.score += WORD_DB[word].points;
                 
-                if (dom.loadingOverlay) {
-                    dom.loadingOverlay.classList.add('hidden');
+                // Add building if applicable
+                if (WORD_DB[word].building) {
+                    gameState.village.buildings.push(WORD_DB[word].building);
+                    showNotification(`🏗️ Built: ${WORD_DB[word].building}!`);
                 }
                 
-                // Initial render
-                renderTerritoryMap();
-                updateStats();
-                updateRealmTab();
-                updateOfflineUI();
-                startOptimizedTimer();
+                // Check for phase progression
+                updateVillagePhase();
+                
+                // Clear selection
+                gameState.selectedLetters = [];
+                
+                // Save game
+                saveGame();
+                
+                // Show success message
+                showNotification(`✨ Crafted: ${word}! +${WORD_DB[word].points} points`);
+                
+                updateUI();
+            } else {
+                showNotification('❌ Not a valid word or missing letters!');
+            }
+        }
+
+        // Autofill a word
+        function autofillWord(word) {
+            if (canCraftWord(word)) {
+                gameState.selectedLetters = WORD_DB[word].letters;
+                updateUI();
+            }
+        }
+
+        // Update craft button state
+        function updateCraftButton() {
+            const btn = document.getElementById('craft-btn');
+            const word = gameState.selectedLetters.join('');
+            btn.disabled = !WORD_DB[word] || !canCraftWord(word);
+        }
+
+        // Update current word display
+        function updateCurrentWordDisplay() {
+            const display = document.getElementById('current-word-display');
+            const hint = document.getElementById('word-hint');
+            
+            if (gameState.selectedLetters.length === 0) {
+                display.textContent = '⚡';
+                hint.textContent = 'Select letters to craft a word';
+            } else {
+                display.textContent = gameState.selectedLetters.join('');
+                
+                const word = gameState.selectedLetters.join('');
+                if (WORD_DB[word]) {
+                    hint.textContent = `✨ ${WORD_DB[word].desc}`;
+                } else {
+                    hint.textContent = '❌ Not a valid word';
+                }
+            }
+        }
+
+        // Update village stats
+        function updateVillageStats() {
+            document.getElementById('buildings-count').textContent = gameState.village.buildings.length;
+            document.getElementById('villagers-count').textContent = gameState.village.villagers + gameState.discoveredWords.length;
+            
+            // Update progress to next phase
+            let progress = 0;
+            let phaseText = 'Phase 1: Hamlet';
+            
+            if (gameState.discoveredWords.length >= 8) {
+                progress = 100;
+                phaseText = 'Phase 3: Kingdom 👑';
+            } else if (gameState.discoveredWords.length >= 4) {
+                progress = ((gameState.discoveredWords.length - 4) / 4) * 100;
+                phaseText = 'Phase 2: Village 🏘️';
+            } else {
+                progress = (gameState.discoveredWords.length / 4) * 100;
+                phaseText = 'Phase 1: Hamlet 🏕️';
             }
             
-            // Start the game
-            setupEventDelegation();
-            initializeGame();
-        })();
+            document.querySelector('.section-title span:last-child').textContent = phaseText;
+            document.getElementById('village-progress').style.width = `${progress}%`;
+        }
+
+        // Update village phase
+        function updateVillagePhase() {
+            if (gameState.discoveredWords.length >= 4 && gameState.village.phase === 'hamlet') {
+                gameState.village.phase = 'village';
+                showNotification('🏘️ Your hamlet has grown into a village!');
+            } else if (gameState.discoveredWords.length >= 8 && gameState.village.phase === 'village') {
+                gameState.village.phase = 'kingdom';
+                showNotification('👑 Your village is now a kingdom!');
+            }
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Close welcome modal
+        function closeWelcomeModal() {
+            document.getElementById('welcome-modal').classList.remove('active');
+        }
+
+        // Add daily bonus
+        function addDailyBonus() {
+            const lastPlayed = localStorage.getItem('lastPlayed');
+            const today = new Date().toDateString();
+            
+            if (lastPlayed !== today) {
+                // Give daily bonus letters
+                const bonusLetters = ['A', 'E', 'I', 'O', 'U', 'R', 'S', 'T'];
+                bonusLetters.forEach(letter => {
+                    gameState.letters[letter] = (gameState.letters[letter] || 0) + 1;
+                });
+                
+                showNotification('🎁 Daily Bonus: Vowels and common letters!');
+                localStorage.setItem('lastPlayed', today);
+                saveGame();
+                updateUI();
+            }
+        }
+
+        // Event listeners
+        document.getElementById('craft-btn').addEventListener('click', craftWord);
+        document.getElementById('clear-btn').addEventListener('click', clearSelection);
+
+        // Initialize game
+        initGame();
+        addDailyBonus();
+
+        // Telegram Mini App integration
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+            
+            // Set theme colors
+            document.body.style.background = tg.backgroundColor || document.body.style.background;
+        }
     </script>
 </body>
 </html>
