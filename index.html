@@ -15,7 +15,7 @@
         }
         
         body { 
-            background: #0c1f0a;  /* deep forest */
+            background: #0c1f0a;
             color: #f5efe0; 
             min-height: 100vh;
             display: flex;
@@ -28,7 +28,6 @@
                 repeating-linear-gradient(45deg, rgba(100, 150, 50, 0.15) 0px, rgba(100, 150, 50, 0.15) 2px, transparent 2px, transparent 10px);
         }
 
-        /* floating fireflies / magical particles */
         body::before {
             content: '';
             position: fixed;
@@ -64,7 +63,6 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
         
-        /* Stats Bar – rich wood with jewel inlay */
         .stats-bar {
             background: #2d3e2a;
             border-radius: 30px 30px 20px 20px;
@@ -104,12 +102,11 @@
         .stat-value { 
             font-size: 28px; 
             font-weight: 800; 
-            color: #f9e268;  /* bright gold */
+            color: #f9e268;
             text-shadow: 0 0 12px #f9c978, 0 2px 0 #5f4a1a;
             line-height: 1.2;
         }
         
-        /* Tabs – magical stone with glow */
         .tabs {
             display: flex;
             gap: 10px;
@@ -145,7 +142,6 @@
             text-shadow: 0 1px 0 white;
         }
         
-        /* Scrollable Content */
         .scrollable-content {
             flex: 1;
             overflow-y: auto;
@@ -153,6 +149,7 @@
             min-height: 0;
             scrollbar-width: thin;
             scrollbar-color: #f0cf7a #1e3d1e;
+            will-change: transform;
         }
         
         .scrollable-content::-webkit-scrollbar {
@@ -171,7 +168,6 @@
             box-shadow: inset 0 0 6px #ffefb0;
         }
         
-        /* Realm content – glowing grove */
         .realm-content {
             background: #1d3a24;
             border-radius: 40px 40px 30px 30px;
@@ -205,7 +201,6 @@
             font-weight: 700;
         }
         
-        /* Offline Earnings – magical glade (butterfly removed) */
         .offline-earnings {
             background: #1d4324;
             border: 3px solid #fbdd88;
@@ -217,8 +212,6 @@
             box-shadow: inset 0 0 40px #4d7a42, 0 10px 0 #1f421f;
             background-image: radial-gradient(circle at 70% 20%, #4cae4c, transparent 70%);
         }
-        
-        /* butterfly/sparkle completely removed */
         
         .earnings-title {
             color: #fff1b5;
@@ -323,9 +316,9 @@
             box-shadow: 0 0 20px #eaffb0;
             width: 0%;
             transition: width 0.3s;
+            will-change: width;
         }
         
-        /* Account Actions */
         .account-actions {
             margin-top: 28px;
             padding-top: 22px;
@@ -360,7 +353,6 @@
             box-shadow: 0 10px 0 #2d1f1a;
         }
         
-        /* Modal – enchanted */
         .modal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -433,7 +425,6 @@
             font-size: 16px;
         }
         
-        /* Merge Chamber – glowing stone circle */
         .merge-chamber {
             background: #1b4727;
             border-radius: 80px 80px 40px 40px;
@@ -445,21 +436,19 @@
             background-image: radial-gradient(circle at 30% 30%, #4a954a, #15441c);
         }
         
-        /* Merge Chamber title - REDUCED FONT SIZE to fit one line */
         .chamber-title {
             color: #fff0bb;
             text-align: center;
             margin-bottom: 18px;
-            font-size: 22px;      /* reduced from 26px to fit one line */
+            font-size: 22px;
             letter-spacing: 2px;
             font-weight: 700;
             text-shadow: 0 0 15px #fdffc0, 0 3px 0 #336633;
-            white-space: nowrap;   /* prevent wrapping */
+            white-space: nowrap;
             overflow: hidden;
             max-width: 100%;
         }
         
-        /* Reset button – glowing rune */
         .reset-btn {
             position: absolute;
             top: 15px;
@@ -494,7 +483,6 @@
             box-shadow: none;
         }
         
-        /* Merge size selector – gemstones */
         .merge-size-selector {
             display: flex;
             justify-content: center;
@@ -526,7 +514,6 @@
             transform: scale(1.05);
         }
         
-        /* glowing mushrooms / crystals as slot indicators */
         .slot-indicators {
             display: flex;
             gap: 15px;
@@ -537,7 +524,7 @@
         .slot-circle {
             width: 24px;
             height: 24px;
-            border-radius: 30% 70% 40% 60% / 50% 40% 60% 50%; /* crystal shape */
+            border-radius: 30% 70% 40% 60% / 50% 40% 60% 50%;
             background: #3c6e3c;
             border: 2px solid #7baa48;
             transition: all 0.3s;
@@ -546,7 +533,7 @@
         }
         
         .slot-circle.filled {
-            background: #b5ff8f;  /* bright bioluminescent */
+            background: #b5ff8f;
             box-shadow: 0 0 30px #adff86, 0 4px 0 #368036;
             border-color: #fdffcf;
             transform: rotate(0deg) scale(1.2);
@@ -585,7 +572,6 @@
             margin-top: 20px;
         }
         
-        /* Quick Fill button - smaller size */
         .quick-fill-btn {
             width: 100%;
             background: #3c783c;
@@ -615,7 +601,6 @@
             filter: grayscale(80%);
         }
         
-        /* Merge button - smaller size, ALWAYS shows "MERGE" */
         .merge-button {
             flex: 2;
             padding: 12px 6px;
@@ -632,7 +617,6 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             line-height: 1.2;
-            /* Always show MERGE - dynamic text will be set to "MERGE" in JS */
         }
         
         .merge-button:hover:not(:disabled) {
@@ -657,7 +641,6 @@
             50% { box-shadow: 0 8px 0 #8b611f, 0 0 60px #ffffc0; }
         }
         
-        /* Cards grid - MODIFIED: centered with 25% smaller cards */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -665,13 +648,13 @@
             margin-top: 8px;
             justify-items: center;
             align-items: center;
+            contain: content;
         }
         
-        /* Card - MODIFIED: 25% smaller */
         .card {
-            aspect-ratio: 1.5/2.25; /* 25% smaller than 2/3 */
-            width: 90%; /* relative to grid cell */
-            max-width: 110px; /* limit maximum size */
+            aspect-ratio: 1.5/2.25;
+            width: 90%;
+            max-width: 110px;
             border-radius: 8px 12px 8px 12px;
             padding: 3px 2px;
             display: flex;
@@ -689,9 +672,9 @@
             color: #1f2b0f;
             text-shadow: 0 1px 2px rgba(255, 255, 200, 0.8);
             background-image: radial-gradient(circle at 20% 20%, rgba(255,255,220,0.5), transparent 60%);
+            will-change: transform, box-shadow;
         }
 
-        /* wood grain effect */
         .card::after {
             content: '';
             position: absolute;
@@ -718,7 +701,6 @@
             box-shadow: 0 5px 0 #1a3b1a, 0 0 25px #fefecd;
         }
         
-        /* Rarity colors – vivid jewel tones */
         .card.common { 
             background: linear-gradient(145deg, #b59765, #8b6f48); 
             border-color: #c8b18b;
@@ -780,7 +762,7 @@
         }
         
         .card-word {
-            font-size: 10px; /* scaled down from 13px */
+            font-size: 10px;
             font-weight: 800;
             margin-bottom: 1px;
             letter-spacing: 0.2px;
@@ -791,7 +773,7 @@
         }
         
         .card-rarity {
-            font-size: 6px; /* scaled down from 8px */
+            font-size: 6px;
             text-transform: uppercase;
             background: rgba(0, 0, 0, 0.4);
             padding: 1px 3px;
@@ -830,7 +812,6 @@
             border: 1px solid gold;
         }
         
-        /* Packs Section – vibrant */
         .packs-content {
             background: #1d4527;
             border-radius: 50px;
@@ -913,7 +894,6 @@
             to { opacity: 1; transform: scale(1); }
         }
         
-        /* Toast */
         .toast {
             position: fixed;
             top: 25px;
@@ -930,9 +910,9 @@
             box-shadow: 0 12px 0 #0f3a0f, 0 0 50px #d4ffaa;
             backdrop-filter: blur(8px);
             text-align: center;
+            pointer-events: none;
         }
         
-        /* Loading Overlay */
         .loading-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -966,7 +946,6 @@
         @keyframes successFlash { 50% { box-shadow: 0 0 80px #aaffaa, 0 15px 0 #1d4f1d; } }
         @keyframes failureFlash { 50% { box-shadow: 0 0 80px #ffa07a, 0 15px 0 #541e1e; } }
         
-        /* Heading for collection - consistent size */
         .collection-heading {
             color: #fff2b0;
             margin-bottom: 16px;
@@ -974,28 +953,35 @@
             text-align: center;
             text-shadow: 0 2px 0 #2d602d;
         }
+
+        /* Optimized rendering classes */
+        .card-placeholder {
+            aspect-ratio: 1.5/2.25;
+            width: 90%;
+            max-width: 110px;
+            border-radius: 8px 12px 8px 12px;
+            background: rgba(30, 50, 30, 0.3);
+            border: 2px dashed #7a9f5a;
+        }
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
     </div>
     
-    <!-- Confirmation Modal -->
     <div class="modal" id="confirmModal">
         <div class="modal-content">
             <div class="modal-title" id="modalTitle">Confirm Action</div>
             <div class="modal-text" id="modalText">Are you sure?</div>
             <div class="modal-buttons">
-                <button class="modal-cancel" onclick="hideModal()">Cancel</button>
-                <button class="modal-confirm" id="modalConfirmBtn" onclick="executeConfirmedAction()">Delete</button>
+                <button class="modal-cancel" id="modalCancelBtn">Cancel</button>
+                <button class="modal-confirm" id="modalConfirmBtn">Delete</button>
             </div>
         </div>
     </div>
 
     <div class="game-container">
-        <!-- Stats -->
         <div class="stats-bar">
             <div class="stat-item">
                 <div class="stat-label">CARDS</div>
@@ -1011,22 +997,18 @@
             </div>
         </div>
         
-        <!-- Tabs -->
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('realm')">REALM</div>
-            <div class="tab" onclick="switchTab('merge')">MERGE</div>
-            <div class="tab" onclick="switchTab('packs')">PACKS</div>
+            <div class="tab active" data-tab="realm">REALM</div>
+            <div class="tab" data-tab="merge">MERGE</div>
+            <div class="tab" data-tab="packs">PACKS</div>
         </div>
         
-        <!-- Scrollable Content -->
         <div class="scrollable-content" id="scrollableContent">
-            <!-- Realm Tab -->
             <div id="realmTab">
                 <div class="realm-content">
                     <div class="realm-title">🌳 Enchanted Realm</div>
                     <p style="margin-bottom: 18px; color: #e5f5c5; font-size: 16px;">Magical words await in the glowing woods...</p>
                     
-                    <!-- Offline Earnings (butterfly/sparkle removed) -->
                     <div class="offline-earnings">
                         <div class="earnings-title">
                             <span>✨ Glowing Accumulation</span>
@@ -1053,12 +1035,11 @@
                             <span>Max 24h</span>
                         </div>
                         
-                        <button class="collect-btn" id="collectBtn" onclick="collectOfflineDust()" disabled>
+                        <button class="collect-btn" id="collectBtn" disabled>
                             Collect Dust
                         </button>
                     </div>
                     
-                    <!-- Collection Progress – vine style -->
                     <div style="background: #1f4a2a; border-radius: 30px; padding: 16px; margin-bottom: 20px; border: 2px solid #dbb15a;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px;">
                             <span>🌿 Lexicon Growth</span>
@@ -1069,35 +1050,28 @@
                         </div>
                     </div>
                     
-                    <!-- Recent Cards Preview - with reduced card size -->
                     <h4 style="color: #f8efb0; margin: 16px 0 10px; font-size: 18px; display: flex; align-items: center; gap: 8px;">✨ Recent Whispers</h4>
                     <div class="cards-grid" id="recentCardsGrid"></div>
                     
-                    <!-- Account Actions -->
                     <div class="account-actions">
                         <div class="account-actions-title">⚔️ Mystic Account</div>
-                        <button class="delete-btn" onclick="showDeleteConfirmation()">🗑️ Delete Account</button>
+                        <button class="delete-btn" id="deleteAccountBtn">🗑️ Delete Account</button>
                     </div>
                 </div>
             </div>
             
-            <!-- Merge Tab -->
             <div id="mergeTab" style="display: none;">
-                <!-- Merge Chamber -->
-                <div class="merge-chamber">
+                <div class="merge-chamber" id="mergeChamber">
                     <div class="chamber-title">✧ MERGE CHAMBER ✧</div>
                     
-                    <!-- Reset Button -->
-                    <div class="reset-btn" id="resetBtn" onclick="resetSelection()" title="Clear selection">↺</div>
+                    <div class="reset-btn" id="resetBtn" title="Clear selection">↺</div>
                     
-                    <!-- Merge Size Selector -->
                     <div class="merge-size-selector">
-                        <button class="size-btn active" onclick="setMergeSize(3)">3</button>
-                        <button class="size-btn" onclick="setMergeSize(4)">4</button>
-                        <button class="size-btn" onclick="setMergeSize(5)">5</button>
+                        <button class="size-btn active" data-size="3">3</button>
+                        <button class="size-btn" data-size="4">4</button>
+                        <button class="size-btn" data-size="5">5</button>
                     </div>
                     
-                    <!-- Crystal Indicators -->
                     <div class="slot-indicators">
                         <div class="slot-circle" id="circle1"></div>
                         <div class="slot-circle" id="circle2"></div>
@@ -1106,52 +1080,47 @@
                         <div class="slot-circle" id="circle5"></div>
                     </div>
                     
-                    <!-- Preview Text and Chance Display -->
                     <div class="preview-text" id="previewText">Select same-rarity cards</div>
                     <div class="chance-display" id="chanceDisplay"></div>
                     
-                    <!-- Quick Fill and Merge Button Row -->
                     <div class="action-row">
                         <div class="quick-fill">
-                            <button class="quick-fill-btn" id="quickFillBtn" onclick="quickFillMerge()" disabled>✨ Quick Fill</button>
+                            <button class="quick-fill-btn" id="quickFillBtn" disabled>✨ Quick Fill</button>
                         </div>
-                        <button class="merge-button" id="mergeBtn" onclick="performMerge()" disabled>
+                        <button class="merge-button" id="mergeBtn" disabled>
                             MERGE
                         </button>
                     </div>
                 </div>
                 
-                <!-- Card Grid with reduced card sizing - now centered with 25% smaller cards -->
                 <div style="background: #1c4828; border-radius: 50px; padding: 20px 16px; margin-top: 12px; border: 2px solid #e9c469;">
                     <h3 class="collection-heading">✨ Your Magical Collection</h3>
                     <div class="cards-grid" id="mergeGrid"></div>
                 </div>
             </div>
             
-            <!-- Packs Tab -->
             <div id="packsTab" style="display: none;">
                 <div class="packs-content">
                     <div class="pack-title">🌙 MYSTIC PACKS</div>
                     
                     <div class="pack-grid">
-                        <div class="pack" onclick="openPack('basic')" id="basicPack">
+                        <div class="pack" data-pack="basic">
                             <div class="pack-icon">📦</div>
                             <div class="pack-name">BASIC</div>
                             <div class="pack-price">1 Dust</div>
                         </div>
-                        <div class="pack" onclick="openPack('grand')" id="grandPack">
+                        <div class="pack" data-pack="grand">
                             <div class="pack-icon">🎁</div>
                             <div class="pack-name">GRAND</div>
                             <div class="pack-price">200 Dust</div>
                         </div>
-                        <div class="pack" onclick="openPack('premium')" id="premiumPack">
+                        <div class="pack" data-pack="premium">
                             <div class="pack-icon">💎</div>
                             <div class="pack-name">PREMIUM</div>
                             <div class="pack-price">500 Dust</div>
                         </div>
                     </div>
                     
-                    <!-- Pack Results -->
                     <div style="margin-top: 25px;">
                         <h4 style="color: #ffefb0; margin-bottom: 15px; font-size: 18px;">✨ Newly Discovered</h4>
                         <div class="cards-grid" id="packResultsGrid"></div>
@@ -1162,465 +1131,873 @@
     </div>
     
     <script>
-        // ---------- EXACT ORIGINAL MECHANICS – NO CHANGES (except merge button text) ----------
-        let tg = window.Telegram?.WebApp;
-        if (tg) { tg.ready(); tg.expand(); if (tg.setHeaderColor) tg.setHeaderColor('#0a0a1a'); if (tg.setBackgroundColor) tg.setBackgroundColor('#0a0a1a'); }
-        
-        // Game State
-        let collection = [];
-        let dust = 150;
-        let selectedCards = [];
-        let mergeSize = 3;
-        let pityCounters = { 'uncommon→rare': 0, 'rare→epic': 0, 'epic→legendary': 0, 'legendary→mythic': 0 };
-        
-        // Offline Earnings State
-        let lastLoginTime = Date.now();
-        let accumulatedOfflineDust = 0;
-        const DUST_PER_INTERVAL = 1;
-        const INTERVAL_MS = 5 * 60 * 1000;
-        const MAX_ACCUMULATION_MS = 24 * 60 * 60 * 1000;
-        
-        // Modal State
-        let pendingAction = null;
-        let offlineTimer = null;
-        
-        // Card Pools
-        const WORDS = {
-            common: ['SUN', 'MOON', 'STAR', 'TREE', 'FIRE', 'WATER', 'WIND', 'ROCK', 'BIRD', 'FISH'],
-            uncommon: ['FLAME', 'OCEAN', 'FOREST', 'THUNDER', 'SHADOW', 'CRYSTAL', 'EMBER', 'FROST'],
-            rare: ['PHOENIX', 'DRAGON', 'UNICORN', 'SPHINX', 'ILLUSION', 'NIGHTMARE'],
-            epic: ['ENIGMA', 'ETERNITY', 'COSMOS', 'NEBULA', 'GALAXY', 'DIMENSION'],
-            legendary: ['SERENDIPITY', 'ETHEREAL', 'LUMINESCENT', 'AURORA', 'ZEPHYR'],
-            mythic: ['ABRACADABRA', 'ALAKAZAM', 'PRESTIGE', 'OMNIVERSE']
-        };
-        
-        const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
-        const RARITY_NAMES = { common:'COMMON', uncommon:'UNCOMMON', rare:'RARE', epic:'EPIC', legendary:'LEGENDARY', mythic:'MYTHIC' };
-        
-        const SUCCESS_CHANCES = {
-            '3:common→uncommon':1.0,'3:uncommon→rare':0.8,'3:rare→epic':0.5,'3:epic→legendary':0.3,'3:legendary→mythic':0.1,
-            '4:common→uncommon':1.0,'4:uncommon→rare':0.9,'4:rare→epic':0.65,'4:epic→legendary':0.45,'4:legendary→mythic':0.2,
-            '5:common→uncommon':1.0,'5:uncommon→rare':1.0,'5:rare→epic':0.8,'5:epic→legendary':0.6,'5:legendary→mythic':0.3
-        };
-        
-        const DUST_REWARDS = {
-            '3:common→uncommon':5,'3:uncommon→rare':10,'3:rare→epic':25,'3:epic→legendary':100,'3:legendary→mythic':200,
-            '4:common→uncommon':7,'4:uncommon→rare':15,'4:rare→epic':37,'4:epic→legendary':150,'4:legendary→mythic':300,
-            '5:common→uncommon':10,'5:uncommon→rare':20,'5:rare→epic':50,'5:epic→legendary':200,'5:legendary→mythic':400
-        };
-        
-        const PITY_INCREMENT = 0.05;
-        const MAX_PITY = 0.5;
-        
-        // Reset selection function
-        window.resetSelection = function() {
-            if (selectedCards.length === 0) { showToast('No cards to clear'); return; }
-            selectedCards = [];
-            showToast('Selection cleared');
-            renderMergeGrid();
-            updateMergeButton();
-            updateSlotIndicators();
-            updateResetButton();
-        };
-        
-        function updateResetButton() {
-            const resetBtn = document.getElementById('resetBtn');
-            if (resetBtn) {
+        (function() {
+            // ---------- OPTIMIZED LEXICON CARDS ----------
+            // Performance improvements:
+            // 1. Debounced saves and UI updates
+            // 2. Cached grouped card data
+            // 3. RAF throttled animations
+            // 4. Optimized event delegation
+            // 5. Reduced DOM operations
+            // 6. Memoized calculations
+            
+            let tg = window.Telegram?.WebApp;
+            if (tg) { tg.ready(); tg.expand(); if (tg.setHeaderColor) tg.setHeaderColor('#0a0a1a'); if (tg.setBackgroundColor) tg.setBackgroundColor('#0a0a1a'); }
+            
+            // Game State
+            let collection = [];
+            let dust = 150;
+            let selectedCards = [];
+            let mergeSize = 3;
+            let pityCounters = { 'uncommon→rare': 0, 'rare→epic': 0, 'epic→legendary': 0, 'legendary→mythic': 0 };
+            
+            // Offline Earnings State
+            let lastLoginTime = Date.now();
+            let accumulatedOfflineDust = 0;
+            const DUST_PER_INTERVAL = 1;
+            const INTERVAL_MS = 5 * 60 * 1000;
+            const MAX_ACCUMULATION_MS = 24 * 60 * 60 * 1000;
+            
+            // UI State
+            let activeTab = 'realm';
+            let rafTimer = null;
+            let saveTimeout = null;
+            let uiUpdateTimeout = null;
+            let cachedGroupedData = null;
+            let lastCollectionVersion = 0;
+            let collectionVersion = 0;
+            
+            // Card Pools
+            const WORDS = {
+                common: ['SUN', 'MOON', 'STAR', 'TREE', 'FIRE', 'WATER', 'WIND', 'ROCK', 'BIRD', 'FISH'],
+                uncommon: ['FLAME', 'OCEAN', 'FOREST', 'THUNDER', 'SHADOW', 'CRYSTAL', 'EMBER', 'FROST'],
+                rare: ['PHOENIX', 'DRAGON', 'UNICORN', 'SPHINX', 'ILLUSION', 'NIGHTMARE'],
+                epic: ['ENIGMA', 'ETERNITY', 'COSMOS', 'NEBULA', 'GALAXY', 'DIMENSION'],
+                legendary: ['SERENDIPITY', 'ETHEREAL', 'LUMINESCENT', 'AURORA', 'ZEPHYR'],
+                mythic: ['ABRACADABRA', 'ALAKAZAM', 'PRESTIGE', 'OMNIVERSE']
+            };
+            
+            const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
+            const RARITY_NAMES = { common:'COMMON', uncommon:'UNCOMMON', rare:'RARE', epic:'EPIC', legendary:'LEGENDARY', mythic:'MYTHIC' };
+            
+            const SUCCESS_CHANCES = {
+                '3:common→uncommon':1.0,'3:uncommon→rare':0.8,'3:rare→epic':0.5,'3:epic→legendary':0.3,'3:legendary→mythic':0.1,
+                '4:common→uncommon':1.0,'4:uncommon→rare':0.9,'4:rare→epic':0.65,'4:epic→legendary':0.45,'4:legendary→mythic':0.2,
+                '5:common→uncommon':1.0,'5:uncommon→rare':1.0,'5:rare→epic':0.8,'5:epic→legendary':0.6,'5:legendary→mythic':0.3
+            };
+            
+            const DUST_REWARDS = {
+                '3:common→uncommon':5,'3:uncommon→rare':10,'3:rare→epic':25,'3:epic→legendary':100,'3:legendary→mythic':200,
+                '4:common→uncommon':7,'4:uncommon→rare':15,'4:rare→epic':37,'4:epic→legendary':150,'4:legendary→mythic':300,
+                '5:common→uncommon':10,'5:uncommon→rare':20,'5:rare→epic':50,'5:epic→legendary':200,'5:legendary→mythic':400
+            };
+            
+            const PITY_INCREMENT = 0.05;
+            const MAX_PITY = 0.5;
+            
+            // DOM Element cache
+            const dom = {
+                totalCards: document.getElementById('totalCards'),
+                uniqueCards: document.getElementById('uniqueCards'),
+                dustAmount: document.getElementById('dustAmount'),
+                accumulatedDust: document.getElementById('accumulatedDust'),
+                collectBtn: document.getElementById('collectBtn'),
+                timeProgress: document.getElementById('timeProgress'),
+                timeUntilNext: document.getElementById('timeUntilNext'),
+                progressBar: document.getElementById('progressBar'),
+                progressPercent: document.getElementById('progressPercent'),
+                recentCardsGrid: document.getElementById('recentCardsGrid'),
+                mergeGrid: document.getElementById('mergeGrid'),
+                packResultsGrid: document.getElementById('packResultsGrid'),
+                previewText: document.getElementById('previewText'),
+                chanceDisplay: document.getElementById('chanceDisplay'),
+                mergeBtn: document.getElementById('mergeBtn'),
+                quickFillBtn: document.getElementById('quickFillBtn'),
+                resetBtn: document.getElementById('resetBtn'),
+                mergeChamber: document.getElementById('mergeChamber'),
+                loadingOverlay: document.getElementById('loadingOverlay'),
+                confirmModal: document.getElementById('confirmModal'),
+                modalTitle: document.getElementById('modalTitle'),
+                modalText: document.getElementById('modalText'),
+                modalConfirm: document.getElementById('modalConfirmBtn'),
+                modalCancel: document.getElementById('modalCancelBtn')
+            };
+            
+            const circles = [
+                document.getElementById('circle1'),
+                document.getElementById('circle2'),
+                document.getElementById('circle3'),
+                document.getElementById('circle4'),
+                document.getElementById('circle5')
+            ];
+            
+            // Helper functions
+            function debouncedSave() {
+                if (saveTimeout) clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    try {
+                        localStorage.setItem('lexiconCards', JSON.stringify({ 
+                            collection, 
+                            dust, 
+                            pityCounters, 
+                            lastLoginTime, 
+                            accumulatedOfflineDust 
+                        }));
+                        saveTimeout = null;
+                    } catch (e) {}
+                }, 200);
+            }
+            
+            function debouncedUIUpdate() {
+                if (uiUpdateTimeout) cancelAnimationFrame(uiUpdateTimeout);
+                uiUpdateTimeout = requestAnimationFrame(() => {
+                    updateStats();
+                    if (activeTab === 'realm') updateRealmTab();
+                    else if (activeTab === 'merge') {
+                        renderMergeGrid();
+                        updateMergeUI();
+                    }
+                    updateOfflineUI();
+                    uiUpdateTimeout = null;
+                });
+            }
+            
+            function incrementCollectionVersion() {
+                collectionVersion++;
+                cachedGroupedData = null;
+            }
+            
+            function getUniqueCardCount() {
+                return new Set(collection.map(c => c.word + c.rarity)).size;
+            }
+            
+            function getCollectionProgress() {
+                const total = Object.values(WORDS).flat().length;
+                const owned = getUniqueCardCount();
+                return Math.round((owned / total) * 100);
+            }
+            
+            function updateStats() {
+                if (dom.totalCards) dom.totalCards.textContent = collection.length;
+                if (dom.uniqueCards) dom.uniqueCards.textContent = getUniqueCardCount();
+                if (dom.dustAmount) dom.dustAmount.textContent = dust;
+                const p = getCollectionProgress();
+                if (dom.progressBar) dom.progressBar.style.width = p + '%';
+                if (dom.progressPercent) dom.progressPercent.textContent = p + '%';
+            }
+            
+            // Card grouping with cache
+            function getGroupedCards() {
+                if (cachedGroupedData && lastCollectionVersion === collectionVersion) {
+                    return cachedGroupedData;
+                }
+                
+                const grouped = {};
+                collection.forEach(c => {
+                    const key = c.word + '|' + c.rarity;
+                    if (!grouped[key]) {
+                        grouped[key] = { 
+                            cards: [], 
+                            word: c.word, 
+                            rarity: c.rarity, 
+                            count: 0,
+                            cardIds: new Set()
+                        };
+                    }
+                    grouped[key].cards.push(c);
+                    grouped[key].count++;
+                    grouped[key].cardIds.add(c.id);
+                });
+                
+                const sorted = Object.values(grouped).sort((a, b) => {
+                    const r = RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
+                    if (r !== 0) return r;
+                    return a.word.localeCompare(b.word);
+                });
+                
+                cachedGroupedData = sorted;
+                lastCollectionVersion = collectionVersion;
+                return sorted;
+            }
+            
+            // Optimized card element creation with pooling (simplified)
+            function createCardElement(card, isMergeable = false, highlightRarity = null, stackInfo = null) {
+                const div = document.createElement('div');
+                div.className = `card ${card.rarity}`;
+                
+                const isSelected = selectedCards.includes(card.id);
+                let selectedCount = 0;
+                
+                if (stackInfo && stackInfo.count > 1) {
+                    div.classList.add('stacked');
+                    
+                    if (stackInfo.cardIds) {
+                        selectedCount = selectedCards.filter(id => stackInfo.cardIds.has(id)).length;
+                        if (selectedCount > 0 && selectedCount < stackInfo.count) {
+                            div.classList.add('partial-selected');
+                        }
+                    }
+                }
+                
+                if (isMergeable && isSelected) div.classList.add('selected');
+                if (highlightRarity && card.rarity === highlightRarity && !isSelected) div.classList.add('highlight');
+                if (highlightRarity && card.rarity !== highlightRarity && selectedCards.length > 0) div.classList.add('dimmed');
+                
+                let html = `<div class="card-word">${card.word}</div>`;
+                html += `<div class="card-rarity">${RARITY_NAMES[card.rarity]}</div>`;
+                
+                if (stackInfo && stackInfo.count > 1) {
+                    html += `<div class="card-count">x${stackInfo.count}</div>`;
+                }
+                
+                if (selectedCount > 0) {
+                    html += `<div class="card-selected-count">${selectedCount}/${stackInfo ? stackInfo.count : 1}</div>`;
+                }
+                
+                div.innerHTML = html;
+                
+                if (isMergeable) {
+                    div._cardData = card;
+                    div._stackInfo = stackInfo;
+                }
+                
+                return div;
+            }
+            
+            // Event handlers using delegation
+            function handleCardClick(e) {
+                const cardDiv = e.target.closest('.card');
+                if (!cardDiv || activeTab !== 'merge') return;
+                
+                const card = cardDiv._cardData;
+                const stackInfo = cardDiv._stackInfo;
+                if (!card) return;
+                
+                if (stackInfo && stackInfo.count > 1) {
+                    const selectedFromStack = selectedCards.filter(id => stackInfo.cardIds.has(id));
+                    
+                    if (selectedFromStack.length === stackInfo.count) {
+                        const toRemove = selectedFromStack[selectedFromStack.length - 1];
+                        const idx = selectedCards.indexOf(toRemove);
+                        if (idx !== -1) {
+                            selectedCards.splice(idx, 1);
+                            showToast(`Removed ${card.word}`);
+                        }
+                    } else if (selectedFromStack.length > 0 && selectedFromStack.length < stackInfo.count) {
+                        const unselected = stackInfo.cards.find(c => !selectedCards.includes(c.id));
+                        if (unselected && canAddToMerge(unselected)) {
+                            selectedCards.push(unselected.id);
+                            showToast(`Added ${unselected.word}`);
+                        }
+                    } else {
+                        const unselected = stackInfo.cards.find(c => !selectedCards.includes(c.id));
+                        if (unselected && canAddToMerge(unselected)) {
+                            selectedCards.push(unselected.id);
+                            showToast(`Added ${unselected.word}`);
+                        }
+                    }
+                } else {
+                    if (selectedCards.includes(card.id)) {
+                        const idx = selectedCards.indexOf(card.id);
+                        selectedCards.splice(idx, 1);
+                        showToast(`Removed ${card.word}`);
+                    } else if (canAddToMerge(card)) {
+                        selectedCards.push(card.id);
+                        showToast(`Added ${card.word}`);
+                    }
+                }
+                
+                incrementCollectionVersion();
+                debouncedUIUpdate();
+                updateResetBtnState();
+            }
+            
+            function canAddToMerge(card) {
+                if (selectedCards.length >= mergeSize) {
+                    showToast(`Max ${mergeSize} cards`);
+                    return false;
+                }
+                if (selectedCards.length > 0) {
+                    const first = collection.find(c => c.id === selectedCards[0]);
+                    if (first && first.rarity !== card.rarity) {
+                        showToast('Cards must be same rarity');
+                        return false;
+                    }
+                }
+                if (card.rarity === 'mythic') {
+                    showToast('Mythic cannot be merged');
+                    return false;
+                }
+                return true;
+            }
+            
+            // Merge functions
+            function isMergePossible() {
+                if (selectedCards.length !== mergeSize) return false;
+                const cards = collection.filter(c => selectedCards.includes(c.id));
+                if (cards.length !== mergeSize) return false;
+                const first = cards[0].rarity;
+                return cards.every(c => c.rarity === first) && first !== 'mythic';
+            }
+            
+            function getCurrentMergeDetails() {
+                if (!isMergePossible()) return null;
+                const first = collection.find(c => c.id === selectedCards[0]);
+                const from = first.rarity;
+                const to = RARITY_ORDER[RARITY_ORDER.indexOf(from) + 1];
+                const key = mergeSize + ':' + from + '→' + to;
+                const pityKey = from + '→' + to;
+                const base = SUCCESS_CHANCES[key] || 0;
+                const bonus = Math.min(pityCounters[pityKey] || 0, MAX_PITY);
+                return { fromRarity: from, toRarity: to, mergeKey: key, pityKey: pityKey, chance: base + bonus };
+            }
+            
+            function performMerge() {
+                if (!isMergePossible()) {
+                    showToast('Select cards');
+                    return;
+                }
+                
+                const details = getCurrentMergeDetails();
+                if (!details) return;
+                
+                const randomWord = WORDS[details.toRarity][Math.floor(Math.random() * WORDS[details.toRarity].length)];
+                const cards = collection.filter(c => selectedCards.includes(c.id));
+                
+                cards.forEach(c => {
+                    const idx = collection.findIndex(coll => coll.id === c.id);
+                    if (idx !== -1) collection.splice(idx, 1);
+                });
+                
+                selectedCards = [];
+                
+                if (Math.random() < details.chance) {
+                    const newCard = { id: Date.now() + Math.random(), word: randomWord, rarity: details.toRarity };
+                    collection.push(newCard);
+                    pityCounters[details.pityKey] = 0;
+                    showToast(`✨ SUCCESS! Got ${newCard.word}`);
+                    if (dom.mergeChamber) {
+                        dom.mergeChamber.classList.add('merge-flash-success');
+                        setTimeout(() => dom.mergeChamber.classList.remove('merge-flash-success'), 500);
+                    }
+                    if (details.toRarity === 'mythic') showToast('🎉 MYTHIC UNLOCKED!');
+                } else {
+                    const dustReward = DUST_REWARDS[details.mergeKey] || 5;
+                    dust += dustReward;
+                    pityCounters[details.pityKey] = (pityCounters[details.pityKey] || 0) + PITY_INCREMENT;
+                    showToast(`💔 Failed +${dustReward} dust`);
+                    if (dom.mergeChamber) {
+                        dom.mergeChamber.classList.add('merge-flash-failure');
+                        setTimeout(() => dom.mergeChamber.classList.remove('merge-flash-failure'), 500);
+                    }
+                }
+                
+                incrementCollectionVersion();
+                debouncedSave();
+                debouncedUIUpdate();
+            }
+            
+            function resetSelection() {
                 if (selectedCards.length === 0) {
-                    resetBtn.disabled = true;
-                    resetBtn.style.opacity = '0.3';
+                    showToast('No cards to clear');
+                    return;
+                }
+                selectedCards = [];
+                showToast('Selection cleared');
+                incrementCollectionVersion();
+                debouncedUIUpdate();
+            }
+            
+            function quickFillMerge() {
+                if (selectedCards.length === 0) {
+                    showToast('Select a first card');
+                    return;
+                }
+                if (selectedCards.length >= mergeSize) return;
+                
+                const first = collection.find(c => c.id === selectedCards[0]);
+                if (!first) return;
+                
+                const matching = collection.filter(c => c.rarity === first.rarity && !selectedCards.includes(c.id));
+                const need = mergeSize - selectedCards.length;
+                const toAdd = matching.slice(0, need);
+                
+                toAdd.forEach(c => selectedCards.push(c.id));
+                
+                if (toAdd.length > 0) {
+                    showToast(`✨ Added ${toAdd.length} cards`);
+                    incrementCollectionVersion();
+                    debouncedUIUpdate();
                 } else {
-                    resetBtn.disabled = false;
-                    resetBtn.style.opacity = '1';
+                    showToast('No matching cards');
                 }
             }
-        }
-        
-        function updateSlotIndicators() {
-            for (let i = 1; i <= 5; i++) {
-                const circle = document.getElementById(`circle${i}`);
-                if (!circle) continue;
-                if (i <= mergeSize) {
-                    circle.classList.remove('inactive');
-                    if (selectedCards.length >= i) circle.classList.add('filled');
-                    else circle.classList.remove('filled');
+            
+            // UI Rendering
+            function renderMergeGrid() {
+                if (!dom.mergeGrid || activeTab !== 'merge') return;
+                
+                const grouped = getGroupedCards();
+                if (grouped.length === 0) {
+                    dom.mergeGrid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No cards to merge</div><button class="empty-state-button" data-switch-tab="packs">Open Packs</button></div>';
+                    return;
+                }
+                
+                let highlight = null;
+                if (selectedCards.length > 0) {
+                    const first = collection.find(c => c.id === selectedCards[0]);
+                    if (first) highlight = first.rarity;
+                }
+                
+                const fragment = document.createDocumentFragment();
+                grouped.forEach(g => {
+                    fragment.appendChild(createCardElement(g.cards[0], true, highlight, { 
+                        count: g.count, 
+                        cards: g.cards,
+                        cardIds: g.cardIds
+                    }));
+                });
+                
+                dom.mergeGrid.innerHTML = '';
+                dom.mergeGrid.appendChild(fragment);
+                updateSlotIndicators();
+                updateMergeButtonState();
+            }
+            
+            function updateMergeButtonState() {
+                if (!dom.previewText || !dom.chanceDisplay || !dom.mergeBtn || !dom.quickFillBtn) return;
+                
+                if (isMergePossible()) {
+                    const d = getCurrentMergeDetails();
+                    const percent = Math.round(d.chance * 100);
+                    
+                    dom.previewText.textContent = `Merge ${mergeSize} ${RARITY_NAMES[d.fromRarity]} → ${RARITY_NAMES[d.toRarity]}`;
+                    dom.chanceDisplay.textContent = `${percent}% chance`;
+                    
+                    dom.chanceDisplay.className = 'chance-display';
+                    if (d.chance >= 0.7) dom.chanceDisplay.classList.add('chance-high');
+                    else if (d.chance >= 0.4) dom.chanceDisplay.classList.add('chance-medium');
+                    else dom.chanceDisplay.classList.add('chance-low');
+                    
+                    dom.mergeBtn.disabled = false;
+                    dom.mergeBtn.classList.add('ready');
                 } else {
-                    circle.classList.add('inactive');
-                    circle.classList.remove('filled');
+                    dom.previewText.textContent = `Select ${mergeSize - selectedCards.length} more same-rarity`;
+                    dom.chanceDisplay.textContent = '';
+                    dom.mergeBtn.disabled = true;
+                    dom.mergeBtn.classList.remove('ready');
+                }
+                
+                dom.quickFillBtn.disabled = selectedCards.length === 0 || selectedCards.length >= mergeSize;
+            }
+            
+            function updateMergeUI() {
+                updateMergeButtonState();
+                updateSlotIndicators();
+                updateResetBtnState();
+            }
+            
+            function updateSlotIndicators() {
+                for (let i = 0; i < 5; i++) {
+                    if (!circles[i]) continue;
+                    if (i < mergeSize) {
+                        circles[i].classList.remove('inactive');
+                        if (selectedCards.length > i) circles[i].classList.add('filled');
+                        else circles[i].classList.remove('filled');
+                    } else {
+                        circles[i].classList.add('inactive');
+                        circles[i].classList.remove('filled');
+                    }
                 }
             }
-        }
-        
-        window.setMergeSize = function(size) {
-            mergeSize = size;
-            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.size-btn')[size-3].classList.add('active');
-            if (selectedCards.length > mergeSize) selectedCards = selectedCards.slice(0, mergeSize);
-            updateSlotIndicators();
-            renderMergeGrid();
-            updateMergeButton();
-            updateResetButton();
-        };
-        
-        function initializeGame() {
-            collection = [];
-            for (let i = 0; i < 12; i++) collection.push({ id: Date.now() + i + Math.random(), word: 'SUN', rarity: 'common' });
-            for (let i = 0; i < 5; i++) collection.push({ id: Date.now() + 100 + i + Math.random(), word: 'MOON', rarity: 'common' });
-            for (let i = 0; i < 3; i++) collection.push({ id: Date.now() + 200 + i + Math.random(), word: 'FLAME', rarity: 'uncommon' });
-            collection.push({ id: Date.now() + 300 + Math.random(), word: 'DRAGON', rarity: 'rare' });
-            loadGame();
-            startOfflineTimer();
-            setMergeSize(3);
-        }
-        
-        function loadGame() {
-            try {
-                const saved = localStorage.getItem('lexiconCards');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    collection = data.collection || collection;
-                    dust = data.dust || 150;
-                    pityCounters = data.pityCounters || pityCounters;
-                    lastLoginTime = data.lastLoginTime || Date.now();
-                    accumulatedOfflineDust = data.accumulatedOfflineDust || 0;
-                    calculateOfflineEarnings();
-                } else { lastLoginTime = Date.now(); }
-            } catch (e) {}
-            document.getElementById('loadingOverlay').classList.add('hidden');
-        }
-        
-        function saveGame() {
-            try {
-                localStorage.setItem('lexiconCards', JSON.stringify({ collection, dust, pityCounters, lastLoginTime, accumulatedOfflineDust }));
-            } catch (e) {}
-        }
-        
-        function calculateOfflineEarnings() {
-            const now = Date.now();
-            const timeDiff = Math.min(now - lastLoginTime, MAX_ACCUMULATION_MS);
-            const intervals = Math.floor(timeDiff / INTERVAL_MS);
-            accumulatedOfflineDust = intervals * DUST_PER_INTERVAL;
-            lastLoginTime = now;
-            saveGame();
-        }
-        
-        function startOfflineTimer() {
-            if (offlineTimer) clearInterval(offlineTimer);
-            offlineTimer = setInterval(() => {
-                const timeSince = Date.now() - lastLoginTime;
-                if (timeSince >= INTERVAL_MS && accumulatedOfflineDust < MAX_ACCUMULATION_MS / INTERVAL_MS * DUST_PER_INTERVAL) {
-                    accumulatedOfflineDust += DUST_PER_INTERVAL;
-                    lastLoginTime = Date.now();
-                    saveGame();
+            
+            function updateResetBtnState() {
+                if (dom.resetBtn) {
+                    dom.resetBtn.disabled = selectedCards.length === 0;
+                    dom.resetBtn.style.opacity = selectedCards.length === 0 ? '0.3' : '1';
                 }
-                updateOfflineUI();
-            }, 1000);
-        }
-        
-        function updateOfflineUI() {
-            const acc = document.getElementById('accumulatedDust');
-            const btn = document.getElementById('collectBtn');
-            const prog = document.getElementById('timeProgress');
-            const next = document.getElementById('timeUntilNext');
-            if (acc) acc.textContent = accumulatedOfflineDust;
-            if (btn) {
+            }
+            
+            function updateRealmTab() {
+                if (!dom.recentCardsGrid || activeTab !== 'realm') return;
+                
+                const recent = [...collection].reverse().slice(0, 3);
+                if (recent.length === 0) {
+                    dom.recentCardsGrid.innerHTML = '<div class="empty-state">No cards yet</div>';
+                    return;
+                }
+                
+                const fragment = document.createDocumentFragment();
+                recent.forEach(c => fragment.appendChild(createCardElement(c)));
+                dom.recentCardsGrid.innerHTML = '';
+                dom.recentCardsGrid.appendChild(fragment);
+            }
+            
+            // Offline earnings
+            function calculateOfflineEarnings() {
+                const now = Date.now();
+                const timeDiff = Math.min(now - lastLoginTime, MAX_ACCUMULATION_MS);
+                const intervals = Math.floor(timeDiff / INTERVAL_MS);
+                accumulatedOfflineDust = intervals * DUST_PER_INTERVAL;
+                lastLoginTime = now;
+                debouncedSave();
+            }
+            
+            function collectOfflineDust() {
                 if (accumulatedOfflineDust > 0) {
-                    btn.disabled = false;
-                    btn.classList.add('collectable');
-                    btn.textContent = `Collect ${accumulatedOfflineDust} Dust`;
-                } else {
-                    btn.disabled = true;
-                    btn.classList.remove('collectable');
-                    btn.textContent = 'Collect Dust';
+                    dust += accumulatedOfflineDust;
+                    accumulatedOfflineDust = 0;
+                    lastLoginTime = Date.now();
+                    debouncedSave();
+                    debouncedUIUpdate();
+                    showToast('✨ Collected!');
                 }
             }
-            if (prog) {
-                const p = Math.min(((Date.now() - lastLoginTime) / INTERVAL_MS) * 100, 100);
-                prog.style.width = p + '%';
+            
+            function updateOfflineUI() {
+                if (dom.accumulatedDust) dom.accumulatedDust.textContent = accumulatedOfflineDust;
+                
+                if (dom.collectBtn) {
+                    if (accumulatedOfflineDust > 0) {
+                        dom.collectBtn.disabled = false;
+                        dom.collectBtn.classList.add('collectable');
+                        dom.collectBtn.textContent = `Collect ${accumulatedOfflineDust} Dust`;
+                    } else {
+                        dom.collectBtn.disabled = true;
+                        dom.collectBtn.classList.remove('collectable');
+                        dom.collectBtn.textContent = 'Collect Dust';
+                    }
+                }
+                
+                if (dom.timeProgress) {
+                    const p = Math.min(((Date.now() - lastLoginTime) / INTERVAL_MS) * 100, 100);
+                    dom.timeProgress.style.width = p + '%';
+                }
+                
+                if (dom.timeUntilNext) {
+                    const r = Math.max(INTERVAL_MS - (Date.now() - lastLoginTime), 0);
+                    const m = Math.floor(r / 60000);
+                    const s = Math.floor((r % 60000) / 1000);
+                    dom.timeUntilNext.textContent = `Next: ${m}:${s.toString().padStart(2, '0')}`;
+                }
             }
-            if (next) {
-                const r = Math.max(INTERVAL_MS - (Date.now() - lastLoginTime), 0);
-                const m = Math.floor(r / 60000);
-                const s = Math.floor((r % 60000) / 1000);
-                next.textContent = `Next: ${m}:${s.toString().padStart(2,'0')}`;
+            
+            // Packs
+            function openPack(packType) {
+                let cost = 0;
+                let cards = [];
+                const packEl = document.querySelector(`[data-pack="${packType}"]`);
+                
+                if (packEl) {
+                    packEl.classList.add('opening');
+                    setTimeout(() => packEl.classList.remove('opening'), 500);
+                }
+                
+                switch (packType) {
+                    case 'basic':
+                        cost = 1;
+                        for (let i = 0; i < 5; i++) {
+                            cards.push({ 
+                                id: Date.now() + i + Math.random(), 
+                                word: WORDS.common[Math.floor(Math.random() * WORDS.common.length)], 
+                                rarity: 'common' 
+                            });
+                        }
+                        break;
+                    case 'grand':
+                        cost = 200;
+                        for (let i = 0; i < 4; i++) {
+                            cards.push({ 
+                                id: Date.now() + i + Math.random(), 
+                                word: WORDS.common[Math.floor(Math.random() * WORDS.common.length)], 
+                                rarity: 'common' 
+                            });
+                        }
+                        cards.push({ 
+                            id: Date.now() + 5 + Math.random(), 
+                            word: WORDS.uncommon[Math.floor(Math.random() * WORDS.uncommon.length)], 
+                            rarity: 'uncommon' 
+                        });
+                        break;
+                    case 'premium':
+                        cost = 500;
+                        for (let i = 0; i < 3; i++) {
+                            cards.push({ 
+                                id: Date.now() + i + Math.random(), 
+                                word: WORDS.common[Math.floor(Math.random() * WORDS.common.length)], 
+                                rarity: 'common' 
+                            });
+                        }
+                        if (Math.random() < 0.3) {
+                            cards.push({ 
+                                id: Date.now() + 4 + Math.random(), 
+                                word: WORDS.epic[Math.floor(Math.random() * WORDS.epic.length)], 
+                                rarity: 'epic' 
+                            });
+                        } else {
+                            cards.push({ 
+                                id: Date.now() + 4 + Math.random(), 
+                                word: WORDS.rare[Math.floor(Math.random() * WORDS.rare.length)], 
+                                rarity: 'rare' 
+                            });
+                        }
+                        cards.push({ 
+                            id: Date.now() + 5 + Math.random(), 
+                            word: WORDS.rare[Math.floor(Math.random() * WORDS.rare.length)], 
+                            rarity: 'rare' 
+                        });
+                        break;
+                }
+                
+                if (dust < cost) {
+                    showToast('Not enough dust');
+                    return;
+                }
+                
+                dust -= cost;
+                collection.push(...cards);
+                incrementCollectionVersion();
+                
+                if (dom.packResultsGrid) {
+                    const fragment = document.createDocumentFragment();
+                    cards.forEach((c, idx) => {
+                        const cardEl = createCardElement(c);
+                        cardEl.style.animationDelay = idx * 0.1 + 's';
+                        cardEl.classList.add('pack-result-card');
+                        fragment.appendChild(cardEl);
+                    });
+                    dom.packResultsGrid.innerHTML = '';
+                    dom.packResultsGrid.appendChild(fragment);
+                }
+                
+                showToast(`📦 Opened ${packType} pack!`);
+                debouncedSave();
+                debouncedUIUpdate();
             }
-        }
-        
-        window.collectOfflineDust = function() {
-            if (accumulatedOfflineDust > 0) {
-                dust += accumulatedOfflineDust;
+            
+            // Modal functions
+            function showModal(title, text, action) {
+                if (dom.modalTitle) dom.modalTitle.textContent = title;
+                if (dom.modalText) dom.modalText.textContent = text;
+                dom.confirmModal._pendingAction = action;
+                dom.confirmModal.classList.add('show');
+            }
+            
+            function hideModal() {
+                dom.confirmModal.classList.remove('show');
+                dom.confirmModal._pendingAction = null;
+            }
+            
+            function deleteAccount() {
+                collection = [];
+                for (let i = 0; i < 8; i++) {
+                    collection.push({ 
+                        id: Date.now() + i + Math.random(), 
+                        word: WORDS.common[Math.floor(Math.random() * WORDS.common.length)], 
+                        rarity: 'common' 
+                    });
+                }
+                collection.push({ 
+                    id: Date.now() + 100 + Math.random(), 
+                    word: WORDS.uncommon[Math.floor(Math.random() * WORDS.uncommon.length)], 
+                    rarity: 'uncommon' 
+                });
+                
+                dust = 150;
+                pityCounters = { 'uncommon→rare': 0, 'rare→epic': 0, 'epic→legendary': 0, 'legendary→mythic': 0 };
                 accumulatedOfflineDust = 0;
                 lastLoginTime = Date.now();
-                saveGame();
-                updateUI();
+                selectedCards = [];
+                
+                incrementCollectionVersion();
+                debouncedSave();
+                debouncedUIUpdate();
+                showToast('Account reset to starter pack!');
+            }
+            
+            function showToast(msg) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = msg;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+            }
+            
+            // Tab switching
+            function switchTab(tab) {
+                activeTab = tab;
+                
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+                
+                ['realm', 'merge', 'packs'].forEach(t => {
+                    const el = document.getElementById(t + 'Tab');
+                    if (el) el.style.display = t === tab ? 'block' : 'none';
+                });
+                
+                if (tab === 'merge') {
+                    incrementCollectionVersion();
+                    renderMergeGrid();
+                } else if (tab === 'realm') {
+                    updateRealmTab();
+                } else if (tab === 'packs' && dom.packResultsGrid) {
+                    dom.packResultsGrid.innerHTML = '';
+                }
+                
+                document.getElementById('scrollableContent').scrollTop = 0;
+            }
+            
+            // Event setup using delegation
+            function setupEventDelegation() {
+                // Tab clicks
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        const tabName = e.currentTarget.dataset.tab;
+                        if (tabName) switchTab(tabName);
+                    });
+                });
+                
+                // Merge grid clicks (delegation)
+                if (dom.mergeGrid) {
+                    dom.mergeGrid.addEventListener('click', handleCardClick);
+                }
+                
+                // Pack clicks
+                document.querySelectorAll('[data-pack]').forEach(pack => {
+                    pack.addEventListener('click', (e) => {
+                        const packType = e.currentTarget.dataset.pack;
+                        openPack(packType);
+                    });
+                });
+                
+                // Size selector
+                document.querySelectorAll('[data-size]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const size = parseInt(e.currentTarget.dataset.size, 10);
+                        mergeSize = size;
+                        document.querySelectorAll('[data-size]').forEach(b => b.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        
+                        if (selectedCards.length > mergeSize) {
+                            selectedCards = selectedCards.slice(0, mergeSize);
+                        }
+                        
+                        updateSlotIndicators();
+                        incrementCollectionVersion();
+                        renderMergeGrid();
+                        updateMergeButtonState();
+                    });
+                });
+                
+                // Action buttons
+                if (dom.mergeBtn) dom.mergeBtn.addEventListener('click', performMerge);
+                if (dom.quickFillBtn) dom.quickFillBtn.addEventListener('click', quickFillMerge);
+                if (dom.resetBtn) dom.resetBtn.addEventListener('click', resetSelection);
+                if (dom.collectBtn) dom.collectBtn.addEventListener('click', collectOfflineDust);
+                
+                // Delete account
+                document.getElementById('deleteAccountBtn')?.addEventListener('click', () => {
+                    showModal('Delete Account', 'Reset to starter pack? You will receive 8 common, 1 uncommon, 150 dust.', 'delete');
+                });
+                
+                // Modal buttons
+                if (dom.modalCancel) {
+                    dom.modalCancel.addEventListener('click', hideModal);
+                }
+                
+                if (dom.modalConfirm) {
+                    dom.modalConfirm.addEventListener('click', () => {
+                        if (dom.confirmModal._pendingAction === 'delete') {
+                            deleteAccount();
+                        }
+                        hideModal();
+                    });
+                }
+                
+                // Empty state button delegation
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('empty-state-button')) {
+                        const tab = e.target.dataset.switchTab;
+                        if (tab) switchTab(tab);
+                    }
+                });
+            }
+            
+            // Timer setup (optimized with RAF)
+            function startOptimizedTimer() {
+                let lastUpdate = 0;
+                
+                function tick(now) {
+                    if (now - lastUpdate >= 1000) {
+                        updateOfflineUI();
+                        lastUpdate = now;
+                    }
+                    rafTimer = requestAnimationFrame(tick);
+                }
+                
+                rafTimer = requestAnimationFrame(tick);
+            }
+            
+            // Initialize game
+            function initializeGame() {
+                try {
+                    const saved = localStorage.getItem('lexiconCards');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        collection = data.collection || collection;
+                        dust = data.dust || 150;
+                        pityCounters = data.pityCounters || pityCounters;
+                        lastLoginTime = data.lastLoginTime || Date.now();
+                        accumulatedOfflineDust = data.accumulatedOfflineDust || 0;
+                    } else {
+                        // Starter collection
+                        for (let i = 0; i < 12; i++) {
+                            collection.push({ 
+                                id: Date.now() + i + Math.random(), 
+                                word: 'SUN', 
+                                rarity: 'common' 
+                            });
+                        }
+                        for (let i = 0; i < 5; i++) {
+                            collection.push({ 
+                                id: Date.now() + 100 + i + Math.random(), 
+                                word: 'MOON', 
+                                rarity: 'common' 
+                            });
+                        }
+                        for (let i = 0; i < 3; i++) {
+                            collection.push({ 
+                                id: Date.now() + 200 + i + Math.random(), 
+                                word: 'FLAME', 
+                                rarity: 'uncommon' 
+                            });
+                        }
+                        collection.push({ 
+                            id: Date.now() + 300 + Math.random(), 
+                            word: 'DRAGON', 
+                            rarity: 'rare' 
+                        });
+                        lastLoginTime = Date.now();
+                    }
+                } catch (e) {}
+                
+                calculateOfflineEarnings();
+                incrementCollectionVersion();
+                
+                if (dom.loadingOverlay) {
+                    dom.loadingOverlay.classList.add('hidden');
+                }
+                
+                updateStats();
+                updateRealmTab();
                 updateOfflineUI();
-                showToast(`✨ Collected!`);
-            }
-        };
-        
-        function deleteAccount() {
-            collection = [];
-            for (let i = 0; i < 8; i++) collection.push({ id: Date.now()+i+Math.random(), word: WORDS.common[Math.floor(Math.random()*WORDS.common.length)], rarity:'common' });
-            collection.push({ id: Date.now()+100+Math.random(), word: WORDS.uncommon[Math.floor(Math.random()*WORDS.uncommon.length)], rarity:'uncommon' });
-            dust = 150;
-            pityCounters = { 'uncommon→rare':0,'rare→epic':0,'epic→legendary':0,'legendary→mythic':0 };
-            accumulatedOfflineDust = 0;
-            lastLoginTime = Date.now();
-            selectedCards = [];
-            saveGame();
-            updateUI();
-            updateOfflineUI();
-            if (document.getElementById('mergeTab').style.display !== 'none') { renderMergeGrid(); updateSlotIndicators(); updateResetButton(); }
-            showToast('Account reset to starter pack!');
-        }
-        
-        function showModal(title, text, action) { pendingAction=action; document.getElementById('modalTitle').textContent=title; document.getElementById('modalText').textContent=text; document.getElementById('confirmModal').classList.add('show'); }
-        function hideModal() { document.getElementById('confirmModal').classList.remove('show'); pendingAction=null; }
-        function executeConfirmedAction() { if (pendingAction==='delete') deleteAccount(); hideModal(); }
-        function showDeleteConfirmation() { showModal('Delete Account','Reset to starter pack? You will receive 8 common, 1 uncommon, 150 dust.','delete'); }
-        
-        function showToast(msg) { let t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2000); }
-        function getUniqueCardCount() { return new Set(collection.map(c=>c.word+c.rarity)).size; }
-        function getCollectionProgress() { const total=Object.values(WORDS).flat().length; const owned=getUniqueCardCount(); return Math.round((owned/total)*100); }
-        
-        function updateUI() {
-            document.getElementById('totalCards').textContent = collection.length;
-            document.getElementById('uniqueCards').textContent = getUniqueCardCount();
-            document.getElementById('dustAmount').textContent = dust;
-            const p = getCollectionProgress();
-            document.getElementById('progressBar').style.width = p+'%';
-            document.getElementById('progressPercent').textContent = p+'%';
-            if (document.getElementById('realmTab').style.display !== 'none') updateRealmTab();
-            if (document.getElementById('mergeTab').style.display !== 'none') { renderMergeGrid(); updateMergeButton(); updateSlotIndicators(); updateResetButton(); }
-            updateOfflineUI();
-        }
-        
-        function updateRealmTab() {
-            const grid = document.getElementById('recentCardsGrid');
-            grid.innerHTML = '';
-            const recent = [...collection].reverse().slice(0,3);
-            recent.forEach(c => grid.appendChild(createCardElement(c)));
-            if (!recent.length) grid.innerHTML = '<div class="empty-state">No cards yet</div>';
-        }
-        
-        window.switchTab = function(tab) {
-            document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-            event.target.classList.add('active');
-            ['realm','merge','packs'].forEach(t=>document.getElementById(t+'Tab').style.display='none');
-            document.getElementById(tab+'Tab').style.display = 'block';
-            if (tab==='merge') { renderMergeGrid(); updateMergeButton(); updateSlotIndicators(); updateResetButton(); }
-            else if (tab==='realm') updateRealmTab();
-            else if (tab==='packs') document.getElementById('packResultsGrid').innerHTML = '';
-            document.getElementById('scrollableContent').scrollTop = 0;
-        };
-        
-        function createCardElement(card, isMergeable=false, highlightRarity=null, stackInfo=null) {
-            const div = document.createElement('div');
-            div.className = `card ${card.rarity}`;
-            if (stackInfo && stackInfo.count > 1) div.classList.add('stacked');
-            const isSelected = selectedCards.includes(card.id);
-            let selectedCount = 0;
-            if (stackInfo) {
-                selectedCount = selectedCards.filter(id => { let c = collection.find(coll=>coll.id===id); return c && c.word===card.word && c.rarity===card.rarity; }).length;
-                if (selectedCount>0 && selectedCount<stackInfo.count) div.classList.add('partial-selected');
-            }
-            if (isMergeable && isSelected) div.classList.add('selected');
-            if (highlightRarity && card.rarity===highlightRarity && !isSelected) div.classList.add('highlight');
-            if (highlightRarity && card.rarity!==highlightRarity && selectedCards.length>0) div.classList.add('dimmed');
-            div.innerHTML = `<div class="card-word">${card.word}</div><div class="card-rarity">${RARITY_NAMES[card.rarity]}</div>${stackInfo?`<div class="card-count">x${stackInfo.count}</div>`:''}${selectedCount>0?`<div class="card-selected-count">${selectedCount}/${stackInfo?stackInfo.count:1}</div>`:''}`;
-            if (isMergeable) div.onclick = () => toggleCardSelection(card, stackInfo);
-            return div;
-        }
-        
-        window.toggleCardSelection = function(card, stackInfo) {
-            if (stackInfo && stackInfo.count > 1) {
-                const selectedFromStack = selectedCards.filter(id => { let c = collection.find(coll=>coll.id===id); return c && c.word===card.word && c.rarity===card.rarity; });
-                if (selectedFromStack.length === stackInfo.count) {
-                    const toRemove = selectedFromStack[selectedFromStack.length-1];
-                    const idx = selectedCards.indexOf(toRemove);
-                    if (idx !== -1) { selectedCards.splice(idx,1); showToast(`Removed ${card.word}`); }
-                } else if (selectedFromStack.length > 0 && selectedFromStack.length < stackInfo.count) {
-                    const unselected = collection.find(c => c.word===card.word && c.rarity===card.rarity && !selectedCards.includes(c.id));
-                    if (unselected && canAddToMerge(unselected)) { selectedCards.push(unselected.id); showToast(`Added ${unselected.word}`); }
-                } else {
-                    const unselected = collection.find(c => c.word===card.word && c.rarity===card.rarity && !selectedCards.includes(c.id));
-                    if (unselected && canAddToMerge(unselected)) { selectedCards.push(unselected.id); showToast(`Added ${unselected.word}`); }
-                }
-            } else {
-                if (selectedCards.includes(card.id)) {
-                    const idx = selectedCards.indexOf(card.id);
-                    selectedCards.splice(idx,1);
-                    showToast(`Removed ${card.word}`);
-                } else if (canAddToMerge(card)) {
-                    selectedCards.push(card.id);
-                    showToast(`Added ${card.word}`);
-                }
-            }
-            renderMergeGrid(); updateMergeButton(); updateSlotIndicators(); updateResetButton();
-        };
-        
-        function canAddToMerge(card) {
-            if (selectedCards.length >= mergeSize) { showToast(`Max ${mergeSize} cards`); return false; }
-            if (selectedCards.length > 0) {
-                let first = collection.find(c=>c.id===selectedCards[0]);
-                if (first && first.rarity !== card.rarity) { showToast('Cards must be same rarity'); return false; }
-            }
-            if (card.rarity === 'mythic') { showToast('Mythic cannot be merged'); return false; }
-            return true;
-        }
-        
-        window.quickFillMerge = function() {
-            if (selectedCards.length === 0) { showToast('Select a first card'); return; }
-            if (selectedCards.length >= mergeSize) return;
-            let first = collection.find(c=>c.id===selectedCards[0]);
-            if (!first) return;
-            let matching = collection.filter(c => c.rarity===first.rarity && !selectedCards.includes(c.id));
-            let need = mergeSize - selectedCards.length;
-            let toAdd = matching.slice(0, need);
-            toAdd.forEach(c => selectedCards.push(c.id));
-            if (toAdd.length > 0) { showToast(`✨ Added ${toAdd.length} cards`); renderMergeGrid(); updateMergeButton(); updateSlotIndicators(); updateResetButton(); }
-            else showToast('No matching cards');
-        };
-        
-        function isMergePossible() {
-            if (selectedCards.length !== mergeSize) return false;
-            const cards = collection.filter(c => selectedCards.includes(c.id));
-            if (cards.length !== mergeSize) return false;
-            const first = cards[0].rarity;
-            return cards.every(c=>c.rarity===first) && first !== 'mythic';
-        }
-        
-        function getCurrentMergeDetails() {
-            if (!isMergePossible()) return null;
-            const first = collection.find(c=>c.id===selectedCards[0]);
-            const from = first.rarity;
-            const to = RARITY_ORDER[RARITY_ORDER.indexOf(from)+1];
-            const key = mergeSize+':'+from+'→'+to;
-            const pityKey = from+'→'+to;
-            const base = SUCCESS_CHANCES[key] || 0;
-            const bonus = Math.min(pityCounters[pityKey] || 0, MAX_PITY);
-            return { fromRarity:from, toRarity:to, mergeKey:key, pityKey:pityKey, chance:base+bonus };
-        }
-        
-        window.performMerge = function() {
-            if (!isMergePossible()) { showToast('Select cards'); return; }
-            const details = getCurrentMergeDetails();
-            if (!details) return;
-            const randomWord = WORDS[details.toRarity][Math.floor(Math.random() * WORDS[details.toRarity].length)];
-            const cards = collection.filter(c => selectedCards.includes(c.id));
-            cards.forEach(c => { let idx = collection.findIndex(coll=>coll.id===c.id); if (idx!==-1) collection.splice(idx,1); });
-            selectedCards = [];
-            if (Math.random() < details.chance) {
-                let newCard = { id: Date.now()+Math.random(), word: randomWord, rarity: details.toRarity };
-                collection.push(newCard);
-                pityCounters[details.pityKey] = 0;
-                showToast(`✨ SUCCESS! Got ${newCard.word}`);
-                document.querySelector('.merge-chamber').classList.add('merge-flash-success');
-                setTimeout(()=>document.querySelector('.merge-chamber').classList.remove('merge-flash-success'),500);
-                if (details.toRarity === 'mythic') showToast('🎉 MYTHIC UNLOCKED!');
-            } else {
-                let dustReward = DUST_REWARDS[details.mergeKey] || 5;
-                dust += dustReward;
-                pityCounters[details.pityKey] = (pityCounters[details.pityKey] || 0) + PITY_INCREMENT;
-                showToast(`💔 Failed +${dustReward} dust`);
-                document.querySelector('.merge-chamber').classList.add('merge-flash-failure');
-                setTimeout(()=>document.querySelector('.merge-chamber').classList.remove('merge-flash-failure'),500);
-            }
-            saveGame(); updateUI(); renderMergeGrid(); updateMergeButton(); updateSlotIndicators(); updateResetButton();
-        };
-        
-        function renderMergeGrid() {
-            let grid = document.getElementById('mergeGrid');
-            if (!grid) return;
-            grid.innerHTML = '';
-            if (collection.length === 0) {
-                grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No cards to merge</div><button class="empty-state-button" onclick="switchTab(\'packs\')">Open Packs</button></div>';
-                return;
-            }
-            const grouped = {};
-            collection.forEach(c => { let key = c.word+'|'+c.rarity; if (!grouped[key]) grouped[key] = { cards:[], word:c.word, rarity:c.rarity, count:0 }; grouped[key].cards.push(c); grouped[key].count++; });
-            let highlight = null;
-            if (selectedCards.length > 0) { let first = collection.find(c=>c.id===selectedCards[0]); if (first) highlight = first.rarity; }
-            Object.values(grouped).sort((a,b)=>{ let r = RARITY_ORDER.indexOf(a.rarity)-RARITY_ORDER.indexOf(b.rarity); if (r!==0) return r; return a.word.localeCompare(b.word); }).forEach(g => { grid.appendChild(createCardElement(g.cards[0], true, highlight, { count:g.count, cards:g.cards })); });
-            updateSlotIndicators();
-        }
-        
-        function updateMergeButton() {
-            let btn = document.getElementById('mergeBtn');
-            let qf = document.getElementById('quickFillBtn');
-            let pv = document.getElementById('previewText');
-            let ch = document.getElementById('chanceDisplay');
-            
-            if (!btn || !pv || !ch) return;
-            
-            // Button text is ALWAYS just "MERGE" (no dynamic text)
-            btn.textContent = 'MERGE';
-            
-            if (isMergePossible()) {
-                let d = getCurrentMergeDetails();
-                let percent = Math.round(d.chance * 100);
-                
-                pv.textContent = `Merge ${mergeSize} ${RARITY_NAMES[d.fromRarity]} → ${RARITY_NAMES[d.toRarity]}`;
-                ch.textContent = `${percent}% chance`;
-                
-                ch.className = 'chance-display';
-                if (d.chance >= 0.7) ch.classList.add('chance-high');
-                else if (d.chance >= 0.4) ch.classList.add('chance-medium');
-                else ch.classList.add('chance-low');
-                
-                btn.disabled = false;
-                btn.classList.add('ready');
-            } else {
-                pv.textContent = `Select ${mergeSize - selectedCards.length} more same-rarity`;
-                ch.textContent = '';
-                btn.disabled = true;
-                btn.classList.remove('ready');
+                startOptimizedTimer();
             }
             
-            if (qf) {
-                if (selectedCards.length === 0 || selectedCards.length >= mergeSize) {
-                    qf.disabled = true;
-                } else {
-                    qf.disabled = false;
-                }
-            }
-        }
-        
-        window.openPack = function(packType) {
-            let cost = 0, cards = [];
-            let packEl = document.getElementById(packType+'Pack');
-            if (packEl) { packEl.classList.add('opening'); setTimeout(()=>packEl.classList.remove('opening'),500); }
-            switch(packType) {
-                case 'basic':
-                    cost = 1;
-                    for (let i=0; i<5; i++) cards.push({ id: Date.now()+i+Math.random(), word: WORDS.common[Math.floor(Math.random()*WORDS.common.length)], rarity:'common' });
-                    break;
-                case 'grand':
-                    cost = 200;
-                    for (let i=0; i<4; i++) cards.push({ id: Date.now()+i+Math.random(), word: WORDS.common[Math.floor(Math.random()*WORDS.common.length)], rarity:'common' });
-                    cards.push({ id: Date.now()+5+Math.random(), word: WORDS.uncommon[Math.floor(Math.random()*WORDS.uncommon.length)], rarity:'uncommon' });
-                    break;
-                case 'premium':
-                    cost = 500;
-                    for (let i=0; i<3; i++) cards.push({ id: Date.now()+i+Math.random(), word: WORDS.common[Math.floor(Math.random()*WORDS.common.length)], rarity:'common' });
-                    cards.push({ id: Date.now()+4+Math.random(), word: WORDS.rare[Math.floor(Math.random()*WORDS.rare.length)], rarity:'rare' });
-                    if (Math.random()<0.3) cards.push({ id: Date.now()+5+Math.random(), word: WORDS.epic[Math.floor(Math.random()*WORDS.epic.length)], rarity:'epic' });
-                    else cards.push({ id: Date.now()+5+Math.random(), word: WORDS.rare[Math.floor(Math.random()*WORDS.rare.length)], rarity:'rare' });
-                    break;
-            }
-            if (dust < cost) { showToast('Not enough dust'); return; }
-            dust -= cost;
-            collection.push(...cards);
-            let resultsGrid = document.getElementById('packResultsGrid');
-            resultsGrid.innerHTML = '';
-            cards.forEach((c,idx) => { let cardEl = createCardElement(c); cardEl.style.animationDelay = idx*0.1+'s'; cardEl.classList.add('pack-result-card'); resultsGrid.appendChild(cardEl); });
-            showToast(`📦 Opened ${packType} pack!`);
-            saveGame(); updateUI();
-        };
-        
-        // Initialize
-        initializeGame();
-        updateUI();
+            // Kick off
+            setupEventDelegation();
+            initializeGame();
+        })();
     </script>
 </body>
 </html>
