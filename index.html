@@ -876,7 +876,7 @@
                         <div class="pack" onclick="openPack('basic')" id="basicPack">
                             <div class="pack-icon">📦</div>
                             <div class="pack-name">BASIC</div>
-                            <div class="pack-price">50 Dust</div>
+                            <div class="pack-price">1 Dust</div>
                         </div>
                         <div class="pack" onclick="openPack('grand')" id="grandPack">
                             <div class="pack-icon">🎁</div>
@@ -1568,7 +1568,7 @@
             
             switch(packType) {
                 case 'basic':
-                    cost = 50;
+                    cost = 1; // Changed from 50 to 1
                     for (let i = 0; i < 5; i++) {
                         cards.push({
                             id: Date.now() + i + Math.random(),
