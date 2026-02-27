@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ages of Discovery</title>
+    <title>Ages of Discovery: Blueprint Edition</title>
     <style>
         * {
             margin: 0;
@@ -36,6 +36,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .title {
@@ -44,7 +46,12 @@
             color: #ffd700;
         }
 
-        .crystals {
+        .resources {
+            display: flex;
+            gap: 8px;
+        }
+
+        .crystals, .knowledge {
             background: #00000040;
             padding: 4px 12px;
             border-radius: 30px;
@@ -55,6 +62,36 @@
             display: flex;
             align-items: center;
             gap: 4px;
+        }
+
+        .knowledge {
+            border-color: #7fffd4;
+            color: #7fffd4;
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .tab {
+            padding: 8px;
+            background: #1a1f2e;
+            border: none;
+            color: #a0a0a0;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #ffd70020;
+            color: #ffd700;
+            border: 1px solid #ffd700;
         }
 
         /* Age Card */
@@ -275,6 +312,143 @@
             background: #ffd70010;
         }
 
+        /* Blueprints Grid */
+        .blueprints-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .blueprint-card {
+            background: #1a2a2a;
+            border: 1px solid #7fffd4;
+            border-radius: 8px;
+            padding: 8px;
+            position: relative;
+        }
+
+        .blueprint-name {
+            color: #7fffd4;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .blueprint-type {
+            color: #a0a0a0;
+            font-size: 8px;
+            text-transform: uppercase;
+        }
+
+        .blueprint-effect {
+            color: #fff;
+            font-size: 9px;
+            margin: 4px 0;
+        }
+
+        .blueprint-cost {
+            color: #ffd700;
+            font-size: 8px;
+        }
+
+        .blueprint-research {
+            background: #7fffd4;
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            padding: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 4px;
+            cursor: pointer;
+        }
+
+        .blueprint-research:disabled {
+            opacity: 0.3;
+        }
+
+        .blueprint-researched {
+            background: #7fffd440;
+            color: #7fffd4;
+            text-align: center;
+            font-size: 9px;
+            padding: 4px;
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+
+        /* Artifacts Grid */
+        .artifacts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .artifact-card {
+            background: #2a1a2a;
+            border: 1px solid #ff99ff;
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        .artifact-name {
+            color: #ff99ff;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .artifact-bonus {
+            color: #ffd700;
+            font-size: 9px;
+            margin: 4px 0;
+        }
+
+        .artifact-lore {
+            color: #a0a0a0;
+            font-size: 8px;
+            font-style: italic;
+        }
+
+        /* Combo Section */
+        .combo-section {
+            background: #1a1f2e;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .combo-title {
+            color: #ffd700;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .combo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .combo-item {
+            background: #0f1424;
+            border: 1px dashed #ffd700;
+            border-radius: 6px;
+            padding: 6px;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .combo-formula {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .combo-result {
+            color: #7fffd4;
+        }
+
         /* Age Gate */
         .age-gate {
             background: #1a1f2e;
@@ -283,6 +457,7 @@
             padding: 8px;
             text-align: center;
             font-size: 12px;
+            margin-bottom: 8px;
         }
 
         .gate-name {
@@ -298,7 +473,7 @@
         /* Expedition */
         .expedition-btn {
             width: 100%;
-            margin-top: 8px;
+            margin-top: 4px;
             padding: 8px;
             background: #2a1f0a;
             border: 1px solid #ffd700;
@@ -317,6 +492,7 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            z-index: 1000;
         }
 
         .modal.active {
@@ -329,6 +505,34 @@
             padding: 20px;
             border: 2px solid #ffd700;
             max-width: 300px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* Museum Stats */
+        .museum-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-box {
+            background: #1a1f2e;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            color: #ffd700;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            font-size: 9px;
         }
 
         /* Notification */
@@ -344,6 +548,12 @@
             font-size: 12px;
             font-weight: bold;
             z-index: 1000;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { top: -50px; opacity: 0; }
+            to { top: 10px; opacity: 1; }
         }
     </style>
 </head>
@@ -352,10 +562,23 @@
         <!-- Header -->
         <div class="header">
             <div class="title">📖 AGES OF DISCOVERY</div>
-            <div class="crystals">
-                <span>⏳</span>
-                <span id="crystal-display">100</span>
+            <div class="resources">
+                <div class="crystals">
+                    <span>⏳</span>
+                    <span id="crystal-display">100</span>
+                </div>
+                <div class="knowledge">
+                    <span>📚</span>
+                    <span id="knowledge-display">0</span>
+                </div>
             </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('forge')" id="tab-forge">🔨 Forge</button>
+            <button class="tab" onclick="switchTab('blueprints')" id="tab-blueprints">📜 Blueprints</button>
+            <button class="tab" onclick="switchTab('museum')" id="tab-museum">🏛️ Museum</button>
         </div>
 
         <!-- Current Age -->
@@ -372,50 +595,117 @@
         <!-- Timeline -->
         <div class="timeline" id="timeline"></div>
 
-        <!-- Letters -->
-        <div class="letters-section">
-            <div class="section-header">
-                <span>🔤 Runes</span>
-                <span id="letter-count">0</span>
+        <!-- FORGE TAB (Default) -->
+        <div id="forge-tab">
+            <!-- Letters -->
+            <div class="letters-section">
+                <div class="section-header">
+                    <span>🔤 Runes</span>
+                    <span id="letter-count">0</span>
+                </div>
+                <div class="letters-grid" id="letters-grid"></div>
             </div>
-            <div class="letters-grid" id="letters-grid"></div>
+
+            <!-- Word Display -->
+            <div class="word-display">
+                <div class="word-letters" id="current-word-display">⚡</div>
+                <div class="word-hint" id="word-hint">Select runes</div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-row">
+                <button class="btn btn-primary" id="craft-btn" disabled>✨ Speak Word</button>
+                <button class="btn btn-secondary" id="clear-btn">Clear</button>
+            </div>
+
+            <!-- Words -->
+            <div class="words-grid" id="words-grid"></div>
+
+            <!-- Combo Section -->
+            <div class="combo-section" id="combo-section">
+                <div class="combo-title">⚡ Word Combinations</div>
+                <div class="combo-grid" id="combo-grid"></div>
+            </div>
+
+            <!-- Age Gate -->
+            <div class="age-gate" id="age-gate">
+                <div class="gate-name" id="next-age-name">Age of Bronze</div>
+                <div class="gate-req" id="gate-requirement">Craft all words to unlock</div>
+            </div>
+
+            <!-- Expedition -->
+            <button class="expedition-btn" onclick="startExpedition()">
+                🗺️ Expedition (15 Crystals)
+            </button>
         </div>
 
-        <!-- Word Display -->
-        <div class="word-display">
-            <div class="word-letters" id="current-word-display">⚡</div>
-            <div class="word-hint" id="word-hint">Select runes</div>
+        <!-- BLUEPRINTS TAB (Hidden by default) -->
+        <div id="blueprints-tab" style="display: none;">
+            <div class="section-header" style="margin-bottom: 8px;">
+                <span>📜 Available Blueprints</span>
+                <span id="blueprint-count">0/24</span>
+            </div>
+            <div class="blueprints-grid" id="blueprints-grid"></div>
+            
+            <div style="margin-top: 12px;">
+                <div class="section-header">
+                    <span>🔬 Research Notes</span>
+                </div>
+                <div style="background: #1a1f2e; border-radius: 8px; padding: 8px; font-size: 11px; color: #a0a0a0;">
+                    Research blueprints to unlock permanent upgrades and new abilities.
+                </div>
+            </div>
         </div>
 
-        <!-- Buttons -->
-        <div class="button-row">
-            <button class="btn btn-primary" id="craft-btn" disabled>✨ Speak Word</button>
-            <button class="btn btn-secondary" id="clear-btn">Clear</button>
+        <!-- MUSEUM TAB (Hidden by default) -->
+        <div id="museum-tab" style="display: none;">
+            <div class="museum-stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="museum-words">0</div>
+                    <div class="stat-label">Words Found</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="museum-blueprints">0</div>
+                    <div class="stat-label">Blueprints</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="museum-artifacts">0</div>
+                    <div class="stat-label">Artifacts</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="museum-mastery">0%</div>
+                    <div class="stat-label">Mastery</div>
+                </div>
+            </div>
+
+            <div class="section-header">🏺 Artifacts Collection</div>
+            <div class="artifacts-grid" id="artifacts-grid"></div>
+
+            <div class="section-header" style="margin-top: 12px;">📚 Age Mastery</div>
+            <div id="mastery-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 4px;"></div>
         </div>
-
-        <!-- Words -->
-        <div class="words-grid" id="words-grid"></div>
-
-        <!-- Age Gate -->
-        <div class="age-gate" id="age-gate">
-            <div class="gate-name" id="next-age-name">Age of Bronze</div>
-            <div class="gate-req" id="gate-requirement">Craft all words to unlock</div>
-        </div>
-
-        <!-- Expedition -->
-        <button class="expedition-btn" onclick="startExpedition()">
-            🗺️ Expedition (15 Crystals)
-        </button>
     </div>
 
-    <!-- Modal -->
+    <!-- Discovery Modal -->
+    <div class="modal" id="discovery-modal">
+        <div class="modal-content">
+            <h3 style="color: #ffd700; margin-bottom: 10px;" id="discovery-title">📜 New Discovery!</h3>
+            <p style="color: white; font-size: 14px; margin-bottom: 5px;" id="discovery-name"></p>
+            <p style="color: #7fffd4; font-size: 12px; margin-bottom: 15px;" id="discovery-effect"></p>
+            <button class="btn btn-primary" style="width: 100%;" onclick="closeDiscoveryModal()">Wonderful!</button>
+        </div>
+    </div>
+
+    <!-- Lore Modal -->
     <div class="modal" id="lore-modal">
         <div class="modal-content">
             <h3 style="color: #ffd700; margin-bottom: 10px;">📖 The Lexicon's Lament</h3>
             <p style="color: white; font-size: 12px; margin-bottom: 15px;">
-                Words have faded from the world. Journey through the ages and rediscover them.
+                Words have faded from the world. But hidden within them are blueprints, artifacts, and ancient knowledge.<br><br>
+                Craft words to discover blueprints. Research them to unlock permanent upgrades. Build your museum of discoveries.<br><br>
+                <span style="color: #7fffd4;">Each word you craft may reveal a secret...</span>
             </p>
-            <button class="btn btn-primary" style="width: 100%;" onclick="closeLoreModal()">Begin</button>
+            <button class="btn btn-primary" style="width: 100%;" onclick="closeLoreModal()">Begin Discovery</button>
         </div>
     </div>
 
@@ -427,88 +717,141 @@
                 theme: 'Survival',
                 color: '#8B7355',
                 next: 'BRONZE',
-                words: ['FIRE', 'STONE', 'HUT', 'AXE', 'WELL']
+                words: ['FIRE', 'STONE', 'HUT', 'AXE', 'WELL', 'BED'],
+                requiredBlueprints: 3
             },
             BRONZE: {
                 name: 'Bronze',
                 theme: 'Tools',
                 color: '#CD7F32',
                 next: 'IRON',
-                words: ['FORGE', 'FIELD', 'OVEN', 'SWORD', 'SHIELD']
+                words: ['FORGE', 'FIELD', 'OVEN', 'SWORD', 'SHIELD', 'MARKET'],
+                requiredBlueprints: 4
             },
             IRON: {
                 name: 'Iron',
                 theme: 'War',
                 color: '#707070',
                 next: 'GOLDEN',
-                words: ['CASTLE', 'KNIGHT', 'ARMOR', 'BANNER', 'THRONE']
+                words: ['CASTLE', 'KNIGHT', 'ARMOR', 'BANNER', 'THRONE', 'IRON'],
+                requiredBlueprints: 5
             },
             GOLDEN: {
                 name: 'Golden',
                 theme: 'Culture',
                 color: '#FFD700',
                 next: 'MYSTICAL',
-                words: ['LIBRARY', 'GARDEN', 'FEAST', 'MUSIC', 'POETRY']
+                words: ['LIBRARY', 'GARDEN', 'FEAST', 'MUSIC', 'POETRY', 'THEATER'],
+                requiredBlueprints: 6
             },
             MYSTICAL: {
                 name: 'Mystical',
                 theme: 'Magic',
                 color: '#9B30FF',
                 next: 'COSMIC',
-                words: ['PHOENIX', 'DRAGON', 'WIZARD', 'POTION', 'RUNE']
+                words: ['PHOENIX', 'DRAGON', 'WIZARD', 'POTION', 'RUNE', 'STAR'],
+                requiredBlueprints: 7
             },
             COSMIC: {
                 name: 'Cosmic',
                 theme: 'Infinity',
                 color: '#00FFFF',
                 next: null,
-                words: ['GALAXY', 'INFINITY', 'DREAM', 'COSMOS', 'ETERNITY']
+                words: ['GALAXY', 'INFINITY', 'DREAM', 'COSMOS', 'ETERNITY', 'NEBULA'],
+                requiredBlueprints: 8
             }
         };
 
         const WORD_DB = {
             // Stone Age
-            'FIRE': { age: 'STONE', letters: ['F','I','R','E'], points: 10 },
-            'STONE': { age: 'STONE', letters: ['S','T','O','N','E'], points: 15 },
-            'HUT': { age: 'STONE', letters: ['H','U','T'], points: 12 },
-            'AXE': { age: 'STONE', letters: ['A','X','E'], points: 15 },
-            'WELL': { age: 'STONE', letters: ['W','E','L','L'], points: 18 },
+            'FIRE': { age: 'STONE', letters: ['F','I','R','E'], points: 10, blueprint: 'CAMPFIRE' },
+            'STONE': { age: 'STONE', letters: ['S','T','O','N','E'], points: 15, blueprint: 'PICKAXE' },
+            'HUT': { age: 'STONE', letters: ['H','U','T'], points: 12, blueprint: 'SHELTER' },
+            'AXE': { age: 'STONE', letters: ['A','X','E'], points: 15, blueprint: 'WOODCUTTING' },
+            'WELL': { age: 'STONE', letters: ['W','E','L','L'], points: 18, blueprint: 'WATER' },
+            'BED': { age: 'STONE', letters: ['B','E','D'], points: 10, blueprint: 'COMFORT' },
             
             // Bronze Age
-            'FORGE': { age: 'BRONZE', letters: ['F','O','R','G','E'], points: 25 },
-            'FIELD': { age: 'BRONZE', letters: ['F','I','E','L','D'], points: 22 },
-            'OVEN': { age: 'BRONZE', letters: ['O','V','E','N'], points: 20 },
-            'SWORD': { age: 'BRONZE', letters: ['S','W','O','R','D'], points: 30 },
-            'SHIELD': { age: 'BRONZE', letters: ['S','H','I','E','L','D'], points: 28 },
+            'FORGE': { age: 'BRONZE', letters: ['F','O','R','G','E'], points: 25, blueprint: 'METALWORKING' },
+            'FIELD': { age: 'BRONZE', letters: ['F','I','E','L','D'], points: 22, blueprint: 'FARMING' },
+            'OVEN': { age: 'BRONZE', letters: ['O','V','E','N'], points: 20, blueprint: 'COOKING' },
+            'SWORD': { age: 'BRONZE', letters: ['S','W','O','R','D'], points: 30, blueprint: 'WEAPONSMITH' },
+            'SHIELD': { age: 'BRONZE', letters: ['S','H','I','E','L','D'], points: 28, blueprint: 'BLACKSMITH' },
+            'MARKET': { age: 'BRONZE', letters: ['M','A','R','K','E','T'], points: 35, blueprint: 'TRADE' },
             
             // Iron Age
-            'CASTLE': { age: 'IRON', letters: ['C','A','S','T','L','E'], points: 50 },
-            'KNIGHT': { age: 'IRON', letters: ['K','N','I','G','H','T'], points: 45 },
-            'ARMOR': { age: 'IRON', letters: ['A','R','M','O','R'], points: 40 },
-            'BANNER': { age: 'IRON', letters: ['B','A','N','N','E','R'], points: 35 },
-            'THRONE': { age: 'IRON', letters: ['T','H','R','O','N','E'], points: 55 },
+            'CASTLE': { age: 'IRON', letters: ['C','A','S','T','L','E'], points: 50, blueprint: 'FORTRESS' },
+            'KNIGHT': { age: 'IRON', letters: ['K','N','I','G','H','T'], points: 45, blueprint: 'ORDER' },
+            'ARMOR': { age: 'IRON', letters: ['A','R','M','O','R'], points: 40, blueprint: 'PROTECTION' },
+            'BANNER': { age: 'IRON', letters: ['B','A','N','N','E','R'], points: 35, blueprint: 'HERALDRY' },
+            'THRONE': { age: 'IRON', letters: ['T','H','R','O','N','E'], points: 55, blueprint: 'KINGSHIP' },
+            'IRON': { age: 'IRON', letters: ['I','R','O','N'], points: 30, blueprint: 'METALLURGY' },
             
             // Golden Age
-            'LIBRARY': { age: 'GOLDEN', letters: ['L','I','B','R','A','R','Y'], points: 60 },
-            'GARDEN': { age: 'GOLDEN', letters: ['G','A','R','D','E','N'], points: 45 },
-            'FEAST': { age: 'GOLDEN', letters: ['F','E','A','S','T'], points: 50 },
-            'MUSIC': { age: 'GOLDEN', letters: ['M','U','S','I','C'], points: 48 },
-            'POETRY': { age: 'GOLDEN', letters: ['P','O','E','T','R','Y'], points: 52 },
+            'LIBRARY': { age: 'GOLDEN', letters: ['L','I','B','R','A','R','Y'], points: 60, blueprint: 'KNOWLEDGE' },
+            'GARDEN': { age: 'GOLDEN', letters: ['G','A','R','D','E','N'], points: 45, blueprint: 'BOTANY' },
+            'FEAST': { age: 'GOLDEN', letters: ['F','E','A','S','T'], points: 50, blueprint: 'CELEBRATION' },
+            'MUSIC': { age: 'GOLDEN', letters: ['M','U','S','I','C'], points: 48, blueprint: 'HARMONY' },
+            'POETRY': { age: 'GOLDEN', letters: ['P','O','E','T','R','Y'], points: 52, blueprint: 'LITERATURE' },
+            'THEATER': { age: 'GOLDEN', letters: ['T','H','E','A','T','E','R'], points: 55, blueprint: 'DRAMA' },
             
             // Mystical Age
-            'PHOENIX': { age: 'MYSTICAL', letters: ['P','H','O','E','N','I','X'], points: 80 },
-            'DRAGON': { age: 'MYSTICAL', letters: ['D','R','A','G','O','N'], points: 85 },
-            'WIZARD': { age: 'MYSTICAL', letters: ['W','I','Z','A','R','D'], points: 75 },
-            'POTION': { age: 'MYSTICAL', letters: ['P','O','T','I','O','N'], points: 70 },
-            'RUNE': { age: 'MYSTICAL', letters: ['R','U','N','E'], points: 65 },
+            'PHOENIX': { age: 'MYSTICAL', letters: ['P','H','O','E','N','I','X'], points: 80, blueprint: 'REBIRTH' },
+            'DRAGON': { age: 'MYSTICAL', letters: ['D','R','A','G','O','N'], points: 85, blueprint: 'LEGEND' },
+            'WIZARD': { age: 'MYSTICAL', letters: ['W','I','Z','A','R','D'], points: 75, blueprint: 'SORCERY' },
+            'POTION': { age: 'MYSTICAL', letters: ['P','O','T','I','O','N'], points: 70, blueprint: 'ALCHEMY' },
+            'RUNE': { age: 'MYSTICAL', letters: ['R','U','N','E'], points: 65, blueprint: 'ENCHANTMENT' },
+            'STAR': { age: 'MYSTICAL', letters: ['S','T','A','R'], points: 72, blueprint: 'ASTRONOMY' },
             
             // Cosmic Age
-            'GALAXY': { age: 'COSMIC', letters: ['G','A','L','A','X','Y'], points: 100 },
-            'INFINITY': { age: 'COSMIC', letters: ['I','N','F','I','N','I','T','Y'], points: 120 },
-            'DREAM': { age: 'COSMIC', letters: ['D','R','E','A','M'], points: 90 },
-            'COSMOS': { age: 'COSMIC', letters: ['C','O','S','M','O','S'], points: 140 },
-            'ETERNITY': { age: 'COSMIC', letters: ['E','T','E','R','N','I','T','Y'], points: 130 }
+            'GALAXY': { age: 'COSMIC', letters: ['G','A','L','A','X','Y'], points: 100, blueprint: 'COSMOS' },
+            'INFINITY': { age: 'COSMIC', letters: ['I','N','F','I','N','I','T','Y'], points: 120, blueprint: 'ETERNITY' },
+            'DREAM': { age: 'COSMIC', letters: ['D','R','E','A','M'], points: 90, blueprint: 'DREAMING' },
+            'COSMOS': { age: 'COSMIC', letters: ['C','O','S','M','O','S'], points: 140, blueprint: 'UNIVERSE' },
+            'ETERNITY': { age: 'COSMIC', letters: ['E','T','E','R','N','I','T','Y'], points: 130, blueprint: 'FOREVER' },
+            'NEBULA': { age: 'COSMIC', letters: ['N','E','B','U','L','A'], points: 95, blueprint: 'STARDUST' }
         };
+
+        const BLUEPRINT_DB = {
+            // Tools
+            'PICKAXE': { type: 'tool', effect: '+1 letter when mining', cost: 20, lore: 'Breaks stone faster' },
+            'CAMPFIRE': { type: 'tool', effect: 'Cooking gives +2 knowledge', cost: 15, lore: 'Warmth and light' },
+            'WOODCUTTING': { type: 'tool', effect: 'Trees yield extra letters', cost: 15, lore: 'Efficient forestry' },
+            
+            // Buildings
+            'SHELTER': { type: 'building', effect: 'Daily bonus +2 letters', cost: 25, lore: 'A place to rest' },
+            'LIBRARY': { type: 'building', effect: 'Knowledge +5 per day', cost: 40, lore: 'Preserves wisdom' },
+            'FORGE': { type: 'building', effect: 'Tools last longer', cost: 30, lore: 'Fire and metal' },
+            
+            // Knowledge
+            'WRITING': { type: 'knowledge', effect: 'Words worth +2 points', cost: 35, lore: 'Recorded history' },
+            'ALCHEMY': { type: 'knowledge', effect: 'Fuse 2 letters into 1', cost: 45, lore: 'Transformation' },
+            'ASTRONOMY': { type: 'knowledge', effect: 'Stars reveal secrets', cost: 50, lore: 'Map the heavens' },
+            
+            // Artifacts (special ones)
+            'STONE_TABLET': { type: 'artifact', effect: 'Permanent +5 max letters', cost: 60, lore: 'First written word' },
+            'BRONZE_COMPASS': { type: 'artifact', effect: 'Expeditions find +1 letter', cost: 55, lore: 'Guides the way' },
+            'IRON_CROWN': { type: 'artifact', effect: 'All words +3 points', cost: 70, lore: 'Symbol of rule' },
+            'GOLDEN_HARP': { type: 'artifact', effect: 'Music soothes, +10 daily', cost: 65, lore: 'Sounds of joy' },
+            'CRYSTAL_BALL': { type: 'artifact', effect: 'See future words', cost: 80, lore: 'Glimpse of fate' },
+            'COSMIC_KEY': { type: 'artifact', effect: 'Unlock any age', cost: 100, lore: 'Opens all doors' }
+        };
+
+        const COMBOS = [
+            { needs: ['FIRE', 'STONE'], result: 'FLINT', newWord: 'FLINT' },
+            { needs: ['WATER', 'EARTH'], result: 'CLAY', newWord: 'CLAY' },
+            { needs: ['METAL', 'FIRE'], result: 'SWORD', newWord: 'SWORD' },
+            { needs: ['WOOD', 'STONE'], result: 'HUT', newWord: 'HUT' }
+        ];
+
+        const ARTIFACTS = [
+            { name: 'Stone Tablet', found: false, bonus: 'Max letters +5', lore: 'The first written word' },
+            { name: 'Bronze Compass', found: false, bonus: 'Expeditions +1', lore: 'Guided ancient traders' },
+            { name: 'Iron Crown', found: false, bonus: 'Words +3 points', lore: 'Worn by the first king' },
+            { name: 'Golden Harp', found: false, bonus: 'Daily +10', lore: 'Played for the gods' },
+            { name: 'Crystal Ball', found: false, bonus: 'See the future', lore: 'Gaze into infinity' },
+            { name: 'Cosmic Key', found: false, bonus: 'Unlock anything', lore: 'Made from starlight' }
+        ];
 
         // ==================== GAME STATE ====================
         let gameState = {
@@ -516,22 +859,43 @@
             discoveredWords: [],
             letters: {},
             timeCrystals: 100,
+            knowledge: 0,
             selectedLetters: [],
-            completedAges: []
+            completedAges: [],
+            blueprints: [], // Discovered but not researched
+            researched: [], // Researched blueprints
+            artifacts: [], // Found artifacts
+            combosDone: [],
+            permanentBonuses: {
+                maxLetters: 0,
+                expeditionBonus: 0,
+                wordPoints: 0,
+                dailyBonus: 0
+            }
         };
 
         // ==================== INITIALIZATION ====================
         function initGame() {
-            const saved = localStorage.getItem('agesOfDiscovery');
+            const saved = localStorage.getItem('agesBlueprint');
             if (saved) {
                 gameState = JSON.parse(saved);
             } else {
                 // Start with basic letters
-                const starters = ['A','A','E','E','I','O','U','R','S','T','N','F','H','L','C','M','P','X'];
+                const starters = ['A','A','E','E','I','O','U','R','S','T','N','F','H','L','C','M'];
                 starters.forEach(letter => {
                     gameState.letters[letter] = (gameState.letters[letter] || 0) + 1;
                 });
             }
+            
+            // Ensure all arrays exist
+            gameState.blueprints = gameState.blueprints || [];
+            gameState.researched = gameState.researched || [];
+            gameState.artifacts = gameState.artifacts || [];
+            gameState.combosDone = gameState.combosDone || [];
+            gameState.permanentBonuses = gameState.permanentBonuses || {
+                maxLetters: 0, expeditionBonus: 0, wordPoints: 0, dailyBonus: 0
+            };
+            
             updateUI();
             
             // Show modal for new players
@@ -539,6 +903,26 @@
                 document.getElementById('lore-modal').classList.add('active');
                 localStorage.setItem('loreSeen', 'true');
             }
+        }
+
+        // ==================== TAB SWITCHING ====================
+        function switchTab(tab) {
+            // Update tab buttons
+            document.getElementById('tab-forge').classList.remove('active');
+            document.getElementById('tab-blueprints').classList.remove('active');
+            document.getElementById('tab-museum').classList.remove('active');
+            
+            document.getElementById('tab-forge').classList.toggle('active', tab === 'forge');
+            document.getElementById('tab-blueprints').classList.toggle('active', tab === 'blueprints');
+            document.getElementById('tab-museum').classList.toggle('active', tab === 'museum');
+            
+            // Show/hide tabs
+            document.getElementById('forge-tab').style.display = tab === 'forge' ? 'block' : 'none';
+            document.getElementById('blueprints-tab').style.display = tab === 'blueprints' ? 'block' : 'none';
+            document.getElementById('museum-tab').style.display = tab === 'museum' ? 'block' : 'none';
+            
+            if (tab === 'blueprints') updateBlueprintsTab();
+            if (tab === 'museum') updateMuseumTab();
         }
 
         // ==================== UI UPDATE ====================
@@ -550,25 +934,30 @@
             document.getElementById('current-age-theme').textContent = age.theme;
             document.getElementById('age-card').style.borderLeftColor = age.color;
             
-            // Progress
+            // Progress (based on words + blueprints)
             const ageWords = age.words.filter(w => gameState.discoveredWords.includes(w)).length;
-            const progress = (ageWords / age.words.length) * 100;
-            document.getElementById('age-progress').style.width = `${progress}%`;
+            const ageBlueprints = gameState.researched.filter(b => {
+                // Check if blueprint is from this age (simplified)
+                return b === 'PICKAXE' || b === 'CAMPFIRE' || b === 'SHELTER';
+            }).length;
+            
+            const totalProgress = ageWords + ageBlueprints;
+            const maxProgress = age.words.length + age.requiredBlueprints;
+            const progress = (totalProgress / maxProgress) * 100;
+            document.getElementById('age-progress').style.width = `${Math.min(progress, 100)}%`;
             
             // Timeline
             updateTimeline();
             
-            // Letters
-            updateLetters();
-            
-            // Words
-            updateWords();
-            
-            // Age gate
-            updateAgeGate();
-            
-            // Crystal count
+            // Resources
             document.getElementById('crystal-display').textContent = gameState.timeCrystals;
+            document.getElementById('knowledge-display').textContent = gameState.knowledge;
+            
+            // Forge tab updates
+            updateLetters();
+            updateWords();
+            updateCombos();
+            updateAgeGate();
             
             // Letter count
             const totalLetters = Object.values(gameState.letters).reduce((a,b) => a+b, 0);
@@ -638,9 +1027,16 @@
                     const card = document.createElement('div');
                     card.className = 'word-card';
                     card.style.background = '#ffd70010';
+                    
+                    let blueprintText = '';
+                    if (WORD_DB[word].blueprint && !gameState.blueprints.includes(WORD_DB[word].blueprint)) {
+                        blueprintText = `<div style="color: #7fffd4; font-size: 8px;">📜 Blueprint inside</div>`;
+                    }
+                    
                     card.innerHTML = `
                         <div class="word-name">✨ ${word}</div>
                         <div class="word-desc">${WORD_DB[word].points} pts</div>
+                        ${blueprintText}
                     `;
                     grid.appendChild(card);
                 } else {
@@ -661,6 +1057,27 @@
             });
         }
 
+        function updateCombos() {
+            const grid = document.getElementById('combo-grid');
+            grid.innerHTML = '';
+            
+            COMBOS.forEach(combo => {
+                const hasWords = combo.needs.every(w => gameState.discoveredWords.includes(w));
+                const alreadyDone = gameState.combosDone.includes(combo.result);
+                
+                if (hasWords && !alreadyDone) {
+                    const item = document.createElement('div');
+                    item.className = 'combo-item';
+                    item.onclick = () => performCombo(combo);
+                    item.innerHTML = `
+                        <div class="combo-formula">${combo.needs.join(' + ')}</div>
+                        <div class="combo-result">→ ${combo.result}</div>
+                    `;
+                    grid.appendChild(item);
+                }
+            });
+        }
+
         function updateAgeGate() {
             const age = AGES[gameState.currentAge];
             const gate = document.getElementById('age-gate');
@@ -676,17 +1093,123 @@
             nextName.textContent = `Age of ${next.name}`;
             
             const wordsFound = age.words.filter(w => gameState.discoveredWords.includes(w)).length;
-            const needed = age.words.length;
+            const blueprintsFound = gameState.researched.filter(b => {
+                // Check if blueprint is from this age (simplified)
+                return b === 'PICKAXE' || b === 'CAMPFIRE' || b === 'SHELTER';
+            }).length;
             
-            if (wordsFound >= needed) {
+            if (wordsFound >= age.words.length && blueprintsFound >= age.requiredBlueprints) {
                 gate.style.background = '#ffd70020';
                 req.textContent = '✨ Ready to advance (50 crystals)';
                 gate.onclick = advanceAge;
             } else {
                 gate.style.background = '#1a1f2e';
-                req.textContent = `Need ${needed - wordsFound} more words`;
+                const wordsNeeded = age.words.length - wordsFound;
+                const blueprintsNeeded = age.requiredBlueprints - blueprintsFound;
+                
+                let needText = [];
+                if (wordsNeeded > 0) needText.push(`${wordsNeeded} words`);
+                if (blueprintsNeeded > 0) needText.push(`${blueprintsNeeded} blueprints`);
+                
+                req.textContent = `Need: ${needText.join(', ')}`;
                 gate.onclick = null;
             }
+        }
+
+        function updateBlueprintsTab() {
+            const grid = document.getElementById('blueprints-grid');
+            grid.innerHTML = '';
+            
+            document.getElementById('blueprint-count').textContent = 
+                `${gameState.researched.length}/${Object.keys(BLUEPRINT_DB).length}`;
+            
+            Object.entries(BLUEPRINT_DB).forEach(([name, data]) => {
+                const card = document.createElement('div');
+                card.className = 'blueprint-card';
+                
+                const discovered = gameState.blueprints.includes(name);
+                const researched = gameState.researched.includes(name);
+                
+                if (researched) {
+                    card.innerHTML = `
+                        <div class="blueprint-name">✓ ${name}</div>
+                        <div class="blueprint-type">${data.type}</div>
+                        <div class="blueprint-effect">${data.effect}</div>
+                        <div class="blueprint-researched">Researched</div>
+                    `;
+                } else if (discovered) {
+                    card.innerHTML = `
+                        <div class="blueprint-name">📜 ${name}</div>
+                        <div class="blueprint-type">${data.type}</div>
+                        <div class="blueprint-effect">${data.effect}</div>
+                        <div class="blueprint-cost">Cost: ${data.cost} knowledge</div>
+                        <button class="blueprint-research" onclick="researchBlueprint('${name}')">Research</button>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="blueprint-name">???</div>
+                        <div class="blueprint-type">unknown</div>
+                        <div class="blueprint-effect">???</div>
+                        <div style="color: #404040; font-size: 8px; text-align: center; margin-top: 4px;">Not discovered</div>
+                    `;
+                }
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function updateMuseumTab() {
+            // Stats
+            document.getElementById('museum-words').textContent = gameState.discoveredWords.length;
+            document.getElementById('museum-blueprints').textContent = gameState.researched.length;
+            document.getElementById('museum-artifacts').textContent = gameState.artifacts.length;
+            
+            const mastery = Math.floor((gameState.discoveredWords.length / 36) * 100);
+            document.getElementById('museum-mastery').textContent = `${mastery}%`;
+            
+            // Artifacts
+            const artifactsGrid = document.getElementById('artifacts-grid');
+            artifactsGrid.innerHTML = '';
+            
+            ARTIFACTS.forEach(artifact => {
+                const found = gameState.artifacts.includes(artifact.name);
+                const card = document.createElement('div');
+                card.className = 'artifact-card';
+                
+                if (found) {
+                    card.innerHTML = `
+                        <div class="artifact-name">✨ ${artifact.name}</div>
+                        <div class="artifact-bonus">${artifact.bonus}</div>
+                        <div class="artifact-lore">"${artifact.lore}"</div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="artifact-name">???</div>
+                        <div class="artifact-lore">Not discovered</div>
+                    `;
+                }
+                
+                artifactsGrid.appendChild(card);
+            });
+            
+            // Mastery grid
+            const masteryGrid = document.getElementById('mastery-grid');
+            masteryGrid.innerHTML = '';
+            
+            Object.entries(AGES).forEach(([id, age]) => {
+                const completed = gameState.completedAges.includes(id);
+                const div = document.createElement('div');
+                div.style.cssText = `
+                    background: ${completed ? age.color : '#1a1f2e'};
+                    border-radius: 12px;
+                    padding: 8px;
+                    text-align: center;
+                    font-size: 10px;
+                    color: ${completed ? '#000' : '#a0a0a0'};
+                `;
+                div.textContent = age.name;
+                masteryGrid.appendChild(div);
+            });
         }
 
         function updateCraftButton() {
@@ -762,15 +1285,53 @@
                 gameState.discoveredWords.push(word);
                 
                 // Add crystals
-                gameState.timeCrystals += WORD_DB[word].points;
+                let points = WORD_DB[word].points;
+                if (gameState.permanentBonuses.wordPoints) {
+                    points += gameState.permanentBonuses.wordPoints;
+                }
+                gameState.timeCrystals += points;
+                
+                // Add knowledge
+                gameState.knowledge += word.length;
+                
+                // Chance to discover blueprint (20%)
+                if (WORD_DB[word].blueprint && Math.random() < 0.2) {
+                    const blueprint = WORD_DB[word].blueprint;
+                    if (!gameState.blueprints.includes(blueprint) && !gameState.researched.includes(blueprint)) {
+                        gameState.blueprints.push(blueprint);
+                        showDiscovery(`📜 Discovered Blueprint: ${blueprint}!`, BLUEPRINT_DB[blueprint]?.effect || 'New technology');
+                    }
+                }
+                
+                // Chance to find artifact (5%)
+                if (Math.random() < 0.05) {
+                    const availableArtifacts = ARTIFACTS.filter(a => !gameState.artifacts.includes(a.name));
+                    if (availableArtifacts.length > 0) {
+                        const artifact = availableArtifacts[Math.floor(Math.random() * availableArtifacts.length)];
+                        gameState.artifacts.push(artifact.name);
+                        
+                        // Apply artifact bonus
+                        if (artifact.name === 'Stone Tablet') gameState.permanentBonuses.maxLetters += 5;
+                        if (artifact.name === 'Bronze Compass') gameState.permanentBonuses.expeditionBonus += 1;
+                        if (artifact.name === 'Iron Crown') gameState.permanentBonuses.wordPoints += 3;
+                        if (artifact.name === 'Golden Harp') gameState.permanentBonuses.dailyBonus += 10;
+                        
+                        showDiscovery(`🏺 Found Artifact: ${artifact.name}!`, artifact.bonus);
+                    }
+                }
                 
                 // Clear selection
                 gameState.selectedLetters = [];
                 
                 // Save
                 saveGame();
-                showNotification(`✨ ${word} +${WORD_DB[word].points}`);
+                showNotification(`✨ ${word} +${points}`);
                 updateUI();
+                
+                // Update blueprints tab if open
+                if (document.getElementById('blueprints-tab').style.display !== 'none') {
+                    updateBlueprintsTab();
+                }
             }
         }
 
@@ -786,42 +1347,95 @@
             updateUI();
         }
 
+        function performCombo(combo) {
+            // Check if we have all needed words
+            if (combo.needs.every(w => gameState.discoveredWords.includes(w))) {
+                gameState.combosDone.push(combo.result);
+                
+                // Add the new word if it exists
+                if (!gameState.discoveredWords.includes(combo.result)) {
+                    gameState.discoveredWords.push(combo.result);
+                    gameState.timeCrystals += 25;
+                    gameState.knowledge += 10;
+                    showNotification(`⚡ Created ${combo.result}!`);
+                }
+                
+                saveGame();
+                updateUI();
+            }
+        }
+
+        function researchBlueprint(name) {
+            const blueprint = BLUEPRINT_DB[name];
+            if (gameState.knowledge >= blueprint.cost && gameState.blueprints.includes(name)) {
+                gameState.knowledge -= blueprint.cost;
+                gameState.blueprints = gameState.blueprints.filter(b => b !== name);
+                gameState.researched.push(name);
+                
+                // Apply permanent bonus based on blueprint
+                if (name === 'PICKAXE') gameState.permanentBonuses.maxLetters += 2;
+                if (name === 'LIBRARY') gameState.permanentBonuses.dailyBonus += 5;
+                if (name === 'ALCHEMY') { /* Fuse ability - handled elsewhere */ }
+                if (name === 'BRONZE_COMPASS') gameState.permanentBonuses.expeditionBonus += 1;
+                
+                showNotification(`🔬 Researched: ${name}!`);
+                saveGame();
+                updateBlueprintsTab();
+                updateUI();
+            }
+        }
+
         function advanceAge() {
             if (gameState.timeCrystals >= 50) {
                 gameState.timeCrystals -= 50;
                 gameState.completedAges.push(gameState.currentAge);
                 gameState.currentAge = AGES[gameState.currentAge].next;
                 
-                // Bonus letters
+                // Bonus letters and knowledge
                 const bonus = ['A','E','I','O','U'];
-                bonus.forEach(l => gameState.letters[l] = (gameState.letters[l] || 0) + 2);
+                bonus.forEach(l => gameState.letters[l] = (gameState.letters[l] || 0) + 3);
+                gameState.knowledge += 20;
                 
                 showNotification(`🌟 Entered Age of ${AGES[gameState.currentAge].name}`);
                 saveGame();
                 updateUI();
-            } else {
-                showNotification('❌ Need 50 crystals');
             }
         }
 
         function startExpedition() {
-            if (gameState.timeCrystals >= 15) {
-                gameState.timeCrystals -= 15;
+            let cost = 15;
+            if (gameState.timeCrystals >= cost) {
+                gameState.timeCrystals -= cost;
                 
                 const found = [];
-                for (let i = 0; i < 3; i++) {
+                let count = 3 + (gameState.permanentBonuses.expeditionBonus || 0);
+                
+                for (let i = 0; i < count; i++) {
                     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                     const letter = letters[Math.floor(Math.random() * letters.length)];
                     gameState.letters[letter] = (gameState.letters[letter] || 0) + 1;
                     found.push(letter);
                 }
                 
-                showNotification(`🗺️ Found: ${found.join('')}`);
+                showNotification(`🗺️ Found: ${found.join(' ')}`);
                 saveGame();
                 updateUI();
-            } else {
-                showNotification('❌ Need 15 crystals');
             }
+        }
+
+        // ==================== UTILITIES ====================
+        function showDiscovery(title, effect) {
+            document.getElementById('discovery-title').textContent = title;
+            document.getElementById('discovery-name').textContent = effect;
+            document.getElementById('discovery-modal').classList.add('active');
+        }
+
+        function closeDiscoveryModal() {
+            document.getElementById('discovery-modal').classList.remove('active');
+        }
+
+        function closeLoreModal() {
+            document.getElementById('lore-modal').classList.remove('active');
         }
 
         function showNotification(msg) {
@@ -832,17 +1446,9 @@
             setTimeout(() => notif.remove(), 2000);
         }
 
-        function closeLoreModal() {
-            document.getElementById('lore-modal').classList.remove('active');
-        }
-
         function saveGame() {
-            localStorage.setItem('agesOfDiscovery', JSON.stringify(gameState));
+            localStorage.setItem('agesBlueprint', JSON.stringify(gameState));
         }
-
-        // ==================== EVENT LISTENERS ====================
-        document.getElementById('craft-btn').addEventListener('click', craftWord);
-        document.getElementById('clear-btn').addEventListener('click', clearSelection);
 
         // Daily bonus
         function checkDaily() {
@@ -850,16 +1456,31 @@
             const today = new Date().toDateString();
             
             if (last !== today) {
-                gameState.timeCrystals += 20;
-                ['A','E','I','O','U','R','S','T'].forEach(l => {
+                let bonus = 20 + (gameState.permanentBonuses.dailyBonus || 0);
+                gameState.timeCrystals += bonus;
+                
+                const letters = ['A','E','I','O','U','R','S','T'];
+                letters.forEach(l => {
                     gameState.letters[l] = (gameState.letters[l] || 0) + 1;
                 });
-                showNotification('📅 Daily bonus +20');
+                
+                showNotification(`📅 Daily bonus +${bonus}`);
                 localStorage.setItem('lastDaily', today);
                 saveGame();
                 updateUI();
             }
         }
+
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('craft-btn').addEventListener('click', craftWord);
+        document.getElementById('clear-btn').addEventListener('click', clearSelection);
+
+        // Make functions global for onclick handlers
+        window.switchTab = switchTab;
+        window.startExpedition = startExpedition;
+        window.researchBlueprint = researchBlueprint;
+        window.closeDiscoveryModal = closeDiscoveryModal;
+        window.closeLoreModal = closeLoreModal;
 
         // Start
         initGame();
