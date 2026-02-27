@@ -325,7 +325,7 @@
             cursor: pointer;
         }
         
-        /* Merge Chamber */
+        /* Merge Chamber - REMOVED SLOTS */
         .merge-chamber {
             background: #1a1a3a;
             border-radius: 20px;
@@ -369,74 +369,9 @@
             box-shadow: 0 0 10px gold;
         }
         
-        .slots {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
+        /* REMOVED .slots section completely */
         
-        .slot {
-            width: 80px;
-            height: 100px;
-            background: #2a2a4a;
-            border: 2px dashed gold;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            padding: 5px;
-            transition: all 0.3s;
-            opacity: 1;
-        }
-        
-        .slot.inactive {
-            opacity: 0.3;
-            border-color: #666;
-        }
-        
-        .slot.filled {
-            border: 3px solid gold;
-            background: #3a3a5a;
-        }
-        
-        .slot.common { background: linear-gradient(135deg, #a0a0a0, #707070); }
-        .slot.uncommon { background: linear-gradient(135deg, #4caf50, #2e7d32); }
-        .slot.rare { background: linear-gradient(135deg, #2196f3, #0d47a1); }
-        .slot.epic { background: linear-gradient(135deg, #9c27b0, #4a0072); }
-        .slot.legendary { background: linear-gradient(135deg, #ff9800, #bf360c); }
-        .slot.mythic { background: linear-gradient(135deg, #ffd700, #b8860b); animation: slotPulse 2s infinite; }
-        
-        @keyframes slotPulse {
-            0% { box-shadow: 0 0 5px gold; }
-            50% { box-shadow: 0 0 20px gold; }
-            100% { box-shadow: 0 0 5px gold; }
-        }
-        
-        .remove-slot {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 24px;
-            height: 24px;
-            background: red;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 2px solid white;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        
-        /* NEW: Slot Indicators (Circles) */
+        /* NEW: Slot Indicators (Circles) - now green when filled */
         .slot-indicators {
             display: flex;
             gap: 8px;
@@ -454,9 +389,9 @@
         }
         
         .slot-circle.filled {
-            background: gold;
-            box-shadow: 0 0 10px gold;
-            border-color: gold;
+            background: #4caf50;  /* CHANGED: gold to green */
+            box-shadow: 0 0 10px #4caf50;
+            border-color: #4caf50;
         }
         
         .slot-circle.inactive {
@@ -611,7 +546,7 @@
             border: 4px solid gold; 
             transform: scale(1.02);
             opacity: 0.6;
-            pointer-events: none;
+            /* REMOVED pointer-events: none to allow unselecting */
         }
         
         .card.dimmed {
@@ -944,7 +879,7 @@
                 </div>
             </div>
             
-            <!-- Merge Tab (with stacked cards and circle indicators) -->
+            <!-- Merge Tab (with circle indicators only - NO SLOTS) -->
             <div id="mergeTab" style="display: none;">
                 <!-- Merge Chamber -->
                 <div class="merge-chamber">
@@ -957,15 +892,9 @@
                         <button class="size-btn" onclick="setMergeSize(5)">5 Cards</button>
                     </div>
                     
-                    <div class="slots">
-                        <div class="slot" id="slot1"></div>
-                        <div class="slot" id="slot2"></div>
-                        <div class="slot" id="slot3"></div>
-                        <div class="slot" id="slot4"></div>
-                        <div class="slot" id="slot5"></div>
-                    </div>
+                    <!-- REMOVED: All slot divs (slot1-slot5) -->
                     
-                    <!-- NEW: Circle Indicators -->
+                    <!-- Circle Indicators (now green when filled) -->
                     <div class="slot-indicators">
                         <div class="slot-circle" id="circle1"></div>
                         <div class="slot-circle" id="circle2"></div>
@@ -974,7 +903,7 @@
                         <div class="slot-circle" id="circle5"></div>
                     </div>
                     
-                    <!-- Preview Text and Chance Display (unchanged) -->
+                    <!-- Preview Text and Chance Display -->
                     <div class="preview-text" id="previewText">Select cards of the same rarity</div>
                     <div class="chance-display" id="chanceDisplay"></div>
                     
@@ -1125,7 +1054,7 @@
         const PITY_INCREMENT = 0.05;
         const MAX_PITY = 0.5;
         
-        // NEW: Update circle indicators
+        // NEW: Update circle indicators (now green)
         function updateSlotIndicators() {
             for (let i = 1; i <= 5; i++) {
                 const circle = document.getElementById(`circle${i}`);
@@ -1134,7 +1063,7 @@
                 if (i <= mergeSize) {
                     circle.classList.remove('inactive');
                     if (selectedCards.length >= i) {
-                        circle.classList.add('filled');
+                        circle.classList.add('filled'); // Now green
                     } else {
                         circle.classList.remove('filled');
                     }
@@ -1160,17 +1089,7 @@
                 selectedCards = selectedCards.slice(0, mergeSize);
             }
             
-            // Update slot visibility
-            for (let i = 1; i <= 5; i++) {
-                let slot = document.getElementById(`slot${i}`);
-                if (slot) {
-                    if (i <= mergeSize) {
-                        slot.classList.remove('inactive');
-                    } else {
-                        slot.classList.add('inactive');
-                    }
-                }
-            }
+            // REMOVED: slot visibility update (slots no longer exist)
             
             updateSlotIndicators();
             renderMergeGrid();
@@ -1508,64 +1427,113 @@
             `;
             
             if (isMergeable) {
-                div.onclick = () => addToMerge(card, stackInfo);
+                div.onclick = () => toggleCardSelection(card, stackInfo); // CHANGED: from addToMerge to toggleCardSelection
             }
             
             return div;
         }
         
-        // Add to merge function
-        window.addToMerge = function(card, stackInfo = null) {
+        // NEW: Toggle card selection (select/unselect)
+        window.toggleCardSelection = function(card, stackInfo = null) {
+            // Handle stacked cards (multiple copies)
             if (stackInfo && stackInfo.count > 1) {
-                const availableCopy = collection.find(c => 
-                    c.word === card.word && 
-                    c.rarity === card.rarity && 
-                    !selectedCards.includes(c.id)
-                );
+                // Find how many from this stack are already selected
+                const selectedFromStack = selectedCards.filter(id => {
+                    const c = collection.find(coll => coll.id === id);
+                    return c && c.word === card.word && c.rarity === card.rarity;
+                });
                 
-                if (availableCopy) {
-                    card = availableCopy;
-                } else {
-                    showToast('No available copies of this card to select');
-                    return;
+                // If all copies are selected, remove one
+                if (selectedFromStack.length === stackInfo.count) {
+                    // Remove the last selected copy from this stack
+                    const toRemove = selectedFromStack[selectedFromStack.length - 1];
+                    const index = selectedCards.indexOf(toRemove);
+                    if (index !== -1) {
+                        selectedCards.splice(index, 1);
+                        showToast(`Removed ${card.word}`);
+                    }
+                } 
+                // If some are selected but not all, add one more (if space allows)
+                else if (selectedFromStack.length > 0 && selectedFromStack.length < stackInfo.count) {
+                    // Find an unselected copy from this stack
+                    const unselectedCopy = collection.find(c => 
+                        c.word === card.word && 
+                        c.rarity === card.rarity && 
+                        !selectedCards.includes(c.id)
+                    );
+                    
+                    if (unselectedCopy) {
+                        // Check if can add (rarity match and space)
+                        if (canAddToMerge(unselectedCopy)) {
+                            selectedCards.push(unselectedCopy.id);
+                            showToast(`Added ${unselectedCopy.word}`);
+                        }
+                    }
+                }
+                // If none selected, add one
+                else {
+                    // Find an unselected copy
+                    const unselectedCopy = collection.find(c => 
+                        c.word === card.word && 
+                        c.rarity === card.rarity && 
+                        !selectedCards.includes(c.id)
+                    );
+                    
+                    if (unselectedCopy && canAddToMerge(unselectedCopy)) {
+                        selectedCards.push(unselectedCopy.id);
+                        showToast(`Added ${unselectedCopy.word}`);
+                    }
+                }
+            } 
+            // Single card (not stacked)
+            else {
+                // If already selected, remove it
+                if (selectedCards.includes(card.id)) {
+                    const index = selectedCards.indexOf(card.id);
+                    selectedCards.splice(index, 1);
+                    showToast(`Removed ${card.word}`);
+                } 
+                // Otherwise try to add it
+                else if (canAddToMerge(card)) {
+                    selectedCards.push(card.id);
+                    showToast(`Added ${card.word}`);
                 }
             }
             
-            if (selectedCards.includes(card.id)) {
-                showToast('Card already selected');
-                return;
-            }
-            
-            if (selectedCards.length >= mergeSize) {
-                showToast(`Maximum ${mergeSize} cards`);
-                return;
-            }
-            
-            if (selectedCards.length > 0) {
-                let firstCard = collection.find(c => c.id === selectedCards[0]);
-                if (firstCard.rarity !== card.rarity) {
-                    showToast('Cards must be same rarity');
-                    return;
-                }
-            }
-            
-            if (card.rarity === 'mythic') {
-                showToast('Mythic cards cannot be merged');
-                return;
-            }
-            
-            selectedCards.push(card.id);
             renderMergeGrid();
             updateMergeButton();
             updateSlotIndicators();
         };
         
-        window.removeFromMerge = function(index) {
-            selectedCards.splice(index, 1);
-            renderMergeGrid();
-            updateMergeButton();
-            updateSlotIndicators();
-        };
+        // Helper function to check if a card can be added to merge
+        function canAddToMerge(card) {
+            // Check max size
+            if (selectedCards.length >= mergeSize) {
+                showToast(`Maximum ${mergeSize} cards`);
+                return false;
+            }
+            
+            // Check same rarity as first selected card (if any)
+            if (selectedCards.length > 0) {
+                let firstCard = collection.find(c => c.id === selectedCards[0]);
+                if (firstCard && firstCard.rarity !== card.rarity) {
+                    showToast('Cards must be same rarity');
+                    return false;
+                }
+            }
+            
+            // Check if mythic (can't merge)
+            if (card.rarity === 'mythic') {
+                showToast('Mythic cards cannot be merged');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // REMOVED: addToMerge function (replaced by toggleCardSelection)
+        
+        // REMOVED: removeFromMerge function (handled by toggle now)
         
         window.quickFillMerge = function() {
             if (selectedCards.length === 0) {
@@ -1754,32 +1722,7 @@
                 grid.appendChild(createCardElement(representativeCard, true, highlightRarity, stackInfo));
             });
             
-            // Update slots
-            for (let i = 1; i <= 5; i++) {
-                let slot = document.getElementById(`slot${i}`);
-                if (!slot) continue;
-                
-                if (i <= mergeSize && selectedCards[i-1]) {
-                    let card = collection.find(c => c.id === selectedCards[i-1]);
-                    if (card) {
-                        slot.className = `slot filled ${card.rarity}`;
-                        slot.innerHTML = `
-                            <div>${card.word}</div>
-                            <div style="font-size: 8px; margin-top: 4px;">${RARITY_NAMES[card.rarity]}</div>
-                            <div class="remove-slot" onclick="removeFromMerge(${i-1})">✕</div>
-                        `;
-                        continue;
-                    }
-                }
-                
-                if (i <= mergeSize) {
-                    slot.className = 'slot';
-                    slot.innerHTML = '';
-                } else {
-                    slot.className = 'slot inactive';
-                    slot.innerHTML = '';
-                }
-            }
+            // REMOVED: slot updates (slots no longer exist)
             
             updateSlotIndicators();
         }
