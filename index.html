@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lexicon Forge - Word Crafting Game</title>
+    <title>Ages of Discovery: Lexicon Forge</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', 'Cinzel', serif;
         }
 
         body {
-            background: linear-gradient(135deg, #1e2c3a, #0f1a24);
+            background: linear-gradient(135deg, #0a0f1e, #1a1f2e);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -24,515 +24,500 @@
         #game-container {
             max-width: 500px;
             width: 100%;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(10, 15, 30, 0.9);
             backdrop-filter: blur(10px);
             border-radius: 30px;
             padding: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
-        }
-
-        .title {
-            font-size: 24px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #ffd700, #ffae42);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .resources {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px 15px;
-            border-radius: 50px;
-            border: 1px solid #ffd700;
-            color: #ffd700;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        /* Village Section */
-        .village-section {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .section-title {
-            color: #ffd700;
-            font-size: 18px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .village-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px;
-            border-radius: 12px;
-            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 215, 0, 0.2);
         }
 
-        .stat-label {
-            color: #a0a0a0;
-            font-size: 12px;
-        }
-
-        .stat-value {
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        /* Letter Collection */
-        .letters-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 6px;
-            margin-bottom: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
+        /* Age Header */
+        .age-header {
+            background: linear-gradient(135deg, #2a1f0a, #1a150a);
             border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #ffd700;
+            position: relative;
+            overflow: hidden;
         }
 
-        .letter-tile {
-            aspect-ratio: 1;
-            background: linear-gradient(135deg, #4a3f2c, #2a2318);
-            border: 2px solid #ffd700;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .age-name {
             font-size: 24px;
             font-weight: bold;
             color: #ffd700;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            cursor: pointer;
-            transition: all 0.2s;
+            font-family: 'Cinzel', serif;
+            margin-bottom: 5px;
+        }
+
+        .age-theme {
+            color: #a0a0a0;
+            font-size: 14px;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .age-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .age-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffae42);
+            transition: width 0.5s ease;
+        }
+
+        .age-description {
+            color: #fff;
+            font-size: 12px;
+            margin-top: 10px;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        /* Time Crystal (Resource) */
+        .time-crystals {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 15px;
+            border-radius: 50px;
+            border: 1px solid #ffd700;
+        }
+
+        .crystal-icon {
+            color: #ffd700;
+            font-size: 20px;
+        }
+
+        .crystal-count {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Word of Power Styling */
+        .word-of-power {
+            background: linear-gradient(135deg, #2a1f0a, #1a150a);
+            border: 2px solid #ffd700;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
             position: relative;
+            overflow: hidden;
         }
 
-        .letter-tile.selected {
-            transform: scale(0.95);
-            border-color: #ffae42;
-            box-shadow: 0 0 15px #ffd700;
-        }
-
-        .letter-tile.empty {
+        .word-of-power::before {
+            content: '✨';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 40px;
             opacity: 0.3;
+            transform: rotate(20deg);
+        }
+
+        .word-power-text {
+            font-size: 14px;
+            color: #ffd700;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        /* Age Gates */
+        .age-gate {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px dashed #ffd700;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .age-gate:hover:not(.locked) {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(1.02);
+        }
+
+        .age-gate.locked {
+            opacity: 0.5;
             border-color: #666;
             cursor: not-allowed;
         }
 
-        .letter-count {
-            position: absolute;
-            bottom: -2px;
-            right: -2px;
-            background: #ffd700;
-            color: #1e2c3a;
-            font-size: 10px;
-            padding: 2px 4px;
-            border-radius: 50%;
-            min-width: 16px;
-            text-align: center;
-        }
-
-        /* Word Crafting Area */
-        .crafting-area {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 2px dashed #ffd700;
-        }
-
-        .current-word {
-            background: rgba(255, 215, 0, 0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .word-letters {
-            font-size: 36px;
-            font-weight: bold;
+        .gate-name {
             color: #ffd700;
-            letter-spacing: 8px;
-            margin-bottom: 5px;
-            min-height: 54px;
-        }
-
-        .word-hint {
-            color: #a0a0a0;
-            font-size: 14px;
-        }
-
-        .crafting-controls {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 16px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #ffd700, #ffae42);
-            color: #1e2c3a;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 2px solid #ffd700;
-            color: #ffd700;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 215, 0, 0.1);
-        }
-
-        .btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        /* Available Words Grid */
-        .words-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .word-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            border-radius: 12px;
-            padding: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .word-card:hover {
-            background: rgba(255, 215, 0, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .word-card.craftable {
-            border-color: #ffd700;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-        }
-
-        .word-name {
-            color: #ffd700;
-            font-weight: bold;
             font-size: 18px;
-            margin-bottom: 4px;
+            font-weight: bold;
         }
 
-        .word-letters-req {
+        .gate-requirement {
             color: #a0a0a0;
             font-size: 12px;
-            margin-bottom: 4px;
         }
 
-        .word-desc {
-            color: white;
-            font-size: 11px;
-            opacity: 0.8;
-        }
-
-        /* Notifications */
-        .notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid #ffd700;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: bold;
-            z-index: 1000;
-            animation: slideDown 0.3s ease;
-            max-width: 90%;
-            text-align: center;
-        }
-
-        @keyframes slideDown {
-            from {
-                top: -100px;
-                opacity: 0;
-            }
-            to {
-                top: 20px;
-                opacity: 1;
-            }
-        }
-
-        /* Progress Bar */
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ffd700, #ffae42);
-            transition: width 0.3s ease;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .modal.active {
+        /* Timeline */
+        .timeline {
             display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 15px 0;
+            margin: 20px 0;
+            scrollbar-width: thin;
+            scrollbar-color: #ffd700 #1a1f2e;
         }
 
-        .modal-content {
-            background: #1e2c3a;
-            border-radius: 30px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            border: 2px solid #ffd700;
+        .timeline-age {
+            min-width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #1a1f2e;
+            border: 2px solid;
+            font-size: 10px;
             text-align: center;
+            padding: 5px;
+            transition: all 0.3s;
+            cursor: pointer;
         }
 
-        .modal-title {
-            color: #ffd700;
-            font-size: 28px;
-            margin-bottom: 15px;
+        .timeline-age.current {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px currentColor;
         }
 
-        .modal-text {
-            color: white;
-            margin-bottom: 20px;
-            line-height: 1.6;
+        .timeline-age.completed {
+            opacity: 0.8;
         }
 
         /* Responsive */
         @media (max-width: 400px) {
-            .letters-grid {
-                grid-template-columns: repeat(6, 1fr);
-            }
-            
-            .words-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .village-stats {
-                grid-template-columns: 1fr;
+            .timeline-age {
+                min-width: 60px;
+                height: 60px;
+                font-size: 8px;
             }
         }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <!-- Header -->
-        <div class="header">
-            <div class="title">📖 LEXICON FORGE</div>
-            <div class="resources" id="score-display">0</div>
+        <!-- Header with Time Crystals -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div class="title" style="font-size: 24px; color: #ffd700; font-family: 'Cinzel';">📖 AGES OF DISCOVERY</div>
+            <div class="time-crystals">
+                <span class="crystal-icon">⏳</span>
+                <span class="crystal-count" id="crystal-display">100</span>
+            </div>
         </div>
 
-        <!-- Village Section -->
-        <div class="village-section">
-            <div class="section-title">
-                <span>🏡 Your Village</span>
-                <span style="font-size: 12px; color: #a0a0a0;">Phase 1: Hamlet</span>
+        <!-- Current Age Display -->
+        <div class="age-header" id="age-header">
+            <div class="age-name" id="current-age-name">Age of Stone</div>
+            <div class="age-theme" id="current-age-theme">Survival & Foundations</div>
+            <div class="age-progress">
+                <div class="age-progress-fill" id="age-progress" style="width: 0%"></div>
             </div>
-            <div class="village-stats">
-                <div class="stat-card">
-                    <div class="stat-label">Buildings</div>
-                    <div class="stat-value" id="buildings-count">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Villagers</div>
-                    <div class="stat-value" id="villagers-count">1</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Words Found</div>
-                    <div class="stat-value" id="words-found">0/12</div>
-                </div>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="village-progress" style="width: 0%"></div>
+            <div class="age-description" id="age-description">
+                The world is raw and untamed. Speak the first words of shelter and fire.
             </div>
         </div>
+
+        <!-- Timeline of Ages -->
+        <div class="timeline" id="timeline"></div>
 
         <!-- Letter Collection -->
-        <div class="section-title">
-            <span>🔤 Your Letters</span>
-            <span style="font-size: 12px; color: #a0a0a0;">Click to select/deselect</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
+            <div class="section-title">🔤 Runic Letters</div>
+            <div style="color: #ffd700; font-size: 14px;" id="letter-count">0/26</div>
         </div>
         <div class="letters-grid" id="letters-grid"></div>
 
-        <!-- Crafting Area -->
-        <div class="crafting-area">
-            <div class="current-word">
-                <div class="word-letters" id="current-word-display"></div>
-                <div class="word-hint" id="word-hint">Select letters to craft a word</div>
-            </div>
-            <div class="crafting-controls">
-                <button class="btn btn-primary" id="craft-btn" disabled>Craft Word 🔨</button>
-                <button class="btn btn-secondary" id="clear-btn">Clear ✕</button>
-            </div>
+        <!-- Word of Power Crafting -->
+        <div class="word-of-power">
+            <div class="word-power-text">✧ CURRENT INCANTATION ✧</div>
+            <div class="word-letters" id="current-word-display" style="font-size: 36px; letter-spacing: 8px; min-height: 54px;">⚡</div>
+            <div class="word-hint" id="word-hint" style="color: #a0a0a0; font-size: 12px;">Select runes to speak a Word of Power</div>
         </div>
 
-        <!-- Available Words -->
-        <div class="section-title">
-            <span>📜 Words to Discover</span>
-            <span style="font-size: 12px; color: #a0a0a0;">Click a word to autofill</span>
+        <!-- Crafting Controls -->
+        <div class="crafting-controls">
+            <button class="btn btn-primary" id="craft-btn" disabled>✨ Speak Word</button>
+            <button class="btn btn-secondary" id="clear-btn">Clear Runes</button>
         </div>
-        <div class="words-grid" id="words-grid"></div>
+
+        <!-- Words of This Age -->
+        <div style="margin-top: 20px;">
+            <div class="section-title">📜 Words of the <span id="current-age-words">Stone</span> Age</div>
+            <div class="words-grid" id="words-grid"></div>
+        </div>
+
+        <!-- Age Gate (for next age) -->
+        <div class="age-gate locked" id="age-gate">
+            <div class="gate-name" id="next-age-name">Age of Bronze</div>
+            <div class="gate-requirement" id="gate-requirement">Craft all Stone Age words to unlock</div>
+        </div>
     </div>
 
-    <!-- Welcome Modal -->
-    <div class="modal" id="welcome-modal">
+    <!-- Lore Modal -->
+    <div class="modal" id="lore-modal">
         <div class="modal-content">
-            <div class="modal-title">📖 Welcome, Lexicographer!</div>
-            <div class="modal-text">
-                The world has fallen into linguistic decay. Your job is to restore it by crafting words from letters.<br><br>
-                Start by crafting basic words like FIRE, HUT, and AXE to build your village.<br><br>
-                <span style="color: #ffd700;">Click on letters to select them, then click Craft!</span>
+            <div class="modal-title">📖 The Lexicon's Lament</div>
+            <div class="modal-text" style="max-height: 300px; overflow-y: auto;">
+                <p style="margin-bottom: 15px;">In the beginning, the First Words sang creation into being.</p>
+                <p style="margin-bottom: 15px;">But a great Silence fell. Words fractured. Letters scattered across the ages.</p>
+                <p style="margin-bottom: 15px;">You are the last Lexicographer. The echoes call to you.</p>
+                <p style="color: #ffd700;">Journey through six ages. Rediscover the lost words. Rewrite reality.</p>
+                <hr style="border-color: #ffd700; margin: 15px 0;">
+                <p style="font-size: 12px;">Each age unlocks new words, new powers, and new mysteries...</p>
             </div>
-            <button class="btn btn-primary" onclick="closeWelcomeModal()">Begin Your Journey</button>
+            <button class="btn btn-primary" onclick="closeLoreModal()">Begin the Discovery</button>
         </div>
     </div>
 
     <script>
+        // Game Constants
+        const AGES = {
+            STONE: {
+                id: 'STONE',
+                name: 'Age of Stone',
+                theme: 'Survival & Foundations',
+                description: 'The world is raw and untamed. Speak the first words of shelter and fire.',
+                color: '#8B7355',
+                nextAge: 'BRONZE',
+                requiredWords: 5,
+                words: ['FIRE', 'STONE', 'HUT', 'AXE', 'WELL', 'BED']
+            },
+            BRONZE: {
+                id: 'BRONZE',
+                name: 'Age of Bronze',
+                theme: 'Tools & Villages',
+                description: 'Metal shapes the world. Forge words of strength and community.',
+                color: '#CD7F32',
+                nextAge: 'IRON',
+                requiredWords: 6,
+                words: ['FORGE', 'FIELD', 'OVEN', 'SWORD', 'SHIELD', 'MARKET']
+            },
+            IRON: {
+                id: 'IRON',
+                name: 'Age of Iron',
+                theme: 'Defense & Kingdom',
+                description: 'Steel your resolve. Craft words of protection and power.',
+                color: '#707070',
+                nextAge: 'GOLDEN',
+                requiredWords: 6,
+                words: ['CASTLE', 'KNIGHT', 'ARMOR', 'BANNER', 'THRONE', 'IRON']
+            },
+            GOLDEN: {
+                id: 'GOLDEN',
+                name: 'Golden Age',
+                theme: 'Art & Culture',
+                description: 'Prosperity blooms. Weave words of beauty and knowledge.',
+                color: '#FFD700',
+                nextAge: 'MYSTICAL',
+                requiredWords: 6,
+                words: ['LIBRARY', 'THEATER', 'GARDEN', 'FEAST', 'MUSIC', 'POETRY']
+            },
+            MYSTICAL: {
+                id: 'MYSTICAL',
+                name: 'Mystical Age',
+                theme: 'Magic & Legend',
+                description: 'Reality bends. Discover words that reshape the laws of nature.',
+                color: '#9B30FF',
+                nextAge: 'COSMIC',
+                requiredWords: 6,
+                words: ['PHOENIX', 'DRAGON', 'WIZARD', 'POTION', 'RUNE', 'STAR']
+            },
+            COSMIC: {
+                id: 'COSMIC',
+                name: 'Cosmic Age',
+                theme: 'Creation & Infinity',
+                description: 'Touch the face of eternity. Seek the First Words themselves.',
+                color: '#00FFFF',
+                nextAge: null,
+                requiredWords: 6,
+                words: ['GALAXY', 'INFINITY', 'CREATION', 'DREAM', 'ETERNITY', 'COSMOS']
+            }
+        };
+
+        // Word Database with Age Association
+        const WORD_DB = {
+            // Age of Stone
+            'FIRE': { age: 'STONE', letters: ['F','I','R','E'], desc: 'The first warmth', building: 'Campfire', points: 10, power: 'Illuminates darkness' },
+            'STONE': { age: 'STONE', letters: ['S','T','O','N','E'], desc: 'The foundation', building: 'Quarry', points: 15, power: 'Strengthens structures' },
+            'HUT': { age: 'STONE', letters: ['H','U','T'], desc: 'Simple shelter', building: 'Hut', points: 12, power: 'Protects from elements' },
+            'AXE': { age: 'STONE', letters: ['A','X','E'], desc: 'Cuts wood', building: 'Woodcutter', points: 15, power: 'Chops faster' },
+            'WELL': { age: 'STONE', letters: ['W','E','L','L'], desc: 'Fresh water', building: 'Well', points: 18, power: 'Quenches thirst' },
+            'BED': { age: 'STONE', letters: ['B','E','D'], desc: 'Rest your head', building: 'Bed', points: 10, power: 'Restores energy' },
+            
+            // Age of Bronze
+            'FORGE': { age: 'BRONZE', letters: ['F','O','R','G','E'], desc: 'Shapes metal', building: 'Forge', points: 25, power: 'Creates tools' },
+            'FIELD': { age: 'BRONZE', letters: ['F','I','E','L','D'], desc: 'Grows food', building: 'Field', points: 22, power: 'Provides harvest' },
+            'OVEN': { age: 'BRONZE', letters: ['O','V','E','N'], desc: 'Bakes bread', building: 'Oven', points: 20, power: 'Cooks food' },
+            'SWORD': { age: 'BRONZE', letters: ['S','W','O','R','D'], desc: 'Bronze blade', building: 'Weaponsmith', points: 30, power: 'Defends village' },
+            'SHIELD': { age: 'BRONZE', letters: ['S','H','I','E','L','D'], desc: 'Bronze protector', building: 'Shield', points: 28, power: 'Blocks attacks' },
+            'MARKET': { age: 'BRONZE', letters: ['M','A','R','K','E','T'], desc: 'Trade hub', building: 'Market', points: 35, power: 'Enables trading' },
+            
+            // Age of Iron
+            'CASTLE': { age: 'IRON', letters: ['C','A','S','T','L','E'], desc: 'Fortress', building: 'Castle', points: 50, power: 'Commands region' },
+            'KNIGHT': { age: 'IRON', letters: ['K','N','I','G','H','T'], desc: 'Noble warrior', building: 'Knight', points: 45, power: 'Defends honor' },
+            'ARMOR': { age: 'IRON', letters: ['A','R','M','O','R'], desc: 'Iron protection', building: 'Armor', points: 40, power: 'Withstands blows' },
+            'BANNER': { age: 'IRON', letters: ['B','A','N','N','E','R'], desc: 'Kingdom flag', building: 'Banner', points: 35, power: 'Inspires troops' },
+            'THRONE': { age: 'IRON', letters: ['T','H','R','O','N','E'], desc: 'Seat of power', building: 'Throne', points: 55, power: 'Rules with authority' },
+            'IRON': { age: 'IRON', letters: ['I','R','O','N'], desc: 'Strong metal', building: 'Iron Mine', points: 30, power: 'Strengthens all' },
+            
+            // Golden Age
+            'LIBRARY': { age: 'GOLDEN', letters: ['L','I','B','R','A','R','Y'], desc: 'House of knowledge', building: 'Library', points: 60, power: 'Preserves words' },
+            'THEATER': { age: 'GOLDEN', letters: ['T','H','E','A','T','E','R'], desc: 'Place of arts', building: 'Theater', points: 55, power: 'Entertains masses' },
+            'GARDEN': { age: 'GOLDEN', letters: ['G','A','R','D','E','N'], desc: 'Beautiful oasis', building: 'Garden', points: 45, power: 'Brings peace' },
+            'FEAST': { age: 'GOLDEN', letters: ['F','E','A','S','T'], desc: 'Grand celebration', building: 'Feast Hall', points: 50, power: 'Unites people' },
+            'MUSIC': { age: 'GOLDEN', letters: ['M','U','S','I','C'], desc: 'Art of sound', building: 'Conservatory', points: 48, power: 'Soothes souls' },
+            'POETRY': { age: 'GOLDEN', letters: ['P','O','E','T','R','Y'], desc: 'Written beauty', building: 'Poetry Circle', points: 52, power: 'Inspires creativity' },
+            
+            // Mystical Age
+            'PHOENIX': { age: 'MYSTICAL', letters: ['P','H','O','E','N','I','X'], desc: 'Reborn from ashes', building: 'Phoenix Nest', points: 80, power: 'Rises again' },
+            'DRAGON': { age: 'MYSTICAL', letters: ['D','R','A','G','O','N'], desc: 'Ancient wyrm', building: 'Dragon Lair', points: 85, power: 'Breathes fire' },
+            'WIZARD': { age: 'MYSTICAL', letters: ['W','I','Z','A','R','D'], desc: 'Master of magic', building: 'Wizard Tower', points: 75, power: 'Casts spells' },
+            'POTION': { age: 'MYSTICAL', letters: ['P','O','T','I','O','N'], desc: 'Magical brew', building: 'Potion Shop', points: 70, power: 'Heals and transforms' },
+            'RUNE': { age: 'MYSTICAL', letters: ['R','U','N','E'], desc: 'Mystical symbol', building: 'Runestone', points: 65, power: 'Enchants items' },
+            'STAR': { age: 'MYSTICAL', letters: ['S','T','A','R'], desc: 'Celestial light', building: 'Star Observatory', points: 72, power: 'Guides destiny' },
+            
+            // Cosmic Age
+            'GALAXY': { age: 'COSMIC', letters: ['G','A','L','A','X','Y'], desc: 'Island of stars', building: 'Galaxy', points: 100, power: 'Contains worlds' },
+            'INFINITY': { age: 'COSMIC', letters: ['I','N','F','I','N','I','T','Y'], desc: 'Endless', building: 'Infinity', points: 120, power: 'Transcends time' },
+            'CREATION': { age: 'COSMIC', letters: ['C','R','E','A','T','I','O','N'], desc: 'The beginning', building: 'Creation', points: 150, power: 'Makes worlds' },
+            'DREAM': { age: 'COSMIC', letters: ['D','R','E','A','M'], desc: 'Realm of sleep', building: 'Dream', points: 90, power: 'Shapes reality' },
+            'ETERNITY': { age: 'COSMIC', letters: ['E','T','E','R','N','I','T','Y'], desc: 'Forever', building: 'Eternity', points: 130, power: 'Never ends' },
+            'COSMOS': { age: 'COSMIC', letters: ['C','O','S','M','O','S'], desc: 'The universe', building: 'Cosmos', points: 140, power: 'Orders all' }
+        };
+
         // Game State
         let gameState = {
-            letters: {},
-            score: 0,
-            village: {
-                buildings: [],
-                villagers: 1,
-                phase: 'hamlet'
-            },
+            currentAge: 'STONE',
             discoveredWords: [],
-            selectedLetters: []
+            letters: {},
+            timeCrystals: 100,
+            selectedLetters: [],
+            completedAges: [],
+            ageProgress: {}
         };
 
-        // Word Database
-        const WORD_DB = {
-            // Phase 1: Hamlet Words (Basic survival)
-            'FIRE': { letters: ['F','I','R','E'], desc: 'Light and warmth', building: 'Campfire', points: 10 },
-            'HUT': { letters: ['H','U','T'], desc: 'Basic shelter', building: 'Hut', points: 15 },
-            'AXE': { letters: ['A','X','E'], desc: 'Chop wood', building: 'Woodcutter', points: 20 },
-            'WELL': { letters: ['W','E','L','L'], desc: 'Fresh water', building: 'Well', points: 25 },
-            'BED': { letters: ['B','E','D'], desc: 'Rest your head', building: 'Bed', points: 15 },
-            
-            // Phase 2: Village Words
-            'FOREST': { letters: ['F','O','R','E','S','T'], desc: 'Generates wood letters', building: 'Forest', points: 50, phase: 2 },
-            'FIELD': { letters: ['F','I','E','L','D'], desc: 'Grows food', building: 'Field', points: 40, phase: 2 },
-            'OVEN': { letters: ['O','V','E','N'], desc: 'Cook food', building: 'Oven', points: 35, phase: 2 },
-            'LIBRARY': { letters: ['L','I','B','R','A','R','Y'], desc: 'Find rare letters', building: 'Library', points: 60, phase: 2 },
-            
-            // Phase 3: Kingdom Words
-            'KNIGHT': { letters: ['K','N','I','G','H','T'], desc: 'Defend your realm', building: 'Knight', points: 70, phase: 3 },
-            'FEAST': { letters: ['F','E','A','S','T'], desc: 'Celebrate!', building: 'Feast Hall', points: 45, phase: 3 },
-            'GARDEN': { letters: ['G','A','R','D','E','N'], desc: 'Grow herbs', building: 'Garden', points: 55, phase: 3 }
-        };
-
-        // Initialize game
+        // Initialize Game
         function initGame() {
-            // Load saved game or start new
-            const saved = localStorage.getItem('lexiconForge');
+            const saved = localStorage.getItem('lexiconAges');
             if (saved) {
                 gameState = JSON.parse(saved);
             } else {
-                // Start with some basic letters
-                gameState.letters = {
-                    'A': 2, 'B': 1, 'C': 1, 'D': 1, 'E': 3, 'F': 1, 'G': 1, 'H': 1,
-                    'I': 2, 'J': 0, 'K': 0, 'L': 1, 'M': 0, 'N': 2, 'O': 2, 'P': 0,
-                    'Q': 0, 'R': 2, 'S': 1, 'T': 2, 'U': 1, 'V': 0, 'W': 1, 'X': 0,
-                    'Y': 0, 'Z': 0
-                };
-                gameState.score = 0;
-                gameState.discoveredWords = [];
-                gameState.selectedLetters = [];
+                // Start with basic letters
+                initializeLetters();
             }
             
             updateUI();
+            showLoreModal();
+        }
+
+        function initializeLetters() {
+            // Start with common letters for Stone Age
+            const starterLetters = ['A','E','I','O','U','R','S','T','N','F','H','M','L','C'];
+            starterLetters.forEach(letter => {
+                gameState.letters[letter] = (gameState.letters[letter] || 0) + 2;
+            });
             
-            // Show welcome modal for new players
-            if (!saved) {
-                document.getElementById('welcome-modal').classList.add('active');
-            }
+            // Add some rare ones
+            gameState.letters['X'] = 1;
+            gameState.letters['Y'] = 1;
         }
 
-        // Save game
-        function saveGame() {
-            localStorage.setItem('lexiconForge', JSON.stringify(gameState));
-        }
-
-        // Update all UI elements
+        // Update UI
         function updateUI() {
-            updateLettersGrid();
-            updateWordsGrid();
-            updateCraftButton();
-            updateVillageStats();
-            updateCurrentWordDisplay();
-            document.getElementById('score-display').textContent = gameState.score;
+            const currentAge = AGES[gameState.currentAge];
             
-            // Update words found count
-            const totalWords = Object.keys(WORD_DB).length;
-            document.getElementById('words-found').textContent = `${gameState.discoveredWords.length}/${totalWords}`;
+            // Update age header
+            document.getElementById('current-age-name').textContent = currentAge.name;
+            document.getElementById('current-age-theme').textContent = currentAge.theme;
+            document.getElementById('age-description').textContent = currentAge.description;
+            document.getElementById('current-age-words').textContent = currentAge.name.replace('Age of ', '');
+            
+            // Update age header color
+            document.getElementById('age-header').style.borderColor = currentAge.color;
+            
+            // Update progress
+            const wordsInAge = currentAge.words.filter(w => gameState.discoveredWords.includes(w)).length;
+            const progress = (wordsInAge / currentAge.words.length) * 100;
+            document.getElementById('age-progress').style.width = `${progress}%`;
+            
+            // Update timeline
+            updateTimeline();
+            
+            // Update letters grid
+            updateLettersGrid();
+            
+            // Update words grid
+            updateWordsGrid();
+            
+            // Update age gate
+            updateAgeGate();
+            
+            // Update crystal display
+            document.getElementById('crystal-display').textContent = gameState.timeCrystals;
+            
+            // Update letter count
+            const totalLetters = Object.values(gameState.letters).reduce((a, b) => a + b, 0);
+            document.getElementById('letter-count').textContent = totalLetters;
+            
+            // Update craft button
+            updateCraftButton();
+            
+            // Update current word display
+            updateCurrentWordDisplay();
         }
 
-        // Update letters grid
+        // Timeline
+        function updateTimeline() {
+            const timeline = document.getElementById('timeline');
+            timeline.innerHTML = '';
+            
+            Object.values(AGES).forEach(age => {
+                const ageElement = document.createElement('div');
+                ageElement.className = 'timeline-age';
+                ageElement.style.borderColor = age.color;
+                
+                if (gameState.currentAge === age.id) {
+                    ageElement.classList.add('current');
+                }
+                
+                if (gameState.completedAges.includes(age.id)) {
+                    ageElement.classList.add('completed');
+                    ageElement.innerHTML = `✅<br>${age.name.split(' ')[2]}`;
+                } else {
+                    ageElement.innerHTML = `⏳<br>${age.name.split(' ')[2]}`;
+                }
+                
+                ageElement.onclick = () => {
+                    if (gameState.completedAges.includes(age.id) || age.id === gameState.currentAge) {
+                        gameState.currentAge = age.id;
+                        updateUI();
+                    }
+                };
+                
+                timeline.appendChild(ageElement);
+            });
+        }
+
+        // Letters Grid
         function updateLettersGrid() {
             const grid = document.getElementById('letters-grid');
             grid.innerHTML = '';
@@ -558,40 +543,103 @@
             });
         }
 
-        // Update words grid
+        // Words Grid
         function updateWordsGrid() {
             const grid = document.getElementById('words-grid');
             grid.innerHTML = '';
             
-            Object.entries(WORD_DB).forEach(([word, data]) => {
-                if (gameState.discoveredWords.includes(word)) return;
-                
-                const card = document.createElement('div');
-                card.className = `word-card ${canCraftWord(word) ? 'craftable' : ''}`;
-                
-                // Check if we can auto-fill
-                const canAutofill = canCraftWord(word);
-                
-                card.innerHTML = `
-                    <div class="word-name">${word}</div>
-                    <div class="word-letters-req">${data.letters.join(' ')}</div>
-                    <div class="word-desc">${data.desc}</div>
-                    ${data.building ? `<div class="word-desc" style="color: #ffd700;">🏗️ Unlocks: ${data.building}</div>` : ''}
-                `;
-                
-                if (canAutofill) {
-                    card.onclick = () => autofillWord(word);
+            const currentAgeWords = AGES[gameState.currentAge].words;
+            
+            currentAgeWords.forEach(word => {
+                if (gameState.discoveredWords.includes(word)) {
+                    // Show discovered word
+                    const card = document.createElement('div');
+                    card.className = 'word-card';
+                    card.style.background = 'rgba(255, 215, 0, 0.1)';
+                    card.style.borderColor = '#ffd700';
+                    card.innerHTML = `
+                        <div class="word-name">✨ ${word}</div>
+                        <div class="word-desc">${WORD_DB[word].desc}</div>
+                        <div class="word-desc" style="color: #ffd700; font-size: 10px;">${WORD_DB[word].power}</div>
+                    `;
+                    grid.appendChild(card);
+                } else {
+                    // Show undiscovered word
+                    const canCraft = canCraftWord(word);
+                    const card = document.createElement('div');
+                    card.className = `word-card ${canCraft ? 'craftable' : ''}`;
+                    card.innerHTML = `
+                        <div class="word-name">${word}</div>
+                        <div class="word-letters-req">${WORD_DB[word].letters.join(' ')}</div>
+                        <div class="word-desc">${WORD_DB[word].desc}</div>
+                    `;
+                    
+                    if (canCraft) {
+                        card.onclick = () => autofillWord(word);
+                    }
+                    
+                    grid.appendChild(card);
                 }
-                
-                grid.appendChild(card);
             });
+        }
+
+        // Age Gate
+        function updateAgeGate() {
+            const currentAge = AGES[gameState.currentAge];
+            const gate = document.getElementById('age-gate');
+            const nextAgeName = document.getElementById('next-age-name');
+            const requirement = document.getElementById('gate-requirement');
+            
+            if (!currentAge.nextAge) {
+                gate.style.display = 'none';
+                return;
+            }
+            
+            const nextAge = AGES[currentAge.nextAge];
+            nextAgeName.textContent = nextAge.name;
+            
+            const wordsInAge = currentAge.words.filter(w => gameState.discoveredWords.includes(w)).length;
+            const required = currentAge.requiredWords;
+            
+            if (wordsInAge >= required) {
+                gate.classList.remove('locked');
+                requirement.textContent = `✨ Unlock ${nextAge.name} (Cost: 50 Time Crystals)`;
+                gate.onclick = () => advanceAge();
+            } else {
+                gate.classList.add('locked');
+                requirement.textContent = `Craft ${required - wordsInAge} more ${currentAge.name} words to unlock`;
+                gate.onclick = null;
+            }
+        }
+
+        // Advance to next age
+        function advanceAge() {
+            const currentAge = AGES[gameState.currentAge];
+            const cost = 50;
+            
+            if (gameState.timeCrystals >= cost) {
+                gameState.timeCrystals -= cost;
+                gameState.completedAges.push(gameState.currentAge);
+                gameState.currentAge = currentAge.nextAge;
+                
+                // Age transition bonus
+                const bonusLetters = ['A','E','I','O','U'];
+                bonusLetters.forEach(letter => {
+                    gameState.letters[letter] = (gameState.letters[letter] || 0) + 3;
+                });
+                
+                showNotification(`🌟 Entering the ${AGES[gameState.currentAge].name}!`);
+                saveGame();
+                updateUI();
+            } else {
+                showNotification(`❌ Need ${cost} Time Crystals!`);
+            }
         }
 
         // Toggle letter selection
         function toggleLetter(letter) {
             const index = gameState.selectedLetters.indexOf(letter);
             if (index === -1) {
-                // Check if we have enough of this letter
                 const currentCount = gameState.selectedLetters.filter(l => l === letter).length;
                 if (currentCount < (gameState.letters[letter] || 0)) {
                     gameState.selectedLetters.push(letter);
@@ -599,39 +647,41 @@
             } else {
                 gameState.selectedLetters.splice(index, 1);
             }
-            
             updateUI();
         }
 
-        // Clear selected letters
+        // Clear selection
         function clearSelection() {
             gameState.selectedLetters = [];
             updateUI();
         }
 
-        // Check if a word can be crafted
+        // Check if word can be crafted
         function canCraftWord(word) {
             const wordData = WORD_DB[word];
             if (!wordData) return false;
-            
-            // Check if already discovered
             if (gameState.discoveredWords.includes(word)) return false;
             
-            // Check if we have the letters
+            // Check if word is from current or previous age
+            const wordAge = wordData.age;
+            const currentAgeIndex = Object.keys(AGES).indexOf(gameState.currentAge);
+            const wordAgeIndex = Object.keys(AGES).indexOf(wordAge);
+            
+            if (wordAgeIndex > currentAgeIndex) return false;
+            
+            // Check letters
             const lettersNeeded = [...wordData.letters];
             const lettersAvailable = {...gameState.letters};
             
             for (const letter of lettersNeeded) {
-                if (!lettersAvailable[letter] || lettersAvailable[letter] === 0) {
-                    return false;
-                }
+                if (!lettersAvailable[letter] || lettersAvailable[letter] === 0) return false;
                 lettersAvailable[letter]--;
             }
             
             return true;
         }
 
-        // Craft current word
+        // Craft word
         function craftWord() {
             const word = gameState.selectedLetters.join('');
             
@@ -641,37 +691,25 @@
                     gameState.letters[letter]--;
                 }
                 
-                // Add to discovered words
+                // Add word
                 gameState.discoveredWords.push(word);
                 
-                // Add score
-                gameState.score += WORD_DB[word].points;
+                // Add time crystals
+                gameState.timeCrystals += WORD_DB[word].points;
                 
-                // Add building if applicable
-                if (WORD_DB[word].building) {
-                    gameState.village.buildings.push(WORD_DB[word].building);
-                    showNotification(`🏗️ Built: ${WORD_DB[word].building}!`);
-                }
-                
-                // Check for phase progression
-                updateVillagePhase();
+                // Show success
+                showNotification(`✨ Spoke the Word: ${word}! +${WORD_DB[word].points} Crystals`);
                 
                 // Clear selection
                 gameState.selectedLetters = [];
                 
-                // Save game
+                // Save
                 saveGame();
-                
-                // Show success message
-                showNotification(`✨ Crafted: ${word}! +${WORD_DB[word].points} points`);
-                
                 updateUI();
-            } else {
-                showNotification('❌ Not a valid word or missing letters!');
             }
         }
 
-        // Autofill a word
+        // Autofill word
         function autofillWord(word) {
             if (canCraftWord(word)) {
                 gameState.selectedLetters = WORD_DB[word].letters;
@@ -679,7 +717,7 @@
             }
         }
 
-        // Update craft button state
+        // Update craft button
         function updateCraftButton() {
             const btn = document.getElementById('craft-btn');
             const word = gameState.selectedLetters.join('');
@@ -693,106 +731,124 @@
             
             if (gameState.selectedLetters.length === 0) {
                 display.textContent = '⚡';
-                hint.textContent = 'Select letters to craft a word';
+                hint.textContent = 'Select runes to speak a Word of Power';
             } else {
                 display.textContent = gameState.selectedLetters.join('');
                 
                 const word = gameState.selectedLetters.join('');
                 if (WORD_DB[word]) {
-                    hint.textContent = `✨ ${WORD_DB[word].desc}`;
+                    hint.textContent = `✨ ${WORD_DB[word].desc} — ${WORD_DB[word].power}`;
                 } else {
-                    hint.textContent = '❌ Not a valid word';
+                    hint.textContent = '❌ This combination holds no power';
                 }
             }
         }
 
-        // Update village stats
-        function updateVillageStats() {
-            document.getElementById('buildings-count').textContent = gameState.village.buildings.length;
-            document.getElementById('villagers-count').textContent = gameState.village.villagers + gameState.discoveredWords.length;
+        // Daily Discovery
+        function dailyDiscovery() {
+            const lastPlayed = localStorage.getItem('lastPlayed');
+            const today = new Date().toDateString();
             
-            // Update progress to next phase
-            let progress = 0;
-            let phaseText = 'Phase 1: Hamlet';
-            
-            if (gameState.discoveredWords.length >= 8) {
-                progress = 100;
-                phaseText = 'Phase 3: Kingdom 👑';
-            } else if (gameState.discoveredWords.length >= 4) {
-                progress = ((gameState.discoveredWords.length - 4) / 4) * 100;
-                phaseText = 'Phase 2: Village 🏘️';
+            if (lastPlayed !== today) {
+                // Give Time Crystals
+                gameState.timeCrystals += 20;
+                
+                // Give random letters
+                const randomLetters = [];
+                for (let i = 0; i < 5; i++) {
+                    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                    randomLetters.push(alphabet[Math.floor(Math.random() * alphabet.length)]);
+                }
+                
+                randomLetters.forEach(letter => {
+                    gameState.letters[letter] = (gameState.letters[letter] || 0) + 1;
+                });
+                
+                showNotification(`📅 Daily Discovery: +20 Crystals and ${randomLetters.join(', ')}!`);
+                localStorage.setItem('lastPlayed', today);
+                saveGame();
+            }
+        }
+
+        // Expedition for letters
+        function startExpedition() {
+            const cost = 15;
+            if (gameState.timeCrystals >= cost) {
+                gameState.timeCrystals -= cost;
+                
+                const found = [];
+                for (let i = 0; i < 3; i++) {
+                    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                    const letter = alphabet[Math.floor(Math.random() * alphabet.length)];
+                    gameState.letters[letter] = (gameState.letters[letter] || 0) + 1;
+                    found.push(letter);
+                }
+                
+                showNotification(`🗺️ Expedition found: ${found.join(', ')}`);
+                saveGame();
+                updateUI();
             } else {
-                progress = (gameState.discoveredWords.length / 4) * 100;
-                phaseText = 'Phase 1: Hamlet 🏕️';
-            }
-            
-            document.querySelector('.section-title span:last-child').textContent = phaseText;
-            document.getElementById('village-progress').style.width = `${progress}%`;
-        }
-
-        // Update village phase
-        function updateVillagePhase() {
-            if (gameState.discoveredWords.length >= 4 && gameState.village.phase === 'hamlet') {
-                gameState.village.phase = 'village';
-                showNotification('🏘️ Your hamlet has grown into a village!');
-            } else if (gameState.discoveredWords.length >= 8 && gameState.village.phase === 'village') {
-                gameState.village.phase = 'kingdom';
-                showNotification('👑 Your village is now a kingdom!');
+                showNotification(`❌ Need ${cost} Crystals for expedition!`);
             }
         }
 
-        // Show notification
+        // Show notifications
         function showNotification(message) {
             const notification = document.createElement('div');
             notification.className = 'notification';
             notification.textContent = message;
             document.body.appendChild(notification);
             
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+            setTimeout(() => notification.remove(), 3000);
         }
 
-        // Close welcome modal
-        function closeWelcomeModal() {
-            document.getElementById('welcome-modal').classList.remove('active');
-        }
-
-        // Add daily bonus
-        function addDailyBonus() {
-            const lastPlayed = localStorage.getItem('lastPlayed');
-            const today = new Date().toDateString();
-            
-            if (lastPlayed !== today) {
-                // Give daily bonus letters
-                const bonusLetters = ['A', 'E', 'I', 'O', 'U', 'R', 'S', 'T'];
-                bonusLetters.forEach(letter => {
-                    gameState.letters[letter] = (gameState.letters[letter] || 0) + 1;
-                });
-                
-                showNotification('🎁 Daily Bonus: Vowels and common letters!');
-                localStorage.setItem('lastPlayed', today);
-                saveGame();
-                updateUI();
+        // Lore modal
+        function showLoreModal() {
+            if (!localStorage.getItem('loreSeen')) {
+                document.getElementById('lore-modal').classList.add('active');
+                localStorage.setItem('loreSeen', 'true');
             }
+        }
+
+        function closeLoreModal() {
+            document.getElementById('lore-modal').classList.remove('active');
+        }
+
+        // Save game
+        function saveGame() {
+            localStorage.setItem('lexiconAges', JSON.stringify(gameState));
         }
 
         // Event listeners
         document.getElementById('craft-btn').addEventListener('click', craftWord);
         document.getElementById('clear-btn').addEventListener('click', clearSelection);
 
-        // Initialize game
-        initGame();
-        addDailyBonus();
+        // Add expedition button
+        function addExpeditionButton() {
+            const craftingArea = document.querySelector('.crafting-area') || document.querySelector('.word-of-power').parentNode;
+            
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-secondary';
+            btn.style.marginTop = '15px';
+            btn.style.width = '100%';
+            btn.innerHTML = '🗺️ Send Expedition (15 Crystals)';
+            btn.onclick = startExpedition;
+            
+            craftingArea.appendChild(btn);
+        }
 
-        // Telegram Mini App integration
+        // Initialize
+        initGame();
+        dailyDiscovery();
+        
+        // Add expedition button after UI loads
+        setTimeout(addExpeditionButton, 1000);
+
+        // Telegram integration
         if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.ready();
             tg.expand();
-            
-            // Set theme colors
-            document.body.style.background = tg.backgroundColor || document.body.style.background;
         }
     </script>
 </body>
