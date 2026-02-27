@@ -325,16 +325,16 @@
             cursor: pointer;
         }
         
-        /* Merge Chamber */
+        /* Merge Chamber - UPDATED: removed sticky positioning */
         .merge-chamber {
             background: #1a1a3a;
             border-radius: 20px;
             padding: 20px;
             margin-bottom: 16px;
             border: 2px solid gold;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            /* position: sticky removed - now scrolls naturally */
+            /* top: 0 removed */
+            /* z-index: 10 removed */
         }
         
         .chamber-title {
@@ -870,7 +870,7 @@
             
             <!-- Merge Tab (UPDATED with Multi-Merge) -->
             <div id="mergeTab" style="display: none;">
-                <!-- Merge Chamber (Sticky) -->
+                <!-- Merge Chamber (Sticky removed - now scrolls naturally) -->
                 <div class="merge-chamber">
                     <div class="chamber-title">MERGE CHAMBER</div>
                     
