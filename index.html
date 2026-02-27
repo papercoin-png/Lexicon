@@ -325,13 +325,14 @@
             cursor: pointer;
         }
         
-        /* Merge Chamber - REMOVED SLOTS */
+        /* Merge Chamber */
         .merge-chamber {
             background: #1a1a3a;
             border-radius: 20px;
             padding: 20px;
             margin-bottom: 16px;
             border: 2px solid gold;
+            position: relative;
         }
         
         .chamber-title {
@@ -339,6 +340,38 @@
             text-align: center;
             margin-bottom: 16px;
             font-size: 18px;
+        }
+        
+        /* Reset Button */
+        .reset-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid gold;
+            color: gold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        
+        .reset-btn:hover:not(:disabled) {
+            background: gold;
+            color: #0a0a1a;
+            transform: rotate(180deg);
+        }
+        
+        .reset-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
         }
         
         /* Merge Size Selector */
@@ -369,9 +402,7 @@
             box-shadow: 0 0 10px gold;
         }
         
-        /* REMOVED .slots section completely */
-        
-        /* NEW: Slot Indicators (Circles) - now green when filled */
+        /* Slot Indicators (Circles) - green when filled */
         .slot-indicators {
             display: flex;
             gap: 8px;
@@ -389,7 +420,7 @@
         }
         
         .slot-circle.filled {
-            background: #4caf50;  /* CHANGED: gold to green */
+            background: #4caf50;
             box-shadow: 0 0 10px #4caf50;
             border-color: #4caf50;
         }
@@ -546,7 +577,6 @@
             border: 4px solid gold; 
             transform: scale(1.02);
             opacity: 0.6;
-            /* REMOVED pointer-events: none to allow unselecting */
         }
         
         .card.dimmed {
@@ -879,11 +909,14 @@
                 </div>
             </div>
             
-            <!-- Merge Tab (with circle indicators only - NO SLOTS) -->
+            <!-- Merge Tab (with circle indicators only) -->
             <div id="mergeTab" style="display: none;">
                 <!-- Merge Chamber -->
                 <div class="merge-chamber">
                     <div class="chamber-title">MERGE CHAMBER</div>
+                    
+                    <!-- Reset Button -->
+                    <div class="reset-btn" id="resetBtn" onclick="resetSelection()" title="Clear selection">↺</div>
                     
                     <!-- Merge Size Selector -->
                     <div class="merge-size-selector">
@@ -892,9 +925,7 @@
                         <button class="size-btn" onclick="setMergeSize(5)">5 Cards</button>
                     </div>
                     
-                    <!-- REMOVED: All slot divs (slot1-slot5) -->
-                    
-                    <!-- Circle Indicators (now green when filled) -->
+                    <!-- Circle Indicators (green when filled) -->
                     <div class="slot-indicators">
                         <div class="slot-circle" id="circle1"></div>
                         <div class="slot-circle" id="circle2"></div>
@@ -1054,7 +1085,38 @@
         const PITY_INCREMENT = 0.05;
         const MAX_PITY = 0.5;
         
-        // NEW: Update circle indicators (now green)
+        // NEW: Reset selection function
+        window.resetSelection = function() {
+            if (selectedCards.length === 0) {
+                showToast('No cards to clear');
+                return;
+            }
+            
+            selectedCards = [];
+            showToast('Selection cleared');
+            renderMergeGrid();
+            updateMergeButton();
+            updateSlotIndicators();
+            updateResetButton();
+        };
+        
+        // Update reset button state
+        function updateResetButton() {
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) {
+                if (selectedCards.length === 0) {
+                    resetBtn.disabled = true;
+                    resetBtn.style.opacity = '0.3';
+                    resetBtn.style.cursor = 'not-allowed';
+                } else {
+                    resetBtn.disabled = false;
+                    resetBtn.style.opacity = '1';
+                    resetBtn.style.cursor = 'pointer';
+                }
+            }
+        }
+        
+        // Update circle indicators (now green)
         function updateSlotIndicators() {
             for (let i = 1; i <= 5; i++) {
                 const circle = document.getElementById(`circle${i}`);
@@ -1063,7 +1125,7 @@
                 if (i <= mergeSize) {
                     circle.classList.remove('inactive');
                     if (selectedCards.length >= i) {
-                        circle.classList.add('filled'); // Now green
+                        circle.classList.add('filled');
                     } else {
                         circle.classList.remove('filled');
                     }
@@ -1089,11 +1151,10 @@
                 selectedCards = selectedCards.slice(0, mergeSize);
             }
             
-            // REMOVED: slot visibility update (slots no longer exist)
-            
             updateSlotIndicators();
             renderMergeGrid();
             updateMergeButton();
+            updateResetButton();
         };
         
         // Initialize with some cards
@@ -1274,6 +1335,7 @@
             if (document.getElementById('mergeTab').style.display !== 'none') {
                 renderMergeGrid();
                 updateSlotIndicators();
+                updateResetButton();
             }
             
             showToast('Account reset to starter pack!');
@@ -1342,6 +1404,7 @@
                 renderMergeGrid();
                 updateMergeButton();
                 updateSlotIndicators();
+                updateResetButton();
             }
             
             updateOfflineUI();
@@ -1377,6 +1440,7 @@
                 renderMergeGrid();
                 updateMergeButton();
                 updateSlotIndicators();
+                updateResetButton();
             } else if (tab === 'realm') {
                 updateRealmTab();
             } else if (tab === 'packs') {
@@ -1427,13 +1491,13 @@
             `;
             
             if (isMergeable) {
-                div.onclick = () => toggleCardSelection(card, stackInfo); // CHANGED: from addToMerge to toggleCardSelection
+                div.onclick = () => toggleCardSelection(card, stackInfo);
             }
             
             return div;
         }
         
-        // NEW: Toggle card selection (select/unselect)
+        // Toggle card selection (select/unselect)
         window.toggleCardSelection = function(card, stackInfo = null) {
             // Handle stacked cards (multiple copies)
             if (stackInfo && stackInfo.count > 1) {
@@ -1503,6 +1567,7 @@
             renderMergeGrid();
             updateMergeButton();
             updateSlotIndicators();
+            updateResetButton();
         };
         
         // Helper function to check if a card can be added to merge
@@ -1531,10 +1596,6 @@
             return true;
         }
         
-        // REMOVED: addToMerge function (replaced by toggleCardSelection)
-        
-        // REMOVED: removeFromMerge function (handled by toggle now)
-        
         window.quickFillMerge = function() {
             if (selectedCards.length === 0) {
                 showToast('Select a first card first');
@@ -1561,6 +1622,7 @@
                 renderMergeGrid();
                 updateMergeButton();
                 updateSlotIndicators();
+                updateResetButton();
             } else {
                 showToast('No matching cards available');
             }
@@ -1664,6 +1726,7 @@
             renderMergeGrid();
             updateMergeButton();
             updateSlotIndicators();
+            updateResetButton();
         };
         
         // Render merge grid
@@ -1721,8 +1784,6 @@
                 
                 grid.appendChild(createCardElement(representativeCard, true, highlightRarity, stackInfo));
             });
-            
-            // REMOVED: slot updates (slots no longer exist)
             
             updateSlotIndicators();
         }
