@@ -205,7 +205,7 @@
             font-weight: 700;
         }
         
-        /* Offline Earnings – magical glade */
+        /* Offline Earnings – magical glade (butterfly removed) */
         .offline-earnings {
             background: #1d4324;
             border: 3px solid #fbdd88;
@@ -218,16 +218,7 @@
             background-image: radial-gradient(circle at 70% 20%, #4cae4c, transparent 70%);
         }
         
-        .offline-earnings::before {
-            content: '🦋✨';
-            position: absolute;
-            right: 15px;
-            bottom: 10px;
-            font-size: 54px;
-            opacity: 0.3;
-            text-shadow: 0 0 30px cyan;
-            transform: rotate(5deg);
-        }
+        /* butterfly/sparkle completely removed */
         
         .earnings-title {
             color: #fff1b5;
@@ -590,19 +581,21 @@
             margin-top: 20px;
         }
         
+        /* Quick Fill button - REDUCED SIZE */
         .quick-fill-btn {
             width: 100%;
             background: #3c783c;
             color: #fcf5c0;
             border: 2px solid #ebc468;
-            padding: 16px 8px;
+            padding: 10px 6px;  /* reduced from 16px 8px */
             border-radius: 50px;
-            font-size: 16px;
+            font-size: 14px;     /* reduced from 16px */
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
             box-shadow: 0 6px 0 #1f4f1f;
             text-transform: uppercase;
+            line-height: 1.2;
         }
         
         .quick-fill-btn:hover:not(:disabled) {
@@ -618,13 +611,14 @@
             filter: grayscale(80%);
         }
         
+        /* Merge button - REDUCED SIZE */
         .merge-button {
             flex: 2;
-            padding: 16px 8px;
+            padding: 12px 6px;   /* reduced from 16px 8px */
             background: linear-gradient(145deg, #f7ca5a, #d99f30);
             border: none;
             border-radius: 50px;
-            font-size: 22px;
+            font-size: 18px;      /* reduced from 22px */
             font-weight: 800;
             cursor: pointer;
             color: #14200c;
@@ -633,6 +627,7 @@
             border: 3px solid #fff1b0;
             text-transform: uppercase;
             letter-spacing: 2px;
+            line-height: 1.2;
         }
         
         .merge-button:hover:not(:disabled) {
@@ -657,32 +652,32 @@
             50% { box-shadow: 0 8px 0 #8b611f, 0 0 60px #ffffc0; }
         }
         
-        /* Cards – vibrant, high contrast, jewel-toned */
+        /* Cards – vibrant, high contrast, jewel-toned - OPTIMIZED SIZE */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 10px;
+            gap: 10px;
+            margin-top: 8px;
         }
         
         .card {
             aspect-ratio: 3/4;
-            border-radius: 18px 28px 18px 28px;
-            padding: 10px 4px;
+            border-radius: 14px 22px 14px 22px; /* slightly smaller radius */
+            padding: 6px 3px;  /* reduced padding */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            border: 3px solid rgba(255, 255, 200, 0.7);
+            border: 2px solid rgba(255, 255, 200, 0.7);
             font-weight: bold;
             text-align: center;
             transition: all 0.2s;
             position: relative;
-            box-shadow: 0 10px 0 #1a3b1a, 0 0 20px rgba(255, 215, 0, 0.4);
+            box-shadow: 0 7px 0 #1a3b1a, 0 0 15px rgba(255, 215, 0, 0.4);
             background-size: cover;
             color: #1f2b0f;
-            text-shadow: 0 2px 3px rgba(255, 255, 200, 0.8);
+            text-shadow: 0 1px 2px rgba(255, 255, 200, 0.8);
             background-image: radial-gradient(circle at 20% 20%, rgba(255,255,220,0.5), transparent 60%);
         }
 
@@ -697,20 +692,20 @@
         }
 
         .card.stacked {
-            box-shadow: 0 10px 0 #1f4a1f, 5px 8px 0 rgba(255, 215, 0, 0.3), 10px 12px 0 rgba(200, 255, 150, 0.2);
-            transform: translateY(-4px);
+            box-shadow: 0 7px 0 #1f4a1f, 4px 6px 0 rgba(255, 215, 0, 0.3), 8px 10px 0 rgba(200, 255, 150, 0.2);
+            transform: translateY(-3px);
         }
         
         .card.partial-selected {
             opacity: 0.8;
-            border: 5px solid #feffbe;
-            transform: scale(0.98);
-            box-shadow: 0 0 40px #fdffb5, 0 8px 0 #1f4a1f;
+            border: 4px solid #feffbe;
+            transform: scale(0.97);
+            box-shadow: 0 0 30px #fdffb5, 0 7px 0 #1f4a1f;
         }
         
         .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 14px 0 #1a3b1a, 0 0 35px #fefecd;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 0 #1a3b1a, 0 0 30px #fefecd;
         }
         
         /* Rarity colors – vivid jewel tones */
@@ -718,50 +713,50 @@
             background: linear-gradient(145deg, #b59765, #8b6f48); 
             border-color: #c8b18b;
             color: #281f0f;
-            text-shadow: 0 2px 0 #e5d5b0;
+            text-shadow: 0 1px 0 #e5d5b0;
         }
         .card.uncommon { 
             background: linear-gradient(145deg, #2a9d4f, #1b793a); 
             border-color: #b0ff9a;
             color: #f5ffe1;
-            text-shadow: 0 2px 0 #1e5a1e;
+            text-shadow: 0 1px 0 #1e5a1e;
         }
         .card.rare { 
             background: linear-gradient(145deg, #4169e1, #1e3f9c); 
             border-color: #aac9ff;
             color: #f0f8ff;
-            text-shadow: 0 2px 0 #0b1f5a;
+            text-shadow: 0 1px 0 #0b1f5a;
         }
         .card.epic { 
             background: linear-gradient(145deg, #b380ff, #7a3fd6); 
             border-color: #eac3ff;
             color: #f7f0ff;
-            text-shadow: 0 2px 0 #3a1f6a;
+            text-shadow: 0 1px 0 #3a1f6a;
         }
         .card.legendary { 
             background: linear-gradient(145deg, #ffae42, #d1760f); 
             border-color: #ffeaa0;
             color: #2f1d0a;
-            text-shadow: 0 2px 0 #ffe29a;
+            text-shadow: 0 1px 0 #ffe29a;
         }
         .card.mythic { 
             background: linear-gradient(145deg, #f5e56b, #d4af37); 
             border-color: #fffcd1;
             color: #242103;
-            text-shadow: 0 0 8px white, 0 2px 0 #ffe074;
+            text-shadow: 0 0 6px white, 0 1px 0 #ffe074;
             animation: mythicPulse 2.5s infinite;
         }
         
         @keyframes mythicPulse {
-            0% { box-shadow: 0 10px 0 #6b4f1a, 0 0 25px #fff3b0; }
-            50% { box-shadow: 0 10px 0 #6b4f1a, 0 0 60px #ffffd0; }
+            0% { box-shadow: 0 7px 0 #6b4f1a, 0 0 20px #fff3b0; }
+            50% { box-shadow: 0 7px 0 #6b4f1a, 0 0 45px #ffffd0; }
         }
         
         .card.selected { 
-            border: 6px solid #f9f3b0; 
-            transform: scale(1.02);
+            border: 5px solid #f9f3b0; 
+            transform: scale(1.01);
             opacity: 0.8;
-            box-shadow: 0 0 50px #fefec9, 0 10px 0 #1f4a1f;
+            box-shadow: 0 0 40px #fefec9, 0 7px 0 #1f4a1f;
         }
         
         .card.dimmed {
@@ -770,42 +765,42 @@
         }
         
         .card.highlight {
-            border: 5px solid #fffbb0;
-            box-shadow: 0 0 45px #ffffb0, 0 10px 0 #1f4a1f;
+            border: 4px solid #fffbb0;
+            box-shadow: 0 0 35px #ffffb0, 0 7px 0 #1f4a1f;
         }
         
         .card-word {
-            font-size: 18px;
+            font-size: 15px;      /* slightly reduced */
             font-weight: 800;
-            margin-bottom: 6px;
-            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
             background: rgba(0,0,0,0.2);
-            padding: 3px 8px;
-            border-radius: 40px;
+            padding: 2px 6px;
+            border-radius: 30px;
             backdrop-filter: blur(2px);
         }
         
         .card-rarity {
-            font-size: 11px;
+            font-size: 9px;       /* slightly reduced */
             text-transform: uppercase;
             background: rgba(0, 0, 0, 0.4);
-            padding: 4px 8px;
-            border-radius: 40px;
+            padding: 3px 6px;
+            border-radius: 30px;
             color: #fffde5;
             text-shadow: 0 1px 2px black;
             font-weight: 600;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             backdrop-filter: blur(2px);
         }
         
         .card-count {
             position: absolute;
-            top: 5px;
-            right: 8px;
+            top: 3px;
+            right: 5px;
             background: #1f411f;
-            padding: 4px 9px;
+            padding: 3px 7px;
             border-radius: 40%;
-            font-size: 13px;
+            font-size: 11px;
             border: 2px solid #f9e481;
             color: #fffbc2;
             font-weight: 800;
@@ -814,13 +809,13 @@
         
         .card-selected-count {
             position: absolute;
-            bottom: 5px;
-            left: 8px;
+            bottom: 3px;
+            left: 5px;
             background: #fff5b0;
             color: #1d421d;
-            padding: 4px 8px;
-            border-radius: 30px;
-            font-size: 11px;
+            padding: 3px 6px;
+            border-radius: 20px;
+            font-size: 9px;
             font-weight: 800;
             border: 1px solid gold;
         }
@@ -950,16 +945,25 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         
         .empty-state {
-            text-align: center; padding: 50px 20px; color: #d0ecb0; grid-column: 1/-1;
+            text-align: center; padding: 40px 20px; color: #d0ecb0; grid-column: 1/-1;
         }
-        .empty-state-icon { font-size: 70px; margin-bottom: 20px; opacity: 0.8; filter: drop-shadow(0 0 20px cyan); }
-        .empty-state-text { font-size: 20px; margin-bottom: 20px; }
-        .empty-state-button { background: #eab952; color: #1e401e; border: none; padding: 15px 35px; border-radius: 60px; font-weight: 800; cursor: pointer; box-shadow: 0 7px 0 #5f481a; font-size: 18px; }
+        .empty-state-icon { font-size: 60px; margin-bottom: 15px; opacity: 0.8; filter: drop-shadow(0 0 20px cyan); }
+        .empty-state-text { font-size: 18px; margin-bottom: 18px; }
+        .empty-state-button { background: #eab952; color: #1e401e; border: none; padding: 12px 28px; border-radius: 60px; font-weight: 800; cursor: pointer; box-shadow: 0 7px 0 #5f481a; font-size: 16px; }
 
         .merge-flash-success { animation: successFlash 0.6s; }
         .merge-flash-failure { animation: failureFlash 0.6s; }
         @keyframes successFlash { 50% { box-shadow: 0 0 80px #aaffaa, 0 15px 0 #1d4f1d; } }
         @keyframes failureFlash { 50% { box-shadow: 0 0 80px #ffa07a, 0 15px 0 #541e1e; } }
+        
+        /* Heading for collection - REDUCED SIZE */
+        .collection-heading {
+            color: #fff2b0;
+            margin-bottom: 16px;
+            font-size: 18px;      /* reduced from 22px */
+            text-align: center;
+            text-shadow: 0 2px 0 #2d602d;
+        }
     </style>
 </head>
 <body>
@@ -1012,7 +1016,7 @@
                     <div class="realm-title">🌳 Enchanted Realm</div>
                     <p style="margin-bottom: 18px; color: #e5f5c5; font-size: 16px;">Magical words await in the glowing woods...</p>
                     
-                    <!-- Offline Earnings -->
+                    <!-- Offline Earnings (butterfly/sparkle removed) -->
                     <div class="offline-earnings">
                         <div class="earnings-title">
                             <span>✨ Glowing Accumulation</span>
@@ -1055,8 +1059,8 @@
                         </div>
                     </div>
                     
-                    <!-- Recent Cards Preview -->
-                    <h4 style="color: #f8efb0; margin: 20px 0 12px; font-size: 20px; display: flex; align-items: center; gap: 8px;">✨ Recent Whispers</h4>
+                    <!-- Recent Cards Preview - properly sized -->
+                    <h4 style="color: #f8efb0; margin: 16px 0 10px; font-size: 18px; display: flex; align-items: center; gap: 8px;">✨ Recent Whispers</h4>
                     <div class="cards-grid" id="recentCardsGrid"></div>
                     
                     <!-- Account Actions -->
@@ -1096,7 +1100,7 @@
                     <div class="preview-text" id="previewText">Select same-rarity cards</div>
                     <div class="chance-display" id="chanceDisplay"></div>
                     
-                    <!-- Quick Fill and Merge Button Row -->
+                    <!-- Quick Fill and Merge Button Row - both now smaller -->
                     <div class="action-row">
                         <div class="quick-fill">
                             <button class="quick-fill-btn" id="quickFillBtn" onclick="quickFillMerge()" disabled>✨ Quick Fill</button>
@@ -1107,9 +1111,9 @@
                     </div>
                 </div>
                 
-                <!-- Card Grid -->
-                <div style="background: #1c4828; border-radius: 50px; padding: 24px 16px; margin-top: 12px; border: 2px solid #e9c469;">
-                    <h3 style="color: #fff2b0; margin-bottom: 18px; font-size: 22px; text-align: center; text-shadow: 0 2px 0 #2d602d;">✨ Your Magical Collection</h3>
+                <!-- Card Grid with proper heading size -->
+                <div style="background: #1c4828; border-radius: 50px; padding: 20px 16px; margin-top: 12px; border: 2px solid #e9c469;">
+                    <h3 class="collection-heading">✨ Your Magical Collection</h3>
                     <div class="cards-grid" id="mergeGrid"></div>
                 </div>
             </div>
@@ -1139,7 +1143,7 @@
                     
                     <!-- Pack Results -->
                     <div style="margin-top: 25px;">
-                        <h4 style="color: #ffefb0; margin-bottom: 18px; font-size: 20px;">✨ Newly Discovered</h4>
+                        <h4 style="color: #ffefb0; margin-bottom: 15px; font-size: 18px;">✨ Newly Discovered</h4>
                         <div class="cards-grid" id="packResultsGrid"></div>
                     </div>
                 </div>
