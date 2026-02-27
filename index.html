@@ -445,14 +445,18 @@
             background-image: radial-gradient(circle at 30% 30%, #4a954a, #15441c);
         }
         
+        /* Merge Chamber title - REDUCED FONT SIZE to fit one line */
         .chamber-title {
             color: #fff0bb;
             text-align: center;
             margin-bottom: 18px;
-            font-size: 26px;
-            letter-spacing: 3px;
+            font-size: 22px;      /* reduced from 26px to fit one line */
+            letter-spacing: 2px;
             font-weight: 700;
             text-shadow: 0 0 15px #fdffc0, 0 3px 0 #336633;
+            white-space: nowrap;   /* prevent wrapping */
+            overflow: hidden;
+            max-width: 100%;
         }
         
         /* Reset button – glowing rune */
@@ -581,15 +585,15 @@
             margin-top: 20px;
         }
         
-        /* Quick Fill button - REDUCED SIZE */
+        /* Quick Fill button - smaller size */
         .quick-fill-btn {
             width: 100%;
             background: #3c783c;
             color: #fcf5c0;
             border: 2px solid #ebc468;
-            padding: 10px 6px;  /* reduced from 16px 8px */
+            padding: 10px 6px;
             border-radius: 50px;
-            font-size: 14px;     /* reduced from 16px */
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
@@ -611,14 +615,14 @@
             filter: grayscale(80%);
         }
         
-        /* Merge button - REDUCED SIZE */
+        /* Merge button - smaller size, ALWAYS shows "MERGE" */
         .merge-button {
             flex: 2;
-            padding: 12px 6px;   /* reduced from 16px 8px */
+            padding: 12px 6px;
             background: linear-gradient(145deg, #f7ca5a, #d99f30);
             border: none;
             border-radius: 50px;
-            font-size: 18px;      /* reduced from 22px */
+            font-size: 18px;
             font-weight: 800;
             cursor: pointer;
             color: #14200c;
@@ -628,6 +632,7 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             line-height: 1.2;
+            /* Always show MERGE - dynamic text will be set to "MERGE" in JS */
         }
         
         .merge-button:hover:not(:disabled) {
@@ -652,7 +657,7 @@
             50% { box-shadow: 0 8px 0 #8b611f, 0 0 60px #ffffc0; }
         }
         
-        /* Cards – vibrant, high contrast, jewel-toned - OPTIMIZED SIZE */
+        /* Cards – UNIFIED SIZE across both tabs */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -662,8 +667,8 @@
         
         .card {
             aspect-ratio: 3/4;
-            border-radius: 14px 22px 14px 22px; /* slightly smaller radius */
-            padding: 6px 3px;  /* reduced padding */
+            border-radius: 14px 22px 14px 22px;
+            padding: 6px 3px;  /* consistent padding */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -770,7 +775,7 @@
         }
         
         .card-word {
-            font-size: 15px;      /* slightly reduced */
+            font-size: 15px;
             font-weight: 800;
             margin-bottom: 4px;
             letter-spacing: 0.3px;
@@ -781,7 +786,7 @@
         }
         
         .card-rarity {
-            font-size: 9px;       /* slightly reduced */
+            font-size: 9px;
             text-transform: uppercase;
             background: rgba(0, 0, 0, 0.4);
             padding: 3px 6px;
@@ -956,11 +961,11 @@
         @keyframes successFlash { 50% { box-shadow: 0 0 80px #aaffaa, 0 15px 0 #1d4f1d; } }
         @keyframes failureFlash { 50% { box-shadow: 0 0 80px #ffa07a, 0 15px 0 #541e1e; } }
         
-        /* Heading for collection - REDUCED SIZE */
+        /* Heading for collection - consistent size */
         .collection-heading {
             color: #fff2b0;
             margin-bottom: 16px;
-            font-size: 18px;      /* reduced from 22px */
+            font-size: 18px;
             text-align: center;
             text-shadow: 0 2px 0 #2d602d;
         }
@@ -1100,7 +1105,7 @@
                     <div class="preview-text" id="previewText">Select same-rarity cards</div>
                     <div class="chance-display" id="chanceDisplay"></div>
                     
-                    <!-- Quick Fill and Merge Button Row - both now smaller -->
+                    <!-- Quick Fill and Merge Button Row -->
                     <div class="action-row">
                         <div class="quick-fill">
                             <button class="quick-fill-btn" id="quickFillBtn" onclick="quickFillMerge()" disabled>✨ Quick Fill</button>
@@ -1111,7 +1116,7 @@
                     </div>
                 </div>
                 
-                <!-- Card Grid with proper heading size -->
+                <!-- Card Grid with unified card sizing -->
                 <div style="background: #1c4828; border-radius: 50px; padding: 20px 16px; margin-top: 12px; border: 2px solid #e9c469;">
                     <h3 class="collection-heading">✨ Your Magical Collection</h3>
                     <div class="cards-grid" id="mergeGrid"></div>
@@ -1152,7 +1157,7 @@
     </div>
     
     <script>
-        // ---------- EXACT ORIGINAL MECHANICS – NO CHANGES ----------
+        // ---------- EXACT ORIGINAL MECHANICS – NO CHANGES (except merge button text) ----------
         let tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); if (tg.setHeaderColor) tg.setHeaderColor('#0a0a1a'); if (tg.setBackgroundColor) tg.setBackgroundColor('#0a0a1a'); }
         
@@ -1536,24 +1541,44 @@
         }
         
         function updateMergeButton() {
-            let btn = document.getElementById('mergeBtn'), qf = document.getElementById('quickFillBtn'), pv = document.getElementById('previewText'), ch = document.getElementById('chanceDisplay');
-            if (!btn||!pv||!ch) return;
+            let btn = document.getElementById('mergeBtn');
+            let qf = document.getElementById('quickFillBtn');
+            let pv = document.getElementById('previewText');
+            let ch = document.getElementById('chanceDisplay');
+            
+            if (!btn || !pv || !ch) return;
+            
+            // Button text is ALWAYS just "MERGE" (no dynamic text)
+            btn.textContent = 'MERGE';
+            
             if (isMergePossible()) {
                 let d = getCurrentMergeDetails();
-                let percent = Math.round(d.chance*100);
+                let percent = Math.round(d.chance * 100);
+                
                 pv.textContent = `Merge ${mergeSize} ${RARITY_NAMES[d.fromRarity]} → ${RARITY_NAMES[d.toRarity]}`;
-                ch.textContent = percent+'% chance';
+                ch.textContent = `${percent}% chance`;
+                
                 ch.className = 'chance-display';
-                if (d.chance>=0.7) ch.classList.add('chance-high');
-                else if (d.chance>=0.4) ch.classList.add('chance-medium');
+                if (d.chance >= 0.7) ch.classList.add('chance-high');
+                else if (d.chance >= 0.4) ch.classList.add('chance-medium');
                 else ch.classList.add('chance-low');
-                btn.disabled = false; btn.classList.add('ready'); btn.textContent = `MERGE (${percent}%)`;
+                
+                btn.disabled = false;
+                btn.classList.add('ready');
             } else {
-                pv.textContent = `Select ${mergeSize-selectedCards.length} more same-rarity`;
+                pv.textContent = `Select ${mergeSize - selectedCards.length} more same-rarity`;
                 ch.textContent = '';
-                btn.disabled = true; btn.classList.remove('ready'); btn.textContent = `MERGE (select ${mergeSize-selectedCards.length} more)`;
+                btn.disabled = true;
+                btn.classList.remove('ready');
             }
-            if (qf) { if (selectedCards.length===0 || selectedCards.length>=mergeSize) qf.disabled = true; else qf.disabled = false; }
+            
+            if (qf) {
+                if (selectedCards.length === 0 || selectedCards.length >= mergeSize) {
+                    qf.disabled = true;
+                } else {
+                    qf.disabled = false;
+                }
+            }
         }
         
         window.openPack = function(packType) {
