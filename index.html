@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wordsmith's Bazaar - Unit 1</title>
+    <title>Wordsmith's Bazaar - Unit 1: Emotions & Encounters</title>
     <style>
         * {
             margin: 0;
@@ -593,7 +593,7 @@
         <!-- Words Progress -->
         <div class="section">
             <div class="section-title">
-                <span>📚</span> Words to Collect (0/20)
+                <span>📚</span> Words to Collect (<span id="wordsCount">0</span>/20)
             </div>
             <div id="wordsGrid" class="words-grid"></div>
         </div>
@@ -633,7 +633,6 @@
         if (tg) {
             tg.expand();
             tg.ready();
-            tg.enableClosingConfirmation();
         }
 
         // ==================== GAME DATA ====================
@@ -670,7 +669,7 @@
             relationshipLevels: {
                 'Vowel Vendor': 1,
                 'Consonant Trader': 1,
-                'Silk Merchant': 1,
+                'Common Merchant': 1,
                 'Rare Letter Dealer': 1
             },
             trades: {},
@@ -695,16 +694,16 @@
             {
                 id: 'consonant',
                 name: 'Consonant Trader',
-                specialty: 'R, T, N, S, L',
+                specialty: 'R, T, N, S, L, H',
                 inventory: [],
-                basePrices: { 'r': 2, 't': 2, 'n': 2, 's': 3, 'l': 3 }
+                basePrices: { 'r': 2, 't': 2, 'n': 2, 's': 3, 'l': 3, 'h': 3 }
             },
             {
-                id: 'silk',
-                name: 'Silk Merchant',
-                specialty: 'C, P, M, D, G',
+                id: 'common',
+                name: 'Common Merchant',
+                specialty: 'C, P, M, D, G, B',
                 inventory: [],
-                basePrices: { 'c': 4, 'p': 4, 'm': 4, 'd': 4, 'g': 5 }
+                basePrices: { 'c': 4, 'p': 4, 'm': 4, 'd': 4, 'g': 5, 'b': 5 }
             },
             {
                 id: 'rare',
@@ -715,7 +714,7 @@
             }
         ];
 
-        // Generate merchant inventory
+        // Generate merchant inventory based on type
         function generateInventory(merchantId) {
             const inventory = [];
             const count = 5 + Math.floor(Math.random() * 3); // 5-7 items
@@ -727,10 +726,10 @@
                         letter = ['a','e','i','o','u'][Math.floor(Math.random() * 5)];
                         break;
                     case 'consonant':
-                        letter = ['r','t','n','s','l'][Math.floor(Math.random() * 5)];
+                        letter = ['r','t','n','s','l','h'][Math.floor(Math.random() * 6)];
                         break;
-                    case 'silk':
-                        letter = ['c','p','m','d','g'][Math.floor(Math.random() * 5)];
+                    case 'common':
+                        letter = ['c','p','m','d','g','b'][Math.floor(Math.random() * 6)];
                         break;
                     case 'rare':
                         letter = ['v','k','y','f','w'][Math.floor(Math.random() * 5)];
@@ -936,10 +935,7 @@
             });
             
             // Update section title
-            const title = document.querySelector('.section-title span');
-            if (title) {
-                title.textContent = `📚 Words to Collect (${gameState.completedWords.length}/20)`;
-            }
+            document.getElementById('wordsCount').textContent = gameState.completedWords.length;
         }
 
         function updateArtifact() {
