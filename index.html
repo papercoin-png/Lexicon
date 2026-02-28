@@ -3,39 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wordsmith's Bazaar - Unit 1: Emotions & Encounters</title>
+    <title>Caravan of Courage - Unit 1: Emotions & Encounters</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', 'Cairo', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: linear-gradient(145deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+            background: linear-gradient(145deg, #b77b4a 0%, #9e5e2c 30%, #6b3e1a 100%);
             min-height: 100vh;
             padding: 12px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Desert sandstorm particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 40%, rgba(242, 210, 158, 0.1) 0%, transparent 30%),
+                        radial-gradient(circle at 80% 70%, rgba(212, 172, 112, 0.1) 0%, transparent 40%),
+                        repeating-linear-gradient(45deg, rgba(232, 190, 128, 0.05) 0px, rgba(232, 190, 128, 0.05) 2px, transparent 2px, transparent 8px);
+            pointer-events: none;
+            z-index: 1;
         }
 
         .game-container {
             max-width: 500px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 28px;
-            padding: 18px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(250, 240, 220, 0.9);
+            border-radius: 32px;
+            padding: 20px 16px;
+            box-shadow: 0 30px 40px -15px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(255, 215, 140, 0.3);
+            backdrop-filter: blur(5px);
+            border: 1px solid #e6c8a0;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Decorative caravan elements */
+        .game-container::before {
+            content: '🐪';
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            font-size: 2.5rem;
+            transform: rotate(5deg);
+            filter: drop-shadow(2px 8px 5px rgba(0,0,0,0.2));
+            opacity: 0.7;
+            z-index: 5;
+        }
+
+        .game-container::after {
+            content: '🏜️';
+            position: absolute;
+            bottom: -10px;
+            right: 20px;
+            font-size: 2rem;
+            opacity: 0.5;
+            transform: rotate(-5deg);
+            z-index: 5;
         }
 
         /* Header */
         .header {
             display: flex;
             flex-direction: column;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #e9d8fd;
+            border-bottom: 3px solid #b68a5c;
+            background: linear-gradient(to right, #dbb48b, #c69c6d, #dbb48b);
+            border-radius: 60px 60px 20px 20px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 0 #7b521e, inset 0 2px 10px #ffe8c0;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 20px;
+            width: 90%;
+            height: 3px;
+            background: repeating-linear-gradient(90deg, #d4a373, #d4a373 10px, #b5824e 10px, #b5824e 20px);
+            border-radius: 2px;
         }
 
         .header-top {
@@ -47,35 +106,44 @@
 
         .title h1 {
             font-size: 1.5rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #4a2a0e;
+            text-shadow: 2px 2px 0 #e4b885, 3px 3px 0 #7b4f24;
             line-height: 1.2;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+
+        .title p {
+            font-size: 0.8rem;
+            color: #5d3a1a;
+            font-style: italic;
+            background: #f3d9b1;
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            border: 1px solid #b68a5c;
         }
 
         .reset-button {
-            background: #f56565;
-            color: white;
-            border: none;
+            background: #ab6d3b;
+            color: #ffefd0;
+            border: 2px solid #4f2c0e;
             padding: 6px 12px;
-            border-radius: 20px;
+            border-radius: 40px;
             font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 4px;
-            box-shadow: 0 2px 4px rgba(245, 101, 101, 0.3);
+            gap: 6px;
+            box-shadow: 0 5px 0 #4f2c0e;
+            transition: all 0.1s;
+            text-transform: uppercase;
         }
 
         .reset-button:active {
-            transform: scale(0.95);
-        }
-
-        .title p {
-            font-size: 0.8rem;
-            color: #718096;
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #4f2c0e;
         }
 
         .resources-row {
@@ -87,242 +155,298 @@
 
         .resources {
             display: flex;
-            gap: 8px;
+            gap: 12px;
         }
 
         .resource-badge {
-            background: #f7fafc;
-            padding: 6px 12px;
-            border-radius: 30px;
+            background: #2a2116;
+            padding: 6px 14px;
+            border-radius: 40px;
             display: flex;
             align-items: center;
-            gap: 4px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 1px solid #e2e8f0;
+            gap: 6px;
+            font-weight: 700;
+            border: 2px solid #e9b87a;
+            color: #ffdfa0;
+            box-shadow: inset 0 -2px 0 #4a3c28;
+            font-size: 1rem;
         }
 
         .timer-badge {
-            background: #f0e6ff;
-            padding: 6px 12px;
-            border-radius: 30px;
+            background: #a8743e;
+            padding: 6px 14px;
+            border-radius: 40px;
             display: flex;
             align-items: center;
-            gap: 4px;
-            font-weight: 600;
-            color: #553c9a;
-            border: 1px solid #d6bcfa;
+            gap: 6px;
+            font-weight: 700;
+            color: #fff6e0;
+            border: 2px solid #fad6a0;
+            box-shadow: inset 0 -2px 0 #6a481e;
             font-size: 0.9rem;
         }
 
         /* Section Styles */
         .section {
-            background: white;
-            border-radius: 20px;
+            background: #faead3;
+            border-radius: 30px 30px 20px 20px;
             padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border: 1px solid #f0e6ff;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 0 #7b5e3b, inset 0 0 20px #ffecbb;
+            border: 1px solid #ebc28b;
+            position: relative;
+        }
+
+        .section::before {
+            content: '✦';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            font-size: 1.2rem;
+            color: #d4a373;
+            background: #faecd4;
+            padding: 0 8px;
+            border-radius: 20px;
+            border: 1px solid #b68a5c;
         }
 
         .section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #553c9a;
-            margin-bottom: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #4d2f0e;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            background: #e7cba5;
+            padding: 6px 16px;
+            border-radius: 40px;
+            width: fit-content;
+            border: 1px solid #b0824a;
+            box-shadow: 0 3px 0 #7b5a2c;
         }
 
         /* Merchant Grid */
         .merchant-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 14px;
         }
 
         .merchant-card {
-            background: #faf5ff;
-            border-radius: 16px;
-            padding: 12px;
-            border: 2px solid transparent;
-            transition: all 0.2s;
+            background: #e9d1af;
+            border-radius: 25px 25px 15px 15px;
+            padding: 14px 10px;
+            border: 2px solid #c6985a;
+            transition: all 0.15s;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 7px 0 #7b582e, inset 0 1px 5px #ffefc0;
             position: relative;
         }
 
         .merchant-card.selected {
-            border-color: #9f7aea;
-            background: #f3e8ff;
+            border-color: #f7c46e;
+            background: #f5ddb5;
             transform: translateY(-2px);
-            box-shadow: 0 8px 12px rgba(159, 122, 234, 0.2);
+            box-shadow: 0 9px 0 #7b582e, 0 0 15px #f9c551;
         }
 
         .merchant-card:active {
-            transform: scale(0.98);
+            transform: translateY(5px);
+            box-shadow: 0 2px 0 #7b582e;
         }
 
         .merchant-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .merchant-name {
-            font-weight: 700;
-            color: #553c9a;
+            font-weight: 800;
+            color: #442b0e;
             font-size: 0.95rem;
+            text-shadow: 0 1px 0 #ebc287;
         }
 
         .refresh-button {
-            background: #48bb78;
-            color: white;
-            border: none;
-            width: 40px;
-            height: 24px;
-            border-radius: 12px;
+            background: #4f7a4f;
+            color: #faf0ce;
+            border: 2px solid #2d4a2d;
+            width: 44px;
+            height: 26px;
+            border-radius: 20px;
             font-size: 0.7rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 2px;
-            box-shadow: 0 2px 4px rgba(72, 187, 120, 0.3);
+            box-shadow: 0 4px 0 #1e321e;
+            transition: all 0.1s;
         }
 
         .refresh-button:active {
-            transform: scale(0.9);
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #1e321e;
         }
 
         .refresh-button:disabled {
-            background: #cbd5e0;
-            box-shadow: none;
-            cursor: not-allowed;
+            background: #8b8b8b;
+            border-color: #4f4f4f;
+            box-shadow: 0 4px 0 #4f4f4f;
+            opacity: 0.5;
         }
 
         .merchant-specialty {
             font-size: 0.7rem;
-            color: #718096;
+            color: #5a3f1c;
             margin: 4px 0;
+            background: #fae7c3;
+            padding: 2px 8px;
+            border-radius: 20px;
+            display: inline-block;
+            border: 1px solid #b68a5c;
         }
 
         .merchant-level {
-            font-size: 0.75rem;
-            color: #ed8936;
+            font-size: 0.8rem;
+            color: #b45f2a;
             display: flex;
             gap: 2px;
+            margin: 4px 0;
         }
 
         .merchant-stock {
             font-size: 0.75rem;
-            color: #48bb78;
+            color: #2d6a4f;
             margin-top: 6px;
-            font-weight: 500;
+            font-weight: 600;
+            background: #e6dbb0;
+            padding: 2px 8px;
+            border-radius: 20px;
+            display: inline-block;
+            border: 1px solid #6a8e4a;
         }
 
         /* Trading Panel */
         .trading-panel {
-            background: #faf5ff;
-            border-radius: 18px;
-            padding: 16px;
+            background: #efdbb9;
+            border-radius: 24px;
+            padding: 18px 14px;
+            border: 2px solid #b88a4e;
+            box-shadow: inset 0 0 15px #dbb282, 0 8px 0 #6f4f2a;
         }
 
         .merchant-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            font-weight: 600;
-            color: #44337a;
+            margin-bottom: 18px;
+            font-weight: 700;
+            color: #402e14;
+            background: #c9a775;
+            padding: 8px 14px;
+            border-radius: 40px;
+            border: 1px solid #eac184;
+            box-shadow: inset 0 -2px 0 #75572e;
         }
 
         .inventory-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
             gap: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .letter-slot {
             aspect-ratio: 1;
-            background: white;
-            border: 2px dashed #d6bcfa;
-            border-radius: 12px;
+            background: #fcf1dc;
+            border: 3px dashed #b6854b;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            color: #553c9a;
+            color: #5a3c16;
             cursor: pointer;
             transition: all 0.15s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: inset 0 -3px 0 #b98f5a;
+            font-family: 'Cairo', monospace;
         }
 
         .letter-slot.filled {
-            background: #f9f1fe;
-            border: 2px solid #9f7aea;
-            color: #44337a;
+            background: #fce3b5;
+            border: 3px solid #b26500;
+            color: #4a2c0a;
+            box-shadow: 0 4px 0 #7b521e, inset 0 -2px 5px #fec195;
         }
 
         .letter-slot.filled.selected {
-            background: #e9d8fd;
-            border-color: #ed8936;
+            background: #f8c77c;
+            border-color: #d48d2b;
             transform: scale(1.05);
-            box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.3);
+            box-shadow: 0 0 0 3px #f3b551, 0 5px 0 #7b521e;
         }
 
         .letter-slot:active {
-            transform: scale(0.95);
+            transform: scale(0.92);
         }
 
         .price-tag {
-            background: white;
-            padding: 12px;
-            border-radius: 40px;
+            background: #fae1b1;
+            padding: 12px 16px;
+            border-radius: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            font-weight: 700;
-            font-size: 1.2rem;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 1.3rem;
             margin: 16px 0;
-            border: 1px solid #d6bcfa;
+            border: 2px solid #ca9745;
+            box-shadow: 0 6px 0 #7b582e, inset 0 2px 10px #fff0ba;
+            color: #4f2c0a;
         }
 
         .button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #ab6f38;
+            color: #fff4db;
             border: none;
-            padding: 16px;
-            border-radius: 40px;
+            padding: 16px 20px;
+            border-radius: 60px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             width: 100%;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+            transition: all 0.1s;
+            box-shadow: 0 8px 0 #5a3b16;
+            border: 1px solid #e9b46a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .button:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #5a3b16;
         }
 
         .button:disabled {
-            background: #cbd5e0;
-            box-shadow: none;
+            background: #928570;
+            box-shadow: 0 8px 0 #5d5342;
+            border-color: #9b8b74;
+            color: #d4cfc0;
             cursor: not-allowed;
             transform: none;
         }
 
         .button.secondary {
-            background: #ed8936;
-            margin-top: 8px;
+            background: #b57629;
+            margin-top: 10px;
+            box-shadow: 0 8px 0 #6a431a;
         }
 
         /* Words Grid */
@@ -333,96 +457,118 @@
         }
 
         .word-tile {
-            background: #f7fafc;
-            border-radius: 10px;
-            padding: 8px 4px;
+            background: #f5e2be;
+            border-radius: 16px 16px 8px 8px;
+            padding: 10px 4px;
             text-align: center;
             font-size: 0.8rem;
-            font-weight: 600;
-            color: #a0aec0;
-            border: 1px solid #e2e8f0;
+            font-weight: 700;
+            color: #5f401a;
+            border: 1px solid #cfa668;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 5px 0 #926f3a, inset 0 1px 5px #ffecb0;
+            text-transform: lowercase;
         }
 
         .word-tile.completed {
-            background: #c6f6d5;
-            color: #276749;
-            border-color: #9ae6b4;
-            font-weight: 700;
+            background: #a7c2a3;
+            color: #1c4a1c;
+            border-color: #5f8b4b;
+            box-shadow: 0 5px 0 #3e6b2a;
         }
 
         .word-tile.in-progress {
-            background: #feebc8;
-            color: #7b341e;
-            border-color: #fbd38d;
+            background: #f8d99c;
+            color: #7b4a1a;
+            border-color: #db9630;
+            box-shadow: 0 5px 0 #9e691d;
         }
 
         .word-progress-bar {
             position: absolute;
             bottom: 0;
             left: 0;
-            height: 3px;
-            background: #9f7aea;
+            height: 4px;
+            background: #c27e2e;
             transition: width 0.3s;
+            border-radius: 0 4px 0 0;
         }
 
         /* Letter Inventory */
         .inventory-area {
-            background: #f7fafc;
-            border-radius: 16px;
-            padding: 16px;
+            background: #f7e3c3;
+            border-radius: 28px;
+            padding: 18px 14px;
             min-height: 100px;
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            border: 2px solid #b47b40;
+            box-shadow: inset 0 0 15px #ccaa77, 0 6px 0 #7b5824;
         }
 
         .letter-piece {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(145deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 12px;
+            width: 46px;
+            height: 46px;
+            background: #b87e4e;
+            color: #fff2d2;
+            border-radius: 16px 16px 8px 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 800;
-            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 6px 0 #613f1e, inset 0 2px 10px #ffddb0;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.1s;
+            border: 1px solid #eac184;
+            font-family: 'Cairo', monospace;
         }
 
         .letter-piece:active {
-            transform: scale(0.9);
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #613f1e;
         }
 
         .letter-piece.selected {
-            box-shadow: 0 0 0 3px #ed8936;
+            box-shadow: 0 0 0 4px #f6b83e, 0 6px 0 #613f1e;
         }
 
         .empty-inventory {
-            color: #a0aec0;
+            color: #9b7f5f;
             text-align: center;
             width: 100%;
-            padding: 20px;
+            padding: 24px;
             font-style: italic;
+            font-size: 1rem;
         }
 
         /* Artifact Section */
         .artifact-area {
-            background: linear-gradient(145deg, #faf5ff, #f3e8ff);
-            border-radius: 24px;
-            padding: 20px;
+            background: linear-gradient(145deg, #eaceaa, #dba878);
+            border-radius: 50px 50px 30px 30px;
+            padding: 20px 16px;
             text-align: center;
-            border: 2px solid #ecc94b;
+            border: 3px solid #edb56a;
+            box-shadow: 0 12px 0 #795d32, inset 0 0 20px #ffdd99;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .artifact-area::before {
+            content: '🐪';
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            font-size: 2rem;
+            transform: rotate(10deg);
         }
 
         .artifact-icon {
-            font-size: 4rem;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 8px 12px rgba(236, 201, 75, 0.4));
+            font-size: 5rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(4px 10px 3px #6d4f28);
         }
 
         .artifact-icon.glow {
@@ -430,73 +576,89 @@
         }
 
         @keyframes bellGlow {
-            0% { filter: drop-shadow(0 0 5px gold); }
-            50% { filter: drop-shadow(0 0 25px gold); transform: scale(1.05); }
-            100% { filter: drop-shadow(0 0 5px gold); }
+            0% { filter: drop-shadow(0 0 5px #ffd966); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 30px #f3b33d); transform: scale(1.05); }
+            100% { filter: drop-shadow(0 0 5px #ffd966); transform: scale(1); }
         }
 
         .artifact-progress {
-            font-weight: 700;
-            color: #744210;
-            margin: 8px 0;
+            font-weight: 800;
+            color: #3c2a0e;
+            margin: 10px 0 5px;
+            font-size: 1.2rem;
+            background: #f7dba8;
+            display: inline-block;
+            padding: 5px 20px;
+            border-radius: 40px;
+            border: 2px solid #b2803a;
+        }
+
+        #artifactMessage {
+            color: #422f12;
+            font-weight: 500;
+            font-style: italic;
         }
 
         /* Haggle Game */
         .haggle-game {
-            background: #fff9f0;
-            border-radius: 24px;
-            padding: 20px;
+            background: #fae0b7;
+            border-radius: 40px;
+            padding: 24px 18px;
             margin-top: 16px;
-            border: 2px solid #ed8936;
+            border: 4px solid #d88f3a;
+            box-shadow: 0 12px 0 #8b601e, inset 0 0 20px #ffd89a;
         }
 
         .haggle-meter-container {
             width: 100%;
-            height: 40px;
-            background: #e2e8f0;
-            border-radius: 20px;
+            height: 45px;
+            background: #d6b17c;
+            border-radius: 30px;
             margin: 20px 0;
             position: relative;
             overflow: hidden;
             cursor: pointer;
-            border: 2px solid #cbd5e0;
+            border: 3px solid #966c36;
+            box-shadow: inset 0 3px 8px #4f3518;
         }
 
         .haggle-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #48bb78, #ecc94b, #f56565);
+            background: linear-gradient(90deg, #6da56d, #edb756, #c95c5c);
             transition: width 0.05s linear;
         }
 
         .haggle-marker {
             position: absolute;
-            top: -6px;
-            width: 4px;
-            height: 52px;
-            background: #1a202c;
+            top: -8px;
+            width: 5px;
+            height: 58px;
+            background: #2d1f0c;
             transform: translateX(-50%);
             pointer-events: none;
-            box-shadow: 0 0 0 2px white;
+            box-shadow: 0 0 0 3px #ffd58c;
+            z-index: 10;
         }
 
         .haggle-target {
             position: absolute;
-            top: -8px;
-            width: 10px;
-            height: 56px;
-            background: rgba(237, 137, 54, 0.6);
-            border: 2px dashed #ed8936;
+            top: -10px;
+            width: 14px;
+            height: 62px;
+            background: rgba(230, 162, 60, 0.7);
+            border: 3px dashed #ad5f1a;
             transform: translateX(-50%);
             pointer-events: none;
+            z-index: 8;
         }
 
         .haggle-price {
-            font-size: 1.2rem;
-            font-weight: 700;
+            font-size: 1.4rem;
+            font-weight: 800;
             text-align: center;
             margin: 10px 0;
-            color: #2d3748;
+            color: #432e10;
         }
 
         /* Modal */
@@ -515,14 +677,15 @@
         }
 
         .modal-content {
-            background: white;
-            padding: 28px;
-            border-radius: 32px;
+            background: #faead3;
+            padding: 30px 20px;
+            border-radius: 60px 60px 40px 40px;
             max-width: 320px;
             width: 90%;
             text-align: center;
             animation: modalPop 0.3s;
-            border: 4px solid #e9d8fd;
+            border: 6px solid #ca9745;
+            box-shadow: 0 20px 0 #7b4f1a, inset 0 0 30px #ffe099;
         }
 
         @keyframes modalPop {
@@ -531,39 +694,44 @@
         }
 
         .modal-word {
-            font-size: 2rem;
-            color: #553c9a;
-            margin-bottom: 12px;
+            font-size: 2.4rem;
+            color: #543f1a;
+            margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 0 #f3cd8a;
+            font-weight: 900;
         }
 
         .modal-definition {
-            background: #faf5ff;
-            padding: 16px;
-            border-radius: 20px;
+            background: #f7dcb1;
+            padding: 20px 16px;
+            border-radius: 40px;
             margin: 16px 0;
-            font-size: 1rem;
+            font-size: 1.1rem;
             line-height: 1.5;
+            border: 2px solid #a57233;
         }
 
         .modal-example {
-            color: #718096;
+            color: #5c451e;
             font-style: italic;
-            margin-top: 8px;
-            font-size: 0.9rem;
+            margin-top: 10px;
+            font-size: 0.95rem;
         }
 
         .modal-illustration {
-            width: 100px;
-            height: 100px;
+            width: 110px;
+            height: 110px;
             margin: 10px auto;
-            background: #f3e8ff;
+            background: #eaceaa;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 4rem;
+            border: 4px solid #b77d38;
+            box-shadow: inset 0 -6px 0 #8b5c24;
         }
 
         /* Reset Confirmation Modal */
@@ -581,39 +749,45 @@
         }
 
         .reset-modal-content {
-            background: white;
-            padding: 24px;
-            border-radius: 28px;
+            background: #fbe7c3;
+            padding: 28px 20px;
+            border-radius: 50px;
             max-width: 280px;
             text-align: center;
+            border: 5px solid #b77d38;
+            box-shadow: 0 15px 0 #6f4f1e;
         }
 
         .reset-modal-buttons {
             display: flex;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 25px;
         }
 
         .reset-button-confirm {
-            background: #f56565;
+            background: #b5633a;
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-weight: 600;
+            padding: 14px 18px;
+            border-radius: 40px;
+            font-weight: 700;
             flex: 1;
             cursor: pointer;
+            box-shadow: 0 6px 0 #6d381d;
+            border: 1px solid #ed9f6a;
         }
 
         .reset-button-cancel {
-            background: #cbd5e0;
-            color: #2d3748;
+            background: #b0a28a;
+            color: #2d2417;
             border: none;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-weight: 600;
+            padding: 14px 18px;
+            border-radius: 40px;
+            font-weight: 700;
             flex: 1;
             cursor: pointer;
+            box-shadow: 0 6px 0 #6d624c;
+            border: 1px solid #ddd0b6;
         }
 
         .notification {
@@ -621,15 +795,16 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: #1a202c;
-            color: white;
-            padding: 14px 28px;
-            border-radius: 40px;
-            font-weight: 500;
+            background: #8b6c3f;
+            color: #fffae6;
+            padding: 16px 28px;
+            border-radius: 60px;
+            font-weight: 600;
             z-index: 2000;
             animation: notificationSlide 0.3s;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            border: 1px solid #4a5568;
+            box-shadow: 0 10px 0 #4f3a1e, 0 4px 15px black;
+            border: 2px solid #f9cf8b;
+            font-size: 1rem;
         }
 
         @keyframes notificationSlide {
@@ -648,6 +823,12 @@
         .mt-2 {
             margin-top: 12px;
         }
+
+        /* Caravan-specific decorative touches */
+        .camel-icon {
+            font-size: 1.2rem;
+            margin-right: 4px;
+        }
     </style>
 </head>
 <body>
@@ -656,11 +837,11 @@
         <div class="header">
             <div class="header-top">
                 <div class="title">
-                    <h1>🏪 Wordsmith's Bazaar</h1>
+                    <h1>🐪 Caravan of Courage</h1>
                     <p>Unit 1: Emotions & Encounters</p>
                 </div>
                 <button class="reset-button" onclick="showResetConfirmation()">
-                    <span>🔄</span> New Game
+                    <span>🔄</span> New Journey
                 </button>
             </div>
             
@@ -676,7 +857,7 @@
                     </div>
                 </div>
                 <div class="timer-badge" id="timerDisplay">
-                    <span>⏱️</span>
+                    <span>⏳</span>
                     <span id="timerText">00:30</span>
                 </div>
             </div>
@@ -685,7 +866,7 @@
         <!-- Merchants Section -->
         <div class="section">
             <div class="section-title">
-                <span>🏪</span> Market Merchants
+                <span>⛺</span> Caravan Merchants
             </div>
             <div id="merchantGrid" class="merchant-grid"></div>
         </div>
@@ -697,7 +878,7 @@
             </div>
             <div class="trading-panel">
                 <div class="merchant-info">
-                    <span id="selectedMerchantName">Select a merchant</span>
+                    <span id="selectedMerchantName">Choose a merchant</span>
                     <span id="merchantLevel" class="merchant-level">❤️ Level 1</span>
                 </div>
                 
@@ -706,10 +887,10 @@
                 <div class="price-tag">
                     <span>🪙</span>
                     <span id="priceDisplay">3</span>
-                    <span id="letterDisplay" style="color: #718096; font-size: 0.9rem;"></span>
+                    <span id="letterDisplay" style="color: #5a3f1c; font-size: 0.9rem;"></span>
                 </div>
                 
-                <button class="button" id="buyButton" disabled>Buy Selected Letter</button>
+                <button class="button" id="buyButton" disabled>Buy Letter</button>
                 <button class="button secondary" id="haggleButton" disabled>Haggle (1 🎫)</button>
             </div>
         </div>
@@ -717,25 +898,25 @@
         <!-- Haggle Game (Hidden) -->
         <div id="haggleGame" class="haggle-game hidden">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h3 style="color: #ed8936;">🎲 Haggle!</h3>
-                <button onclick="cancelHaggle()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
+                <h3 style="color: #7b4f1e;">🎲 Haggle with Merchant!</h3>
+                <button onclick="cancelHaggle()" style="background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #8b5a2b;">✕</button>
             </div>
             <div class="haggle-price">
                 Current offer: <span id="haggleCurrentPrice">5</span> 🪙
             </div>
-            <p style="text-align: center; color: #718096; font-size: 0.9rem;">Stop in the <span style="color: #48bb78;">green</span> for best discount!</p>
+            <p style="text-align: center; color: #5a3f1c; font-size: 0.95rem;">Stop in the <span style="color: #2e7d32;">green</span> for best discount!</p>
             <div id="haggleMeter" class="haggle-meter-container">
                 <div id="haggleFill" class="haggle-fill"></div>
                 <div id="haggleTarget" class="haggle-target" style="left: 0%"></div>
                 <div id="haggleMarker" class="haggle-marker" style="left: 0%"></div>
             </div>
-            <button class="button" id="stopHaggleButton" style="background: #ed8936;">STOP!</button>
+            <button class="button" id="stopHaggleButton" style="background: #c7802d;">STOP!</button>
         </div>
 
         <!-- Words Progress -->
         <div class="section">
             <div class="section-title">
-                <span>📚</span> Words to Collect (<span id="wordsCount">0</span>/20)
+                <span>📜</span> Caravan Stories (<span id="wordsCount">0</span>/20)
             </div>
             <div id="wordsGrid" class="words-grid"></div>
         </div>
@@ -743,7 +924,7 @@
         <!-- Letter Inventory -->
         <div class="section">
             <div class="section-title">
-                <span>📦</span> Your Letters
+                <span>📦</span> Traveler's Letters
             </div>
             <div id="letterInventory" class="inventory-area"></div>
         </div>
@@ -752,7 +933,7 @@
         <div class="artifact-area" id="artifactSection">
             <div id="artifactIcon" class="artifact-icon">🔔</div>
             <div id="artifactProgress" class="artifact-progress">Words: 0/20</div>
-            <div id="artifactMessage" style="color: #744210;">Collect all 20 words to craft the Caravan Bell!</div>
+            <div id="artifactMessage">Collect all 20 words to craft the Caravan Leader's Bell!</div>
         </div>
     </div>
 
@@ -765,18 +946,18 @@
                 <p id="modalDefinition">Definition goes here</p>
                 <p id="modalExample" class="modal-example">"Example sentence"</p>
             </div>
-            <button class="button" onclick="closeModal()" style="margin-top: 10px;">Continue</button>
+            <button class="button" onclick="closeModal()" style="margin-top: 15px;">Continue Journey</button>
         </div>
     </div>
 
     <!-- Reset Confirmation Modal -->
     <div id="resetModal" class="reset-modal">
         <div class="reset-modal-content">
-            <h3 style="color: #f56565; margin-bottom: 12px;">🔄 Reset Game?</h3>
-            <p style="color: #4a5568; margin-bottom: 20px;">All progress will be lost. Are you sure?</p>
+            <h3 style="color: #8b4513; margin-bottom: 12px;">🔄 Start New Caravan?</h3>
+            <p style="color: #4a3720; margin-bottom: 20px;">All progress will be lost. Begin a new journey?</p>
             <div class="reset-modal-buttons">
-                <button class="reset-button-cancel" onclick="hideResetConfirmation()">Cancel</button>
-                <button class="reset-button-confirm" onclick="resetGame()">Reset</button>
+                <button class="reset-button-cancel" onclick="hideResetConfirmation()">Stay</button>
+                <button class="reset-button-confirm" onclick="resetGame()">New Journey</button>
             </div>
         </div>
     </div>
@@ -791,40 +972,40 @@
 
         // ==================== GAME DATA ====================
         const WORDS = [
-            { word: 'afraid', definition: 'Feeling fear or anxiety', example: 'The merchant was afraid of bandits on the road.' },
-            { word: 'agree', definition: 'To have the same opinion', example: 'The traders agree on the price.' },
-            { word: 'angry', definition: 'Feeling strong displeasure', example: 'The customer became angry about the damaged goods.' },
-            { word: 'arrive', definition: 'To reach a destination', example: 'The caravan will arrive at sunset.' },
-            { word: 'attack', definition: 'To act aggressively against', example: 'Bandits attack the traveling merchants.' },
-            { word: 'bottom', definition: 'The lowest part of something', example: 'The bottom of the basket held the spices.' },
-            { word: 'clever', definition: 'Quick to understand and learn', example: 'The clever merchant made a good profit.' },
-            { word: 'cruel', definition: 'Causing pain and suffering', example: 'The cruel guard kicked the beggar.' },
-            { word: 'finally', definition: 'After a long time', example: 'Finally, the ship arrived at port.' },
-            { word: 'hide', definition: 'To put out of sight', example: 'Hide the gold under the floorboards.' },
-            { word: 'hunt', definition: 'To search for food or goods', example: 'They hunt for rare spices in the market.' },
-            { word: 'lot', definition: 'A large number or amount', example: 'A lot of customers visited today.' },
-            { word: 'middle', definition: 'The central point', example: 'The fountain stands in the middle of the bazaar.' },
-            { word: 'moment', definition: 'A brief period of time', example: 'Wait a moment while I count your change.' },
-            { word: 'pleased', definition: 'Feeling happy and satisfied', example: 'The merchant was pleased with the trade.' },
-            { word: 'promise', definition: 'A declaration to do something', example: 'I promise to return with more silk.' },
-            { word: 'reply', definition: 'To respond to someone', example: 'The vendor will reply to your offer.' },
-            { word: 'safe', definition: 'Protected from harm', example: 'Keep your coins safe in the chest.' },
-            { word: 'trick', definition: 'A cunning act to deceive', example: 'The dishonest trader used a trick to cheat customers.' },
-            { word: 'well', definition: 'In good health or condition', example: 'After resting, the camel was well again.' }
+            { word: 'afraid', definition: 'Feeling fear or anxiety', example: 'The traveler was afraid of the approaching sandstorm.' },
+            { word: 'agree', definition: 'To have the same opinion', example: 'The caravan leaders agree on the safest route.' },
+            { word: 'angry', definition: 'Feeling strong displeasure', example: 'The merchant became angry when bandits stole his goods.' },
+            { word: 'arrive', definition: 'To reach a destination', example: 'The caravan will arrive at the oasis by sunset.' },
+            { word: 'attack', definition: 'To act aggressively against', example: 'Desert wolves attack the caravan at night.' },
+            { word: 'bottom', definition: 'The lowest part of something', example: 'Water is found at the bottom of the desert well.' },
+            { word: 'clever', definition: 'Quick to understand and learn', example: 'The clever guide found water where others saw only sand.' },
+            { word: 'cruel', definition: 'Causing pain and suffering', example: 'The cruel bandit left travelers stranded in the desert.' },
+            { word: 'finally', definition: 'After a long time', example: 'Finally, the caravan reached the safety of the oasis.' },
+            { word: 'hide', definition: 'To put out of sight', example: 'Hide the water skins from the thieves.' },
+            { word: 'hunt', definition: 'To search for food or goods', example: 'The caravan hunters track desert hares for food.' },
+            { word: 'lot', definition: 'A large number or amount', example: 'A lot of traders gather at the weekly market.' },
+            { word: 'middle', definition: 'The central point', example: 'The campfire burns in the middle of the caravan circle.' },
+            { word: 'moment', definition: 'A brief period of time', example: 'For a moment, the sandstorm cleared to reveal the stars.' },
+            { word: 'pleased', definition: 'Feeling happy and satisfied', example: 'The merchant was pleased with the fair trade.' },
+            { word: 'promise', definition: 'A declaration to do something', example: 'I promise to return with more spices from the east.' },
+            { word: 'reply', definition: 'To respond to someone', example: 'The guide will reply to your questions at dawn.' },
+            { word: 'safe', definition: 'Protected from harm', example: 'Safe inside the tent, they listened to the wind howl.' },
+            { word: 'trick', definition: 'A cunning act to deceive', example: 'The dishonest trader used a trick with false weights.' },
+            { word: 'well', definition: 'In good health or condition', example: 'After resting, the camels were well and ready to travel.' }
         ];
 
         // ==================== GAME STATE ====================
         let gameState = {
             coins: 50,
             tokens: 3,
-            letters: {},  // Collected letters count
+            letters: {},
             completedWords: [],
             wordProgress: {},
             relationshipLevels: {
-                'Vowel Vendor': 1,
-                'Consonant Trader': 1,
-                'Common Merchant': 1,
-                'Rare Letter Dealer': 1
+                'The Storyteller': 1,
+                'The Camel Master': 1,
+                'The Oasis Keeper': 1,
+                'The Storm Prophet': 1
             },
             trades: {},
             selectedLetter: null,
@@ -839,56 +1020,60 @@
             gameState.wordProgress[item.word] = 0;
         });
 
-        // ==================== MERCHANTS ====================
+        // ==================== MERCHANTS (Caravan Theme) ====================
         const merchants = [
             {
-                id: 'vowel',
-                name: 'Vowel Vendor',
+                id: 'storyteller',
+                name: 'The Storyteller',
                 specialty: 'A, E, I, O, U',
+                emoji: '📖',
                 inventory: [],
                 basePrices: { 'a': 2, 'e': 2, 'i': 3, 'o': 3, 'u': 4 }
             },
             {
-                id: 'consonant',
-                name: 'Consonant Trader',
+                id: 'camelMaster',
+                name: 'The Camel Master',
                 specialty: 'R, T, N, S, L, H',
+                emoji: '🐪',
                 inventory: [],
                 basePrices: { 'r': 2, 't': 2, 'n': 2, 's': 3, 'l': 3, 'h': 3 }
             },
             {
-                id: 'common',
-                name: 'Common Merchant',
+                id: 'oasisKeeper',
+                name: 'The Oasis Keeper',
                 specialty: 'C, P, M, D, G, B',
+                emoji: '🌴',
                 inventory: [],
                 basePrices: { 'c': 4, 'p': 4, 'm': 4, 'd': 4, 'g': 5, 'b': 5 }
             },
             {
-                id: 'rare',
-                name: 'Rare Letter Dealer',
+                id: 'stormProphet',
+                name: 'The Storm Prophet',
                 specialty: 'V, K, Y, F, W',
+                emoji: '🌀',
                 inventory: [],
                 basePrices: { 'v': 8, 'k': 8, 'y': 6, 'f': 6, 'w': 7 }
             }
         ];
 
-        // Generate merchant inventory based on type
+        // Generate merchant inventory
         function generateInventory(merchantId) {
             const inventory = [];
-            const count = 5 + Math.floor(Math.random() * 3); // 5-7 items
+            const count = 5 + Math.floor(Math.random() * 3);
             
             for (let i = 0; i < count; i++) {
                 let letter;
                 switch(merchantId) {
-                    case 'vowel':
+                    case 'storyteller':
                         letter = ['a','e','i','o','u'][Math.floor(Math.random() * 5)];
                         break;
-                    case 'consonant':
+                    case 'camelMaster':
                         letter = ['r','t','n','s','l','h'][Math.floor(Math.random() * 6)];
                         break;
-                    case 'common':
+                    case 'oasisKeeper':
                         letter = ['c','p','m','d','g','b'][Math.floor(Math.random() * 6)];
                         break;
-                    case 'rare':
+                    case 'stormProphet':
                         letter = ['v','k','y','f','w'][Math.floor(Math.random() * 5)];
                         break;
                     default:
@@ -899,7 +1084,7 @@
             return inventory;
         }
 
-        // Initialize all merchant inventories
+        // Refresh all inventories
         function refreshAllInventories() {
             merchants.forEach(merchant => {
                 merchant.inventory = generateInventory(merchant.id);
@@ -917,7 +1102,6 @@
             const merchant = merchants.find(m => m.id === merchantId);
             merchant.inventory = generateInventory(merchantId);
             
-            // If this merchant is currently selected, update the view
             if (gameState.selectedMerchantId === merchantId) {
                 renderMerchantInventory();
             }
@@ -925,7 +1109,7 @@
             renderMerchants();
             updateResources();
             saveGame();
-            showNotification(`${merchant.name} has new stock!`);
+            showNotification(`${merchant.name} has new stories to share!`);
         }
 
         // ==================== TIMER FUNCTIONS ====================
@@ -944,7 +1128,7 @@
                 gameState.coins += coinsEarned;
                 updateResources();
                 saveGame();
-                showNotification(`Earned ${coinsEarned} coin${coinsEarned > 1 ? 's' : ''} while away!`);
+                showNotification(`Found ${coinsEarned} coin${coinsEarned > 1 ? 's' : ''} while traveling!`);
             }
         }
 
@@ -959,7 +1143,6 @@
             
             document.getElementById('timerText').textContent = timeString;
             
-            // Check if we should add a coin
             if (elapsedSeconds >= 30 && gameState.passiveCoins < gameState.maxPassiveCoins) {
                 const coinsToAdd = Math.min(
                     Math.floor(elapsedSeconds / 30),
@@ -976,7 +1159,7 @@
             }
         }
 
-        // ==================== UI RENDERING FUNCTIONS ====================
+        // ==================== UI RENDERING ====================
         
         function renderMerchants() {
             const grid = document.getElementById('merchantGrid');
@@ -994,7 +1177,7 @@
                 
                 card.innerHTML = `
                     <div class="merchant-header">
-                        <span class="merchant-name">${merchant.name}</span>
+                        <span class="merchant-name">${merchant.emoji} ${merchant.name}</span>
                         <button class="refresh-button" onclick="event.stopPropagation(); refreshMerchant('${merchant.id}')">
                             🔄 1🪙
                         </button>
@@ -1032,7 +1215,6 @@
             
             const merchant = merchants.find(m => m.id === gameState.selectedMerchantId);
             if (!merchant) {
-                // Show empty slots
                 for (let i = 0; i < 6; i++) {
                     const slot = document.createElement('div');
                     slot.className = 'letter-slot';
@@ -1042,7 +1224,6 @@
                 return;
             }
             
-            // Fill with merchant's inventory
             for (let i = 0; i < 6; i++) {
                 const slot = document.createElement('div');
                 slot.className = 'letter-slot';
@@ -1117,7 +1298,7 @@
             const letters = Object.entries(gameState.letters);
             
             if (letters.length === 0) {
-                container.innerHTML = '<div class="empty-inventory">No letters yet. Buy from merchants!</div>';
+                container.innerHTML = '<div class="empty-inventory">No letters yet. Trade with merchants!</div>';
                 return;
             }
             
@@ -1166,7 +1347,6 @@
                 grid.appendChild(tile);
             });
             
-            // Update section title
             document.getElementById('wordsCount').textContent = gameState.completedWords.length;
         }
 
@@ -1179,11 +1359,11 @@
             
             if (gameState.completedWords.length === 20) {
                 icon.className = 'artifact-icon glow';
-                message.innerHTML = '✨ You crafted the Caravan Bell! ✨';
+                message.innerHTML = '✨ You crafted the Caravan Leader\'s Bell! ✨';
                 icon.onclick = showAllWords;
             } else {
                 icon.className = 'artifact-icon';
-                message.innerHTML = 'Collect all 20 words to craft the Caravan Bell!';
+                message.innerHTML = 'Collect all 20 words to craft the Caravan Leader\'s Bell!';
                 icon.onclick = null;
             }
         }
@@ -1201,7 +1381,6 @@
             
             const letter = gameState.selectedLetter;
             
-            // Check if merchant has the letter
             const index = merchant.inventory.indexOf(letter);
             if (index === -1) {
                 showNotification('Letter no longer available!');
@@ -1211,7 +1390,6 @@
                 return;
             }
             
-            // Calculate price
             const basePrice = merchant.basePrices[letter] || 5;
             const level = gameState.relationshipLevels[merchant.name] || 1;
             const discount = 1 - (level * 0.05);
@@ -1222,12 +1400,10 @@
                 return;
             }
             
-            // Process purchase
             merchant.inventory.splice(index, 1);
             gameState.coins -= price;
             gameState.letters[letter] = (gameState.letters[letter] || 0) + 1;
             
-            // Update relationship
             const tradeKey = `trades_${merchant.name}`;
             gameState.trades[tradeKey] = (gameState.trades[tradeKey] || 0) + 1;
             
@@ -1235,17 +1411,14 @@
                 const currentLevel = gameState.relationshipLevels[merchant.name] || 1;
                 if (currentLevel < 4) {
                     gameState.relationshipLevels[merchant.name] = currentLevel + 1;
-                    showNotification(`${merchant.name} likes you more! Level ${currentLevel + 1}!`);
+                    showNotification(`${merchant.name} trusts you more! Level ${currentLevel + 1}!`);
                 }
             }
             
-            // Check for word completions
             checkWordCompletions();
             
-            // Reset selection
             gameState.selectedLetter = null;
             
-            // Update UI
             updateResources();
             renderMerchantInventory();
             renderLetterInventory();
@@ -1253,7 +1426,7 @@
             renderMerchants();
             saveGame();
             
-            showNotification(`Bought ${letter.toUpperCase()} for ${price} 🪙`);
+            showNotification(`Traded for ${letter.toUpperCase()} (${price} 🪙)`);
         }
 
         function checkWordCompletions() {
@@ -1262,7 +1435,6 @@
                 
                 if (gameState.completedWords.includes(word)) return;
                 
-                // Check if we have all letters
                 const letters = word.split('');
                 const needed = {};
                 letters.forEach(l => needed[l] = (needed[l] || 0) + 1);
@@ -1276,7 +1448,6 @@
                 }
                 
                 if (canComplete) {
-                    // Remove letters
                     letters.forEach(l => {
                         gameState.letters[l]--;
                         if (gameState.letters[l] === 0) {
@@ -1284,16 +1455,13 @@
                         }
                     });
                     
-                    // Complete word
                     gameState.completedWords.push(word);
                     gameState.coins += 10;
                     
-                    // Show modal
                     showWordModal(item);
                 }
             });
             
-            // Update progress for incomplete words
             WORDS.forEach(item => {
                 const word = item.word;
                 if (!gameState.completedWords.includes(word)) {
@@ -1338,12 +1506,10 @@
             const merchant = merchants.find(m => m.id === gameState.selectedMerchantId);
             if (!merchant) return;
             
-            // Hide trading, show haggle
             document.getElementById('tradingSection').classList.add('hidden');
             document.getElementById('haggleGame').classList.remove('hidden');
             
-            // Setup haggle
-            const targetZone = 30 + Math.random() * 40; // 30-70%
+            const targetZone = 30 + Math.random() * 40;
             document.getElementById('haggleTarget').style.left = targetZone + '%';
             
             const currentPrice = getCurrentPrice();
@@ -1369,7 +1535,6 @@
                 document.getElementById('haggleFill').style.width = position + '%';
             }, 50);
             
-            // Stop button
             document.getElementById('stopHaggleButton').onclick = () => {
                 clearInterval(haggleInterval);
                 haggleInterval = null;
@@ -1391,18 +1556,15 @@
                     showNotification('Missed! No discount.');
                 }
                 
-                // Apply discount
                 if (discount > 0 && gameState.selectedLetter) {
                     const letter = gameState.selectedLetter;
                     merchant.basePrices[letter] = Math.floor(merchant.basePrices[letter] * (1 - discount));
                     if (merchant.basePrices[letter] < 1) merchant.basePrices[letter] = 1;
                 }
                 
-                // Use token
                 gameState.tokens--;
                 updateResources();
                 
-                // Return to trading
                 document.getElementById('haggleGame').classList.add('hidden');
                 document.getElementById('tradingSection').classList.remove('hidden');
                 
@@ -1440,7 +1602,6 @@
             document.getElementById('modalDefinition').textContent = wordItem.definition;
             document.getElementById('modalExample').textContent = `"${wordItem.example}"`;
             
-            // Simple emoji illustration
             const illustrations = {
                 afraid: '😨', agree: '🤝', angry: '😠', arrive: '🚶', attack: '⚔️',
                 bottom: '⬇️', clever: '🧠', cruel: '😈', finally: '⏰', hide: '🙈',
@@ -1457,7 +1618,7 @@
         }
 
         function showAllWords() {
-            let message = '✨ CARAVAN BELL WORDS ✨\n\n';
+            let message = '✨ CARAVAN LEADER\'S BELL ✨\n\n';
             WORDS.forEach(item => {
                 message += `${item.word.toUpperCase()}: ${item.definition}\n`;
             });
@@ -1475,7 +1636,6 @@
         }
 
         function resetGame() {
-            // Reset game state
             gameState = {
                 coins: 50,
                 tokens: 3,
@@ -1483,10 +1643,10 @@
                 completedWords: [],
                 wordProgress: {},
                 relationshipLevels: {
-                    'Vowel Vendor': 1,
-                    'Consonant Trader': 1,
-                    'Common Merchant': 1,
-                    'Rare Letter Dealer': 1
+                    'The Storyteller': 1,
+                    'The Camel Master': 1,
+                    'The Oasis Keeper': 1,
+                    'The Storm Prophet': 1
                 },
                 trades: {},
                 selectedLetter: null,
@@ -1496,27 +1656,20 @@
                 maxPassiveCoins: 50
             };
             
-            // Re-initialize word progress
             WORDS.forEach(item => {
                 gameState.wordProgress[item.word] = 0;
             });
             
-            // Refresh all inventories
             refreshAllInventories();
             
-            // Clear saved data
             localStorage.removeItem('wordsmith_bazaar');
             if (tg && tg.CloudStorage) {
                 tg.CloudStorage.removeItem('wordsmith_bazaar');
             }
             
-            // Re-render
             renderAll();
-            
-            // Hide modal
             hideResetConfirmation();
-            
-            showNotification('New game started!');
+            showNotification('New caravan journey begins!');
         }
 
         // ==================== UTILITIES ====================
@@ -1570,10 +1723,7 @@
             }
             
             refreshAllInventories();
-            
-            // Calculate passive coins earned while away
             calculatePassiveCoins();
-            
             renderAll();
         }
 
@@ -1591,27 +1741,20 @@
 
         // ==================== INITIALIZATION ====================
 
-        // Set up event listeners
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize game
             refreshAllInventories();
             loadGame();
             
-            // Button listeners
             document.getElementById('buyButton').onclick = buyLetter;
             document.getElementById('haggleButton').onclick = startHaggle;
             
-            // Timer update every second
             setInterval(updateTimerDisplay, 1000);
-            
-            // Auto-save every 30 seconds
             setInterval(saveGame, 30000);
             
-            // Save on page hide
             window.addEventListener('beforeunload', saveGame);
         });
 
-        // Make functions global for onclick handlers
+        // Make functions global
         window.selectMerchant = selectMerchant;
         window.selectLetter = selectLetter;
         window.buyLetter = buyLetter;
