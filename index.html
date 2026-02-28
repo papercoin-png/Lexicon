@@ -3,2119 +3,1268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ages of Discovery: Civilization</title>
+    <title>Wordsmith's Bazaar - Unit 1: Emotions & Encounters</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: #0a0f1e;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            padding: 8px;
-        }
-
-        #game-container {
-            max-width: 400px;
-            width: 100%;
-            background: #0f1424;
-            border-radius: 24px;
             padding: 12px;
-            border: 1px solid #ffd70030;
-            height: fit-content;
+            color: #333;
         }
 
-        /* Header */
+        .game-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Header Styles */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-            gap: 8px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e0e0e0;
         }
 
-        .title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffd700;
+        .title h1 {
+            font-size: 1.5rem;
+            color: #4a2b7a;
+            line-height: 1.2;
+        }
+
+        .title p {
+            font-size: 0.8rem;
+            color: #666;
         }
 
         .resources {
             display: flex;
-            gap: 8px;
+            gap: 12px;
         }
 
-        .crystals, .knowledge {
-            background: #00000040;
-            padding: 4px 12px;
-            border-radius: 30px;
-            border: 1px solid #ffd700;
-            color: #ffd700;
-            font-size: 14px;
-            font-weight: bold;
+        .resource-item {
             display: flex;
             align-items: center;
             gap: 4px;
-        }
-
-        .knowledge {
-            border-color: #7fffd4;
-            color: #7fffd4;
-        }
-
-        /* Tab Navigation */
-        .tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 4px;
-            margin-bottom: 8px;
-        }
-
-        .tab {
-            padding: 8px 4px;
-            background: #1a1f2e;
-            border: none;
-            color: #a0a0a0;
+            background: #f5f5f5;
+            padding: 6px 10px;
             border-radius: 20px;
-            font-size: 11px;
             font-weight: bold;
-            cursor: pointer;
         }
 
-        .tab.active {
-            background: #ffd70020;
-            color: #ffd700;
-            border: 1px solid #ffd700;
-        }
+        .coin-icon { color: #f1c40f; }
+        .token-icon { color: #3498db; }
 
-        /* Age Card */
-        .age-card {
-            background: linear-gradient(145deg, #1a1f2e, #0f1424);
+        /* Merchant Section */
+        .merchants-section {
+            background: #f8f4ff;
             border-radius: 16px;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-left: 4px solid #8B7355;
+            padding: 12px;
+            margin-bottom: 20px;
         }
 
-        .age-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .age-name {
-            color: #ffd700;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .age-theme {
-            color: #a0a0a0;
-            font-size: 10px;
-        }
-
-        .age-progress {
-            height: 4px;
-            background: #ffffff10;
-            border-radius: 2px;
-            margin-top: 6px;
-            overflow: hidden;
-        }
-
-        .age-progress-fill {
-            height: 100%;
-            background: #ffd700;
-            width: 0%;
-        }
-
-        /* Timeline */
-        .timeline {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 8px;
-            overflow-x: auto;
-            padding: 4px 0;
-            scrollbar-width: none;
-        }
-
-        .timeline::-webkit-scrollbar {
-            display: none;
-        }
-
-        .timeline-dot {
-            min-width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            background: #1a1f2e;
-            border: 2px solid;
+        .section-title {
+            font-size: 1rem;
+            color: #4a2b7a;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            text-align: center;
-            padding: 0 4px;
-        }
-
-        /* Letters Grid */
-        .letters-section {
-            background: #0a0f1a;
-            border-radius: 12px;
-            padding: 8px;
-            margin-bottom: 8px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            color: #ffd700;
-            font-size: 12px;
-            margin-bottom: 6px;
-        }
-
-        .letters-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 4px;
-        }
-
-        .letter-tile {
-            aspect-ratio: 1;
-            background: #1a1f2e;
-            border: 1px solid #ffd70040;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: bold;
-            color: #ffd700;
-            position: relative;
-        }
-
-        .letter-tile.selected {
-            background: #ffd70020;
-            border-color: #ffd700;
-        }
-
-        .letter-tile.empty {
-            opacity: 0.3;
-            border-color: #404040;
-        }
-
-        .letter-count {
-            position: absolute;
-            bottom: -2px;
-            right: -2px;
-            background: #ffd700;
-            color: #000;
-            font-size: 8px;
-            padding: 1px 3px;
-            border-radius: 6px;
-        }
-
-        /* Word Display */
-        .word-display {
-            background: #1a1f2e;
-            border-radius: 12px;
-            padding: 10px;
-            margin-bottom: 8px;
-            text-align: center;
-            border: 1px dashed #ffd700;
-        }
-
-        .word-letters {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ffd700;
-            letter-spacing: 4px;
-            min-height: 36px;
-        }
-
-        .word-hint {
-            font-size: 10px;
-            color: #a0a0a0;
-        }
-
-        /* Buttons */
-        .button-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .btn {
-            padding: 10px;
-            border: none;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: #ffd700;
-            color: #000;
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.3;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid #ffd700;
-            color: #ffd700;
-        }
-
-        /* Words Grid */
-        .words-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        .word-card {
-            background: #1a1f2e;
-            border: 1px solid #ffd70020;
-            border-radius: 8px;
-            padding: 6px;
-            font-size: 11px;
-        }
-
-        .word-name {
-            color: #ffd700;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .word-letters-req {
-            color: #a0a0a0;
-            font-size: 9px;
-        }
-
-        .word-desc {
-            color: #fff;
-            font-size: 9px;
-            opacity: 0.8;
-        }
-
-        .word-card.craftable {
-            border-color: #ffd700;
-            background: #ffd70010;
-        }
-
-        /* Blueprints Grid */
-        .blueprints-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        .blueprint-card {
-            background: #1a2a2a;
-            border: 1px solid #7fffd4;
-            border-radius: 8px;
-            padding: 8px;
-            position: relative;
-        }
-
-        .blueprint-name {
-            color: #7fffd4;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        .blueprint-type {
-            color: #a0a0a0;
-            font-size: 8px;
-            text-transform: uppercase;
-        }
-
-        .blueprint-effect {
-            color: #fff;
-            font-size: 9px;
-            margin: 4px 0;
-        }
-
-        .blueprint-cost {
-            color: #ffd700;
-            font-size: 8px;
-        }
-
-        .blueprint-research {
-            background: #7fffd4;
-            color: #000;
-            border: none;
-            border-radius: 12px;
-            padding: 4px;
-            font-size: 9px;
-            font-weight: bold;
-            width: 100%;
-            margin-top: 4px;
-            cursor: pointer;
-        }
-
-        .blueprint-research:disabled {
-            opacity: 0.3;
-        }
-
-        .blueprint-researched {
-            background: #7fffd440;
-            color: #7fffd4;
-            text-align: center;
-            font-size: 9px;
-            padding: 4px;
-            border-radius: 12px;
-            margin-top: 4px;
-        }
-
-        /* Artifacts Grid */
-        .artifacts-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        .artifact-card {
-            background: #2a1a2a;
-            border: 1px solid #ff99ff;
-            border-radius: 8px;
-            padding: 8px;
-        }
-
-        .artifact-name {
-            color: #ff99ff;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        .artifact-bonus {
-            color: #ffd700;
-            font-size: 9px;
-            margin: 4px 0;
-        }
-
-        .artifact-lore {
-            color: #a0a0a0;
-            font-size: 8px;
-            font-style: italic;
-        }
-
-        /* Combo Section */
-        .combo-section {
-            background: #1a1f2e;
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 8px;
-        }
-
-        .combo-title {
-            color: #ffd700;
-            font-size: 12px;
-            margin-bottom: 6px;
-        }
-
-        .combo-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
             gap: 6px;
         }
 
-        .combo-item {
-            background: #0f1424;
-            border: 1px dashed #ffd700;
-            border-radius: 6px;
-            padding: 6px;
-            font-size: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .combo-item:hover {
-            background: #ffd70010;
-        }
-
-        .combo-formula {
-            color: #ffd700;
-            font-weight: bold;
-        }
-
-        .combo-result {
-            color: #7fffd4;
-        }
-
-        /* Age Gate */
-        .age-gate {
-            background: #1a1f2e;
-            border: 1px dashed #ffd700;
-            border-radius: 8px;
-            padding: 8px;
-            text-align: center;
-            font-size: 12px;
-            margin-bottom: 8px;
-            cursor: pointer;
-        }
-
-        .gate-name {
-            color: #ffd700;
-            font-weight: bold;
-        }
-
-        .gate-req {
-            color: #a0a0a0;
-            font-size: 10px;
-        }
-
-        /* Expedition Buttons */
-        .expedition-btn {
-            width: 100%;
-            margin-top: 4px;
-            padding: 8px;
-            background: #2a1f0a;
-            border: 1px solid #ffd700;
-            border-radius: 30px;
-            color: #ffd700;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .civ-btn {
-            background: #2a4a4a;
-            margin-top: 8px;
-        }
-
-        /* Civilization Modal */
-        .modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #000000cc;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: #0f1424;
-            border-radius: 24px;
-            padding: 15px;
-            border: 2px solid #ffd700;
-            max-width: 380px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        /* Civ Game Styles */
-        .civ-resources {
+        .merchant-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
-            margin-bottom: 12px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
         }
 
-        .civ-resource-box {
-            background: #1a1f2e;
-            border-radius: 8px;
-            padding: 6px 3px;
-            text-align: center;
-        }
-
-        .civ-resource-value {
-            color: #ffd700;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .civ-resource-label {
-            color: #a0a0a0;
-            font-size: 8px;
-        }
-
-        .civ-stats {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .civ-stat-badge {
-            background: #2a1f0a;
-            border-radius: 20px;
-            padding: 4px 10px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-        }
-
-        .civ-map {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 2px;
-            margin-bottom: 12px;
-            background: #0a0f1a;
-            padding: 8px;
+        .merchant-card {
+            background: white;
             border-radius: 12px;
-        }
-
-        .civ-tile {
-            aspect-ratio: 1;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
+            padding: 10px;
+            border: 1px solid #e0d5f0;
             cursor: pointer;
             transition: all 0.2s;
         }
 
-        .civ-tile:hover {
-            transform: scale(0.95);
+        .merchant-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(106, 76, 163, 0.2);
         }
 
-        .civ-preview {
-            background: #0a0f1a;
-            border-radius: 8px;
-            padding: 8px;
+        .merchant-card.selected {
+            border: 2px solid #4a2b7a;
+            background: #f0e8ff;
+        }
+
+        .merchant-name {
+            font-weight: bold;
+            color: #4a2b7a;
+            font-size: 0.9rem;
+        }
+
+        .merchant-specialty {
+            font-size: 0.7rem;
+            color: #888;
+            margin: 2px 0;
+        }
+
+        .merchant-relationship {
+            font-size: 0.7rem;
+            color: #f1c40f;
+        }
+
+        .merchant-inventory {
+            font-size: 0.8rem;
+            margin-top: 4px;
+            color: #27ae60;
+        }
+
+        /* Trading Interface */
+        .trading-section {
+            background: white;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .selected-merchant-info {
+            background: #f8f4ff;
+            padding: 10px;
+            border-radius: 12px;
             margin-bottom: 12px;
         }
 
-        .civ-preview-title {
-            color: #ffd700;
-            font-size: 11px;
-            margin-bottom: 5px;
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            margin: 10px 0;
         }
 
-        .civ-letters-preview {
+        .inventory-slot {
+            aspect-ratio: 1;
+            background: #f5f5f5;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .inventory-slot.filled {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            color: #2e7d32;
+        }
+
+        .inventory-slot.selected {
+            border: 3px solid #f39c12;
+            transform: scale(1.05);
+        }
+
+        .price-tag {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            justify-content: center;
+            margin: 8px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .buy-button {
+            background: #4a2b7a;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .buy-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .buy-button:hover:not(:disabled) {
+            background: #5d3a99;
+            transform: scale(1.02);
+        }
+
+        /* Haggle Mini-Game */
+        .haggle-game {
+            background: #fff3e0;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .haggle-meter {
+            width: 100%;
+            height: 30px;
+            background: #ddd;
+            border-radius: 15px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .haggle-fill {
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(90deg, #4caf50, #ffc107, #f44336);
+            transition: width 0.05s;
+        }
+
+        .haggle-indicator {
+            position: absolute;
+            top: -5px;
+            width: 4px;
+            height: 40px;
+            background: #333;
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .haggle-target {
+            position: absolute;
+            top: -8px;
+            width: 10px;
+            height: 46px;
+            background: gold;
+            border: 2px solid #333;
+            transform: translateX(-50%);
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        /* Word Progress Section */
+        .words-section {
+            background: #f8f4ff;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .words-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .word-card {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 4px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 1px solid #ddd;
+            color: #999;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .word-card.completed {
+            background: #4caf50;
+            border-color: #2e7d32;
+            color: white;
+        }
+
+        .word-card.in-progress {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: #4a2b7a;
+            border-radius: 0 0 8px 8px;
+        }
+
+        /* Inventory Section */
+        .inventory-section {
+            background: white;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .letter-inventory {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
-            min-height: 30px;
-        }
-
-        .civ-letter-badge {
-            background: #ffd70020;
-            padding: 4px 8px;
+            gap: 8px;
+            min-height: 80px;
+            padding: 10px;
+            background: #f5f5f5;
             border-radius: 12px;
-            border: 1px solid #ffd700;
-            font-size: 11px;
         }
 
-        .civ-actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            margin-bottom: 8px;
+        .letter-tile {
+            width: 40px;
+            height: 40px;
+            background: #4a2b7a;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* Notification */
+        .letter-tile:hover {
+            transform: scale(1.1);
+            background: #5d3a99;
+        }
+
+        .letter-tile.selected {
+            border: 3px solid #f39c12;
+            transform: scale(1.1);
+        }
+
+        .empty-inventory {
+            color: #999;
+            text-align: center;
+            width: 100%;
+            padding: 20px;
+        }
+
+        /* Artifact Section */
+        .artifact-section {
+            background: linear-gradient(135deg, #f5f0ff, #e8d5ff);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            border: 2px solid gold;
+        }
+
+        .artifact-bell {
+            font-size: 4rem;
+            margin: 10px 0;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        .artifact-bell.glow {
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0% { filter: drop-shadow(0 0 2px gold); }
+            50% { filter: drop-shadow(0 0 20px gold); }
+            100% { filter: drop-shadow(0 0 2px gold); }
+        }
+
+        .artifact-progress {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #4a2b7a;
+            margin: 10px 0;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            max-width: 300px;
+            text-align: center;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .word-definition {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 12px;
+        }
+
+        .word-example {
+            font-style: italic;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* Notifications */
         .notification {
             position: fixed;
-            top: 10px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: #ffd700;
-            color: #000;
-            padding: 8px 16px;
+            background: #4a2b7a;
+            color: white;
+            padding: 12px 24px;
             border-radius: 30px;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 2000;
-            animation: slideDown 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: slideUp 0.3s;
         }
 
-        @keyframes slideDown {
-            from { top: -50px; opacity: 0; }
-            to { top: 10px; opacity: 1; }
+        /* Utility Classes */
+        .hidden {
+            display: none;
         }
+
+        .flex {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .mt-2 { margin-top: 10px; }
+        .mb-2 { margin-bottom: 10px; }
+        .text-center { text-align: center; }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <!-- Header -->
+    <div class="game-container">
+        <!-- Header with Resources -->
         <div class="header">
-            <div class="title">📖 AGES OF DISCOVERY</div>
+            <div class="title">
+                <h1>Wordsmith's Bazaar</h1>
+                <p>Unit 1: Emotions & Encounters</p>
+            </div>
             <div class="resources">
-                <div class="crystals">
-                    <span>⏳</span>
-                    <span id="crystal-display">100</span>
+                <div class="resource-item">
+                    <span class="coin-icon">🪙</span>
+                    <span id="coinDisplay">50</span>
                 </div>
-                <div class="knowledge">
-                    <span>📚</span>
-                    <span id="knowledge-display">0</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab Navigation -->
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('forge')" id="tab-forge">🔨 Forge</button>
-            <button class="tab" onclick="switchTab('blueprints')" id="tab-blueprints">📜 Blueprints</button>
-            <button class="tab" onclick="switchTab('museum')" id="tab-museum">🏛️ Museum</button>
-            <button class="tab" onclick="switchTab('civ')" id="tab-civ">🏙️ Civilization</button>
-        </div>
-
-        <!-- Current Age -->
-        <div class="age-card" id="age-card">
-            <div class="age-row">
-                <span class="age-name" id="current-age-name">Age of Stone</span>
-                <span class="age-theme" id="current-age-theme">Survival</span>
-            </div>
-            <div class="age-progress">
-                <div class="age-progress-fill" id="age-progress"></div>
-            </div>
-        </div>
-
-        <!-- Timeline -->
-        <div class="timeline" id="timeline"></div>
-
-        <!-- FORGE TAB -->
-        <div id="forge-tab">
-            <!-- Letters -->
-            <div class="letters-section">
-                <div class="section-header">
-                    <span>🔤 Runes</span>
-                    <span id="letter-count">0</span>
-                </div>
-                <div class="letters-grid" id="letters-grid"></div>
-            </div>
-
-            <!-- Word Display -->
-            <div class="word-display">
-                <div class="word-letters" id="current-word-display">⚡</div>
-                <div class="word-hint" id="word-hint">Select runes</div>
-            </div>
-
-            <!-- Buttons -->
-            <div class="button-row">
-                <button class="btn btn-primary" id="craft-btn" disabled>✨ Speak Word</button>
-                <button class="btn btn-secondary" id="clear-btn">Clear</button>
-            </div>
-
-            <!-- Words -->
-            <div class="words-grid" id="words-grid"></div>
-
-            <!-- Combo Section -->
-            <div class="combo-section" id="combo-section">
-                <div class="combo-title">⚡ Word Combinations</div>
-                <div class="combo-grid" id="combo-grid"></div>
-            </div>
-
-            <!-- Age Gate -->
-            <div class="age-gate" id="age-gate">
-                <div class="gate-name" id="next-age-name">Age of Bronze</div>
-                <div class="gate-req" id="gate-requirement">Craft all words to unlock</div>
-            </div>
-
-            <!-- Expedition -->
-            <button class="expedition-btn" onclick="startExpedition()">
-                🗺️ Expedition (15 Crystals)
-            </button>
-        </div>
-
-        <!-- BLUEPRINTS TAB -->
-        <div id="blueprints-tab" style="display: none;">
-            <div class="section-header" style="margin-bottom: 8px;">
-                <span>📜 Available Blueprints</span>
-                <span id="blueprint-count">0/24</span>
-            </div>
-            <div class="blueprints-grid" id="blueprints-grid"></div>
-            
-            <div style="margin-top: 12px;">
-                <div class="section-header">
-                    <span>🔬 Research Notes</span>
-                </div>
-                <div style="background: #1a1f2e; border-radius: 8px; padding: 8px; font-size: 11px; color: #a0a0a0;">
-                    Research blueprints to unlock permanent upgrades and new abilities.
+                <div class="resource-item">
+                    <span class="token-icon">🎫</span>
+                    <span id="tokenDisplay">3</span>
                 </div>
             </div>
         </div>
 
-        <!-- MUSEUM TAB -->
-        <div id="museum-tab" style="display: none;">
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;">
-                <div class="civ-resource-box">
-                    <div class="civ-resource-value" id="museum-words">0</div>
-                    <div class="civ-resource-label">Words Found</div>
-                </div>
-                <div class="civ-resource-box">
-                    <div class="civ-resource-value" id="museum-blueprints">0</div>
-                    <div class="civ-resource-label">Blueprints</div>
-                </div>
-                <div class="civ-resource-box">
-                    <div class="civ-resource-value" id="museum-artifacts">0</div>
-                    <div class="civ-resource-label">Artifacts</div>
-                </div>
-                <div class="civ-resource-box">
-                    <div class="civ-resource-value" id="museum-mastery">0%</div>
-                    <div class="civ-resource-label">Mastery</div>
-                </div>
+        <!-- Merchants Section -->
+        <div class="merchants-section">
+            <div class="section-title">
+                <span>🏪</span> Market Merchants
             </div>
-
-            <div class="section-header">🏺 Artifacts Collection</div>
-            <div class="artifacts-grid" id="artifacts-grid"></div>
-
-            <div class="section-header" style="margin-top: 12px;">📚 Age Mastery</div>
-            <div id="mastery-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 4px;"></div>
+            <div class="merchant-grid" id="merchantGrid">
+                <!-- Merchants will be populated by JavaScript -->
+            </div>
         </div>
 
-        <!-- CIVILIZATION TAB -->
-        <div id="civ-tab" style="display: none;">
-            <button class="expedition-btn civ-btn" onclick="startCivGame()">
-                🏛️ Start Rune Civilization
-            </button>
-            
-            <div style="background: #1a1f2e; border-radius: 12px; padding: 12px; margin-top: 12px;">
-                <div style="color: #ffd700; font-size: 14px; margin-bottom: 8px;">🏙️ How to Play</div>
-                <ul style="color: #a0a0a0; font-size: 11px; list-style-position: inside; padding-left: 5px;">
-                    <li>Send scouts to explore tiles</li>
-                    <li>Collect letters from different terrains</li>
-                    <li>End turn to auto-collect adjacent tiles</li>
-                    <li>Build structures for bonuses</li>
-                    <li>Transfer letters to main game</li>
-                </ul>
-                <div style="color: #7fffd4; font-size: 10px; margin-top: 8px; text-align: center;">
-                    New civilization available daily!
+        <!-- Trading Section -->
+        <div class="trading-section" id="tradingSection">
+            <div class="selected-merchant-info" id="selectedMerchantInfo">
+                <div class="flex" style="justify-content: space-between;">
+                    <span id="selectedMerchantName">Select a merchant</span>
+                    <span id="merchantRelationship" class="merchant-relationship">❤️ Level 1</span>
                 </div>
+                <div class="inventory-grid" id="merchantInventory">
+                    <!-- Merchant inventory will be populated here -->
+                </div>
+                <div class="price-tag" id="priceDisplay">
+                    <span>🪙</span>
+                    <span id="selectedLetterPrice">3</span>
+                </div>
+                <button class="buy-button" id="buyButton" disabled>Buy Letter</button>
+                <button class="buy-button" id="haggleButton" style="margin-top: 8px; background: #f39c12;" disabled>Haggle 🎲</button>
+            </div>
+        </div>
+
+        <!-- Haggle Mini-Game (Hidden by default) -->
+        <div class="haggle-game hidden" id="haggleGame">
+            <h3>Haggle for a Better Price!</h3>
+            <p>Current offer: <span id="haggleCurrentPrice">5</span> 🪙</p>
+            <p>Tap to stop the needle in the green zone</p>
+            <div class="haggle-meter" id="haggleMeter">
+                <div class="haggle-fill" id="haggleFill"></div>
+                <div class="haggle-target" id="haggleTarget" style="left: 70%"></div>
+                <div class="haggle-indicator" id="haggleIndicator" style="left: 0%"></div>
+            </div>
+            <button class="buy-button" id="haggleStop" style="background: #4a2b7a;">STOP!</button>
+        </div>
+
+        <!-- Words Progress Section -->
+        <div class="words-section">
+            <div class="section-title">
+                <span>📚</span> Words to Discover (20)
+            </div>
+            <div class="words-grid" id="wordsGrid">
+                <!-- Words will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Your Letter Inventory -->
+        <div class="inventory-section">
+            <div class="section-title">
+                <span>📦</span> Your Letter Collection
+            </div>
+            <div class="letter-inventory" id="letterInventory">
+                <!-- Letters will appear here -->
+            </div>
+        </div>
+
+        <!-- Artifact Section -->
+        <div class="artifact-section" id="artifactSection">
+            <div class="artifact-bell" id="artifactBell">🔔</div>
+            <div class="artifact-progress" id="artifactProgress">
+                Words: 0/20
+            </div>
+            <div id="artifactMessage">
+                Collect all 20 words to craft the Caravan Bell!
             </div>
         </div>
     </div>
 
-    <!-- CIVILIZATION MODAL -->
-    <div class="modal" id="civ-modal">
+    <!-- Word Discovery Modal -->
+    <div class="modal" id="wordModal">
         <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                <h3 style="color: #ffd700;">🏛️ Rune Civilization</h3>
-                <span style="color: #7fffd4; background: #1a1f2e; padding: 4px 10px; border-radius: 20px;">Turn <span id="civ-turn">1</span></span>
+            <h2 id="modalWord">Word</h2>
+            <div class="word-definition">
+                <p id="modalDefinition">Definition goes here</p>
+                <p class="word-example" id="modalExample">"Example sentence"</p>
             </div>
-            
-            <!-- Resources -->
-            <div class="civ-resources">
-                <div class="civ-resource-box">
-                    <div class="civ-resource-value" id="civ-food">10</div>
-                    <div class="civ-resource-label">🍎 Food</div>
-                </div>
-                <div class="civ-resource-box">
-                    <div class="civ-resource-value" id="civ-gold">5</div>
-                    <div class="civ-resource-label">🪙 Gold</div>
-                </div>
-                <div class="civ-resource-box">
-                    <div class="civ-resource-value" id="civ-knowledge">0</div>
-                    <div class="civ-resource-label">📚 Knowledge</div>
-                </div>
-                <div class="civ-resource-box">
-                    <div class="civ-resource-value" id="civ-storage">0/20</div>
-                    <div class="civ-resource-label">📦 Storage</div>
-                </div>
-            </div>
-            
-            <!-- Stats -->
-            <div class="civ-stats">
-                <div class="civ-stat-badge">
-                    <span>👥</span> <span id="civ-pop">3</span>
-                </div>
-                <div class="civ-stat-badge">
-                    <span>🛡️</span> <span id="civ-scouts">2</span>
-                </div>
-                <div class="civ-stat-badge">
-                    <span>🏠</span> <span id="civ-buildings">0</span>
-                </div>
-            </div>
-            
-            <!-- Game Map -->
-            <div class="civ-map" id="civ-map"></div>
-            
-            <!-- Collected Letters Preview -->
-            <div class="civ-preview">
-                <div class="civ-preview-title">📦 Collected This Turn:</div>
-                <div class="civ-letters-preview" id="civ-letters-preview"></div>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="civ-actions">
-                <button class="btn btn-secondary" onclick="endCivTurn()">⏭️ End Turn</button>
-                <button class="btn btn-secondary" onclick="buyCivScout()">🛡️ Scout (10🪙)</button>
-                <button class="btn btn-secondary" onclick="buildGranary()">🏠 Granary (15🍎)</button>
-                <button class="btn btn-secondary" onclick="buildMarket()">🏪 Market (15🪙)</button>
-                <button class="btn btn-secondary" onclick="buildLibrary()">📚 Library (15📚)</button>
-                <button class="btn btn-primary" onclick="collectCivLetters()">📦 Transfer to Game</button>
-            </div>
-            
-            <!-- Close Button -->
-            <button class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="closeCivModal()">Close</button>
-        </div>
-    </div>
-
-    <!-- Discovery Modal -->
-    <div class="modal" id="discovery-modal">
-        <div class="modal-content">
-            <h3 style="color: #ffd700; margin-bottom: 10px;" id="discovery-title">📜 New Discovery!</h3>
-            <p style="color: white; font-size: 14px; margin-bottom: 5px;" id="discovery-name"></p>
-            <p style="color: #7fffd4; font-size: 12px; margin-bottom: 15px;" id="discovery-effect"></p>
-            <button class="btn btn-primary" style="width: 100%;" onclick="closeDiscoveryModal()">Wonderful!</button>
-        </div>
-    </div>
-
-    <!-- Lore Modal -->
-    <div class="modal" id="lore-modal">
-        <div class="modal-content">
-            <h3 style="color: #ffd700; margin-bottom: 10px;">📖 The Lexicon's Lament</h3>
-            <p style="color: white; font-size: 12px; margin-bottom: 15px;">
-                Words have faded from the world. But hidden within them are blueprints, artifacts, and ancient knowledge.<br><br>
-                Craft words to discover blueprints. Research them to unlock permanent upgrades. Build your museum of discoveries.<br><br>
-                <span style="color: #7fffd4;">New: Lead your civilization to find rare letters!</span>
-            </p>
-            <button class="btn btn-primary" style="width: 100%;" onclick="closeLoreModal()">Begin Discovery</button>
+            <img id="modalImage" src="" alt="" style="width: 100px; height: 100px; margin: 10px 0; background: #f0f0f0; border-radius: 12px;">
+            <button class="buy-button" onclick="closeWordModal()">Continue Trading</button>
         </div>
     </div>
 
     <script>
+        // Initialize Telegram WebApp
+        const tg = window.Telegram ? window.Telegram.WebApp : null;
+        if (tg) {
+            tg.expand();
+            tg.ready();
+        }
+
         // ==================== GAME DATA ====================
-        const AGES = {
-            STONE: {
-                name: 'Stone',
-                theme: 'Survival',
-                color: '#8B7355',
-                next: 'BRONZE',
-                words: ['FIRE', 'STONE', 'HUT', 'AXE', 'WELL', 'BED'],
-                requiredBlueprints: 3
-            },
-            BRONZE: {
-                name: 'Bronze',
-                theme: 'Tools',
-                color: '#CD7F32',
-                next: 'IRON',
-                words: ['FORGE', 'FIELD', 'OVEN', 'SWORD', 'SHIELD', 'MARKET'],
-                requiredBlueprints: 4
-            },
-            IRON: {
-                name: 'Iron',
-                theme: 'War',
-                color: '#707070',
-                next: 'GOLDEN',
-                words: ['CASTLE', 'KNIGHT', 'ARMOR', 'BANNER', 'THRONE', 'IRON'],
-                requiredBlueprints: 5
-            },
-            GOLDEN: {
-                name: 'Golden',
-                theme: 'Culture',
-                color: '#FFD700',
-                next: 'MYSTICAL',
-                words: ['LIBRARY', 'GARDEN', 'FEAST', 'MUSIC', 'POETRY', 'THEATER'],
-                requiredBlueprints: 6
-            },
-            MYSTICAL: {
-                name: 'Mystical',
-                theme: 'Magic',
-                color: '#9B30FF',
-                next: 'COSMIC',
-                words: ['PHOENIX', 'DRAGON', 'WIZARD', 'POTION', 'RUNE', 'STAR'],
-                requiredBlueprints: 7
-            },
-            COSMIC: {
-                name: 'Cosmic',
-                theme: 'Infinity',
-                color: '#00FFFF',
-                next: null,
-                words: ['GALAXY', 'INFINITY', 'DREAM', 'COSMOS', 'ETERNITY', 'NEBULA'],
-                requiredBlueprints: 8
-            }
-        };
-
-        const WORD_DB = {
-            // Stone Age
-            'FIRE': { age: 'STONE', letters: ['F','I','R','E'], points: 10, blueprint: 'CAMPFIRE' },
-            'STONE': { age: 'STONE', letters: ['S','T','O','N','E'], points: 15, blueprint: 'PICKAXE' },
-            'HUT': { age: 'STONE', letters: ['H','U','T'], points: 12, blueprint: 'SHELTER' },
-            'AXE': { age: 'STONE', letters: ['A','X','E'], points: 15, blueprint: 'WOODCUTTING' },
-            'WELL': { age: 'STONE', letters: ['W','E','L','L'], points: 18, blueprint: 'WATER' },
-            'BED': { age: 'STONE', letters: ['B','E','D'], points: 10, blueprint: 'COMFORT' },
-            
-            // Bronze Age
-            'FORGE': { age: 'BRONZE', letters: ['F','O','R','G','E'], points: 25, blueprint: 'METALWORKING' },
-            'FIELD': { age: 'BRONZE', letters: ['F','I','E','L','D'], points: 22, blueprint: 'FARMING' },
-            'OVEN': { age: 'BRONZE', letters: ['O','V','E','N'], points: 20, blueprint: 'COOKING' },
-            'SWORD': { age: 'BRONZE', letters: ['S','W','O','R','D'], points: 30, blueprint: 'WEAPONSMITH' },
-            'SHIELD': { age: 'BRONZE', letters: ['S','H','I','E','L','D'], points: 28, blueprint: 'BLACKSMITH' },
-            'MARKET': { age: 'BRONZE', letters: ['M','A','R','K','E','T'], points: 35, blueprint: 'TRADE' },
-            
-            // Iron Age
-            'CASTLE': { age: 'IRON', letters: ['C','A','S','T','L','E'], points: 50, blueprint: 'FORTRESS' },
-            'KNIGHT': { age: 'IRON', letters: ['K','N','I','G','H','T'], points: 45, blueprint: 'ORDER' },
-            'ARMOR': { age: 'IRON', letters: ['A','R','M','O','R'], points: 40, blueprint: 'PROTECTION' },
-            'BANNER': { age: 'IRON', letters: ['B','A','N','N','E','R'], points: 35, blueprint: 'HERALDRY' },
-            'THRONE': { age: 'IRON', letters: ['T','H','R','O','N','E'], points: 55, blueprint: 'KINGSHIP' },
-            'IRON': { age: 'IRON', letters: ['I','R','O','N'], points: 30, blueprint: 'METALLURGY' },
-            
-            // Golden Age
-            'LIBRARY': { age: 'GOLDEN', letters: ['L','I','B','R','A','R','Y'], points: 60, blueprint: 'KNOWLEDGE' },
-            'GARDEN': { age: 'GOLDEN', letters: ['G','A','R','D','E','N'], points: 45, blueprint: 'BOTANY' },
-            'FEAST': { age: 'GOLDEN', letters: ['F','E','A','S','T'], points: 50, blueprint: 'CELEBRATION' },
-            'MUSIC': { age: 'GOLDEN', letters: ['M','U','S','I','C'], points: 48, blueprint: 'HARMONY' },
-            'POETRY': { age: 'GOLDEN', letters: ['P','O','E','T','R','Y'], points: 52, blueprint: 'LITERATURE' },
-            'THEATER': { age: 'GOLDEN', letters: ['T','H','E','A','T','E','R'], points: 55, blueprint: 'DRAMA' },
-            
-            // Mystical Age
-            'PHOENIX': { age: 'MYSTICAL', letters: ['P','H','O','E','N','I','X'], points: 80, blueprint: 'REBIRTH' },
-            'DRAGON': { age: 'MYSTICAL', letters: ['D','R','A','G','O','N'], points: 85, blueprint: 'LEGEND' },
-            'WIZARD': { age: 'MYSTICAL', letters: ['W','I','Z','A','R','D'], points: 75, blueprint: 'SORCERY' },
-            'POTION': { age: 'MYSTICAL', letters: ['P','O','T','I','O','N'], points: 70, blueprint: 'ALCHEMY' },
-            'RUNE': { age: 'MYSTICAL', letters: ['R','U','N','E'], points: 65, blueprint: 'ENCHANTMENT' },
-            'STAR': { age: 'MYSTICAL', letters: ['S','T','A','R'], points: 72, blueprint: 'ASTRONOMY' },
-            
-            // Cosmic Age
-            'GALAXY': { age: 'COSMIC', letters: ['G','A','L','A','X','Y'], points: 100, blueprint: 'COSMOS' },
-            'INFINITY': { age: 'COSMIC', letters: ['I','N','F','I','N','I','T','Y'], points: 120, blueprint: 'ETERNITY' },
-            'DREAM': { age: 'COSMIC', letters: ['D','R','E','A','M'], points: 90, blueprint: 'DREAMING' },
-            'COSMOS': { age: 'COSMIC', letters: ['C','O','S','M','O','S'], points: 140, blueprint: 'UNIVERSE' },
-            'ETERNITY': { age: 'COSMIC', letters: ['E','T','E','R','N','I','T','Y'], points: 130, blueprint: 'FOREVER' },
-            'NEBULA': { age: 'COSMIC', letters: ['N','E','B','U','L','A'], points: 95, blueprint: 'STARDUST' }
-        };
-
-        const BLUEPRINT_DB = {
-            // Tools
-            'PICKAXE': { type: 'tool', effect: '+1 letter when mining', cost: 20, lore: 'Breaks stone faster' },
-            'CAMPFIRE': { type: 'tool', effect: 'Cooking gives +2 knowledge', cost: 15, lore: 'Warmth and light' },
-            'WOODCUTTING': { type: 'tool', effect: 'Trees yield extra letters', cost: 15, lore: 'Efficient forestry' },
-            
-            // Buildings
-            'SHELTER': { type: 'building', effect: 'Daily bonus +2 letters', cost: 25, lore: 'A place to rest' },
-            'KNOWLEDGE': { type: 'building', effect: 'Knowledge +5 per day', cost: 40, lore: 'Preserves wisdom' },
-            'METALWORKING': { type: 'building', effect: 'Tools last longer', cost: 30, lore: 'Fire and metal' },
-            
-            // Knowledge
-            'FARMING': { type: 'knowledge', effect: 'Words worth +2 points', cost: 35, lore: 'Recorded history' },
-            'ALCHEMY': { type: 'knowledge', effect: 'Fuse 2 letters into 1', cost: 45, lore: 'Transformation' },
-            'ASTRONOMY': { type: 'knowledge', effect: 'Stars reveal secrets', cost: 50, lore: 'Map the heavens' },
-            
-            // Artifacts (special ones)
-            'WATER': { type: 'artifact', effect: 'Permanent +5 max letters', cost: 60, lore: 'First written word' },
-            'TRADE': { type: 'artifact', effect: 'Expeditions find +1 letter', cost: 55, lore: 'Guides the way' },
-            'KINGSHIP': { type: 'artifact', effect: 'All words +3 points', cost: 70, lore: 'Symbol of rule' },
-            'CELEBRATION': { type: 'artifact', effect: 'Music soothes, +10 daily', cost: 65, lore: 'Sounds of joy' },
-            'SORCERY': { type: 'artifact', effect: 'See future words', cost: 80, lore: 'Glimpse of fate' },
-            'UNIVERSE': { type: 'artifact', effect: 'Unlock any age', cost: 100, lore: 'Opens all doors' }
-        };
-
-        const COMBOS = [
-            { needs: ['FIRE', 'STONE'], result: 'FLINT' },
-            { needs: ['WATER', 'EARTH'], result: 'CLAY' },
-            { needs: ['METAL', 'FIRE'], result: 'SWORD' },
-            { needs: ['WOOD', 'STONE'], result: 'HUT' }
+        
+        // Unit 1 Words with definitions and examples
+        const UNIT_WORDS = [
+            { word: 'afraid', definition: 'Feeling fear or anxiety', example: 'The merchant was afraid of bandits on the road.' },
+            { word: 'agree', definition: 'To have the same opinion', example: 'The traders agree on the price.' },
+            { word: 'angry', definition: 'Feeling strong displeasure', example: 'The customer became angry about the damaged goods.' },
+            { word: 'arrive', definition: 'To reach a destination', example: 'The caravan will arrive at sunset.' },
+            { word: 'attack', definition: 'To act aggressively against', example: 'Bandits attack the traveling merchants.' },
+            { word: 'bottom', definition: 'The lowest part of something', example: 'The bottom of the basket held the spices.' },
+            { word: 'clever', definition: 'Quick to understand and learn', example: 'The clever merchant made a good profit.' },
+            { word: 'cruel', definition: 'Causing pain and suffering', example: 'The cruel guard kicked the beggar.' },
+            { word: 'finally', definition: 'After a long time', example: 'Finally, the ship arrived at port.' },
+            { word: 'hide', definition: 'To put out of sight', example: 'Hide the gold under the floorboards.' },
+            { word: 'hunt', definition: 'To search for food or goods', example: 'They hunt for rare spices in the market.' },
+            { word: 'lot', definition: 'A large number or amount', example: 'A lot of customers visited today.' },
+            { word: 'middle', definition: 'The central point', example: 'The fountain stands in the middle of the bazaar.' },
+            { word: 'moment', definition: 'A brief period of time', example: 'Wait a moment while I count your change.' },
+            { word: 'pleased', definition: 'Feeling happy and satisfied', example: 'The merchant was pleased with the trade.' },
+            { word: 'promise', definition: 'A declaration to do something', example: 'I promise to return with more silk.' },
+            { word: 'reply', definition: 'To respond to someone', example: 'The vendor will reply to your offer.' },
+            { word: 'safe', definition: 'Protected from harm', example: 'Keep your coins safe in the chest.' },
+            { word: 'trick', definition: 'A cunning act to deceive', example: 'The dishonest trader used a trick to cheat customers.' },
+            { word: 'well', definition: 'In good health or condition', example: 'After resting, the camel was well again.' }
         ];
 
-        const ARTIFACTS = [
-            { name: 'Stone Tablet', bonus: 'Max letters +5', lore: 'The first written word' },
-            { name: 'Bronze Compass', bonus: 'Expeditions +1', lore: 'Guided ancient traders' },
-            { name: 'Iron Crown', bonus: 'Words +3 points', lore: 'Worn by the first king' },
-            { name: 'Golden Harp', bonus: 'Daily +10', lore: 'Played for the gods' },
-            { name: 'Crystal Ball', bonus: 'See the future', lore: 'Gaze into infinity' },
-            { name: 'Cosmic Key', bonus: 'Unlock anything', lore: 'Made from starlight' }
-        ];
+        // Letter frequency for the unit
+        const LETTER_FREQUENCY = {
+            'a': 16, 'b': 1, 'c': 2, 'd': 3, 'e': 15, 'f': 2, 'g': 1, 'h': 2,
+            'i': 9, 'k': 1, 'l': 5, 'm': 2, 'n': 4, 'o': 6, 'p': 3, 'r': 8,
+            's': 3, 't': 7, 'u': 2, 'v': 1, 'w': 1, 'y': 3
+        };
 
         // ==================== GAME STATE ====================
+        
         let gameState = {
-            currentAge: 'STONE',
-            discoveredWords: [],
-            letters: {},
-            timeCrystals: 100,
-            knowledge: 0,
-            selectedLetters: [],
-            completedAges: [],
-            blueprints: [],
-            researched: [],
-            artifacts: [],
-            combosDone: [],
-            permanentBonuses: {
-                maxLetters: 0,
-                expeditionBonus: 0,
-                wordPoints: 0,
-                dailyBonus: 0
-            }
+            coins: 50,
+            tokens: 3,
+            letters: {}, // Object to store collected letters: { a: 2, b: 1, etc. }
+            completedWords: [], // Array of completed word strings
+            wordProgress: {}, // Tracks letters collected per word: { afraid: 3, agree: 2, etc. }
+            selectedLetter: null,
+            selectedMerchant: null,
+            relationshipLevels: {
+                'Vowel Vendor': 1,
+                'Consonant Trader': 1,
+                'Silk Merchant': 1,
+                'Rare Letter Dealer': 1
+            },
+            lastSave: Date.now()
         };
 
-        // ==================== CIVILIZATION STATE ====================
-        let civGame = {
-            map: [],
-            settlement: {
-                x: 4,
-                y: 4,
-                population: 3,
-                storage: 20,
-                storageUsed: 0,
-                collectedLetters: {},
-                buildings: []
+        // Initialize word progress
+        UNIT_WORDS.forEach(item => {
+            gameState.wordProgress[item.word] = 0;
+        });
+
+        // ==================== MERCHANTS ====================
+        
+        const merchants = [
+            {
+                id: 'vowel',
+                name: 'Vowel Vendor',
+                specialty: 'A, E, I, O, U',
+                description: 'Sells all vowels at fair prices',
+                inventory: generateMerchantInventory('vowel'),
+                basePrices: { 'a': 2, 'e': 2, 'i': 3, 'o': 3, 'u': 4 }
             },
-            scouts: [
-                { x: 3, y: 4, movesLeft: 3 },
-                { x: 4, y: 3, movesLeft: 3 }
-            ],
-            resources: {
-                food: 10,
-                gold: 5,
-                knowledge: 0
+            {
+                id: 'consonant',
+                name: 'Consonant Trader',
+                specialty: 'R, T, N, S, L',
+                description: 'Common consonants for building words',
+                inventory: generateMerchantInventory('consonant'),
+                basePrices: { 'r': 2, 't': 2, 'n': 2, 's': 3, 'l': 3 }
             },
-            turn: 1,
-            revealedTiles: []
-        };
-
-        // ==================== INITIALIZATION ====================
-        function initGame() {
-            const saved = localStorage.getItem('agesBlueprint');
-            if (saved) {
-                gameState = JSON.parse(saved);
-            } else {
-                // Start with basic letters
-                const starters = ['A','A','E','E','I','O','U','R','S','T','N','F','H','L','C','M'];
-                starters.forEach(letter => {
-                    gameState.letters[letter] = (gameState.letters[letter] || 0) + 1;
-                });
+            {
+                id: 'silk',
+                name: 'Silk Merchant',
+                specialty: 'Beautiful letters',
+                description: 'Trades for barter goods',
+                inventory: generateMerchantInventory('silk'),
+                basePrices: { 'c': 4, 'p': 4, 'm': 4, 'd': 4, 'g': 5 }
+            },
+            {
+                id: 'rare',
+                name: 'Rare Letter Dealer',
+                specialty: 'V, K, Y, F, W',
+                description: 'Hard-to-find letters at premium prices',
+                inventory: generateMerchantInventory('rare'),
+                basePrices: { 'v': 8, 'k': 8, 'y': 6, 'f': 6, 'w': 7 }
             }
-            
-            // Ensure all arrays exist
-            gameState.blueprints = gameState.blueprints || [];
-            gameState.researched = gameState.researched || [];
-            gameState.artifacts = gameState.artifacts || [];
-            gameState.combosDone = gameState.combosDone || [];
-            gameState.permanentBonuses = gameState.permanentBonuses || {
-                maxLetters: 0, expeditionBonus: 0, wordPoints: 0, dailyBonus: 0
-            };
-            
-            updateUI();
-            
-            // Show modal for new players
-            if (!localStorage.getItem('loreSeen')) {
-                document.getElementById('lore-modal').classList.add('active');
-                localStorage.setItem('loreSeen', 'true');
-            }
-        }
+        ];
 
-        // ==================== TAB SWITCHING ====================
-        function switchTab(tab) {
-            // Update tab buttons
-            document.getElementById('tab-forge').classList.remove('active');
-            document.getElementById('tab-blueprints').classList.remove('active');
-            document.getElementById('tab-museum').classList.remove('active');
-            document.getElementById('tab-civ').classList.remove('active');
+        // Generate merchant inventory based on type
+        function generateMerchantInventory(type) {
+            const inventory = [];
+            const count = 5 + Math.floor(Math.random() * 3); // 5-7 items
             
-            document.getElementById('tab-forge').classList.toggle('active', tab === 'forge');
-            document.getElementById('tab-blueprints').classList.toggle('active', tab === 'blueprints');
-            document.getElementById('tab-museum').classList.toggle('active', tab === 'museum');
-            document.getElementById('tab-civ').classList.toggle('active', tab === 'civ');
-            
-            // Show/hide tabs
-            document.getElementById('forge-tab').style.display = tab === 'forge' ? 'block' : 'none';
-            document.getElementById('blueprints-tab').style.display = tab === 'blueprints' ? 'block' : 'none';
-            document.getElementById('museum-tab').style.display = tab === 'museum' ? 'block' : 'none';
-            document.getElementById('civ-tab').style.display = tab === 'civ' ? 'block' : 'none';
-            
-            if (tab === 'blueprints') updateBlueprintsTab();
-            if (tab === 'museum') updateMuseumTab();
-        }
-
-        // ==================== UI UPDATE ====================
-        function updateUI() {
-            const age = AGES[gameState.currentAge];
-            
-            // Age card
-            document.getElementById('current-age-name').textContent = `Age of ${age.name}`;
-            document.getElementById('current-age-theme').textContent = age.theme;
-            document.getElementById('age-card').style.borderLeftColor = age.color;
-            
-            // Progress (based on words + blueprints)
-            const ageWords = age.words.filter(w => gameState.discoveredWords.includes(w)).length;
-            const ageBlueprints = gameState.researched.filter(b => {
-                // Check if blueprint is from this age (simplified)
-                return b === 'PICKAXE' || b === 'CAMPFIRE' || b === 'SHELTER' || b === 'WATER' || b === 'FARMING';
-            }).length;
-            
-            const totalProgress = ageWords + Math.min(ageBlueprints, age.requiredBlueprints);
-            const maxProgress = age.words.length + age.requiredBlueprints;
-            const progress = (totalProgress / maxProgress) * 100;
-            document.getElementById('age-progress').style.width = `${Math.min(progress, 100)}%`;
-            
-            // Timeline
-            updateTimeline();
-            
-            // Resources
-            document.getElementById('crystal-display').textContent = gameState.timeCrystals;
-            document.getElementById('knowledge-display').textContent = gameState.knowledge;
-            
-            // Forge tab updates
-            updateLetters();
-            updateWords();
-            updateCombos();
-            updateAgeGate();
-            
-            // Letter count
-            const totalLetters = Object.values(gameState.letters).reduce((a,b) => a+b, 0);
-            document.getElementById('letter-count').textContent = totalLetters;
-            
-            // Craft button
-            updateCraftButton();
-            
-            // Word display
-            updateWordDisplay();
-        }
-
-        function updateTimeline() {
-            const timeline = document.getElementById('timeline');
-            timeline.innerHTML = '';
-            
-            Object.entries(AGES).forEach(([id, age]) => {
-                const dot = document.createElement('div');
-                dot.className = 'timeline-dot';
-                dot.style.borderColor = age.color;
-                
-                if (gameState.completedAges.includes(id)) {
-                    dot.innerHTML = '✓';
-                    dot.style.background = `${age.color}30`;
-                } else if (id === gameState.currentAge) {
-                    dot.innerHTML = age.name;
-                    dot.style.background = `${age.color}20`;
-                } else {
-                    dot.innerHTML = '○';
+            for (let i = 0; i < count; i++) {
+                let letter;
+                switch(type) {
+                    case 'vowel':
+                        letter = ['a','e','i','o','u'][Math.floor(Math.random() * 5)];
+                        break;
+                    case 'consonant':
+                        letter = ['r','t','n','s','l'][Math.floor(Math.random() * 5)];
+                        break;
+                    case 'silk':
+                        letter = ['c','p','m','d','g'][Math.floor(Math.random() * 5)];
+                        break;
+                    case 'rare':
+                        letter = ['v','k','y','f','w'][Math.floor(Math.random() * 5)];
+                        break;
+                    default:
+                        letter = 'a';
                 }
-                
-                timeline.appendChild(dot);
-            });
+                inventory.push(letter);
+            }
+            return inventory;
         }
 
-        function updateLetters() {
-            const grid = document.getElementById('letters-grid');
+        // ==================== UI RENDERING ====================
+
+        // Render merchants
+        function renderMerchants() {
+            const grid = document.getElementById('merchantGrid');
             grid.innerHTML = '';
             
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
-                const count = gameState.letters[letter] || 0;
-                const tile = document.createElement('div');
-                tile.className = `letter-tile ${count === 0 ? 'empty' : ''} ${gameState.selectedLetters.includes(letter) ? 'selected' : ''}`;
-                tile.textContent = letter;
-                
-                if (count > 0) {
-                    const badge = document.createElement('span');
-                    badge.className = 'letter-count';
-                    badge.textContent = count;
-                    tile.appendChild(badge);
-                    tile.onclick = () => toggleLetter(letter);
-                }
-                
-                grid.appendChild(tile);
-            });
-        }
-
-        function updateWords() {
-            const grid = document.getElementById('words-grid');
-            grid.innerHTML = '';
-            
-            const currentWords = AGES[gameState.currentAge].words;
-            
-            currentWords.forEach(word => {
-                if (gameState.discoveredWords.includes(word)) {
-                    // Discovered word
-                    const card = document.createElement('div');
-                    card.className = 'word-card';
-                    card.style.background = '#ffd70010';
-                    
-                    let blueprintText = '';
-                    if (WORD_DB[word].blueprint && !gameState.blueprints.includes(WORD_DB[word].blueprint) && !gameState.researched.includes(WORD_DB[word].blueprint)) {
-                        blueprintText = `<div style="color: #7fffd4; font-size: 8px;">📜 Blueprint inside</div>`;
-                    }
-                    
-                    card.innerHTML = `
-                        <div class="word-name">✨ ${word}</div>
-                        <div class="word-desc">${WORD_DB[word].points} pts</div>
-                        ${blueprintText}
-                    `;
-                    grid.appendChild(card);
-                } else {
-                    // Undiscovered word
-                    const card = document.createElement('div');
-                    const craftable = canCraftWord(word);
-                    card.className = `word-card ${craftable ? 'craftable' : ''}`;
-                    card.innerHTML = `
-                        <div class="word-name">${word}</div>
-                        <div class="word-letters-req">${WORD_DB[word].letters.join('')}</div>
-                        <div class="word-desc">${WORD_DB[word].points} pts</div>
-                    `;
-                    if (craftable) {
-                        card.onclick = () => autofillWord(word);
-                    }
-                    grid.appendChild(card);
-                }
-            });
-        }
-
-        function updateCombos() {
-            const grid = document.getElementById('combo-grid');
-            grid.innerHTML = '';
-            
-            COMBOS.forEach(combo => {
-                const hasWords = combo.needs.every(w => gameState.discoveredWords.includes(w));
-                const alreadyDone = gameState.combosDone.includes(combo.result);
-                
-                if (hasWords && !alreadyDone) {
-                    const item = document.createElement('div');
-                    item.className = 'combo-item';
-                    item.onclick = () => performCombo(combo);
-                    item.innerHTML = `
-                        <div class="combo-formula">${combo.needs.join(' + ')}</div>
-                        <div class="combo-result">→ ${combo.result}</div>
-                    `;
-                    grid.appendChild(item);
-                }
-            });
-        }
-
-        function updateAgeGate() {
-            const age = AGES[gameState.currentAge];
-            const gate = document.getElementById('age-gate');
-            const nextName = document.getElementById('next-age-name');
-            const req = document.getElementById('gate-requirement');
-            
-            if (!age.next) {
-                gate.style.display = 'none';
-                return;
-            }
-            
-            const next = AGES[age.next];
-            nextName.textContent = `Age of ${next.name}`;
-            
-            const wordsFound = age.words.filter(w => gameState.discoveredWords.includes(w)).length;
-            const blueprintsFound = gameState.researched.filter(b => {
-                // Check if blueprint is from this age (simplified)
-                return b === 'PICKAXE' || b === 'CAMPFIRE' || b === 'SHELTER' || b === 'WATER' || b === 'FARMING';
-            }).length;
-            
-            if (wordsFound >= age.words.length && blueprintsFound >= age.requiredBlueprints) {
-                gate.style.background = '#ffd70020';
-                req.textContent = '✨ Ready to advance (50 crystals)';
-                gate.onclick = advanceAge;
-            } else {
-                gate.style.background = '#1a1f2e';
-                const wordsNeeded = age.words.length - wordsFound;
-                const blueprintsNeeded = age.requiredBlueprints - blueprintsFound;
-                
-                let needText = [];
-                if (wordsNeeded > 0) needText.push(`${wordsNeeded} words`);
-                if (blueprintsNeeded > 0) needText.push(`${blueprintsNeeded} blueprints`);
-                
-                req.textContent = `Need: ${needText.join(', ')}`;
-                gate.onclick = null;
-            }
-        }
-
-        function updateBlueprintsTab() {
-            const grid = document.getElementById('blueprints-grid');
-            grid.innerHTML = '';
-            
-            document.getElementById('blueprint-count').textContent = 
-                `${gameState.researched.length}/${Object.keys(BLUEPRINT_DB).length}`;
-            
-            Object.entries(BLUEPRINT_DB).forEach(([name, data]) => {
+            merchants.forEach(merchant => {
                 const card = document.createElement('div');
-                card.className = 'blueprint-card';
+                card.className = `merchant-card ${gameState.selectedMerchant?.id === merchant.id ? 'selected' : ''}`;
+                card.onclick = () => selectMerchant(merchant);
                 
-                const discovered = gameState.blueprints.includes(name);
-                const researched = gameState.researched.includes(name);
+                const relationship = gameState.relationshipLevels[merchant.name] || 1;
+                const hearts = '❤️'.repeat(relationship) + '🤍'.repeat(4 - relationship);
                 
-                if (researched) {
-                    card.innerHTML = `
-                        <div class="blueprint-name">✓ ${name}</div>
-                        <div class="blueprint-type">${data.type}</div>
-                        <div class="blueprint-effect">${data.effect}</div>
-                        <div class="blueprint-researched">Researched</div>
-                    `;
-                } else if (discovered) {
-                    card.innerHTML = `
-                        <div class="blueprint-name">📜 ${name}</div>
-                        <div class="blueprint-type">${data.type}</div>
-                        <div class="blueprint-effect">${data.effect}</div>
-                        <div class="blueprint-cost">Cost: ${data.cost} knowledge</div>
-                        <button class="blueprint-research" onclick="researchBlueprint('${name}')">Research</button>
-                    `;
-                } else {
-                    card.innerHTML = `
-                        <div class="blueprint-name">???</div>
-                        <div class="blueprint-type">unknown</div>
-                        <div class="blueprint-effect">???</div>
-                        <div style="color: #404040; font-size: 8px; text-align: center; margin-top: 4px;">Not discovered</div>
-                    `;
-                }
-                
+                card.innerHTML = `
+                    <div class="merchant-name">${merchant.name}</div>
+                    <div class="merchant-specialty">${merchant.specialty}</div>
+                    <div class="merchant-relationship">${hearts}</div>
+                    <div class="merchant-inventory">${merchant.inventory.length} letters</div>
+                `;
                 grid.appendChild(card);
             });
         }
 
-        function updateMuseumTab() {
-            // Stats
-            document.getElementById('museum-words').textContent = gameState.discoveredWords.length;
-            document.getElementById('museum-blueprints').textContent = gameState.researched.length;
-            document.getElementById('museum-artifacts').textContent = gameState.artifacts.length;
-            
-            const mastery = Math.floor((gameState.discoveredWords.length / 36) * 100);
-            document.getElementById('museum-mastery').textContent = `${mastery}%`;
-            
-            // Artifacts
-            const artifactsGrid = document.getElementById('artifacts-grid');
-            artifactsGrid.innerHTML = '';
-            
-            ARTIFACTS.forEach(artifact => {
-                const found = gameState.artifacts.includes(artifact.name);
-                const card = document.createElement('div');
-                card.className = 'artifact-card';
-                
-                if (found) {
-                    card.innerHTML = `
-                        <div class="artifact-name">✨ ${artifact.name}</div>
-                        <div class="artifact-bonus">${artifact.bonus}</div>
-                        <div class="artifact-lore">"${artifact.lore}"</div>
-                    `;
-                } else {
-                    card.innerHTML = `
-                        <div class="artifact-name">???</div>
-                        <div class="artifact-lore">Not discovered</div>
-                    `;
-                }
-                
-                artifactsGrid.appendChild(card);
-            });
-            
-            // Mastery grid
-            const masteryGrid = document.getElementById('mastery-grid');
-            masteryGrid.innerHTML = '';
-            
-            Object.entries(AGES).forEach(([id, age]) => {
-                const completed = gameState.completedAges.includes(id);
-                const div = document.createElement('div');
-                div.style.cssText = `
-                    background: ${completed ? age.color : '#1a1f2e'};
-                    border-radius: 12px;
-                    padding: 8px;
-                    text-align: center;
-                    font-size: 10px;
-                    color: ${completed ? '#000' : '#a0a0a0'};
-                `;
-                div.textContent = age.name;
-                masteryGrid.appendChild(div);
-            });
+        // Select a merchant
+        function selectMerchant(merchant) {
+            gameState.selectedMerchant = merchant;
+            renderMerchants();
+            renderMerchantInventory();
+            document.getElementById('buyButton').disabled = !gameState.selectedLetter;
+            document.getElementById('haggleButton').disabled = !gameState.selectedLetter;
         }
 
-        function updateCraftButton() {
-            const word = gameState.selectedLetters.join('');
-            const btn = document.getElementById('craft-btn');
-            btn.disabled = !WORD_DB[word] || !canCraftWord(word);
+        // Render merchant inventory
+        function renderMerchantInventory() {
+            if (!gameState.selectedMerchant) return;
+            
+            const inventory = document.getElementById('merchantInventory');
+            inventory.innerHTML = '';
+            
+            gameState.selectedMerchant.inventory.forEach((letter, index) => {
+                const slot = document.createElement('div');
+                slot.className = `inventory-slot filled ${gameState.selectedLetter === letter ? 'selected' : ''}`;
+                slot.textContent = letter.toUpperCase();
+                slot.onclick = () => selectLetter(letter);
+                inventory.appendChild(slot);
+            });
+            
+            // Fill remaining slots with empty slots
+            for (let i = gameState.selectedMerchant.inventory.length; i < 6; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'inventory-slot';
+                slot.textContent = '?';
+                inventory.appendChild(slot);
+            }
+            
+            document.getElementById('selectedMerchantName').textContent = gameState.selectedMerchant.name;
+            
+            if (gameState.selectedLetter) {
+                const price = getLetterPrice(gameState.selectedLetter);
+                document.getElementById('selectedLetterPrice').textContent = price;
+            }
         }
 
-        function updateWordDisplay() {
-            const display = document.getElementById('current-word-display');
-            const hint = document.getElementById('word-hint');
+        // Get price for a letter (with relationship discount)
+        function getLetterPrice(letter) {
+            if (!gameState.selectedMerchant) return 0;
             
-            if (gameState.selectedLetters.length === 0) {
-                display.textContent = '⚡';
-                hint.textContent = 'Select runes';
+            const merchant = gameState.selectedMerchant;
+            const basePrice = merchant.basePrices[letter] || 5;
+            const relationship = gameState.relationshipLevels[merchant.name] || 1;
+            const discount = 1 - (relationship * 0.05); // 5% discount per level
+            return Math.max(1, Math.floor(basePrice * discount));
+        }
+
+        // Select a letter to buy
+        function selectLetter(letter) {
+            if (gameState.selectedLetter === letter) {
+                gameState.selectedLetter = null;
             } else {
-                display.textContent = gameState.selectedLetters.join('');
-                const word = gameState.selectedLetters.join('');
-                if (WORD_DB[word]) {
-                    hint.textContent = `✨ ${WORD_DB[word].points} points`;
-                } else {
-                    hint.textContent = '❌ No power';
+                gameState.selectedLetter = letter;
+            }
+            
+            renderMerchantInventory();
+            renderLetterInventory();
+            
+            const price = getLetterPrice(letter);
+            document.getElementById('selectedLetterPrice').textContent = price;
+            document.getElementById('buyButton').disabled = !gameState.selectedLetter;
+            document.getElementById('haggleButton').disabled = !gameState.selectedLetter;
+        }
+
+        // Render words grid
+        function renderWordsGrid() {
+            const grid = document.getElementById('wordsGrid');
+            grid.innerHTML = '';
+            
+            UNIT_WORDS.forEach(item => {
+                const word = item.word;
+                const isCompleted = gameState.completedWords.includes(word);
+                const progress = gameState.wordProgress[word] || 0;
+                const totalLetters = word.length;
+                const percentage = (progress / totalLetters) * 100;
+                
+                const card = document.createElement('div');
+                card.className = `word-card ${isCompleted ? 'completed' : progress > 0 ? 'in-progress' : ''}`;
+                
+                if (!isCompleted && progress > 0) {
+                    const progressBar = document.createElement('div');
+                    progressBar.className = 'progress-bar';
+                    progressBar.style.width = `${percentage}%`;
+                    card.appendChild(progressBar);
                 }
+                
+                card.innerHTML += word;
+                grid.appendChild(card);
+            });
+        }
+
+        // Render letter inventory
+        function renderLetterInventory() {
+            const inventory = document.getElementById('letterInventory');
+            inventory.innerHTML = '';
+            
+            const letters = Object.entries(gameState.letters);
+            
+            if (letters.length === 0) {
+                inventory.innerHTML = '<div class="empty-inventory">No letters yet. Visit merchants to buy letters!</div>';
+                return;
+            }
+            
+            letters.sort(([letterA], [letterB]) => letterA.localeCompare(letterB));
+            
+            letters.forEach(([letter, count]) => {
+                for (let i = 0; i < count; i++) {
+                    const tile = document.createElement('div');
+                    tile.className = `letter-tile ${gameState.selectedLetter === letter ? 'selected' : ''}`;
+                    tile.textContent = letter.toUpperCase();
+                    tile.onclick = () => selectInventoryLetter(letter);
+                    inventory.appendChild(tile);
+                }
+            });
+        }
+
+        // Select letter from inventory
+        function selectInventoryLetter(letter) {
+            // This could be used for selling letters back or crafting
+            console.log('Selected inventory letter:', letter);
+        }
+
+        // Update artifact display
+        function updateArtifactDisplay() {
+            const completedCount = gameState.completedWords.length;
+            document.getElementById('artifactProgress').textContent = `Words: ${completedCount}/20`;
+            
+            if (completedCount === 20) {
+                document.getElementById('artifactBell').className = 'artifact-bell glow';
+                document.getElementById('artifactMessage').innerHTML = '✨ You crafted the Caravan Bell! ✨<br>Click the bell to review all words.';
+                document.getElementById('artifactBell').onclick = showAllWords;
             }
         }
 
         // ==================== GAME ACTIONS ====================
-        function toggleLetter(letter) {
-            const index = gameState.selectedLetters.indexOf(letter);
-            const count = gameState.selectedLetters.filter(l => l === letter).length;
+
+        // Buy a letter
+        function buyLetter() {
+            if (!gameState.selectedLetter || !gameState.selectedMerchant) {
+                showNotification('Select a merchant and letter first!');
+                return;
+            }
             
+            const letter = gameState.selectedLetter;
+            const price = getLetterPrice(letter);
+            
+            if (gameState.coins < price) {
+                showNotification('Not enough coins!');
+                return;
+            }
+            
+            // Check if merchant has the letter
+            const index = gameState.selectedMerchant.inventory.indexOf(letter);
             if (index === -1) {
-                if (count < (gameState.letters[letter] || 0)) {
-                    gameState.selectedLetters.push(letter);
-                }
-            } else {
-                gameState.selectedLetters.splice(index, 1);
+                showNotification('That letter is no longer available!');
+                gameState.selectedLetter = null;
+                renderMerchantInventory();
+                return;
             }
             
-            updateUI();
+            // Remove from merchant inventory
+            gameState.selectedMerchant.inventory.splice(index, 1);
+            
+            // Add to player inventory
+            gameState.letters[letter] = (gameState.letters[letter] || 0) + 1;
+            
+            // Deduct coins
+            gameState.coins -= price;
+            
+            // Add relationship XP
+            addRelationshipXP(gameState.selectedMerchant.name, 1);
+            
+            // Check if any words can be completed
+            checkWordCompletions();
+            
+            // Refresh UI
+            gameState.selectedLetter = null;
+            renderMerchantInventory();
+            renderLetterInventory();
+            updateResources();
+            saveGame();
+            
+            showNotification(`Bought letter ${letter.toUpperCase()} for ${price} 🪙`);
         }
 
-        function canCraftWord(word) {
-            const data = WORD_DB[word];
-            if (!data) return false;
-            if (gameState.discoveredWords.includes(word)) return false;
+        // Haggle mini-game
+        function startHaggle() {
+            if (!gameState.selectedLetter || !gameState.selectedMerchant) return;
             
-            // Check age
-            const ageIndex = Object.keys(AGES).indexOf(gameState.currentAge);
-            const wordAgeIndex = Object.keys(AGES).indexOf(data.age);
-            if (wordAgeIndex > ageIndex) return false;
-            
-            // Check letters
-            const letters = {...gameState.letters};
-            for (const letter of data.letters) {
-                if (!letters[letter] || letters[letter] === 0) return false;
-                letters[letter]--;
+            const price = getLetterPrice(gameState.selectedLetter);
+            if (gameState.tokens < 1) {
+                showNotification('No trade tokens! Complete trades to earn more.');
+                return;
             }
             
-            return true;
+            // Show haggle game
+            document.getElementById('tradingSection').classList.add('hidden');
+            document.getElementById('haggleGame').classList.remove('hidden');
+            
+            // Setup haggle game
+            const targetZone = 30 + Math.random() * 40; // 30-70% for fair price
+            document.getElementById('haggleTarget').style.left = targetZone + '%';
+            document.getElementById('haggleCurrentPrice').textContent = price;
+            
+            let position = 0;
+            let direction = 1;
+            let animation;
+            
+            function moveIndicator() {
+                position += direction * 2;
+                if (position >= 100) {
+                    position = 100;
+                    direction = -1;
+                } else if (position <= 0) {
+                    position = 0;
+                    direction = 1;
+                }
+                
+                document.getElementById('haggleIndicator').style.left = position + '%';
+                document.getElementById('haggleFill').style.width = position + '%';
+            }
+            
+            animation = setInterval(moveIndicator, 50);
+            
+            // Stop button
+            document.getElementById('haggleStop').onclick = function() {
+                clearInterval(animation);
+                
+                // Calculate result
+                const diff = Math.abs(position - targetZone);
+                let discount = 0;
+                
+                if (diff < 5) {
+                    discount = 0.4; // 40% off
+                    showNotification('Perfect haggle! 40% discount!');
+                } else if (diff < 10) {
+                    discount = 0.2; // 20% off
+                    showNotification('Good haggle! 20% discount!');
+                } else if (diff < 15) {
+                    discount = 0.1; // 10% off
+                    showNotification('Fair haggle! 10% discount!');
+                } else {
+                    showNotification('Missed the mark. No discount.');
+                }
+                
+                // Apply discount
+                gameState.tokens--;
+                
+                if (discount > 0) {
+                    const merchant = gameState.selectedMerchant;
+                    merchant.basePrices[gameState.selectedLetter] = 
+                        Math.floor(merchant.basePrices[gameState.selectedLetter] * (1 - discount));
+                    showNotification(`${gameState.selectedMerchant.name} remembers your haggling...`);
+                }
+                
+                // Return to trading
+                document.getElementById('haggleGame').classList.add('hidden');
+                document.getElementById('tradingSection').classList.remove('hidden');
+                updateResources();
+                renderMerchantInventory();
+                saveGame();
+            };
         }
 
-        function craftWord() {
-            const word = gameState.selectedLetters.join('');
-            
-            if (WORD_DB[word] && canCraftWord(word)) {
-                // Use letters
-                for (const letter of gameState.selectedLetters) {
-                    gameState.letters[letter]--;
+        // Add relationship XP
+        function addRelationshipXP(merchantName, xp) {
+            const currentLevel = gameState.relationshipLevels[merchantName] || 1;
+            if (currentLevel < 4) {
+                // Simple level up system - every 5 trades increases level
+                const tradeCount = (gameState[`trades_${merchantName}`] || 0) + 1;
+                gameState[`trades_${merchantName}`] = tradeCount;
+                
+                if (tradeCount % 5 === 0 && currentLevel < 4) {
+                    gameState.relationshipLevels[merchantName] = currentLevel + 1;
+                    showNotification(`${merchantName} is now level ${currentLevel + 1}!`);
                 }
+            }
+        }
+
+        // Check if any words can be completed
+        function checkWordCompletions() {
+            UNIT_WORDS.forEach(item => {
+                const word = item.word;
                 
-                // Add word
-                gameState.discoveredWords.push(word);
+                // Skip if already completed
+                if (gameState.completedWords.includes(word)) return;
                 
-                // Add crystals
-                let points = WORD_DB[word].points;
-                if (gameState.permanentBonuses.wordPoints) {
-                    points += gameState.permanentBonuses.wordPoints;
-                }
-                gameState.timeCrystals += points;
+                // Check if we have all letters for this word
+                const letters = word.split('');
+                let canComplete = true;
                 
-                // Add knowledge
-                gameState.knowledge += word.length;
+                // Count letters needed
+                const needed = {};
+                letters.forEach(l => needed[l] = (needed[l] || 0) + 1);
                 
-                // Chance to discover blueprint (20%)
-                if (WORD_DB[word].blueprint && Math.random() < 0.2) {
-                    const blueprint = WORD_DB[word].blueprint;
-                    if (!gameState.blueprints.includes(blueprint) && !gameState.researched.includes(blueprint)) {
-                        gameState.blueprints.push(blueprint);
-                        showDiscovery(`📜 Discovered Blueprint: ${blueprint}!`, BLUEPRINT_DB[blueprint]?.effect || 'New technology');
+                // Check against inventory
+                for (let [letter, count] of Object.entries(needed)) {
+                    if ((gameState.letters[letter] || 0) < count) {
+                        canComplete = false;
+                        break;
                     }
                 }
                 
-                // Chance to find artifact (5%)
-                if (Math.random() < 0.05) {
-                    const availableArtifacts = ARTIFACTS.filter(a => !gameState.artifacts.includes(a.name));
-                    if (availableArtifacts.length > 0) {
-                        const artifact = availableArtifacts[Math.floor(Math.random() * availableArtifacts.length)];
-                        gameState.artifacts.push(artifact.name);
-                        
-                        // Apply artifact bonus
-                        if (artifact.name === 'Stone Tablet') gameState.permanentBonuses.maxLetters += 5;
-                        if (artifact.name === 'Bronze Compass') gameState.permanentBonuses.expeditionBonus += 1;
-                        if (artifact.name === 'Iron Crown') gameState.permanentBonuses.wordPoints += 3;
-                        if (artifact.name === 'Golden Harp') gameState.permanentBonuses.dailyBonus += 10;
-                        
-                        showDiscovery(`🏺 Found Artifact: ${artifact.name}!`, artifact.bonus);
-                    }
+                if (canComplete) {
+                    // Remove letters from inventory
+                    letters.forEach(l => {
+                        gameState.letters[l]--;
+                        if (gameState.letters[l] === 0) {
+                            delete gameState.letters[l];
+                        }
+                    });
+                    
+                    // Add to completed words
+                    gameState.completedWords.push(word);
+                    
+                    // Award coins for completing a word
+                    gameState.coins += 10;
+                    
+                    // Show word discovery modal
+                    showWordModal(item);
                 }
-                
-                // Clear selection
-                gameState.selectedLetters = [];
-                
-                // Save
-                saveGame();
-                showNotification(`✨ ${word} +${points}`);
-                updateUI();
-                
-                // Update blueprints tab if open
-                if (document.getElementById('blueprints-tab').style.display !== 'none') {
-                    updateBlueprintsTab();
-                }
-            }
-        }
-
-        function autofillWord(word) {
-            if (canCraftWord(word)) {
-                gameState.selectedLetters = [...WORD_DB[word].letters];
-                updateUI();
-            }
-        }
-
-        function clearSelection() {
-            gameState.selectedLetters = [];
-            updateUI();
-        }
-
-        function performCombo(combo) {
-            // Check if we have all needed words
-            if (combo.needs.every(w => gameState.discoveredWords.includes(w))) {
-                gameState.combosDone.push(combo.result);
-                
-                // Add the new word if it exists
-                if (!gameState.discoveredWords.includes(combo.result)) {
-                    gameState.discoveredWords.push(combo.result);
-                    gameState.timeCrystals += 25;
-                    gameState.knowledge += 10;
-                    showNotification(`⚡ Created ${combo.result}!`);
-                }
-                
-                saveGame();
-                updateUI();
-            }
-        }
-
-        function researchBlueprint(name) {
-            const blueprint = BLUEPRINT_DB[name];
-            if (gameState.knowledge >= blueprint.cost && gameState.blueprints.includes(name)) {
-                gameState.knowledge -= blueprint.cost;
-                gameState.blueprints = gameState.blueprints.filter(b => b !== name);
-                gameState.researched.push(name);
-                
-                // Apply permanent bonus based on blueprint
-                if (name === 'PICKAXE') gameState.permanentBonuses.maxLetters += 2;
-                if (name === 'KNOWLEDGE') gameState.permanentBonuses.dailyBonus += 5;
-                if (name === 'ALCHEMY') { /* Fuse ability - handled elsewhere */ }
-                if (name === 'TRADE') gameState.permanentBonuses.expeditionBonus += 1;
-                
-                showNotification(`🔬 Researched: ${name}!`);
-                saveGame();
-                updateBlueprintsTab();
-                updateUI();
-            }
-        }
-
-        function advanceAge() {
-            if (gameState.timeCrystals >= 50) {
-                gameState.timeCrystals -= 50;
-                gameState.completedAges.push(gameState.currentAge);
-                gameState.currentAge = AGES[gameState.currentAge].next;
-                
-                // Bonus letters and knowledge
-                const bonus = ['A','E','I','O','U'];
-                bonus.forEach(l => gameState.letters[l] = (gameState.letters[l] || 0) + 3);
-                gameState.knowledge += 20;
-                
-                showNotification(`🌟 Entered Age of ${AGES[gameState.currentAge].name}`);
-                saveGame();
-                updateUI();
-            }
-        }
-
-        function startExpedition() {
-            let cost = 15;
-            if (gameState.timeCrystals >= cost) {
-                gameState.timeCrystals -= cost;
-                
-                const found = [];
-                let count = 3 + (gameState.permanentBonuses.expeditionBonus || 0);
-                
-                for (let i = 0; i < count; i++) {
-                    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                    const letter = letters[Math.floor(Math.random() * letters.length)];
-                    gameState.letters[letter] = (gameState.letters[letter] || 0) + 1;
-                    found.push(letter);
-                }
-                
-                showNotification(`🗺️ Found: ${found.join(' ')}`);
-                saveGame();
-                updateUI();
-            }
-        }
-
-        // ==================== CIVILIZATION GAME ====================
-        function startCivGame() {
-            // Check daily limit
-            const today = new Date().toDateString();
-            const lastCiv = localStorage.getItem('lastCiv');
+            });
             
-            if (lastCiv === today) {
-                // Load existing game
-                const saved = localStorage.getItem('civGame');
-                if (saved) {
-                    civGame = JSON.parse(saved);
+            // Update progress tracking
+            UNIT_WORDS.forEach(item => {
+                const word = item.word;
+                if (!gameState.completedWords.includes(word)) {
+                    // Count how many letters we have for this word
+                    const letters = word.split('');
+                    let count = 0;
+                    const inventoryCopy = {...gameState.letters};
+                    
+                    letters.forEach(l => {
+                        if (inventoryCopy[l] > 0) {
+                            count++;
+                            inventoryCopy[l]--;
+                        }
+                    });
+                    
+                    gameState.wordProgress[word] = count;
+                } else {
+                    gameState.wordProgress[word] = word.length;
                 }
-            } else {
-                // New game
-                initCivMap();
-                localStorage.setItem('lastCiv', today);
-            }
+            });
             
-            updateCivMap();
-            document.getElementById('civ-modal').classList.add('active');
+            renderWordsGrid();
+            renderLetterInventory();
+            updateArtifactDisplay();
+            updateResources();
         }
 
-        function initCivMap() {
-            // Reset civ game
-            civGame = {
-                map: [],
-                settlement: {
-                    x: 4,
-                    y: 4,
-                    population: 3,
-                    storage: 20,
-                    storageUsed: 0,
-                    collectedLetters: {},
-                    buildings: []
-                },
-                scouts: [
-                    { x: 3, y: 4, movesLeft: 3 },
-                    { x: 4, y: 3, movesLeft: 3 }
-                ],
-                resources: {
-                    food: 10,
-                    gold: 5,
-                    knowledge: 0
-                },
-                turn: 1,
-                revealedTiles: [`4,4`] // Settlement tile revealed
+        // Show word discovery modal
+        function showWordModal(wordItem) {
+            const modal = document.getElementById('wordModal');
+            document.getElementById('modalWord').textContent = wordItem.word.toUpperCase();
+            document.getElementById('modalDefinition').textContent = wordItem.definition;
+            document.getElementById('modalExample').textContent = `"${wordItem.example}"`;
+            
+            // Simple emoji-based illustrations
+            const illustrations = {
+                afraid: '😨',
+                agree: '🤝',
+                angry: '😠',
+                arrive: '🚶',
+                attack: '⚔️',
+                bottom: '⬇️',
+                clever: '🧠',
+                cruel: '😈',
+                finally: '⏰',
+                hide: '🙈',
+                hunt: '🏹',
+                lot: '📦',
+                middle: '🎯',
+                moment: '⏳',
+                pleased: '😊',
+                promise: '🤞',
+                reply: '💬',
+                safe: '🛡️',
+                trick: '🎩',
+                well: '💪'
             };
             
-            // Create 8x8 map
-            for (let y = 0; y < 8; y++) {
-                const row = [];
-                for (let x = 0; x < 8; x++) {
-                    // Different terrain types
-                    const terrainRand = Math.random();
-                    let terrain;
-                    
-                    if (terrainRand < 0.4) terrain = 'plains';
-                    else if (terrainRand < 0.7) terrain = 'forest';
-                    else if (terrainRand < 0.9) terrain = 'mountain';
-                    else terrain = 'ruins';
-                    
-                    // Generate letter based on terrain
-                    let letter;
-                    if (terrain === 'plains') {
-                        const common = 'AEIOU';
-                        letter = common[Math.floor(Math.random() * common.length)];
-                    } else if (terrain === 'forest') {
-                        const uncommon = 'RSTN';
-                        letter = uncommon[Math.floor(Math.random() * uncommon.length)];
-                    } else if (terrain === 'mountain') {
-                        const rare = 'ZQXJKVWY';
-                        letter = rare[Math.floor(Math.random() * rare.length)];
-                    } else {
-                        // Ruins - rare or artifact
-                        if (Math.random() < 0.3) {
-                            letter = '?'; // Artifact
-                        } else {
-                            const veryRare = 'ZQXJ';
-                            letter = veryRare[Math.floor(Math.random() * veryRare.length)];
-                        }
-                    }
-                    
-                    row.push({
-                        x, y,
-                        terrain,
-                        letter,
-                        collected: false
-                    });
-                }
-                civGame.map.push(row);
-            }
+            document.getElementById('modalImage').src = 'data:image/svg+xml,' + encodeURIComponent(`
+                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+                    <rect width="100" height="100" fill="#f0f0f0" rx="12"/>
+                    <text x="50" y="50" font-size="40" text-anchor="middle" dy=".3em">${illustrations[wordItem.word] || '📖'}</text>
+                </svg>
+            `);
             
-            // Settlement tile is special
-            civGame.map[4][4].terrain = 'city';
-            civGame.map[4][4].letter = '🏛️';
+            modal.style.display = 'flex';
         }
 
-        function updateCivMap() {
-            const mapDiv = document.getElementById('civ-map');
-            mapDiv.innerHTML = '';
-            
-            // Update resource displays
-            document.getElementById('civ-turn').textContent = civGame.turn;
-            document.getElementById('civ-food').textContent = civGame.resources.food;
-            document.getElementById('civ-gold').textContent = civGame.resources.gold;
-            document.getElementById('civ-knowledge').textContent = civGame.resources.knowledge;
-            document.getElementById('civ-pop').textContent = civGame.settlement.population;
-            document.getElementById('civ-scouts').textContent = civGame.scouts.length;
-            document.getElementById('civ-buildings').textContent = civGame.settlement.buildings.length;
-            document.getElementById('civ-storage').textContent = `${civGame.settlement.storageUsed}/${civGame.settlement.storage}`;
-            
-            // Show collected letters preview
-            const preview = document.getElementById('civ-letters-preview');
-            preview.innerHTML = '';
-            
-            Object.entries(civGame.settlement.collectedLetters).forEach(([letter, count]) => {
-                preview.innerHTML += `<span class="civ-letter-badge">${letter} x${count}</span>`;
+        function closeWordModal() {
+            document.getElementById('wordModal').style.display = 'none';
+        }
+
+        // Show all words when artifact is complete
+        function showAllWords() {
+            let message = '✨ CARAVAN BELL COLLECTION ✨\n\n';
+            UNIT_WORDS.forEach(item => {
+                message += `${item.word.toUpperCase()}: ${item.definition}\n`;
             });
-            
-            // Draw map
-            for (let y = 0; y < 8; y++) {
-                for (let x = 0; x < 8; x++) {
-                    const tile = civGame.map[y][x];
-                    const isRevealed = civGame.revealedTiles.includes(`${x},${y}`);
-                    const isSettlement = (x === civGame.settlement.x && y === civGame.settlement.y);
-                    
-                    // Check if scout is here
-                    const scoutHere = civGame.scouts.find(s => s.x === x && s.y === y);
-                    
-                    const div = document.createElement('div');
-                    div.className = 'civ-tile';
-                    
-                    // Style based on terrain
-                    let bgColor = '#2a2a2a';
-                    if (isSettlement) bgColor = '#4a3f2c';
-                    else if (tile.terrain === 'forest') bgColor = '#1a4a1a';
-                    else if (tile.terrain === 'mountain') bgColor = '#4a4a4a';
-                    else if (tile.terrain === 'ruins') bgColor = '#4a2a4a';
-                    
-                    div.style.backgroundColor = bgColor;
-                    div.style.border = `1px solid ${isRevealed ? '#ffd700' : '#404040'}`;
-                    
-                    if (scoutHere) {
-                        div.innerHTML = '🛡️';
-                        div.style.fontSize = '14px';
-                    } else if (isRevealed) {
-                        if (tile.collected) {
-                            div.innerHTML = '✓';
-                            div.style.color = '#a0a0a0';
-                        } else {
-                            div.textContent = tile.letter;
-                            div.style.color = tile.letter === '?' ? '#ff99ff' : '#ffd700';
-                        }
-                    } else {
-                        div.innerHTML = '🌫️';
-                        div.style.opacity = '0.5';
-                        div.style.fontSize = '12px';
-                    }
-                    
-                    // Click to move scout
-                    if (!isRevealed && civGame.scouts.some(s => s.movesLeft > 0)) {
-                        div.style.cursor = 'pointer';
-                        div.onclick = () => moveCivScout(x, y);
-                    }
-                    
-                    mapDiv.appendChild(div);
-                }
-            }
+            alert(message);
         }
 
-        function moveCivScout(x, y) {
-            // Find a scout with moves left
-            const scout = civGame.scouts.find(s => s.movesLeft > 0);
-            if (!scout) {
-                showNotification('❌ No scouts with moves left');
-                return;
-            }
-            
-            // Calculate distance (simplified - allow any adjacent move)
-            const dx = Math.abs(scout.x - x);
-            const dy = Math.abs(scout.y - y);
-            
-            if (dx + dy !== 1) {
-                showNotification('❌ Scouts can only move to adjacent tiles');
-                return;
-            }
-            
-            // Move scout
-            scout.x = x;
-            scout.y = y;
-            scout.movesLeft--;
-            
-            // Reveal tile
-            civGame.revealedTiles.push(`${x},${y}`);
-            const tile = civGame.map[y][x];
-            
-            // Collect letter if not collected
-            if (!tile.collected && tile.letter !== '?') {
-                // Add to settlement storage
-                civGame.settlement.collectedLetters[tile.letter] = 
-                    (civGame.settlement.collectedLetters[tile.letter] || 0) + 1;
-                civGame.settlement.storageUsed++;
-                tile.collected = true;
-                
-                // Resources based on terrain
-                if (tile.terrain === 'plains') civGame.resources.food += 2;
-                if (tile.terrain === 'forest') civGame.resources.gold += 1;
-                if (tile.terrain === 'mountain') civGame.resources.knowledge += 1;
-                
-                showNotification(`📜 Scout found: ${tile.letter}`);
-            } else if (tile.letter === '?') {
-                // Found artifact!
-                showNotification('🏺 Scout found ancient ruins!');
-                
-                // 50% chance of artifact
-                if (Math.random() < 0.5) {
-                    const artifacts = ['Stone Tablet', 'Bronze Compass', 'Crystal Ball'];
-                    const artifact = artifacts[Math.floor(Math.random() * artifacts.length)];
-                    
-                    if (!gameState.artifacts.includes(artifact)) {
-                        gameState.artifacts.push(artifact);
-                        showNotification(`🏺 Discovered: ${artifact}!`);
-                    }
-                }
-                
-                // Always get something
-                civGame.resources.gold += 5;
-                civGame.resources.knowledge += 3;
-                tile.collected = true;
-                tile.letter = '?'; // Keep as artifact marker
-            }
-            
-            // Save game state
-            localStorage.setItem('civGame', JSON.stringify(civGame));
-            updateCivMap();
+        // Update resource displays
+        function updateResources() {
+            document.getElementById('coinDisplay').textContent = gameState.coins;
+            document.getElementById('tokenDisplay').textContent = gameState.tokens;
         }
 
-        function endCivTurn() {
-            // Reset scout moves
-            civGame.scouts.forEach(s => s.movesLeft = 3);
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
             
-            // Settlement auto-collects from adjacent tiles
-            const adjacent = [
-                [-1,0], [1,0], [0,-1], [0,1]
-            ];
-            
-            adjacent.forEach(([dx, dy]) => {
-                const x = civGame.settlement.x + dx;
-                const y = civGame.settlement.y + dy;
-                
-                if (x >= 0 && x < 8 && y >= 0 && y < 8) {
-                    const tile = civGame.map[y][x];
-                    if (!tile.collected && tile.letter !== '?') {
-                        // Population determines collection rate
-                        for (let i = 0; i < civGame.settlement.population; i++) {
-                            if (Math.random() < 0.3) { // 30% chance per pop
-                                civGame.settlement.collectedLetters[tile.letter] = 
-                                    (civGame.settlement.collectedLetters[tile.letter] || 0) + 1;
-                                civGame.settlement.storageUsed++;
-                                tile.collected = true;
-                                
-                                // Resources
-                                if (tile.terrain === 'plains') civGame.resources.food += 1;
-                                break;
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Buildings generate resources
-            civGame.settlement.buildings.forEach(building => {
-                if (building === 'granary') civGame.resources.food += 3;
-                if (building === 'market') civGame.resources.gold += 2;
-                if (building === 'library') civGame.resources.knowledge += 2;
-            });
-            
-            // Consume food
-            civGame.resources.food -= civGame.settlement.population;
-            
-            // Check if starving
-            if (civGame.resources.food < 0) {
-                civGame.settlement.population = Math.max(1, civGame.settlement.population + civGame.resources.food);
-                civGame.resources.food = 0;
-                showNotification('⚠️ Starvation! Population decreased');
-            }
-            
-            // Grow population if enough food
-            if (civGame.resources.food >= 15) {
-                civGame.settlement.population++;
-                civGame.resources.food -= 10;
-                showNotification('👶 Population grew!');
-            }
-            
-            // Check storage
-            if (civGame.settlement.storageUsed >= civGame.settlement.storage) {
-                showNotification('⚠️ Storage full! Transfer letters to main game');
-            }
-            
-            civGame.turn++;
-            
-            // Save game state
-            localStorage.setItem('civGame', JSON.stringify(civGame));
-            updateCivMap();
+            setTimeout(() => {
+                notification.remove();
+            }, 2000);
         }
 
-        function buyCivScout() {
-            if (civGame.resources.gold >= 10) {
-                civGame.resources.gold -= 10;
-                
-                // Add new scout at settlement
-                civGame.scouts.push({
-                    x: civGame.settlement.x,
-                    y: civGame.settlement.y,
-                    movesLeft: 3
-                });
-                
-                showNotification('🛡️ New scout hired!');
-                
-                // Save game state
-                localStorage.setItem('civGame', JSON.stringify(civGame));
-                updateCivMap();
-            } else {
-                showNotification('❌ Need 10 gold');
-            }
-        }
+        // ==================== SAVE/LOAD ====================
 
-        function buildGranary() {
-            if (civGame.resources.food >= 15 && !civGame.settlement.buildings.includes('granary')) {
-                civGame.resources.food -= 15;
-                civGame.settlement.buildings.push('granary');
-                showNotification('🏠 Granary built! +3 food per turn');
-                
-                // Save game state
-                localStorage.setItem('civGame', JSON.stringify(civGame));
-                updateCivMap();
-            } else if (civGame.settlement.buildings.includes('granary')) {
-                showNotification('❌ Granary already built');
-            } else {
-                showNotification('❌ Need 15 food');
-            }
-        }
-
-        function buildMarket() {
-            if (civGame.resources.gold >= 15 && !civGame.settlement.buildings.includes('market')) {
-                civGame.resources.gold -= 15;
-                civGame.settlement.buildings.push('market');
-                showNotification('🏪 Market built! +2 gold per turn');
-                
-                // Save game state
-                localStorage.setItem('civGame', JSON.stringify(civGame));
-                updateCivMap();
-            } else if (civGame.settlement.buildings.includes('market')) {
-                showNotification('❌ Market already built');
-            } else {
-                showNotification('❌ Need 15 gold');
-            }
-        }
-
-        function buildLibrary() {
-            if (civGame.resources.knowledge >= 15 && !civGame.settlement.buildings.includes('library')) {
-                civGame.resources.knowledge -= 15;
-                civGame.settlement.buildings.push('library');
-                showNotification('📚 Library built! +2 knowledge per turn');
-                
-                // Save game state
-                localStorage.setItem('civGame', JSON.stringify(civGame));
-                updateCivMap();
-            } else if (civGame.settlement.buildings.includes('library')) {
-                showNotification('❌ Library already built');
-            } else {
-                showNotification('❌ Need 15 knowledge');
-            }
-        }
-
-        function collectCivLetters() {
-            // Transfer collected letters to main game
-            let total = 0;
-            Object.entries(civGame.settlement.collectedLetters).forEach(([letter, count]) => {
-                gameState.letters[letter] = (gameState.letters[letter] || 0) + count;
-                total += count;
-            });
-            
-            // Bonus knowledge to main game
-            if (civGame.resources.knowledge > 0) {
-                gameState.knowledge += civGame.resources.knowledge;
-            }
-            
-            // Clear collected letters
-            civGame.settlement.collectedLetters = {};
-            civGame.settlement.storageUsed = 0;
-            
-            showNotification(`📦 Transferred ${total} letters to main game!`);
-            
-            // Save both games
-            saveGame();
-            localStorage.setItem('civGame', JSON.stringify(civGame));
-            
-            // Update UI
-            updateUI();
-            updateCivMap();
-        }
-
-        function closeCivModal() {
-            document.getElementById('civ-modal').classList.remove('active');
-            
-            // Auto-collect letters when closing
-            collectCivLetters();
-        }
-
-        // ==================== UTILITIES ====================
-        function showDiscovery(title, effect) {
-            document.getElementById('discovery-title').textContent = title;
-            document.getElementById('discovery-name').textContent = effect;
-            document.getElementById('discovery-modal').classList.add('active');
-        }
-
-        function closeDiscoveryModal() {
-            document.getElementById('discovery-modal').classList.remove('active');
-        }
-
-        function closeLoreModal() {
-            document.getElementById('lore-modal').classList.remove('active');
-        }
-
-        function showNotification(msg) {
-            const notif = document.createElement('div');
-            notif.className = 'notification';
-            notif.textContent = msg;
-            document.body.appendChild(notif);
-            setTimeout(() => notif.remove(), 2000);
-        }
-
+        // Save game to Telegram Cloud Storage
         function saveGame() {
-            localStorage.setItem('agesBlueprint', JSON.stringify(gameState));
+            const saveData = {
+                coins: gameState.coins,
+                tokens: gameState.tokens,
+                letters: gameState.letters,
+                completedWords: gameState.completedWords,
+                wordProgress: gameState.wordProgress,
+                relationshipLevels: gameState.relationshipLevels,
+                lastSave: Date.now()
+            };
+            
+            if (tg && tg.CloudStorage) {
+                tg.CloudStorage.setItem('wordsmith_bazaar', JSON.stringify(saveData));
+            }
+            
+            // Also save to localStorage as backup
+            localStorage.setItem('wordsmith_bazaar', JSON.stringify(saveData));
         }
 
-        // Daily bonus
-        function checkDaily() {
-            const last = localStorage.getItem('lastDaily');
-            const today = new Date().toDateString();
-            
-            if (last !== today) {
-                let bonus = 20 + (gameState.permanentBonuses.dailyBonus || 0);
-                gameState.timeCrystals += bonus;
-                
-                const letters = ['A','E','I','O','U','R','S','T'];
-                letters.forEach(l => {
-                    gameState.letters[l] = (gameState.letters[l] || 0) + 1;
+        // Load game from Telegram Cloud Storage
+        function loadGame() {
+            if (tg && tg.CloudStorage) {
+                tg.CloudStorage.getItem('wordsmith_bazaar', (error, value) => {
+                    if (value) {
+                        try {
+                            const saved = JSON.parse(value);
+                            gameState = {...gameState, ...saved};
+                            refreshAfterLoad();
+                        } catch (e) {
+                            console.error('Error loading saved game', e);
+                        }
+                    } else {
+                        // Try localStorage as fallback
+                        loadFromLocalStorage();
+                    }
                 });
-                
-                showNotification(`📅 Daily bonus +${bonus}`);
-                localStorage.setItem('lastDaily', today);
-                saveGame();
-                updateUI();
+            } else {
+                loadFromLocalStorage();
             }
         }
 
-        // ==================== EVENT LISTENERS ====================
-        document.getElementById('craft-btn').addEventListener('click', craftWord);
-        document.getElementById('clear-btn').addEventListener('click', clearSelection);
-
-        // Make functions global for onclick handlers
-        window.switchTab = switchTab;
-        window.startExpedition = startExpedition;
-        window.researchBlueprint = researchBlueprint;
-        window.closeDiscoveryModal = closeDiscoveryModal;
-        window.closeLoreModal = closeLoreModal;
-        
-        // Civilization functions
-        window.startCivGame = startCivGame;
-        window.endCivTurn = endCivTurn;
-        window.buyCivScout = buyCivScout;
-        window.buildGranary = buildGranary;
-        window.buildMarket = buildMarket;
-        window.buildLibrary = buildLibrary;
-        window.collectCivLetters = collectCivLetters;
-        window.closeCivModal = closeCivModal;
-
-        // Start
-        initGame();
-        checkDaily();
-
-        // Telegram
-        if (window.Telegram?.WebApp) {
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('wordsmith_bazaar');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    gameState = {...gameState, ...parsed};
+                } catch (e) {
+                    console.error('Error loading from localStorage', e);
+                }
+            }
+            refreshAfterLoad();
         }
+
+        function refreshAfterLoad() {
+            renderMerchants();
+            renderWordsGrid();
+            renderLetterInventory();
+            updateArtifactDisplay();
+            updateResources();
+        }
+
+        // ==================== DAILY RESET ====================
+
+        // Refresh merchant inventories (call this daily or on login)
+        function refreshMerchants() {
+            merchants.forEach(merchant => {
+                merchant.inventory = generateMerchantInventory(merchant.id);
+            });
+            
+            // Small chance of a special event
+            if (Math.random() < 0.3) {
+                // Market festival - lower prices for a day
+                merchants.forEach(merchant => {
+                    Object.keys(merchant.basePrices).forEach(letter => {
+                        merchant.basePrices[letter] = Math.max(1, merchant.basePrices[letter] - 1);
+                    }
+                );
+                showNotification('🎪 Market Festival! All prices reduced!');
+            });
+            
+            renderMerchants();
+            if (gameState.selectedMerchant) {
+                renderMerchantInventory();
+            }
+            saveGame();
+        }
+
+        // ==================== INITIALIZATION ====================
+
+        // Setup event listeners
+        document.getElementById('buyButton').onclick = buyLetter;
+        document.getElementById('haggleButton').onclick = startHaggle;
+        
+        // Check if it's a new day (simple version - just refresh on load)
+        refreshMerchants();
+        
+        // Load saved game
+        loadGame();
+        
+        // Auto-save every 30 seconds
+        setInterval(saveGame, 30000);
+        
+        // Save when user leaves
+        window.addEventListener('beforeunload', () => {
+            saveGame();
+        });
     </script>
 </body>
 </html>
