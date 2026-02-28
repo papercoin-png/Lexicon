@@ -32,11 +32,17 @@
         /* Header */
         .header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
             margin-bottom: 18px;
             padding-bottom: 12px;
             border-bottom: 2px solid #e9d8fd;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
 
         .title h1 {
@@ -48,9 +54,35 @@
             line-height: 1.2;
         }
 
+        .reset-button {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 4px rgba(245, 101, 101, 0.3);
+        }
+
+        .reset-button:active {
+            transform: scale(0.95);
+        }
+
         .title p {
             font-size: 0.8rem;
             color: #718096;
+        }
+
+        .resources-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
         }
 
         .resources {
@@ -68,6 +100,19 @@
             font-weight: 600;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             border: 1px solid #e2e8f0;
+        }
+
+        .timer-badge {
+            background: #f0e6ff;
+            padding: 6px 12px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+            color: #553c9a;
+            border: 1px solid #d6bcfa;
+            font-size: 0.9rem;
         }
 
         /* Section Styles */
@@ -105,6 +150,7 @@
             transition: all 0.2s;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
         }
 
         .merchant-card.selected {
@@ -118,10 +164,44 @@
             transform: scale(0.98);
         }
 
+        .merchant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
         .merchant-name {
             font-weight: 700;
             color: #553c9a;
             font-size: 0.95rem;
+        }
+
+        .refresh-button {
+            background: #48bb78;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 24px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            box-shadow: 0 2px 4px rgba(72, 187, 120, 0.3);
+        }
+
+        .refresh-button:active {
+            transform: scale(0.9);
+        }
+
+        .refresh-button:disabled {
+            background: #cbd5e0;
+            box-shadow: none;
+            cursor: not-allowed;
         }
 
         .merchant-specialty {
@@ -486,6 +566,56 @@
             font-size: 3rem;
         }
 
+        /* Reset Confirmation Modal */
+        .reset-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .reset-modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 28px;
+            max-width: 280px;
+            text-align: center;
+        }
+
+        .reset-modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .reset-button-confirm {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .reset-button-cancel {
+            background: #cbd5e0;
+            color: #2d3748;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            flex: 1;
+            cursor: pointer;
+        }
+
         .notification {
             position: fixed;
             bottom: 20px;
@@ -522,20 +652,32 @@
 </head>
 <body>
     <div class="game-container">
-        <!-- Header -->
+        <!-- Header with Timer and Reset -->
         <div class="header">
-            <div class="title">
-                <h1>🏪 Wordsmith's Bazaar</h1>
-                <p>Unit 1: Emotions & Encounters</p>
-            </div>
-            <div class="resources">
-                <div class="resource-badge">
-                    <span>🪙</span>
-                    <span id="coinDisplay">50</span>
+            <div class="header-top">
+                <div class="title">
+                    <h1>🏪 Wordsmith's Bazaar</h1>
+                    <p>Unit 1: Emotions & Encounters</p>
                 </div>
-                <div class="resource-badge">
-                    <span>🎫</span>
-                    <span id="tokenDisplay">3</span>
+                <button class="reset-button" onclick="showResetConfirmation()">
+                    <span>🔄</span> New Game
+                </button>
+            </div>
+            
+            <div class="resources-row">
+                <div class="resources">
+                    <div class="resource-badge">
+                        <span>🪙</span>
+                        <span id="coinDisplay">50</span>
+                    </div>
+                    <div class="resource-badge">
+                        <span>🎫</span>
+                        <span id="tokenDisplay">3</span>
+                    </div>
+                </div>
+                <div class="timer-badge" id="timerDisplay">
+                    <span>⏱️</span>
+                    <span id="timerText">00:30</span>
                 </div>
             </div>
         </div>
@@ -627,6 +769,18 @@
         </div>
     </div>
 
+    <!-- Reset Confirmation Modal -->
+    <div id="resetModal" class="reset-modal">
+        <div class="reset-modal-content">
+            <h3 style="color: #f56565; margin-bottom: 12px;">🔄 Reset Game?</h3>
+            <p style="color: #4a5568; margin-bottom: 20px;">All progress will be lost. Are you sure?</p>
+            <div class="reset-modal-buttons">
+                <button class="reset-button-cancel" onclick="hideResetConfirmation()">Cancel</button>
+                <button class="reset-button-confirm" onclick="resetGame()">Reset</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==================== TELEGRAM INIT ====================
         const tg = window.Telegram ? window.Telegram.WebApp : null;
@@ -674,7 +828,10 @@
             },
             trades: {},
             selectedLetter: null,
-            selectedMerchantId: null
+            selectedMerchantId: null,
+            lastCoinTimestamp: Date.now(),
+            passiveCoins: 0,
+            maxPassiveCoins: 50
         };
 
         // Initialize word progress
@@ -749,6 +906,76 @@
             });
         }
 
+        // Refresh specific merchant
+        function refreshMerchant(merchantId) {
+            if (gameState.coins < 1) {
+                showNotification('Need 1 coin to refresh!');
+                return;
+            }
+            
+            gameState.coins -= 1;
+            const merchant = merchants.find(m => m.id === merchantId);
+            merchant.inventory = generateInventory(merchantId);
+            
+            // If this merchant is currently selected, update the view
+            if (gameState.selectedMerchantId === merchantId) {
+                renderMerchantInventory();
+            }
+            
+            renderMerchants();
+            updateResources();
+            saveGame();
+            showNotification(`${merchant.name} has new stock!`);
+        }
+
+        // ==================== TIMER FUNCTIONS ====================
+        
+        function calculatePassiveCoins() {
+            const now = Date.now();
+            const elapsedSeconds = Math.floor((now - gameState.lastCoinTimestamp) / 1000);
+            const coinsEarned = Math.min(
+                Math.floor(elapsedSeconds / 30),
+                gameState.maxPassiveCoins - gameState.passiveCoins
+            );
+            
+            if (coinsEarned > 0) {
+                gameState.passiveCoins += coinsEarned;
+                gameState.lastCoinTimestamp = now;
+                gameState.coins += coinsEarned;
+                updateResources();
+                saveGame();
+                showNotification(`Earned ${coinsEarned} coin${coinsEarned > 1 ? 's' : ''} while away!`);
+            }
+        }
+
+        function updateTimerDisplay() {
+            const now = Date.now();
+            const elapsedSeconds = Math.floor((now - gameState.lastCoinTimestamp) / 1000);
+            const secondsUntilNext = 30 - (elapsedSeconds % 30);
+            
+            const minutes = Math.floor(secondsUntilNext / 60);
+            const seconds = secondsUntilNext % 60;
+            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            document.getElementById('timerText').textContent = timeString;
+            
+            // Check if we should add a coin
+            if (elapsedSeconds >= 30 && gameState.passiveCoins < gameState.maxPassiveCoins) {
+                const coinsToAdd = Math.min(
+                    Math.floor(elapsedSeconds / 30),
+                    gameState.maxPassiveCoins - gameState.passiveCoins
+                );
+                
+                if (coinsToAdd > 0) {
+                    gameState.passiveCoins += coinsToAdd;
+                    gameState.coins += coinsToAdd;
+                    gameState.lastCoinTimestamp = now;
+                    updateResources();
+                    saveGame();
+                }
+            }
+        }
+
         // ==================== UI RENDERING FUNCTIONS ====================
         
         function renderMerchants() {
@@ -766,7 +993,12 @@
                 const hearts = '❤️'.repeat(level) + '🤍'.repeat(4 - level);
                 
                 card.innerHTML = `
-                    <div class="merchant-name">${merchant.name}</div>
+                    <div class="merchant-header">
+                        <span class="merchant-name">${merchant.name}</span>
+                        <button class="refresh-button" onclick="event.stopPropagation(); refreshMerchant('${merchant.id}')">
+                            🔄 1🪙
+                        </button>
+                    </div>
                     <div class="merchant-specialty">${merchant.specialty}</div>
                     <div class="merchant-level">${hearts}</div>
                     <div class="merchant-stock">📦 ${merchant.inventory.length} letters</div>
@@ -1232,6 +1464,61 @@
             alert(message);
         }
 
+        // ==================== RESET FUNCTIONS ====================
+
+        function showResetConfirmation() {
+            document.getElementById('resetModal').style.display = 'flex';
+        }
+
+        function hideResetConfirmation() {
+            document.getElementById('resetModal').style.display = 'none';
+        }
+
+        function resetGame() {
+            // Reset game state
+            gameState = {
+                coins: 50,
+                tokens: 3,
+                letters: {},
+                completedWords: [],
+                wordProgress: {},
+                relationshipLevels: {
+                    'Vowel Vendor': 1,
+                    'Consonant Trader': 1,
+                    'Common Merchant': 1,
+                    'Rare Letter Dealer': 1
+                },
+                trades: {},
+                selectedLetter: null,
+                selectedMerchantId: null,
+                lastCoinTimestamp: Date.now(),
+                passiveCoins: 0,
+                maxPassiveCoins: 50
+            };
+            
+            // Re-initialize word progress
+            WORDS.forEach(item => {
+                gameState.wordProgress[item.word] = 0;
+            });
+            
+            // Refresh all inventories
+            refreshAllInventories();
+            
+            // Clear saved data
+            localStorage.removeItem('wordsmith_bazaar');
+            if (tg && tg.CloudStorage) {
+                tg.CloudStorage.removeItem('wordsmith_bazaar');
+            }
+            
+            // Re-render
+            renderAll();
+            
+            // Hide modal
+            hideResetConfirmation();
+            
+            showNotification('New game started!');
+        }
+
         // ==================== UTILITIES ====================
 
         function updateResources() {
@@ -1258,7 +1545,10 @@
                 completedWords: gameState.completedWords,
                 wordProgress: gameState.wordProgress,
                 relationshipLevels: gameState.relationshipLevels,
-                trades: gameState.trades
+                trades: gameState.trades,
+                lastCoinTimestamp: gameState.lastCoinTimestamp,
+                passiveCoins: gameState.passiveCoins,
+                maxPassiveCoins: gameState.maxPassiveCoins
             };
             
             localStorage.setItem('wordsmith_bazaar', JSON.stringify(saveData));
@@ -1280,6 +1570,10 @@
             }
             
             refreshAllInventories();
+            
+            // Calculate passive coins earned while away
+            calculatePassiveCoins();
+            
             renderAll();
         }
 
@@ -1307,7 +1601,10 @@
             document.getElementById('buyButton').onclick = buyLetter;
             document.getElementById('haggleButton').onclick = startHaggle;
             
-            // Auto-save
+            // Timer update every second
+            setInterval(updateTimerDisplay, 1000);
+            
+            // Auto-save every 30 seconds
             setInterval(saveGame, 30000);
             
             // Save on page hide
@@ -1322,6 +1619,10 @@
         window.cancelHaggle = cancelHaggle;
         window.closeModal = closeModal;
         window.showAllWords = showAllWords;
+        window.refreshMerchant = refreshMerchant;
+        window.showResetConfirmation = showResetConfirmation;
+        window.hideResetConfirmation = hideResetConfirmation;
+        window.resetGame = resetGame;
     </script>
 </body>
 </html>
