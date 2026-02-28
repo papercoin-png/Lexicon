@@ -3,588 +3,641 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wordsmith's Bazaar - Unit 1: Emotions & Encounters</title>
+    <title>Wordsmith's Bazaar - Unit 1</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(145deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
             min-height: 100vh;
             padding: 12px;
-            color: #333;
         }
 
         .game-container {
             max-width: 500px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 24px;
-            padding: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 28px;
+            padding: 18px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
-        /* Header Styles */
+        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid #e9d8fd;
         }
 
         .title h1 {
             font-size: 1.5rem;
-            color: #4a2b7a;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             line-height: 1.2;
         }
 
         .title p {
             font-size: 0.8rem;
-            color: #666;
+            color: #718096;
         }
 
         .resources {
             display: flex;
-            gap: 12px;
+            gap: 8px;
         }
 
-        .resource-item {
+        .resource-badge {
+            background: #f7fafc;
+            padding: 6px 12px;
+            border-radius: 30px;
             display: flex;
             align-items: center;
             gap: 4px;
-            background: #f5f5f5;
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-weight: bold;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
         }
 
-        .coin-icon { color: #f1c40f; }
-        .token-icon { color: #3498db; }
-
-        /* Merchant Section */
-        .merchants-section {
-            background: #f8f4ff;
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 20px;
+        /* Section Styles */
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #f0e6ff;
         }
 
         .section-title {
             font-size: 1rem;
-            color: #4a2b7a;
-            margin-bottom: 10px;
+            font-weight: 600;
+            color: #553c9a;
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
+        /* Merchant Grid */
         .merchant-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 12px;
         }
 
         .merchant-card {
-            background: white;
-            border-radius: 12px;
-            padding: 10px;
-            border: 1px solid #e0d5f0;
-            cursor: pointer;
+            background: #faf5ff;
+            border-radius: 16px;
+            padding: 12px;
+            border: 2px solid transparent;
             transition: all 0.2s;
-        }
-
-        .merchant-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(106, 76, 163, 0.2);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .merchant-card.selected {
-            border: 2px solid #4a2b7a;
-            background: #f0e8ff;
+            border-color: #9f7aea;
+            background: #f3e8ff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(159, 122, 234, 0.2);
+        }
+
+        .merchant-card:active {
+            transform: scale(0.98);
         }
 
         .merchant-name {
-            font-weight: bold;
-            color: #4a2b7a;
-            font-size: 0.9rem;
+            font-weight: 700;
+            color: #553c9a;
+            font-size: 0.95rem;
         }
 
         .merchant-specialty {
             font-size: 0.7rem;
-            color: #888;
-            margin: 2px 0;
+            color: #718096;
+            margin: 4px 0;
         }
 
-        .merchant-relationship {
-            font-size: 0.7rem;
-            color: #f1c40f;
+        .merchant-level {
+            font-size: 0.75rem;
+            color: #ed8936;
+            display: flex;
+            gap: 2px;
         }
 
-        .merchant-inventory {
-            font-size: 0.8rem;
-            margin-top: 4px;
-            color: #27ae60;
+        .merchant-stock {
+            font-size: 0.75rem;
+            color: #48bb78;
+            margin-top: 6px;
+            font-weight: 500;
         }
 
-        /* Trading Interface */
-        .trading-section {
-            background: white;
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #e0e0e0;
+        /* Trading Panel */
+        .trading-panel {
+            background: #faf5ff;
+            border-radius: 18px;
+            padding: 16px;
         }
 
-        .selected-merchant-info {
-            background: #f8f4ff;
-            padding: 10px;
-            border-radius: 12px;
-            margin-bottom: 12px;
+        .merchant-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #44337a;
         }
 
         .inventory-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 6px;
-            margin: 10px 0;
+            gap: 8px;
+            margin-bottom: 16px;
         }
 
-        .inventory-slot {
+        .letter-slot {
             aspect-ratio: 1;
-            background: #f5f5f5;
-            border: 2px dashed #ccc;
-            border-radius: 8px;
+            background: white;
+            border: 2px dashed #d6bcfa;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #666;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #553c9a;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        .inventory-slot.filled {
-            background: #e8f5e9;
-            border: 2px solid #4caf50;
-            color: #2e7d32;
+        .letter-slot.filled {
+            background: #f9f1fe;
+            border: 2px solid #9f7aea;
+            color: #44337a;
         }
 
-        .inventory-slot.selected {
-            border: 3px solid #f39c12;
+        .letter-slot.filled.selected {
+            background: #e9d8fd;
+            border-color: #ed8936;
             transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.3);
+        }
+
+        .letter-slot:active {
+            transform: scale(0.95);
         }
 
         .price-tag {
+            background: white;
+            padding: 12px;
+            border-radius: 40px;
             display: flex;
             align-items: center;
-            gap: 4px;
             justify-content: center;
-            margin: 8px 0;
-            font-size: 1.1rem;
-            font-weight: bold;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 16px 0;
+            border: 1px solid #d6bcfa;
         }
 
-        .buy-button {
-            background: #4a2b7a;
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 25px;
+            padding: 16px;
+            border-radius: 40px;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 600;
             width: 100%;
             cursor: pointer;
             transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
         }
 
-        .buy-button:disabled {
-            background: #ccc;
+        .button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+        }
+
+        .button:disabled {
+            background: #cbd5e0;
+            box-shadow: none;
             cursor: not-allowed;
+            transform: none;
         }
 
-        .buy-button:hover:not(:disabled) {
-            background: #5d3a99;
-            transform: scale(1.02);
+        .button.secondary {
+            background: #ed8936;
+            margin-top: 8px;
         }
 
-        /* Haggle Mini-Game */
-        .haggle-game {
-            background: #fff3e0;
-            border-radius: 12px;
-            padding: 15px;
-            margin: 15px 0;
-            text-align: center;
-        }
-
-        .haggle-meter {
-            width: 100%;
-            height: 30px;
-            background: #ddd;
-            border-radius: 15px;
-            margin: 10px 0;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .haggle-fill {
-            height: 100%;
-            width: 50%;
-            background: linear-gradient(90deg, #4caf50, #ffc107, #f44336);
-            transition: width 0.05s;
-        }
-
-        .haggle-indicator {
-            position: absolute;
-            top: -5px;
-            width: 4px;
-            height: 40px;
-            background: #333;
-            transform: translateX(-50%);
-            pointer-events: none;
-        }
-
-        .haggle-target {
-            position: absolute;
-            top: -8px;
-            width: 10px;
-            height: 46px;
-            background: gold;
-            border: 2px solid #333;
-            transform: translateX(-50%);
-            pointer-events: none;
-            opacity: 0.7;
-        }
-
-        /* Word Progress Section */
-        .words-section {
-            background: #f8f4ff;
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 20px;
-        }
-
+        /* Words Grid */
         .words-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 8px;
         }
 
-        .word-card {
-            background: white;
-            border-radius: 8px;
+        .word-tile {
+            background: #f7fafc;
+            border-radius: 10px;
             padding: 8px 4px;
             text-align: center;
             font-size: 0.8rem;
-            font-weight: bold;
-            border: 1px solid #ddd;
-            color: #999;
+            font-weight: 600;
+            color: #a0aec0;
+            border: 1px solid #e2e8f0;
             position: relative;
-            transition: all 0.2s;
+            overflow: hidden;
         }
 
-        .word-card.completed {
-            background: #4caf50;
-            border-color: #2e7d32;
-            color: white;
+        .word-tile.completed {
+            background: #c6f6d5;
+            color: #276749;
+            border-color: #9ae6b4;
+            font-weight: 700;
         }
 
-        .word-card.in-progress {
-            background: #fff3cd;
-            border-color: #ffc107;
-            color: #856404;
+        .word-tile.in-progress {
+            background: #feebc8;
+            color: #7b341e;
+            border-color: #fbd38d;
         }
 
-        .progress-bar {
+        .word-progress-bar {
             position: absolute;
             bottom: 0;
             left: 0;
             height: 3px;
-            background: #4a2b7a;
-            border-radius: 0 0 8px 8px;
+            background: #9f7aea;
+            transition: width 0.3s;
         }
 
-        /* Inventory Section */
-        .inventory-section {
-            background: white;
+        /* Letter Inventory */
+        .inventory-area {
+            background: #f7fafc;
             border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 20px;
-        }
-
-        .letter-inventory {
+            padding: 16px;
+            min-height: 100px;
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            min-height: 80px;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 12px;
         }
 
-        .letter-tile {
-            width: 40px;
-            height: 40px;
-            background: #4a2b7a;
+        .letter-piece {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(145deg, #667eea, #764ba2);
             color: white;
-            border-radius: 8px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-size: 1.3rem;
+            font-weight: 800;
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .letter-tile:hover {
-            transform: scale(1.1);
-            background: #5d3a99;
+        .letter-piece:active {
+            transform: scale(0.9);
         }
 
-        .letter-tile.selected {
-            border: 3px solid #f39c12;
-            transform: scale(1.1);
+        .letter-piece.selected {
+            box-shadow: 0 0 0 3px #ed8936;
         }
 
         .empty-inventory {
-            color: #999;
+            color: #a0aec0;
             text-align: center;
             width: 100%;
             padding: 20px;
+            font-style: italic;
         }
 
         /* Artifact Section */
-        .artifact-section {
-            background: linear-gradient(135deg, #f5f0ff, #e8d5ff);
-            border-radius: 16px;
-            padding: 16px;
+        .artifact-area {
+            background: linear-gradient(145deg, #faf5ff, #f3e8ff);
+            border-radius: 24px;
+            padding: 20px;
             text-align: center;
-            border: 2px solid gold;
+            border: 2px solid #ecc94b;
         }
 
-        .artifact-bell {
+        .artifact-icon {
             font-size: 4rem;
-            margin: 10px 0;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+            margin-bottom: 8px;
+            filter: drop-shadow(0 8px 12px rgba(236, 201, 75, 0.4));
         }
 
-        .artifact-bell.glow {
-            animation: glow 2s infinite;
+        .artifact-icon.glow {
+            animation: bellGlow 2s infinite;
         }
 
-        @keyframes glow {
-            0% { filter: drop-shadow(0 0 2px gold); }
-            50% { filter: drop-shadow(0 0 20px gold); }
-            100% { filter: drop-shadow(0 0 2px gold); }
+        @keyframes bellGlow {
+            0% { filter: drop-shadow(0 0 5px gold); }
+            50% { filter: drop-shadow(0 0 25px gold); transform: scale(1.05); }
+            100% { filter: drop-shadow(0 0 5px gold); }
         }
 
         .artifact-progress {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #4a2b7a;
+            font-weight: 700;
+            color: #744210;
+            margin: 8px 0;
+        }
+
+        /* Haggle Game */
+        .haggle-game {
+            background: #fff9f0;
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 16px;
+            border: 2px solid #ed8936;
+        }
+
+        .haggle-meter-container {
+            width: 100%;
+            height: 40px;
+            background: #e2e8f0;
+            border-radius: 20px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid #cbd5e0;
+        }
+
+        .haggle-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #48bb78, #ecc94b, #f56565);
+            transition: width 0.05s linear;
+        }
+
+        .haggle-marker {
+            position: absolute;
+            top: -6px;
+            width: 4px;
+            height: 52px;
+            background: #1a202c;
+            transform: translateX(-50%);
+            pointer-events: none;
+            box-shadow: 0 0 0 2px white;
+        }
+
+        .haggle-target {
+            position: absolute;
+            top: -8px;
+            width: 10px;
+            height: 56px;
+            background: rgba(237, 137, 54, 0.6);
+            border: 2px dashed #ed8936;
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .haggle-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
             margin: 10px 0;
+            color: #2d3748;
         }
 
         /* Modal */
-        .modal {
+        .modal-overlay {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
             background: white;
-            padding: 25px;
-            border-radius: 20px;
-            max-width: 300px;
+            padding: 28px;
+            border-radius: 32px;
+            max-width: 320px;
+            width: 90%;
             text-align: center;
-            animation: slideUp 0.3s;
+            animation: modalPop 0.3s;
+            border: 4px solid #e9d8fd;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
-        .word-definition {
-            margin: 15px 0;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 12px;
+        .modal-word {
+            font-size: 2rem;
+            color: #553c9a;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .word-example {
+        .modal-definition {
+            background: #faf5ff;
+            padding: 16px;
+            border-radius: 20px;
+            margin: 16px 0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .modal-example {
+            color: #718096;
             font-style: italic;
-            color: #666;
             margin-top: 8px;
+            font-size: 0.9rem;
         }
 
-        /* Notifications */
+        .modal-illustration {
+            width: 100px;
+            height: 100px;
+            margin: 10px auto;
+            background: #f3e8ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
         .notification {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: #4a2b7a;
+            background: #1a202c;
             color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 1000;
-            animation: slideUp 0.3s;
+            padding: 14px 28px;
+            border-radius: 40px;
+            font-weight: 500;
+            z-index: 2000;
+            animation: notificationSlide 0.3s;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border: 1px solid #4a5568;
         }
 
-        /* Utility Classes */
+        @keyframes notificationSlide {
+            from { bottom: -50px; opacity: 0; }
+            to { bottom: 20px; opacity: 1; }
+        }
+
         .hidden {
             display: none;
         }
 
-        .flex {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+        .text-center {
+            text-align: center;
         }
 
-        .mt-2 { margin-top: 10px; }
-        .mb-2 { margin-bottom: 10px; }
-        .text-center { text-align: center; }
+        .mt-2 {
+            margin-top: 12px;
+        }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <!-- Header with Resources -->
+        <!-- Header -->
         <div class="header">
             <div class="title">
-                <h1>Wordsmith's Bazaar</h1>
+                <h1>🏪 Wordsmith's Bazaar</h1>
                 <p>Unit 1: Emotions & Encounters</p>
             </div>
             <div class="resources">
-                <div class="resource-item">
-                    <span class="coin-icon">🪙</span>
+                <div class="resource-badge">
+                    <span>🪙</span>
                     <span id="coinDisplay">50</span>
                 </div>
-                <div class="resource-item">
-                    <span class="token-icon">🎫</span>
+                <div class="resource-badge">
+                    <span>🎫</span>
                     <span id="tokenDisplay">3</span>
                 </div>
             </div>
         </div>
 
         <!-- Merchants Section -->
-        <div class="merchants-section">
+        <div class="section">
             <div class="section-title">
                 <span>🏪</span> Market Merchants
             </div>
-            <div class="merchant-grid" id="merchantGrid">
-                <!-- Merchants will be populated by JavaScript -->
-            </div>
+            <div id="merchantGrid" class="merchant-grid"></div>
         </div>
 
         <!-- Trading Section -->
-        <div class="trading-section" id="tradingSection">
-            <div class="selected-merchant-info" id="selectedMerchantInfo">
-                <div class="flex" style="justify-content: space-between;">
+        <div class="section" id="tradingSection">
+            <div class="section-title">
+                <span>💰</span> Trading Post
+            </div>
+            <div class="trading-panel">
+                <div class="merchant-info">
                     <span id="selectedMerchantName">Select a merchant</span>
-                    <span id="merchantRelationship" class="merchant-relationship">❤️ Level 1</span>
+                    <span id="merchantLevel" class="merchant-level">❤️ Level 1</span>
                 </div>
-                <div class="inventory-grid" id="merchantInventory">
-                    <!-- Merchant inventory will be populated here -->
-                </div>
-                <div class="price-tag" id="priceDisplay">
+                
+                <div id="merchantInventory" class="inventory-grid"></div>
+                
+                <div class="price-tag">
                     <span>🪙</span>
-                    <span id="selectedLetterPrice">3</span>
+                    <span id="priceDisplay">3</span>
+                    <span id="letterDisplay" style="color: #718096; font-size: 0.9rem;"></span>
                 </div>
-                <button class="buy-button" id="buyButton" disabled>Buy Letter</button>
-                <button class="buy-button" id="haggleButton" style="margin-top: 8px; background: #f39c12;" disabled>Haggle 🎲</button>
+                
+                <button class="button" id="buyButton" disabled>Buy Selected Letter</button>
+                <button class="button secondary" id="haggleButton" disabled>Haggle (1 🎫)</button>
             </div>
         </div>
 
-        <!-- Haggle Mini-Game (Hidden by default) -->
-        <div class="haggle-game hidden" id="haggleGame">
-            <h3>Haggle for a Better Price!</h3>
-            <p>Current offer: <span id="haggleCurrentPrice">5</span> 🪙</p>
-            <p>Tap to stop the needle in the green zone</p>
-            <div class="haggle-meter" id="haggleMeter">
-                <div class="haggle-fill" id="haggleFill"></div>
-                <div class="haggle-target" id="haggleTarget" style="left: 70%"></div>
-                <div class="haggle-indicator" id="haggleIndicator" style="left: 0%"></div>
+        <!-- Haggle Game (Hidden) -->
+        <div id="haggleGame" class="haggle-game hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="color: #ed8936;">🎲 Haggle!</h3>
+                <button onclick="cancelHaggle()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
             </div>
-            <button class="buy-button" id="haggleStop" style="background: #4a2b7a;">STOP!</button>
+            <div class="haggle-price">
+                Current offer: <span id="haggleCurrentPrice">5</span> 🪙
+            </div>
+            <p style="text-align: center; color: #718096; font-size: 0.9rem;">Stop in the <span style="color: #48bb78;">green</span> for best discount!</p>
+            <div id="haggleMeter" class="haggle-meter-container">
+                <div id="haggleFill" class="haggle-fill"></div>
+                <div id="haggleTarget" class="haggle-target" style="left: 0%"></div>
+                <div id="haggleMarker" class="haggle-marker" style="left: 0%"></div>
+            </div>
+            <button class="button" id="stopHaggleButton" style="background: #ed8936;">STOP!</button>
         </div>
 
-        <!-- Words Progress Section -->
-        <div class="words-section">
+        <!-- Words Progress -->
+        <div class="section">
             <div class="section-title">
-                <span>📚</span> Words to Discover (20)
+                <span>📚</span> Words to Collect (0/20)
             </div>
-            <div class="words-grid" id="wordsGrid">
-                <!-- Words will be populated by JavaScript -->
-            </div>
+            <div id="wordsGrid" class="words-grid"></div>
         </div>
 
-        <!-- Your Letter Inventory -->
-        <div class="inventory-section">
+        <!-- Letter Inventory -->
+        <div class="section">
             <div class="section-title">
-                <span>📦</span> Your Letter Collection
+                <span>📦</span> Your Letters
             </div>
-            <div class="letter-inventory" id="letterInventory">
-                <!-- Letters will appear here -->
-            </div>
+            <div id="letterInventory" class="inventory-area"></div>
         </div>
 
-        <!-- Artifact Section -->
-        <div class="artifact-section" id="artifactSection">
-            <div class="artifact-bell" id="artifactBell">🔔</div>
-            <div class="artifact-progress" id="artifactProgress">
-                Words: 0/20
-            </div>
-            <div id="artifactMessage">
-                Collect all 20 words to craft the Caravan Bell!
-            </div>
+        <!-- Artifact -->
+        <div class="artifact-area" id="artifactSection">
+            <div id="artifactIcon" class="artifact-icon">🔔</div>
+            <div id="artifactProgress" class="artifact-progress">Words: 0/20</div>
+            <div id="artifactMessage" style="color: #744210;">Collect all 20 words to craft the Caravan Bell!</div>
         </div>
     </div>
 
     <!-- Word Discovery Modal -->
-    <div class="modal" id="wordModal">
+    <div id="wordModal" class="modal-overlay">
         <div class="modal-content">
-            <h2 id="modalWord">Word</h2>
-            <div class="word-definition">
+            <div id="modalWord" class="modal-word">WORD</div>
+            <div id="modalIllustration" class="modal-illustration">📖</div>
+            <div class="modal-definition">
                 <p id="modalDefinition">Definition goes here</p>
-                <p class="word-example" id="modalExample">"Example sentence"</p>
+                <p id="modalExample" class="modal-example">"Example sentence"</p>
             </div>
-            <img id="modalImage" src="" alt="" style="width: 100px; height: 100px; margin: 10px 0; background: #f0f0f0; border-radius: 12px;">
-            <button class="buy-button" onclick="closeWordModal()">Continue Trading</button>
+            <button class="button" onclick="closeModal()" style="margin-top: 10px;">Continue</button>
         </div>
     </div>
 
     <script>
-        // Initialize Telegram WebApp
+        // ==================== TELEGRAM INIT ====================
         const tg = window.Telegram ? window.Telegram.WebApp : null;
         if (tg) {
             tg.expand();
             tg.ready();
+            tg.enableClosingConfirmation();
         }
 
         // ==================== GAME DATA ====================
-        
-        // Unit 1 Words with definitions and examples
-        const UNIT_WORDS = [
+        const WORDS = [
             { word: 'afraid', definition: 'Feeling fear or anxiety', example: 'The merchant was afraid of bandits on the road.' },
             { word: 'agree', definition: 'To have the same opinion', example: 'The traders agree on the price.' },
             { word: 'angry', definition: 'Feeling strong displeasure', example: 'The customer became angry about the damaged goods.' },
@@ -607,82 +660,69 @@
             { word: 'well', definition: 'In good health or condition', example: 'After resting, the camel was well again.' }
         ];
 
-        // Letter frequency for the unit
-        const LETTER_FREQUENCY = {
-            'a': 16, 'b': 1, 'c': 2, 'd': 3, 'e': 15, 'f': 2, 'g': 1, 'h': 2,
-            'i': 9, 'k': 1, 'l': 5, 'm': 2, 'n': 4, 'o': 6, 'p': 3, 'r': 8,
-            's': 3, 't': 7, 'u': 2, 'v': 1, 'w': 1, 'y': 3
-        };
-
         // ==================== GAME STATE ====================
-        
         let gameState = {
             coins: 50,
             tokens: 3,
-            letters: {}, // Object to store collected letters: { a: 2, b: 1, etc. }
-            completedWords: [], // Array of completed word strings
-            wordProgress: {}, // Tracks letters collected per word: { afraid: 3, agree: 2, etc. }
-            selectedLetter: null,
-            selectedMerchant: null,
+            letters: {},  // Collected letters count
+            completedWords: [],
+            wordProgress: {},
             relationshipLevels: {
                 'Vowel Vendor': 1,
                 'Consonant Trader': 1,
                 'Silk Merchant': 1,
                 'Rare Letter Dealer': 1
             },
-            lastSave: Date.now()
+            trades: {},
+            selectedLetter: null,
+            selectedMerchantId: null
         };
 
         // Initialize word progress
-        UNIT_WORDS.forEach(item => {
+        WORDS.forEach(item => {
             gameState.wordProgress[item.word] = 0;
         });
 
         // ==================== MERCHANTS ====================
-        
         const merchants = [
             {
                 id: 'vowel',
                 name: 'Vowel Vendor',
                 specialty: 'A, E, I, O, U',
-                description: 'Sells all vowels at fair prices',
-                inventory: generateMerchantInventory('vowel'),
+                inventory: [],
                 basePrices: { 'a': 2, 'e': 2, 'i': 3, 'o': 3, 'u': 4 }
             },
             {
                 id: 'consonant',
                 name: 'Consonant Trader',
                 specialty: 'R, T, N, S, L',
-                description: 'Common consonants for building words',
-                inventory: generateMerchantInventory('consonant'),
+                inventory: [],
                 basePrices: { 'r': 2, 't': 2, 'n': 2, 's': 3, 'l': 3 }
             },
             {
                 id: 'silk',
                 name: 'Silk Merchant',
-                specialty: 'Beautiful letters',
-                description: 'Trades for barter goods',
-                inventory: generateMerchantInventory('silk'),
+                specialty: 'C, P, M, D, G',
+                inventory: [],
                 basePrices: { 'c': 4, 'p': 4, 'm': 4, 'd': 4, 'g': 5 }
             },
             {
                 id: 'rare',
                 name: 'Rare Letter Dealer',
                 specialty: 'V, K, Y, F, W',
-                description: 'Hard-to-find letters at premium prices',
-                inventory: generateMerchantInventory('rare'),
+                inventory: [],
                 basePrices: { 'v': 8, 'k': 8, 'y': 6, 'f': 6, 'w': 7 }
             }
         ];
 
-        // Generate merchant inventory based on type
-        function generateMerchantInventory(type) {
+        // Generate merchant inventory
+        function generateInventory(merchantId) {
             const inventory = [];
             const count = 5 + Math.floor(Math.random() * 3); // 5-7 items
             
             for (let i = 0; i < count; i++) {
                 let letter;
-                switch(type) {
+                switch(merchantId) {
                     case 'vowel':
                         letter = ['a','e','i','o','u'][Math.floor(Math.random() * 5)];
                         break;
@@ -703,83 +743,99 @@
             return inventory;
         }
 
-        // ==================== UI RENDERING ====================
+        // Initialize all merchant inventories
+        function refreshAllInventories() {
+            merchants.forEach(merchant => {
+                merchant.inventory = generateInventory(merchant.id);
+            });
+        }
 
-        // Render merchants
+        // ==================== UI RENDERING FUNCTIONS ====================
+        
         function renderMerchants() {
             const grid = document.getElementById('merchantGrid');
+            if (!grid) return;
+            
             grid.innerHTML = '';
             
             merchants.forEach(merchant => {
                 const card = document.createElement('div');
-                card.className = `merchant-card ${gameState.selectedMerchant?.id === merchant.id ? 'selected' : ''}`;
-                card.onclick = () => selectMerchant(merchant);
+                card.className = `merchant-card ${gameState.selectedMerchantId === merchant.id ? 'selected' : ''}`;
+                card.onclick = () => selectMerchant(merchant.id);
                 
-                const relationship = gameState.relationshipLevels[merchant.name] || 1;
-                const hearts = '❤️'.repeat(relationship) + '🤍'.repeat(4 - relationship);
+                const level = gameState.relationshipLevels[merchant.name] || 1;
+                const hearts = '❤️'.repeat(level) + '🤍'.repeat(4 - level);
                 
                 card.innerHTML = `
                     <div class="merchant-name">${merchant.name}</div>
                     <div class="merchant-specialty">${merchant.specialty}</div>
-                    <div class="merchant-relationship">${hearts}</div>
-                    <div class="merchant-inventory">${merchant.inventory.length} letters</div>
+                    <div class="merchant-level">${hearts}</div>
+                    <div class="merchant-stock">📦 ${merchant.inventory.length} letters</div>
                 `;
+                
                 grid.appendChild(card);
             });
         }
 
-        // Select a merchant
-        function selectMerchant(merchant) {
-            gameState.selectedMerchant = merchant;
+        function selectMerchant(merchantId) {
+            gameState.selectedMerchantId = merchantId;
+            gameState.selectedLetter = null;
             renderMerchants();
             renderMerchantInventory();
-            document.getElementById('buyButton').disabled = !gameState.selectedLetter;
-            document.getElementById('haggleButton').disabled = !gameState.selectedLetter;
-        }
-
-        // Render merchant inventory
-        function renderMerchantInventory() {
-            if (!gameState.selectedMerchant) return;
             
-            const inventory = document.getElementById('merchantInventory');
-            inventory.innerHTML = '';
-            
-            gameState.selectedMerchant.inventory.forEach((letter, index) => {
-                const slot = document.createElement('div');
-                slot.className = `inventory-slot filled ${gameState.selectedLetter === letter ? 'selected' : ''}`;
-                slot.textContent = letter.toUpperCase();
-                slot.onclick = () => selectLetter(letter);
-                inventory.appendChild(slot);
-            });
-            
-            // Fill remaining slots with empty slots
-            for (let i = gameState.selectedMerchant.inventory.length; i < 6; i++) {
-                const slot = document.createElement('div');
-                slot.className = 'inventory-slot';
-                slot.textContent = '?';
-                inventory.appendChild(slot);
+            const merchant = merchants.find(m => m.id === merchantId);
+            if (merchant) {
+                document.getElementById('selectedMerchantName').textContent = merchant.name;
+                const level = gameState.relationshipLevels[merchant.name] || 1;
+                document.getElementById('merchantLevel').innerHTML = '❤️'.repeat(level) + '🤍'.repeat(4 - level);
             }
             
-            document.getElementById('selectedMerchantName').textContent = gameState.selectedMerchant.name;
+            updateBuyButton();
+        }
+
+        function renderMerchantInventory() {
+            const container = document.getElementById('merchantInventory');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            const merchant = merchants.find(m => m.id === gameState.selectedMerchantId);
+            if (!merchant) {
+                // Show empty slots
+                for (let i = 0; i < 6; i++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'letter-slot';
+                    slot.textContent = '?';
+                    container.appendChild(slot);
+                }
+                return;
+            }
+            
+            // Fill with merchant's inventory
+            for (let i = 0; i < 6; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'letter-slot';
+                
+                if (i < merchant.inventory.length) {
+                    const letter = merchant.inventory[i];
+                    slot.className = `letter-slot filled ${gameState.selectedLetter === letter ? 'selected' : ''}`;
+                    slot.textContent = letter.toUpperCase();
+                    slot.onclick = () => selectLetter(letter);
+                } else {
+                    slot.textContent = '?';
+                }
+                
+                container.appendChild(slot);
+            }
             
             if (gameState.selectedLetter) {
-                const price = getLetterPrice(gameState.selectedLetter);
-                document.getElementById('selectedLetterPrice').textContent = price;
+                document.getElementById('letterDisplay').textContent = `Selected: ${gameState.selectedLetter.toUpperCase()}`;
+                updatePrice();
+            } else {
+                document.getElementById('letterDisplay').textContent = '';
             }
         }
 
-        // Get price for a letter (with relationship discount)
-        function getLetterPrice(letter) {
-            if (!gameState.selectedMerchant) return 0;
-            
-            const merchant = gameState.selectedMerchant;
-            const basePrice = merchant.basePrices[letter] || 5;
-            const relationship = gameState.relationshipLevels[merchant.name] || 1;
-            const discount = 1 - (relationship * 0.05); // 5% discount per level
-            return Math.max(1, Math.floor(basePrice * discount));
-        }
-
-        // Select a letter to buy
         function selectLetter(letter) {
             if (gameState.selectedLetter === letter) {
                 gameState.selectedLetter = null;
@@ -788,255 +844,211 @@
             }
             
             renderMerchantInventory();
-            renderLetterInventory();
+            updateBuyButton();
             
-            const price = getLetterPrice(letter);
-            document.getElementById('selectedLetterPrice').textContent = price;
-            document.getElementById('buyButton').disabled = !gameState.selectedLetter;
-            document.getElementById('haggleButton').disabled = !gameState.selectedLetter;
+            if (gameState.selectedLetter) {
+                document.getElementById('letterDisplay').textContent = `Selected: ${gameState.selectedLetter.toUpperCase()}`;
+                updatePrice();
+            } else {
+                document.getElementById('letterDisplay').textContent = '';
+            }
         }
 
-        // Render words grid
-        function renderWordsGrid() {
-            const grid = document.getElementById('wordsGrid');
-            grid.innerHTML = '';
+        function updatePrice() {
+            if (!gameState.selectedLetter || !gameState.selectedMerchantId) return;
             
-            UNIT_WORDS.forEach(item => {
-                const word = item.word;
-                const isCompleted = gameState.completedWords.includes(word);
-                const progress = gameState.wordProgress[word] || 0;
-                const totalLetters = word.length;
-                const percentage = (progress / totalLetters) * 100;
-                
-                const card = document.createElement('div');
-                card.className = `word-card ${isCompleted ? 'completed' : progress > 0 ? 'in-progress' : ''}`;
-                
-                if (!isCompleted && progress > 0) {
-                    const progressBar = document.createElement('div');
-                    progressBar.className = 'progress-bar';
-                    progressBar.style.width = `${percentage}%`;
-                    card.appendChild(progressBar);
-                }
-                
-                card.innerHTML += word;
-                grid.appendChild(card);
-            });
+            const merchant = merchants.find(m => m.id === gameState.selectedMerchantId);
+            if (!merchant) return;
+            
+            const basePrice = merchant.basePrices[gameState.selectedLetter] || 5;
+            const level = gameState.relationshipLevels[merchant.name] || 1;
+            const discount = 1 - (level * 0.05);
+            const price = Math.max(1, Math.floor(basePrice * discount));
+            
+            document.getElementById('priceDisplay').textContent = price;
         }
 
-        // Render letter inventory
+        function updateBuyButton() {
+            const buyButton = document.getElementById('buyButton');
+            const haggleButton = document.getElementById('haggleButton');
+            
+            const canBuy = gameState.selectedLetter && gameState.selectedMerchantId;
+            buyButton.disabled = !canBuy;
+            haggleButton.disabled = !canBuy;
+        }
+
         function renderLetterInventory() {
-            const inventory = document.getElementById('letterInventory');
-            inventory.innerHTML = '';
+            const container = document.getElementById('letterInventory');
+            if (!container) return;
+            
+            container.innerHTML = '';
             
             const letters = Object.entries(gameState.letters);
             
             if (letters.length === 0) {
-                inventory.innerHTML = '<div class="empty-inventory">No letters yet. Visit merchants to buy letters!</div>';
+                container.innerHTML = '<div class="empty-inventory">No letters yet. Buy from merchants!</div>';
                 return;
             }
             
-            letters.sort(([letterA], [letterB]) => letterA.localeCompare(letterB));
+            letters.sort(([a], [b]) => a.localeCompare(b));
             
             letters.forEach(([letter, count]) => {
                 for (let i = 0; i < count; i++) {
-                    const tile = document.createElement('div');
-                    tile.className = `letter-tile ${gameState.selectedLetter === letter ? 'selected' : ''}`;
-                    tile.textContent = letter.toUpperCase();
-                    tile.onclick = () => selectInventoryLetter(letter);
-                    inventory.appendChild(tile);
+                    const piece = document.createElement('div');
+                    piece.className = `letter-piece ${gameState.selectedLetter === letter ? 'selected' : ''}`;
+                    piece.textContent = letter.toUpperCase();
+                    piece.onclick = () => selectInventoryLetter(letter);
+                    container.appendChild(piece);
                 }
             });
         }
 
-        // Select letter from inventory
         function selectInventoryLetter(letter) {
-            // This could be used for selling letters back or crafting
-            console.log('Selected inventory letter:', letter);
+            gameState.selectedLetter = letter;
+            renderLetterInventory();
         }
 
-        // Update artifact display
-        function updateArtifactDisplay() {
-            const completedCount = gameState.completedWords.length;
-            document.getElementById('artifactProgress').textContent = `Words: ${completedCount}/20`;
+        function renderWords() {
+            const grid = document.getElementById('wordsGrid');
+            if (!grid) return;
             
-            if (completedCount === 20) {
-                document.getElementById('artifactBell').className = 'artifact-bell glow';
-                document.getElementById('artifactMessage').innerHTML = '✨ You crafted the Caravan Bell! ✨<br>Click the bell to review all words.';
-                document.getElementById('artifactBell').onclick = showAllWords;
+            grid.innerHTML = '';
+            
+            WORDS.forEach(item => {
+                const word = item.word;
+                const completed = gameState.completedWords.includes(word);
+                const progress = gameState.wordProgress[word] || 0;
+                const total = word.length;
+                const percentage = (progress / total) * 100;
+                
+                const tile = document.createElement('div');
+                tile.className = `word-tile ${completed ? 'completed' : progress > 0 ? 'in-progress' : ''}`;
+                
+                if (!completed && progress > 0) {
+                    const bar = document.createElement('div');
+                    bar.className = 'word-progress-bar';
+                    bar.style.width = `${percentage}%`;
+                    tile.appendChild(bar);
+                }
+                
+                tile.innerHTML += word;
+                grid.appendChild(tile);
+            });
+            
+            // Update section title
+            const title = document.querySelector('.section-title span');
+            if (title) {
+                title.textContent = `📚 Words to Collect (${gameState.completedWords.length}/20)`;
+            }
+        }
+
+        function updateArtifact() {
+            const progress = document.getElementById('artifactProgress');
+            const icon = document.getElementById('artifactIcon');
+            const message = document.getElementById('artifactMessage');
+            
+            progress.textContent = `Words: ${gameState.completedWords.length}/20`;
+            
+            if (gameState.completedWords.length === 20) {
+                icon.className = 'artifact-icon glow';
+                message.innerHTML = '✨ You crafted the Caravan Bell! ✨';
+                icon.onclick = showAllWords;
+            } else {
+                icon.className = 'artifact-icon';
+                message.innerHTML = 'Collect all 20 words to craft the Caravan Bell!';
+                icon.onclick = null;
             }
         }
 
         // ==================== GAME ACTIONS ====================
 
-        // Buy a letter
         function buyLetter() {
-            if (!gameState.selectedLetter || !gameState.selectedMerchant) {
-                showNotification('Select a merchant and letter first!');
+            if (!gameState.selectedLetter || !gameState.selectedMerchantId) {
+                showNotification('Select a letter first!');
                 return;
             }
             
+            const merchant = merchants.find(m => m.id === gameState.selectedMerchantId);
+            if (!merchant) return;
+            
             const letter = gameState.selectedLetter;
-            const price = getLetterPrice(letter);
+            
+            // Check if merchant has the letter
+            const index = merchant.inventory.indexOf(letter);
+            if (index === -1) {
+                showNotification('Letter no longer available!');
+                gameState.selectedLetter = null;
+                renderMerchantInventory();
+                updateBuyButton();
+                return;
+            }
+            
+            // Calculate price
+            const basePrice = merchant.basePrices[letter] || 5;
+            const level = gameState.relationshipLevels[merchant.name] || 1;
+            const discount = 1 - (level * 0.05);
+            const price = Math.max(1, Math.floor(basePrice * discount));
             
             if (gameState.coins < price) {
                 showNotification('Not enough coins!');
                 return;
             }
             
-            // Check if merchant has the letter
-            const index = gameState.selectedMerchant.inventory.indexOf(letter);
-            if (index === -1) {
-                showNotification('That letter is no longer available!');
-                gameState.selectedLetter = null;
-                renderMerchantInventory();
-                return;
-            }
-            
-            // Remove from merchant inventory
-            gameState.selectedMerchant.inventory.splice(index, 1);
-            
-            // Add to player inventory
+            // Process purchase
+            merchant.inventory.splice(index, 1);
+            gameState.coins -= price;
             gameState.letters[letter] = (gameState.letters[letter] || 0) + 1;
             
-            // Deduct coins
-            gameState.coins -= price;
+            // Update relationship
+            const tradeKey = `trades_${merchant.name}`;
+            gameState.trades[tradeKey] = (gameState.trades[tradeKey] || 0) + 1;
             
-            // Add relationship XP
-            addRelationshipXP(gameState.selectedMerchant.name, 1);
+            if (gameState.trades[tradeKey] % 3 === 0) {
+                const currentLevel = gameState.relationshipLevels[merchant.name] || 1;
+                if (currentLevel < 4) {
+                    gameState.relationshipLevels[merchant.name] = currentLevel + 1;
+                    showNotification(`${merchant.name} likes you more! Level ${currentLevel + 1}!`);
+                }
+            }
             
-            // Check if any words can be completed
+            // Check for word completions
             checkWordCompletions();
             
-            // Refresh UI
+            // Reset selection
             gameState.selectedLetter = null;
+            
+            // Update UI
+            updateResources();
             renderMerchantInventory();
             renderLetterInventory();
-            updateResources();
+            updateBuyButton();
+            renderMerchants();
             saveGame();
             
-            showNotification(`Bought letter ${letter.toUpperCase()} for ${price} 🪙`);
+            showNotification(`Bought ${letter.toUpperCase()} for ${price} 🪙`);
         }
 
-        // Haggle mini-game
-        function startHaggle() {
-            if (!gameState.selectedLetter || !gameState.selectedMerchant) return;
-            
-            const price = getLetterPrice(gameState.selectedLetter);
-            if (gameState.tokens < 1) {
-                showNotification('No trade tokens! Complete trades to earn more.');
-                return;
-            }
-            
-            // Show haggle game
-            document.getElementById('tradingSection').classList.add('hidden');
-            document.getElementById('haggleGame').classList.remove('hidden');
-            
-            // Setup haggle game
-            const targetZone = 30 + Math.random() * 40; // 30-70% for fair price
-            document.getElementById('haggleTarget').style.left = targetZone + '%';
-            document.getElementById('haggleCurrentPrice').textContent = price;
-            
-            let position = 0;
-            let direction = 1;
-            let animation;
-            
-            function moveIndicator() {
-                position += direction * 2;
-                if (position >= 100) {
-                    position = 100;
-                    direction = -1;
-                } else if (position <= 0) {
-                    position = 0;
-                    direction = 1;
-                }
-                
-                document.getElementById('haggleIndicator').style.left = position + '%';
-                document.getElementById('haggleFill').style.width = position + '%';
-            }
-            
-            animation = setInterval(moveIndicator, 50);
-            
-            // Stop button
-            document.getElementById('haggleStop').onclick = function() {
-                clearInterval(animation);
-                
-                // Calculate result
-                const diff = Math.abs(position - targetZone);
-                let discount = 0;
-                
-                if (diff < 5) {
-                    discount = 0.4; // 40% off
-                    showNotification('Perfect haggle! 40% discount!');
-                } else if (diff < 10) {
-                    discount = 0.2; // 20% off
-                    showNotification('Good haggle! 20% discount!');
-                } else if (diff < 15) {
-                    discount = 0.1; // 10% off
-                    showNotification('Fair haggle! 10% discount!');
-                } else {
-                    showNotification('Missed the mark. No discount.');
-                }
-                
-                // Apply discount
-                gameState.tokens--;
-                
-                if (discount > 0) {
-                    const merchant = gameState.selectedMerchant;
-                    merchant.basePrices[gameState.selectedLetter] = 
-                        Math.floor(merchant.basePrices[gameState.selectedLetter] * (1 - discount));
-                    showNotification(`${gameState.selectedMerchant.name} remembers your haggling...`);
-                }
-                
-                // Return to trading
-                document.getElementById('haggleGame').classList.add('hidden');
-                document.getElementById('tradingSection').classList.remove('hidden');
-                updateResources();
-                renderMerchantInventory();
-                saveGame();
-            };
-        }
-
-        // Add relationship XP
-        function addRelationshipXP(merchantName, xp) {
-            const currentLevel = gameState.relationshipLevels[merchantName] || 1;
-            if (currentLevel < 4) {
-                // Simple level up system - every 5 trades increases level
-                const tradeCount = (gameState[`trades_${merchantName}`] || 0) + 1;
-                gameState[`trades_${merchantName}`] = tradeCount;
-                
-                if (tradeCount % 5 === 0 && currentLevel < 4) {
-                    gameState.relationshipLevels[merchantName] = currentLevel + 1;
-                    showNotification(`${merchantName} is now level ${currentLevel + 1}!`);
-                }
-            }
-        }
-
-        // Check if any words can be completed
         function checkWordCompletions() {
-            UNIT_WORDS.forEach(item => {
+            WORDS.forEach(item => {
                 const word = item.word;
                 
-                // Skip if already completed
                 if (gameState.completedWords.includes(word)) return;
                 
-                // Check if we have all letters for this word
+                // Check if we have all letters
                 const letters = word.split('');
-                let canComplete = true;
-                
-                // Count letters needed
                 const needed = {};
                 letters.forEach(l => needed[l] = (needed[l] || 0) + 1);
                 
-                // Check against inventory
-                for (let [letter, count] of Object.entries(needed)) {
-                    if ((gameState.letters[letter] || 0) < count) {
+                let canComplete = true;
+                for (let [l, count] of Object.entries(needed)) {
+                    if ((gameState.letters[l] || 0) < count) {
                         canComplete = false;
                         break;
                     }
                 }
                 
                 if (canComplete) {
-                    // Remove letters from inventory
+                    // Remove letters
                     letters.forEach(l => {
                         gameState.letters[l]--;
                         if (gameState.letters[l] === 0) {
@@ -1044,30 +1056,27 @@
                         }
                     });
                     
-                    // Add to completed words
+                    // Complete word
                     gameState.completedWords.push(word);
-                    
-                    // Award coins for completing a word
                     gameState.coins += 10;
                     
-                    // Show word discovery modal
+                    // Show modal
                     showWordModal(item);
                 }
             });
             
-            // Update progress tracking
-            UNIT_WORDS.forEach(item => {
+            // Update progress for incomplete words
+            WORDS.forEach(item => {
                 const word = item.word;
                 if (!gameState.completedWords.includes(word)) {
-                    // Count how many letters we have for this word
                     const letters = word.split('');
+                    const tempLetters = {...gameState.letters};
                     let count = 0;
-                    const inventoryCopy = {...gameState.letters};
                     
                     letters.forEach(l => {
-                        if (inventoryCopy[l] > 0) {
+                        if (tempLetters[l] > 0) {
                             count++;
-                            inventoryCopy[l]--;
+                            tempLetters[l]--;
                         }
                     });
                     
@@ -1077,87 +1086,174 @@
                 }
             });
             
-            renderWordsGrid();
+            renderWords();
             renderLetterInventory();
-            updateArtifactDisplay();
+            updateArtifact();
             updateResources();
         }
 
-        // Show word discovery modal
+        // ==================== HAGGLE SYSTEM ====================
+
+        let haggleInterval = null;
+
+        function startHaggle() {
+            if (!gameState.selectedLetter || !gameState.selectedMerchantId) {
+                showNotification('Select a letter first!');
+                return;
+            }
+            
+            if (gameState.tokens < 1) {
+                showNotification('Need 1 trade token!');
+                return;
+            }
+            
+            const merchant = merchants.find(m => m.id === gameState.selectedMerchantId);
+            if (!merchant) return;
+            
+            // Hide trading, show haggle
+            document.getElementById('tradingSection').classList.add('hidden');
+            document.getElementById('haggleGame').classList.remove('hidden');
+            
+            // Setup haggle
+            const targetZone = 30 + Math.random() * 40; // 30-70%
+            document.getElementById('haggleTarget').style.left = targetZone + '%';
+            
+            const currentPrice = getCurrentPrice();
+            document.getElementById('haggleCurrentPrice').textContent = currentPrice;
+            
+            let position = 0;
+            let direction = 1;
+            
+            if (haggleInterval) clearInterval(haggleInterval);
+            
+            haggleInterval = setInterval(() => {
+                position += direction * 2;
+                
+                if (position >= 100) {
+                    position = 100;
+                    direction = -1;
+                } else if (position <= 0) {
+                    position = 0;
+                    direction = 1;
+                }
+                
+                document.getElementById('haggleMarker').style.left = position + '%';
+                document.getElementById('haggleFill').style.width = position + '%';
+            }, 50);
+            
+            // Stop button
+            document.getElementById('stopHaggleButton').onclick = () => {
+                clearInterval(haggleInterval);
+                haggleInterval = null;
+                
+                const target = parseFloat(document.getElementById('haggleTarget').style.left);
+                const diff = Math.abs(position - target);
+                
+                let discount = 0;
+                if (diff < 5) {
+                    discount = 0.4;
+                    showNotification('Perfect! 40% off!');
+                } else if (diff < 10) {
+                    discount = 0.2;
+                    showNotification('Good! 20% off!');
+                } else if (diff < 15) {
+                    discount = 0.1;
+                    showNotification('Fair! 10% off!');
+                } else {
+                    showNotification('Missed! No discount.');
+                }
+                
+                // Apply discount
+                if (discount > 0 && gameState.selectedLetter) {
+                    const letter = gameState.selectedLetter;
+                    merchant.basePrices[letter] = Math.floor(merchant.basePrices[letter] * (1 - discount));
+                    if (merchant.basePrices[letter] < 1) merchant.basePrices[letter] = 1;
+                }
+                
+                // Use token
+                gameState.tokens--;
+                updateResources();
+                
+                // Return to trading
+                document.getElementById('haggleGame').classList.add('hidden');
+                document.getElementById('tradingSection').classList.remove('hidden');
+                
+                updatePrice();
+                saveGame();
+            };
+        }
+
+        function cancelHaggle() {
+            if (haggleInterval) {
+                clearInterval(haggleInterval);
+                haggleInterval = null;
+            }
+            document.getElementById('haggleGame').classList.add('hidden');
+            document.getElementById('tradingSection').classList.remove('hidden');
+        }
+
+        function getCurrentPrice() {
+            if (!gameState.selectedLetter || !gameState.selectedMerchantId) return 0;
+            
+            const merchant = merchants.find(m => m.id === gameState.selectedMerchantId);
+            if (!merchant) return 0;
+            
+            const basePrice = merchant.basePrices[gameState.selectedLetter] || 5;
+            const level = gameState.relationshipLevels[merchant.name] || 1;
+            const discount = 1 - (level * 0.05);
+            return Math.max(1, Math.floor(basePrice * discount));
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+
         function showWordModal(wordItem) {
             const modal = document.getElementById('wordModal');
             document.getElementById('modalWord').textContent = wordItem.word.toUpperCase();
             document.getElementById('modalDefinition').textContent = wordItem.definition;
             document.getElementById('modalExample').textContent = `"${wordItem.example}"`;
             
-            // Simple emoji-based illustrations
+            // Simple emoji illustration
             const illustrations = {
-                afraid: '😨',
-                agree: '🤝',
-                angry: '😠',
-                arrive: '🚶',
-                attack: '⚔️',
-                bottom: '⬇️',
-                clever: '🧠',
-                cruel: '😈',
-                finally: '⏰',
-                hide: '🙈',
-                hunt: '🏹',
-                lot: '📦',
-                middle: '🎯',
-                moment: '⏳',
-                pleased: '😊',
-                promise: '🤞',
-                reply: '💬',
-                safe: '🛡️',
-                trick: '🎩',
-                well: '💪'
+                afraid: '😨', agree: '🤝', angry: '😠', arrive: '🚶', attack: '⚔️',
+                bottom: '⬇️', clever: '🧠', cruel: '😈', finally: '⏰', hide: '🙈',
+                hunt: '🏹', lot: '📦', middle: '🎯', moment: '⏳', pleased: '😊',
+                promise: '🤞', reply: '💬', safe: '🛡️', trick: '🎩', well: '💪'
             };
             
-            document.getElementById('modalImage').src = 'data:image/svg+xml,' + encodeURIComponent(`
-                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
-                    <rect width="100" height="100" fill="#f0f0f0" rx="12"/>
-                    <text x="50" y="50" font-size="40" text-anchor="middle" dy=".3em">${illustrations[wordItem.word] || '📖'}</text>
-                </svg>
-            `);
-            
+            document.getElementById('modalIllustration').textContent = illustrations[wordItem.word] || '📖';
             modal.style.display = 'flex';
         }
 
-        function closeWordModal() {
+        function closeModal() {
             document.getElementById('wordModal').style.display = 'none';
         }
 
-        // Show all words when artifact is complete
         function showAllWords() {
-            let message = '✨ CARAVAN BELL COLLECTION ✨\n\n';
-            UNIT_WORDS.forEach(item => {
+            let message = '✨ CARAVAN BELL WORDS ✨\n\n';
+            WORDS.forEach(item => {
                 message += `${item.word.toUpperCase()}: ${item.definition}\n`;
             });
             alert(message);
         }
 
-        // Update resource displays
+        // ==================== UTILITIES ====================
+
         function updateResources() {
             document.getElementById('coinDisplay').textContent = gameState.coins;
             document.getElementById('tokenDisplay').textContent = gameState.tokens;
         }
 
-        // Show notification
         function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.textContent = message;
-            document.body.appendChild(notification);
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = message;
+            document.body.appendChild(notif);
             
-            setTimeout(() => {
-                notification.remove();
-            }, 2000);
+            setTimeout(() => notif.remove(), 2000);
         }
 
         // ==================== SAVE/LOAD ====================
 
-        // Save game to Telegram Cloud Storage
         function saveGame() {
             const saveData = {
                 coins: gameState.coins,
@@ -1166,105 +1262,70 @@
                 completedWords: gameState.completedWords,
                 wordProgress: gameState.wordProgress,
                 relationshipLevels: gameState.relationshipLevels,
-                lastSave: Date.now()
+                trades: gameState.trades
             };
+            
+            localStorage.setItem('wordsmith_bazaar', JSON.stringify(saveData));
             
             if (tg && tg.CloudStorage) {
                 tg.CloudStorage.setItem('wordsmith_bazaar', JSON.stringify(saveData));
             }
-            
-            // Also save to localStorage as backup
-            localStorage.setItem('wordsmith_bazaar', JSON.stringify(saveData));
         }
 
-        // Load game from Telegram Cloud Storage
         function loadGame() {
-            if (tg && tg.CloudStorage) {
-                tg.CloudStorage.getItem('wordsmith_bazaar', (error, value) => {
-                    if (value) {
-                        try {
-                            const saved = JSON.parse(value);
-                            gameState = {...gameState, ...saved};
-                            refreshAfterLoad();
-                        } catch (e) {
-                            console.error('Error loading saved game', e);
-                        }
-                    } else {
-                        // Try localStorage as fallback
-                        loadFromLocalStorage();
-                    }
-                });
-            } else {
-                loadFromLocalStorage();
-            }
-        }
-
-        function loadFromLocalStorage() {
             const saved = localStorage.getItem('wordsmith_bazaar');
             if (saved) {
                 try {
-                    const parsed = JSON.parse(saved);
-                    gameState = {...gameState, ...parsed};
+                    const data = JSON.parse(saved);
+                    gameState = {...gameState, ...data};
                 } catch (e) {
-                    console.error('Error loading from localStorage', e);
+                    console.error('Load error', e);
                 }
             }
-            refreshAfterLoad();
+            
+            refreshAllInventories();
+            renderAll();
         }
 
-        function refreshAfterLoad() {
+        function renderAll() {
             renderMerchants();
-            renderWordsGrid();
+            renderWords();
             renderLetterInventory();
-            updateArtifactDisplay();
+            updateArtifact();
             updateResources();
-        }
-
-        // ==================== DAILY RESET ====================
-
-        // Refresh merchant inventories (call this daily or on login)
-        function refreshMerchants() {
-            merchants.forEach(merchant => {
-                merchant.inventory = generateMerchantInventory(merchant.id);
-            });
             
-            // Small chance of a special event
-            if (Math.random() < 0.3) {
-                // Market festival - lower prices for a day
-                merchants.forEach(merchant => {
-                    Object.keys(merchant.basePrices).forEach(letter => {
-                        merchant.basePrices[letter] = Math.max(1, merchant.basePrices[letter] - 1);
-                    }
-                );
-                showNotification('🎪 Market Festival! All prices reduced!');
-            });
-            
-            renderMerchants();
-            if (gameState.selectedMerchant) {
-                renderMerchantInventory();
+            if (gameState.selectedMerchantId) {
+                selectMerchant(gameState.selectedMerchantId);
             }
-            saveGame();
         }
 
         // ==================== INITIALIZATION ====================
 
-        // Setup event listeners
-        document.getElementById('buyButton').onclick = buyLetter;
-        document.getElementById('haggleButton').onclick = startHaggle;
-        
-        // Check if it's a new day (simple version - just refresh on load)
-        refreshMerchants();
-        
-        // Load saved game
-        loadGame();
-        
-        // Auto-save every 30 seconds
-        setInterval(saveGame, 30000);
-        
-        // Save when user leaves
-        window.addEventListener('beforeunload', () => {
-            saveGame();
+        // Set up event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize game
+            refreshAllInventories();
+            loadGame();
+            
+            // Button listeners
+            document.getElementById('buyButton').onclick = buyLetter;
+            document.getElementById('haggleButton').onclick = startHaggle;
+            
+            // Auto-save
+            setInterval(saveGame, 30000);
+            
+            // Save on page hide
+            window.addEventListener('beforeunload', saveGame);
         });
+
+        // Make functions global for onclick handlers
+        window.selectMerchant = selectMerchant;
+        window.selectLetter = selectLetter;
+        window.buyLetter = buyLetter;
+        window.startHaggle = startHaggle;
+        window.cancelHaggle = cancelHaggle;
+        window.closeModal = closeModal;
+        window.showAllWords = showAllWords;
     </script>
 </body>
 </html>
