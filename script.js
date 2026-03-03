@@ -2566,7 +2566,7 @@ function handleWordCompletion(wordIndex) {
     }
 }
 
-// ---------- OPTIMIZED handleLetterTap FUNCTION with Green Mist Effect ----------
+// ---------- OPTIMIZED handleLetterTap FUNCTION with Telegram-Optimized Green Mist ----------
 function handleLetterTap(letter, indexInGrid) {
     if (gameCompleted) return;
     totalTaps++;
@@ -2595,15 +2595,30 @@ function handleLetterTap(letter, indexInGrid) {
         return;
     }
 
-    // CORRECT TAP - Add green mist effect immediately
+    // CORRECT TAP - Add green mist effect (Telegram-optimized)
     const tile = document.querySelector(`.letter-tile:nth-child(${indexInGrid + 1})`);
     if (tile) {
+        // Create mist overlay element if it doesn't exist
+        let mistOverlay = tile.querySelector('.mist-overlay');
+        if (!mistOverlay) {
+            mistOverlay = document.createElement('div');
+            mistOverlay.className = 'mist-overlay';
+            tile.appendChild(mistOverlay);
+        }
+        
         // Remove any existing effect
-        tile.classList.remove('correct-tap');
-        // Force reflow to restart animation
+        tile.classList.remove('mist-effect');
+        
+        // Force reflow
         void tile.offsetWidth;
+        
         // Add the effect
-        tile.classList.add('correct-tap');
+        tile.classList.add('mist-effect');
+        
+        // Remove the class after animation completes to allow re-triggering
+        setTimeout(() => {
+            tile.classList.remove('mist-effect');
+        }, 300);
     }
     
     // Haptic feedback
