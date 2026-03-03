@@ -1,58 +1,163 @@
-/* ---------- ENHANCED LOADING SCREEN WITH YOUR IMAGE ---------- */
-.forge-loading-image {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
-    border-radius: 30px 30px 30px 60px;
-    margin-bottom: 25px;
-    box-shadow: 
-        0 20px 30px rgba(0, 0, 0, 0.8),
-        0 0 0 4px var(--forge-bronze),
-        0 0 0 8px rgba(184, 134, 11, 0.3),
-        inset 0 0 20px rgba(255, 107, 53, 0.5);
-    border: 2px solid var(--forge-gold);
-    animation: forgeGlow 3s infinite alternate;
-    filter: contrast(1.1) saturate(1.2);
-    position: relative;
-    transform: perspective(1000px) rotateX(2deg);
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Spellforge · Master Blacksmith</title>
+    
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="assets/icons.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="https://i.postimg.cc/TwmzR9V2/grok-image-1772302795443.jpg" as="image">
+    <link rel="preload" href="styles.css" as="style">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Forge-themed favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8 2L2 8l4 4 6-6-4-4z' fill='%23FF6B35'/><rect x='7' y='7' width='10' height='4' fill='%238B4513' transform='rotate(45 12 9)'/></svg>">
+</head>
+<body>
+    <!-- Loading Screen - Using Your Original Image -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <!-- Your original image with enhanced blacksmith styling -->
+            <img src="https://i.postimg.cc/TwmzR9V2/grok-image-1772302795443.jpg" 
+                 alt="Spellforge - Master Blacksmith" 
+                 class="loading-image forge-loading-image">
+            
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="loadingBar"></div>
+            </div>
+            <div class="loading-text" id="loadingText">Igniting the forge...</div>
+            <div class="loading-tip" id="loadingTip">
+                "Every word forged strengthens the crystal"
+            </div>
+        </div>
+    </div>
 
-@keyframes forgeGlow {
-    from {
-        box-shadow: 
-            0 20px 30px rgba(0, 0, 0, 0.8),
-            0 0 0 4px var(--forge-bronze),
-            0 0 0 8px rgba(184, 134, 11, 0.3),
-            inset 0 0 20px rgba(255, 107, 53, 0.3);
-    }
-    to {
-        box-shadow: 
-            0 20px 40px rgba(0, 0, 0, 0.9),
-            0 0 0 4px var(--forge-gold),
-            0 0 0 12px rgba(255, 107, 53, 0.4),
-            inset 0 0 30px rgba(255, 107, 53, 0.6);
-    }
-}
+    <!-- Forge Message Overlay (hidden by default) -->
+    <div id="forgeMessageOverlay" class="forge-message-overlay" style="display: none;">
+        <div class="forge-message-card">
+            <div class="forge-message-icon" id="forgeMessageIcon">
+                <svg width="80" height="80">
+                    <use href="assets/icons.svg#icon-hammer"/>
+                </svg>
+            </div>
+            <div class="forge-message-text" id="forgeMessageText">Hammer strikes the anvil...</div>
+            <div class="forge-progress-bar">
+                <div class="forge-progress-fill" id="forgeProgressFill"></div>
+            </div>
+        </div>
+    </div>
 
-/* Optional: Add a forge-like overlay effect */
-.forge-loading-image::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 30% 40%, 
-        rgba(255, 107, 53, 0.2), 
-        transparent 70%);
-    pointer-events: none;
-    border-radius: inherit;
-}
+    <!-- Main Game Container (initially visible but covered by loading screen) -->
+    <div class="game-container" id="gameContainer">
+        <!-- Header with world info and profile -->
+        <div class="header">
+            <div class="world-info" id="worldInfo">
+                <span class="world-icon" id="worldIcon">
+                    <svg width="28" height="28">
+                        <use href="assets/icons.svg#icon-anvil"/>
+                    </svg>
+                </span>
+                <span class="world-name" id="worldName">Grand Forge</span>
+                <span class="tier-badge" id="tierBadge">Foundation</span>
+            </div>
+            <div class="header-right">
+                <span class="progress-badge" id="progressDisplay">0/600</span>
+                <button class="profile-icon" id="profileIconBtn">
+                    <svg width="32" height="32">
+                        <use href="assets/icons.svg#icon-blacksmith"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
 
-/* Responsive adjustment for smaller screens */
-@media (max-width: 400px) {
-    .forge-loading-image {
-        max-width: 300px;
-        border-radius: 20px 20px 20px 40px;
-    }
-}
+        <!-- Unit Selector Section - Hidden during gameplay -->
+        <div class="unit-section" id="unitSection">
+            <div class="unit-header">
+                <span class="unit-label" id="unitLabel">
+                    <svg width="20" height="20" style="margin-right: 8px;">
+                        <use href="assets/icons.svg#icon-ingot"/>
+                    </svg>
+                    INGOTS
+                </span>
+                <select class="unit-selector" id="unitSelector">
+                    <option value="1">Ingot 01 · First Spark</option>
+                </select>
+            </div>
+            <div class="unit-grid" id="unitGrid"></div>
+        </div>
+
+        <!-- Word List Area - The Workbench -->
+        <div class="word-section">
+            <div class="section-label">
+                <svg width="20" height="20" style="margin-right: 8px;">
+                    <use href="assets/icons.svg#icon-word"/>
+                </svg>
+                WORDS TO FORGE · tap any to start
+            </div>
+            <div class="word-grid" id="wordListContainer"></div>
+        </div>
+
+        <!-- Active Word Hint - The Blueprint -->
+        <div class="active-hint" id="activeHintArea">
+            <span class="target-word" id="activeWordDisplay">—</span>
+            <span class="next-letter" id="nextLetterDisplay">?</span>
+        </div>
+
+        <!-- Letter Grid - The Tool Wall -->
+        <div class="letter-section">
+            <div class="section-label">
+                <svg width="20" height="20" style="margin-right: 8px;">
+                    <use href="assets/icons.svg#icon-letter"/>
+                </svg>
+                LETTER FORGE · tap in order
+            </div>
+            <div class="letter-grid" id="letterGridContainer"></div>
+        </div>
+
+        <!-- Artifact Progress -->
+        <div class="artifact-box" id="artifactBox">
+            <span class="artifact-icon">
+                <svg width="44" height="44">
+                    <use href="assets/icons.svg#icon-crystal"/>
+                </svg>
+            </span>
+            <span id="artifactText">🔒 0/20</span>
+            <svg width="24" height="24">
+                <use href="assets/icons.svg#icon-spark"/>
+            </svg>
+        </div>
+
+        <!-- Reset Button -->
+        <button class="reset-btn" id="resetButton">
+            <svg width="24" height="24">
+                <use href="assets/icons.svg#icon-reset"/>
+            </svg>
+            FORGE AGAIN
+        </button>
+        
+        <!-- Footer -->
+        <div class="telegram-footer">
+            <svg width="16" height="16" style="margin-right: 4px;">
+                <use href="assets/icons.svg#icon-hammer"/>
+            </svg>
+            Telegram Mini App · forge words to unlock
+        </div>
+    </div>
+
+    <!-- Popup Overlay -->
+    <div id="popupOverlay" class="popup-overlay hidden"></div>
+
+    <!-- Script - MUST be at the end to ensure DOM is loaded -->
+    <script src="script.js"></script>
+</body>
+</html>
