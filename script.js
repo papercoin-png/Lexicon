@@ -2566,7 +2566,7 @@ function handleWordCompletion(wordIndex) {
     }
 }
 
-// ---------- OPTIMIZED handleLetterTap FUNCTION with Telegram-Optimized Green Mist ----------
+// ---------- OPTIMIZED handleLetterTap FUNCTION with Simple Flash & Haptic ----------
 function handleLetterTap(letter, indexInGrid) {
     if (gameCompleted) return;
     totalTaps++;
@@ -2595,33 +2595,30 @@ function handleLetterTap(letter, indexInGrid) {
         return;
     }
 
-    // CORRECT TAP - Add green mist effect (Telegram-optimized)
+    // CORRECT TAP - Simple visual feedback (guaranteed to work in Telegram)
     const tile = document.querySelector(`.letter-tile:nth-child(${indexInGrid + 1})`);
     if (tile) {
-        // Create mist overlay element if it doesn't exist
-        let mistOverlay = tile.querySelector('.mist-overlay');
-        if (!mistOverlay) {
-            mistOverlay = document.createElement('div');
-            mistOverlay.className = 'mist-overlay';
-            tile.appendChild(mistOverlay);
-        }
+        // Store original styles
+        const originalBg = tile.style.backgroundColor;
+        const originalTransform = tile.style.transform;
+        const originalBoxShadow = tile.style.boxShadow;
         
-        // Remove any existing effect
-        tile.classList.remove('mist-effect');
+        // Apply flash effect
+        tile.style.backgroundColor = '#A5D6A5';
+        tile.style.transform = 'translateY(4px)';
+        tile.style.boxShadow = '0 4px 0 #2A5A2A, 0 8px 15px rgba(0, 0, 0, 0.5)';
+        tile.style.transition = 'all 0.1s ease';
         
-        // Force reflow
-        void tile.offsetWidth;
-        
-        // Add the effect
-        tile.classList.add('mist-effect');
-        
-        // Remove the class after animation completes to allow re-triggering
+        // Reset after short delay
         setTimeout(() => {
-            tile.classList.remove('mist-effect');
-        }, 300);
+            tile.style.backgroundColor = originalBg;
+            tile.style.transform = originalTransform;
+            tile.style.boxShadow = originalBoxShadow;
+            tile.style.transition = '';
+        }, 150);
     }
     
-    // Haptic feedback
+    // Haptic feedback (works great in Telegram)
     tg?.HapticFeedback?.impactOccurred?.('light');
     
     // Update game state
