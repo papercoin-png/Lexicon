@@ -19,7 +19,7 @@
     
     /* Success Colors - For green mist effect */
     --success-green: #4ade80;
-    --success-glow: rgba(74, 222, 128, 0.8);
+    --success-glow: rgba(74, 222, 128, 0.9);
     
     /* Surface Textures - Subtle overlays */
     --metal-texture: url('data:image/svg+xml;utf8,<svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><rect width="12" height="12" fill="none"/><path d="M0 0L12 12M12 0L0 12" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></svg>');
@@ -1016,7 +1016,7 @@ button:hover .icon {
     border: 1px solid #FFD700;
 }
 
-/* ---------- LETTER SECTION - WOODEN TILES ---------- */
+/* ---------- LETTER SECTION - WOODEN TILES WITH TELEGRAM-OPTIMIZED MIST ---------- */
 .letter-section {
     background: linear-gradient(145deg, 
         rgba(42, 30, 20, 0.9), 
@@ -1039,7 +1039,6 @@ button:hover .icon {
     width: 100%;
 }
 
-/* ---------- GREEN MIST EFFECT FOR CORRECT TAPS ---------- */
 .letter-tile {
     width: calc((100% - 40px) / 5);
     max-width: 70px;
@@ -1060,10 +1059,8 @@ button:hover .icon {
         4px 4px 0 #3A1E0E;
     box-shadow: 
         0 8px 0 #6B4A2E,
-        0 12px 20px rgba(0, 0, 0, 0.5),
-        inset 0 -2px 4px rgba(255, 215, 140, 0.3),
-        inset 0 2px 4px rgba(0, 0, 0, 0.3);
-    transition: all 0.08s var(--strike-timing);
+        0 12px 20px rgba(0, 0, 0, 0.5);
+    transition: all 0.08s ease-out;
     cursor: pointer;
     text-transform: uppercase;
     user-select: none;
@@ -1072,7 +1069,74 @@ button:hover .icon {
     position: relative;
     border: 2px solid #8B5A2B;
     font-family: 'Cinzel', serif;
-    overflow: visible !important; /* Allow mist to extend beyond tile */
+    overflow: visible;
+    /* Telegram-friendly */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    z-index: 1;
+}
+
+/* Green mist overlay - created by JavaScript */
+.letter-tile .mist-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle, 
+        rgba(74, 222, 128, 0.9) 0%,
+        rgba(74, 222, 128, 0.4) 40%,
+        transparent 80%);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 5;
+    transition: opacity 0.1s ease;
+}
+
+/* Animation when mist-effect class is added */
+.letter-tile.mist-effect {
+    animation: telegramCorrectTap 0.3s var(--mist-timing) forwards;
+}
+
+.letter-tile.mist-effect .mist-overlay {
+    opacity: 1;
+    animation: telegramMist 0.3s var(--mist-timing) forwards;
+}
+
+@keyframes telegramCorrectTap {
+    0% {
+        transform: scale(1);
+    }
+    30% {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px var(--success-green), 0 8px 0 #6B4A2E, 0 12px 20px rgba(0, 0, 0, 0.5);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 8px 0 #6B4A2E, 0 12px 20px rgba(0, 0, 0, 0.5);
+    }
+}
+
+@keyframes telegramMist {
+    0% {
+        opacity: 1;
+        width: 80%;
+        height: 80%;
+    }
+    50% {
+        opacity: 0.8;
+        width: 200%;
+        height: 200%;
+    }
+    100% {
+        opacity: 0;
+        width: 280%;
+        height: 280%;
+    }
 }
 
 .letter-tile::before {
@@ -1089,59 +1153,7 @@ button:hover .icon {
     transition: opacity 0.2s;
     pointer-events: none;
     border-radius: 6px;
-}
-
-.letter-tile.correct-tap {
-    animation: correctTap 0.3s var(--mist-timing) forwards;
-}
-
-.letter-tile.correct-tap::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, 
-        var(--success-glow) 0%,
-        rgba(74, 222, 128, 0.4) 40%,
-        rgba(74, 222, 128, 0) 70%);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 10;
-    animation: greenMist 0.3s var(--mist-timing) forwards;
-}
-
-@keyframes correctTap {
-    0% {
-        transform: scale(1);
-    }
-    20% {
-        transform: scale(1.1);
-        box-shadow: 0 0 20px var(--success-green);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-@keyframes greenMist {
-    0% {
-        opacity: 1;
-        width: 100%;
-        height: 100%;
-    }
-    50% {
-        opacity: 0.8;
-        width: 200%;
-        height: 200%;
-    }
-    100% {
-        opacity: 0;
-        width: 300%;
-        height: 300%;
-    }
+    z-index: 2;
 }
 
 .letter-tile:active::before {
@@ -1188,11 +1200,11 @@ button:hover .icon {
 
 /* Different intensity for different devices */
 @media (hover: hover) and (pointer: fine) {
-    .letter-tile.correct-tap::after {
+    .letter-tile .mist-overlay {
         background: radial-gradient(circle, 
-            rgba(74, 222, 128, 0.9) 0%,
+            rgba(74, 222, 128, 0.95) 0%,
             rgba(74, 222, 128, 0.5) 40%,
-            rgba(74, 222, 128, 0) 70%);
+            transparent 80%);
     }
 }
 
@@ -2400,12 +2412,16 @@ button:hover .icon {
     .forge-progress-fill::after,
     .chance-bar-fill::after,
     .resume-icon,
-    .letter-tile.correct-tap,
-    .letter-tile.correct-tap::after {
+    .letter-tile.mist-effect,
+    .letter-tile .mist-overlay {
         animation: none !important;
     }
     
-    .letter-tile.correct-tap {
-        box-shadow: 0 0 10px var(--success-green);
+    .letter-tile.mist-effect {
+        box-shadow: 0 0 15px var(--success-green), 0 8px 0 #6B4A2E, 0 12px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    .letter-tile .mist-overlay {
+        opacity: 0;
     }
 }
