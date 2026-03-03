@@ -31,16 +31,16 @@ function simulateLoading() {
     const loadingBar = document.getElementById('loadingBar');
     const loadingText = document.getElementById('loadingText');
     const loadingTip = document.getElementById('loadingTip');
-
+    
     let progress = 0;
     const interval = setInterval(() => {
         progress += Math.random() * 8 + 3;
-
+        
         if (progress >= 100) {
             progress = 100;
             loadingBar.style.width = progress + '%';
             loadingText.innerText = 'Forge ready!';
-
+            
             loadingComplete = true;
             if (minimumTimePassed) {
                 setTimeout(() => {
@@ -54,7 +54,7 @@ function simulateLoading() {
         } else {
             loadingBar.style.width = progress + '%';
             loadingText.innerText = `Loading forge... ${Math.floor(progress)}%`;
-
+            
             if (Math.random() > 0.7) {
                 const randomTip = loadingTips[Math.floor(Math.random() * loadingTips.length)];
                 loadingTip.innerText = randomTip;
@@ -85,7 +85,7 @@ function showForgeMessage(text, icon = '⚒️', duration = 4000) {
     forgeMessageIcon.innerText = icon;
     forgeMessageText.innerText = text;
     forgeMessageOverlay.style.display = 'flex';
-
+    
     forgeProgressFill.style.animation = 'none';
     forgeProgressFill.offsetHeight;
     forgeProgressFill.style.animation = 'progressFill ' + (duration/1000) + 's linear forwards';
