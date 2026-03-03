@@ -382,532 +382,538 @@ const MASTER_WORDS = {
                     { word: "truth", emoji: "⚖️", sentence: "Always tell the truth." },
                     { word: "wake", emoji: "⏰", sentence: "I wake up early every morning." }
                 ]
+            },
+            // Ingot 12: Steel Blend
+            12: {
+                name: "Steel Blend",
+                words: [
+                    { word: "alone", emoji: "🧍", sentence: "He likes to walk alone in the park." },
+                    { word: "apartment", emoji: "🏢", sentence: "They live in a small apartment." },
+                    { word: "article", emoji: "📰", sentence: "She wrote an article for the school paper." },
+                    { word: "artist", emoji: "🎨", sentence: "The artist painted a beautiful landscape." },
+                    { word: "attitude", emoji: "😎", sentence: "A positive attitude makes a difference." },
+                    { word: "compare", emoji: "🔍", sentence: "Compare these two pictures carefully." },
+                    { word: "judge", emoji: "⚖️", sentence: "The judge listened to both sides." },
+                    { word: "magazine", emoji: "📚", sentence: "The magazine has interesting articles." },
+                    { word: "material", emoji: "🧵", sentence: "What material is this dress made of?" },
+                    { word: "meal", emoji: "🍽️", sentence: "We shared a delicious meal together." },
+                    { word: "method", emoji: "🔬", sentence: "This method works better than the old one." },
+                    { word: "neighbor", emoji: "🏘️", sentence: "Our neighbor helped us carry groceries." },
+                    { word: "professional", emoji: "👔", sentence: "She is a professional photographer." },
+                    { word: "profit", emoji: "📈", sentence: "The company made a large profit this year." },
+                    { word: "quality", emoji: "⭐", sentence: "This product is known for its quality." },
+                    { word: "shape", emoji: "🔵", sentence: "The cloud had a strange shape." },
+                    { word: "space", emoji: "🚀", sentence: "Astronauts travel through space." },
+                    { word: "stair", emoji: "🪜", sentence: "Be careful on the steep stair." },
+                    { word: "symbol", emoji: "🔣", sentence: "The heart is a symbol of love." },
+                    { word: "thin", emoji: "📏", sentence: "The ice was too thin to walk on." }
+                ]
+            },
+            // Ingot 13: Fold
+            13: {
+                name: "Fold",
+                words: [
+                    { word: "blood", emoji: "🩸", sentence: "The doctor tested his blood." },
+                    { word: "burn", emoji: "🔥", sentence: "Be careful not to burn the toast." },
+                    { word: "cell", emoji: "🔬", sentence: "Every living thing is made of cells." },
+                    { word: "contain", emoji: "📦", sentence: "This box contains old photographs." },
+                    { word: "correct", emoji: "✅", sentence: "Your answer is correct." },
+                    { word: "crop", emoji: "🌾", sentence: "Farmers harvest their crops in autumn." },
+                    { word: "demand", emoji: "📊", sentence: "There is high demand for fresh fruit." },
+                    { word: "equal", emoji: "⚖️", sentence: "All people deserve equal rights." },
+                    { word: "feed", emoji: "🍲", sentence: "We need to feed the hungry cat." },
+                    { word: "hole", emoji: "🕳️", sentence: "There's a hole in my sock." },
+                    { word: "increase", emoji: "📈", sentence: "The price of gas continues to increase." },
+                    { word: "lord", emoji: "👑", sentence: "The lord lived in a large castle." },
+                    { word: "owe", emoji: "💰", sentence: "I owe you ten dollars." },
+                    { word: "position", emoji: "📍", sentence: "Apply for the position if you're qualified." },
+                    { word: "raise", emoji: "📈", sentence: "They plan to raise the flag at dawn." },
+                    { word: "responsible", emoji: "✅", sentence: "Parents are responsible for their children." },
+                    { word: "sight", emoji: "👁️", sentence: "The sunset was a beautiful sight." },
+                    { word: "spot", emoji: "🔴", sentence: "I spotted a deer in the woods." },
+                    { word: "structure", emoji: "🏛️", sentence: "The building has a steel structure." },
+                    { word: "whole", emoji: "🟤", sentence: "She ate the whole pizza by herself." }
+                ]
+            },
+            // Ingot 14: Shape
+            14: {
+                name: "Shape",
+                words: [
+                    { word: "coach", emoji: "🏋️", sentence: "The coach taught us how to play better." },
+                    { word: "control", emoji: "🎮", sentence: "Learn to control your emotions." },
+                    { word: "description", emoji: "📝", sentence: "Give a detailed description of the thief." },
+                    { word: "direct", emoji: "⬆️", sentence: "Can you direct me to the station?" },
+                    { word: "exam", emoji: "📋", sentence: "She studied hard for the final exam." },
+                    { word: "example", emoji: "📌", sentence: "Let me give you an example." },
+                    { word: "limit", emoji: "⏱️", sentence: "There's a limit to how much we can carry." },
+                    { word: "local", emoji: "🏠", sentence: "We buy our food from local farmers." },
+                    { word: "magical", emoji: "✨", sentence: "The fairy tale had a magical ending." },
+                    { word: "mail", emoji: "📬", sentence: "I need to mail this letter today." },
+                    { word: "novel", emoji: "📖", sentence: "She's reading a novel about pirates." },
+                    { word: "outline", emoji: "✏️", sentence: "Draw an outline of the map first." },
+                    { word: "poet", emoji: "🖋️", sentence: "The poet wrote beautiful verses." },
+                    { word: "print", emoji: "🖨️", sentence: "Please print your name clearly." },
+                    { word: "scene", emoji: "🎬", sentence: "The movie's opening scene was exciting." },
+                    { word: "sheet", emoji: "📄", sentence: "Write your answers on this sheet." },
+                    { word: "silly", emoji: "🤪", sentence: "That's a silly joke." },
+                    { word: "store", emoji: "🏪", sentence: "We went to the store to buy milk." },
+                    { word: "suffer", emoji: "😔", sentence: "Many people suffer from allergies." },
+                    { word: "technology", emoji: "💻", sentence: "Technology changes so fast." }
+                ]
+            },
+            // Ingot 15: Edge
+            15: {
+                name: "Edge",
+                words: [
+                    { word: "across", emoji: "↔️", sentence: "We swam across the river." },
+                    { word: "breathe", emoji: "🌬️", sentence: "Remember to breathe deeply when stressed." },
+                    { word: "characteristic", emoji: "🔍", sentence: "Politeness is a characteristic of a good person." },
+                    { word: "consume", emoji: "🍽️", sentence: "Americans consume a lot of coffee." },
+                    { word: "excite", emoji: "🎉", sentence: "The news will excite the whole family." },
+                    { word: "extreme", emoji: "⚠️", sentence: "Don't take extreme risks." },
+                    { word: "fear", emoji: "😨", sentence: "She has a fear of heights." },
+                    { word: "fortunate", emoji: "🍀", sentence: "We were fortunate to find a parking spot." },
+                    { word: "happen", emoji: "✨", sentence: "Good things happen when you least expect them." },
+                    { word: "length", emoji: "📏", sentence: "The length of the table is six feet." },
+                    { word: "mistake", emoji: "❌", sentence: "Everyone makes a mistake sometimes." },
+                    { word: "observe", emoji: "👀", sentence: "Scientists observe the stars through telescopes." },
+                    { word: "opportunity", emoji: "🚪", sentence: "Don't miss this opportunity to learn." },
+                    { word: "prize", emoji: "🏆", sentence: "She won first prize in the contest." },
+                    { word: "race", emoji: "🏃", sentence: "He won the race by a second." },
+                    { word: "realize", emoji: "💡", sentence: "I didn't realize how late it was." },
+                    { word: "respond", emoji: "📢", sentence: "Please respond to my message." },
+                    { word: "risk", emoji: "⚠️", sentence: "Don't risk your safety." },
+                    { word: "wonder", emoji: "🤔", sentence: "I wonder what will happen next." },
+                    { word: "yet", emoji: "⏳", sentence: "She hasn't arrived yet." }
+                ]
+            },
+            // Ingot 16: Curve
+            16: {
+                name: "Curve",
+                words: [
+                    { word: "academy", emoji: "🏫", sentence: "She attends the music academy." },
+                    { word: "ancient", emoji: "🏛️", sentence: "We visited ancient ruins in Greece." },
+                    { word: "board", emoji: "📋", sentence: "Write your ideas on the board." },
+                    { word: "century", emoji: "📅", sentence: "The building is over a century old." },
+                    { word: "clue", emoji: "🔍", sentence: "The detective found an important clue." },
+                    { word: "concert", emoji: "🎵", sentence: "We went to a rock concert last night." },
+                    { word: "county", emoji: "🗺️", sentence: "They live in a small county." },
+                    { word: "dictionary", emoji: "📚", sentence: "Look up the word in the dictionary." },
+                    { word: "exist", emoji: "✨", sentence: "Do ghosts really exist?" },
+                    { word: "flat", emoji: "🏢", sentence: "They live in a flat in the city." },
+                    { word: "gentleman", emoji: "🎩", sentence: "He's a true gentleman." },
+                    { word: "hidden", emoji: "🕵️", sentence: "There's a hidden treasure on the island." },
+                    { word: "maybe", emoji: "🤔", sentence: "Maybe we'll go to the beach tomorrow." },
+                    { word: "officer", emoji: "👮", sentence: "The officer helped us cross the street." },
+                    { word: "original", emoji: "🖼️", sentence: "This is the original painting." },
+                    { word: "pound", emoji: "💷", sentence: "The cake weighs two pounds." },
+                    { word: "process", emoji: "⚙️", sentence: "Learning is a slow process." },
+                    { word: "publish", emoji: "📰", sentence: "They will publish the book next month." },
+                    { word: "theater", emoji: "🎭", sentence: "We saw a play at the theater." },
+                    { word: "wealth", emoji: "💰", sentence: "His wealth comes from hard work." }
+                ]
+            },
+            // Ingot 17: Point
+            17: {
+                name: "Point",
+                words: [
+                    { word: "appreciate", emoji: "🙏", sentence: "I appreciate all your help." },
+                    { word: "available", emoji: "✅", sentence: "Is this seat available?" },
+                    { word: "beat", emoji: "🥁", sentence: "The drummer beat the drum loudly." },
+                    { word: "bright", emoji: "💡", sentence: "The sun is very bright today." },
+                    { word: "celebrate", emoji: "🎉", sentence: "Let's celebrate your birthday!" },
+                    { word: "determine", emoji: "🔍", sentence: "We need to determine the cause." },
+                    { word: "disappear", emoji: "👻", sentence: "The magician made the coin disappear." },
+                    { word: "else", emoji: "🤷", sentence: "What else do you need?" },
+                    { word: "fair", emoji: "⚖️", sentence: "That's not fair!" },
+                    { word: "flow", emoji: "🌊", sentence: "The river flows to the sea." },
+                    { word: "forward", emoji: "⬆️", sentence: "Please step forward." },
+                    { word: "hill", emoji: "⛰️", sentence: "They rolled down the hill." },
+                    { word: "level", emoji: "📊", sentence: "What level are you in the game?" },
+                    { word: "lone", emoji: "🧍", sentence: "A lone tree stood in the field." },
+                    { word: "puddle", emoji: "💧", sentence: "The child jumped in the puddle." },
+                    { word: "response", emoji: "💬", sentence: "I'm waiting for a response." },
+                    { word: "season", emoji: "🍂", sentence: "Autumn is my favorite season." },
+                    { word: "solution", emoji: "🧪", sentence: "We found a solution to the problem." },
+                    { word: "waste", emoji: "🗑️", sentence: "Don't waste food." },
+                    { word: "whether", emoji: "🤔", sentence: "I don't know whether to go or stay." }
+                ]
+            },
+            // Ingot 18: Balance
+            18: {
+                name: "Balance",
+                words: [
+                    { word: "argue", emoji: "🗣️", sentence: "Don't argue with your sister." },
+                    { word: "communicate", emoji: "📞", sentence: "We communicate by email." },
+                    { word: "crowd", emoji: "👥", sentence: "There was a large crowd at the concert." },
+                    { word: "depend", emoji: "🤝", sentence: "You can depend on me." },
+                    { word: "dish", emoji: "🍽️", sentence: "Please wash the dishes." },
+                    { word: "empty", emoji: "📦", sentence: "The box is empty." },
+                    { word: "exact", emoji: "🎯", sentence: "Tell me the exact time." },
+                    { word: "fresh", emoji: "🥗", sentence: "We bought fresh vegetables." },
+                    { word: "gather", emoji: "👥", sentence: "Let's gather around the fire." },
+                    { word: "indicate", emoji: "👉", sentence: "The sign indicates the way out." },
+                    { word: "item", emoji: "📦", sentence: "Each item has a price tag." },
+                    { word: "offer", emoji: "🎁", sentence: "They made me a job offer." },
+                    { word: "price", emoji: "💰", sentence: "The price of gas is rising." },
+                    { word: "product", emoji: "📦", sentence: "This product is made in China." },
+                    { word: "property", emoji: "🏠", sentence: "That house is my property." },
+                    { word: "purchase", emoji: "💳", sentence: "I need to purchase a new phone." },
+                    { word: "recommend", emoji: "👍", sentence: "I recommend this restaurant." },
+                    { word: "select", emoji: "✅", sentence: "Select your favorite color." },
+                    { word: "tool", emoji: "🔧", sentence: "A hammer is a useful tool." },
+                    { word: "treat", emoji: "🍬", sentence: "Grandma gave us a treat." }
+                ]
+            },
+            // Ingot 19: Polish
+            19: {
+                name: "Polish",
+                words: [
+                    { word: "alive", emoji: "💚", sentence: "The plant is still alive." },
+                    { word: "bone", emoji: "🦴", sentence: "The dog buried a bone." },
+                    { word: "bother", emoji: "😤", sentence: "Don't bother me while I'm working." },
+                    { word: "captain", emoji: "👨‍✈️", sentence: "The captain welcomed us aboard." },
+                    { word: "conclusion", emoji: "🔚", sentence: "What conclusion did you reach?" },
+                    { word: "doubt", emoji: "🤨", sentence: "I doubt he'll arrive on time." },
+                    { word: "explore", emoji: "🧭", sentence: "Let's explore the forest." },
+                    { word: "foreign", emoji: "🌍", sentence: "She speaks two foreign languages." },
+                    { word: "glad", emoji: "😊", sentence: "I'm glad you came." },
+                    { word: "however", emoji: "🔄", sentence: "It's raining; however, we'll still go." },
+                    { word: "injustice", emoji: "⚖️", sentence: "They fought against injustice." },
+                    { word: "international", emoji: "🌐", sentence: "She works for an international company." },
+                    { word: "lawyer", emoji: "⚖️", sentence: "The lawyer defended her client." },
+                    { word: "mention", emoji: "🗣️", sentence: "Did she mention the party?" },
+                    { word: "policy", emoji: "📋", sentence: "The school has a strict policy." },
+                    { word: "social", emoji: "👥", sentence: "Humans are social creatures." },
+                    { word: "speech", emoji: "🎤", sentence: "He gave an inspiring speech." },
+                    { word: "staff", emoji: "👔", sentence: "The hotel staff are friendly." },
+                    { word: "toward", emoji: "➡️", sentence: "She walked toward the door." },
+                    { word: "wood", emoji: "🪵", sentence: "The table is made of wood." }
+                ]
+            },
+            // Ingot 20: Gleam
+            20: {
+                name: "Gleam",
+                words: [
+                    { word: "achieve", emoji: "🏆", sentence: "You can achieve anything with hard work." },
+                    { word: "advise", emoji: "💬", sentence: "I advise you to study harder." },
+                    { word: "already", emoji: "✅", sentence: "I've already eaten lunch." },
+                    { word: "basic", emoji: "📚", sentence: "These are the basic rules." },
+                    { word: "bit", emoji: "🔹", sentence: "Just a bit of sugar, please." },
+                    { word: "consider", emoji: "🤔", sentence: "Consider all your options." },
+                    { word: "destroy", emoji: "💥", sentence: "The fire destroyed the building." },
+                    { word: "entertain", emoji: "🎪", sentence: "The clown entertained the children." },
+                    { word: "extra", emoji: "➕", sentence: "Do you have an extra pencil?" },
+                    { word: "goal", emoji: "🥅", sentence: "Her goal is to become a doctor." },
+                    { word: "lie", emoji: "🤥", sentence: "Never tell a lie." },
+                    { word: "meat", emoji: "🥩", sentence: "They don't eat meat." },
+                    { word: "opinion", emoji: "💭", sentence: "In my opinion, it's a bad idea." },
+                    { word: "real", emoji: "✅", sentence: "Is that a real diamond?" },
+                    { word: "reflect", emoji: "🪞", sentence: "The water reflected the trees." },
+                    { word: "regard", emoji: "👀", sentence: "Please regard the rules carefully." },
+                    { word: "serve", emoji: "🍽️", sentence: "They serve breakfast until 11." },
+                    { word: "vegetable", emoji: "🥕", sentence: "Eat your vegetables." },
+                    { word: "war", emoji: "⚔️", sentence: "The war lasted five years." },
+                    { word: "worth", emoji: "💰", sentence: "How much is it worth?" }
+                ]
+            },
+            // Ingot 21: Pattern
+            21: {
+                name: "Pattern",
+                words: [
+                    { word: "appear", emoji: "👻", sentence: "A figure appeared in the fog." },
+                    { word: "base", emoji: "🏛️", sentence: "The base of the mountain is rocky." },
+                    { word: "brain", emoji: "🧠", sentence: "The brain controls the body." },
+                    { word: "career", emoji: "💼", sentence: "She has a successful career in law." },
+                    { word: "clerk", emoji: "🧑‍💼", sentence: "The clerk helped me find the book." },
+                    { word: "effort", emoji: "💪", sentence: "Put some effort into your work." },
+                    { word: "enter", emoji: "🚪", sentence: "Please enter through the front door." },
+                    { word: "excellent", emoji: "🌟", sentence: "You did an excellent job." },
+                    { word: "hero", emoji: "🦸", sentence: "The firefighter is a hero." },
+                    { word: "hurry", emoji: "⏰", sentence: "We need to hurry or we'll be late." },
+                    { word: "inform", emoji: "📢", sentence: "I must inform you of the news." },
+                    { word: "later", emoji: "⏱️", sentence: "I'll call you later." },
+                    { word: "leave", emoji: "👋", sentence: "Don't leave your bags unattended." },
+                    { word: "locate", emoji: "📍", sentence: "I can't locate my keys." },
+                    { word: "nurse", emoji: "👩‍⚕️", sentence: "The nurse took my temperature." },
+                    { word: "operation", emoji: "🏥", sentence: "He needs an operation on his knee." },
+                    { word: "pain", emoji: "🤕", sentence: "I have a pain in my back." },
+                    { word: "refuse", emoji: "🚫", sentence: "I refuse to answer that question." },
+                    { word: "though", emoji: "🤔", sentence: "Though it's late, I'm not tired." },
+                    { word: "various", emoji: "🌈", sentence: "We saw various birds at the park." }
+                ]
+            },
+            // Ingot 22: Inlay
+            22: {
+                name: "Inlay",
+                words: [
+                    { word: "actual", emoji: "✅", sentence: "The actual cost was higher than expected." },
+                    { word: "amaze", emoji: "😲", sentence: "Magicians amaze their audiences." },
+                    { word: "charge", emoji: "🔋", sentence: "Don't forget to charge your phone." },
+                    { word: "comfort", emoji: "😌", sentence: "A soft pillow provides comfort." },
+                    { word: "contact", emoji: "📞", sentence: "I'll contact you tomorrow." },
+                    { word: "customer", emoji: "🛒", sentence: "The customer is always right." },
+                    { word: "deliver", emoji: "📦", sentence: "They deliver pizza in 30 minutes." },
+                    { word: "earn", emoji: "💰", sentence: "You need to earn your allowance." },
+                    { word: "gate", emoji: "🚪", sentence: "Meet me at the airport gate." },
+                    { word: "include", emoji: "📋", sentence: "Does the price include tax?" },
+                    { word: "manage", emoji: "📊", sentence: "Can you manage the project?" },
+                    { word: "mystery", emoji: "🕵️", sentence: "The mystery was finally solved." },
+                    { word: "occur", emoji: "✨", sentence: "When did the accident occur?" },
+                    { word: "opposite", emoji: "🔄", sentence: "Hot is the opposite of cold." },
+                    { word: "plate", emoji: "🍽️", sentence: "He cleaned his plate." },
+                    { word: "receive", emoji: "📨", sentence: "Did you receive my letter?" },
+                    { word: "reward", emoji: "🎁", sentence: "There's a reward for finding the dog." },
+                    { word: "set", emoji: "🎬", sentence: "The movie set was enormous." },
+                    { word: "steal", emoji: "🚫", sentence: "It's wrong to steal." },
+                    { word: "thief", emoji: "🦹", sentence: "The thief was caught on camera." }
+                ]
+            },
+            // Ingot 23: Filigree
+            23: {
+                name: "Filigree",
+                words: [
+                    { word: "advance", emoji: "⬆️", sentence: "Technology continues to advance." },
+                    { word: "athlete", emoji: "🏃", sentence: "The athlete trained for months." },
+                    { word: "average", emoji: "📊", sentence: "His grades are above average." },
+                    { word: "behavior", emoji: "😊", sentence: "Good behavior is rewarded." },
+                    { word: "behind", emoji: "⬅️", sentence: "The sun is behind the clouds." },
+                    { word: "course", emoji: "⛳", sentence: "Of course you can come!" },
+                    { word: "lower", emoji: "⬇️", sentence: "Please lower your voice." },
+                    { word: "match", emoji: "🏆", sentence: "The colors match perfectly." },
+                    { word: "member", emoji: "👥", sentence: "She's a member of the club." },
+                    { word: "mental", emoji: "🧠", sentence: "Mental health is important." },
+                    { word: "passenger", emoji: "🚗", sentence: "The passenger fell asleep." },
+                    { word: "personality", emoji: "🌟", sentence: "She has a bright personality." },
+                    { word: "poem", emoji: "📝", sentence: "He wrote a poem for her." },
+                    { word: "pole", emoji: "🎣", sentence: "The flag flew on the pole." },
+                    { word: "remove", emoji: "❌", sentence: "Please remove your shoes." },
+                    { word: "safety", emoji: "🛡️", sentence: "Safety comes first." },
+                    { word: "shoot", emoji: "📸", sentence: "I'll shoot some photos." },
+                    { word: "sound", emoji: "🔊", sentence: "I heard a strange sound." },
+                    { word: "swim", emoji: "🏊", sentence: "Let's swim in the lake." },
+                    { word: "web", emoji: "🕸️", sentence: "The spider spun a web." }
+                ]
+            },
+            // Ingot 24: Engrave
+            24: {
+                name: "Engrave",
+                words: [
+                    { word: "block", emoji: "🧱", sentence: "There's a block in the road." },
+                    { word: "cheer", emoji: "🎉", sentence: "The crowd began to cheer." },
+                    { word: "complex", emoji: "🔷", sentence: "This puzzle is too complex." },
+                    { word: "critic", emoji: "🎬", sentence: "The critic loved the movie." },
+                    { word: "event", emoji: "📅", sentence: "The event starts at 8." },
+                    { word: "exercise", emoji: "🏋️", sentence: "Daily exercise is healthy." },
+                    { word: "fit", emoji: "💪", sentence: "These shoes don't fit me." },
+                    { word: "friendship", emoji: "🤝", sentence: "True friendship lasts forever." },
+                    { word: "guide", emoji: "🧭", sentence: "The guide showed us around." },
+                    { word: "lack", emoji: "❌", sentence: "A lack of sleep makes you tired." },
+                    { word: "passage", emoji: "📖", sentence: "Read the passage aloud." },
+                    { word: "perform", emoji: "🎭", sentence: "The band will perform tonight." },
+                    { word: "pressure", emoji: "⚙️", sentence: "Don't put pressure on yourself." },
+                    { word: "probable", emoji: "📊", sentence: "It's probable that it will rain." },
+                    { word: "public", emoji: "👥", sentence: "The library is a public place." },
+                    { word: "strike", emoji: "⚡", sentence: "Lightning might strike." },
+                    { word: "support", emoji: "🤝", sentence: "Friends support each other." },
+                    { word: "task", emoji: "📋", sentence: "Finish your task first." },
+                    { word: "term", emoji: "📚", sentence: "This term ends in June." },
+                    { word: "unite", emoji: "🤝", sentence: "Let's unite for a common cause." }
+                ]
+            },
+            // Ingot 25: Harden
+            25: {
+                name: "Harden",
+                words: [
+                    { word: "associate", emoji: "👥", sentence: "I associate summer with beach trips." },
+                    { word: "environment", emoji: "🌍", sentence: "Protect the environment." },
+                    { word: "factory", emoji: "🏭", sentence: "He works in a shoe factory." },
+                    { word: "feature", emoji: "📱", sentence: "The new phone has many features." },
+                    { word: "instance", emoji: "📌", sentence: "For instance, take this example." },
+                    { word: "involve", emoji: "🔄", sentence: "Don't involve me in your argument." },
+                    { word: "medicine", emoji: "💊", sentence: "Take this medicine twice a day." },
+                    { word: "mix", emoji: "🔄", sentence: "Mix the ingredients together." },
+                    { word: "organize", emoji: "📋", sentence: "Help me organize the closet." },
+                    { word: "period", emoji: "⏰", sentence: "The class lasts for a period." },
+                    { word: "populate", emoji: "👥", sentence: "Birds populate the island." },
+                    { word: "produce", emoji: "🍎", sentence: "The farm produces fresh vegetables." },
+                    { word: "range", emoji: "📏", sentence: "The price range is wide." },
+                    { word: "recognize", emoji: "👤", sentence: "I didn't recognize you with glasses." },
+                    { word: "regular", emoji: "🔄", sentence: "He's a regular customer." },
+                    { word: "sign", emoji: "🪧", sentence: "The sign said 'No Parking'." },
+                    { word: "tip", emoji: "💡", sentence: "Here's a helpful tip." },
+                    { word: "tradition", emoji: "🎭", sentence: "It's a family tradition." },
+                    { word: "trash", emoji: "🗑️", sentence: "Take out the trash." },
+                    { word: "wide", emoji: "📏", sentence: "The river is very wide." }
+                ]
+            },
+            // Ingot 26: Resilience
+            26: {
+                name: "Resilience",
+                words: [
+                    { word: "advice", emoji: "💬", sentence: "Take my advice and study." },
+                    { word: "along", emoji: "➡️", sentence: "Walk along the path." },
+                    { word: "attention", emoji: "👀", sentence: "Pay attention in class." },
+                    { word: "attract", emoji: "🧲", sentence: "Flowers attract bees." },
+                    { word: "climb", emoji: "🧗", sentence: "Let's climb that mountain." },
+                    { word: "drop", emoji: "💧", sentence: "Don't drop the glass." },
+                    { word: "final", emoji: "🏁", sentence: "This is the final question." },
+                    { word: "further", emoji: "➡️", sentence: "Let's discuss this further." },
+                    { word: "imply", emoji: "🤔", sentence: "What are you trying to imply?" },
+                    { word: "maintain", emoji: "🔧", sentence: "Maintain your car regularly." },
+                    { word: "neither", emoji: "🚫", sentence: "Neither answer is correct." },
+                    { word: "otherwise", emoji: "🔄", sentence: "Hurry, otherwise we'll be late." },
+                    { word: "physical", emoji: "💪", sentence: "Physical exercise is important." },
+                    { word: "prove", emoji: "✅", sentence: "Can you prove your theory?" },
+                    { word: "react", emoji: "⚡", sentence: "How did she react to the news?" },
+                    { word: "ride", emoji: "🚲", sentence: "I ride my bike to school." },
+                    { word: "situated", emoji: "📍", sentence: "The hotel is situated by the lake." },
+                    { word: "society", emoji: "👥", sentence: "Society expects good behavior." },
+                    { word: "standard", emoji: "📏", sentence: "This meets the standard." },
+                    { word: "suggest", emoji: "💡", sentence: "I suggest we leave now." }
+                ]
+            },
+            // Ingot 27: Legacy
+            27: {
+                name: "Legacy",
+                words: [
+                    { word: "actually", emoji: "✅", sentence: "I actually finished the whole book." },
+                    { word: "bite", emoji: "🦷", sentence: "Don't bite your nails." },
+                    { word: "coast", emoji: "🏖️", sentence: "We drove along the coast." },
+                    { word: "deal", emoji: "🤝", sentence: "It's a deal!" },
+                    { word: "desert", emoji: "🏜️", sentence: "Camels live in the desert." },
+                    { word: "earthquake", emoji: "🌋", sentence: "The earthquake shook the city." },
+                    { word: "effective", emoji: "✅", sentence: "This medicine is effective." },
+                    { word: "examine", emoji: "🔍", sentence: "The doctor will examine you." },
+                    { word: "false", emoji: "❌", sentence: "Her statement was false." },
+                    { word: "gift", emoji: "🎁", sentence: "She received a lovely gift." },
+                    { word: "hunger", emoji: "🍽️", sentence: "Hunger made him irritable." },
+                    { word: "imagine", emoji: "💭", sentence: "Imagine a world without war." },
+                    { word: "journey", emoji: "🧳", sentence: "The journey took three days." },
+                    { word: "puzzle", emoji: "🧩", sentence: "This puzzle has 100 pieces." },
+                    { word: "quite", emoji: "✅", sentence: "It's quite cold today." },
+                    { word: "rather", emoji: "🤔", sentence: "I'd rather stay home." },
+                    { word: "specific", emoji: "🎯", sentence: "Be more specific about what you want." },
+                    { word: "tour", emoji: "🚌", sentence: "We took a tour of the city." },
+                    { word: "trip", emoji: "✈️", sentence: "Have a safe trip." },
+                    { word: "value", emoji: "💰", sentence: "This ring has great value." }
+                ]
+            },
+            // Ingot 28: Masterpiece
+            28: {
+                name: "Masterpiece",
+                words: [
+                    { word: "band", emoji: "🎸", sentence: "The band played our favorite song." },
+                    { word: "barely", emoji: "📏", sentence: "I barely passed the test." },
+                    { word: "boring", emoji: "😴", sentence: "The movie was so boring." },
+                    { word: "cancel", emoji: "❌", sentence: "They had to cancel the game." },
+                    { word: "driveway", emoji: "🚗", sentence: "The car is in the driveway." },
+                    { word: "garbage", emoji: "🗑️", sentence: "Take out the garbage." },
+                    { word: "instrument", emoji: "🎻", sentence: "The violin is a beautiful instrument." },
+                    { word: "list", emoji: "📝", sentence: "Make a list of things to do." },
+                    { word: "magic", emoji: "✨", sentence: "The magic trick amazed everyone." },
+                    { word: "message", emoji: "💬", sentence: "I got your message." },
+                    { word: "notice", emoji: "👀", sentence: "Did you notice the sign?" },
+                    { word: "own", emoji: "🏠", sentence: "I own my own house." },
+                    { word: "predict", emoji: "🔮", sentence: "Can you predict the future?" },
+                    { word: "professor", emoji: "👨‍🏫", sentence: "The professor gave a lecture." },
+                    { word: "rush", emoji: "⏰", sentence: "Don't rush; take your time." },
+                    { word: "schedule", emoji: "📅", sentence: "Check the schedule for train times." },
+                    { word: "share", emoji: "🤝", sentence: "Let's share our snacks." },
+                    { word: "stage", emoji: "🎭", sentence: "She danced on the stage." },
+                    { word: "storm", emoji: "⛈️", sentence: "The storm knocked down trees." },
+                    { word: "within", emoji: "🔲", sentence: "Stay within the lines." }
+                ]
+            },
+            // Ingot 29: Legendary
+            29: {
+                name: "Legendary",
+                words: [
+                    { word: "advertise", emoji: "📢", sentence: "Companies advertise on TV." },
+                    { word: "assign", emoji: "📝", sentence: "The teacher will assign homework." },
+                    { word: "audience", emoji: "👥", sentence: "The audience clapped loudly." },
+                    { word: "breakfast", emoji: "🍳", sentence: "Breakfast is the most important meal." },
+                    { word: "competition", emoji: "🏆", sentence: "She won the singing competition." },
+                    { word: "cool", emoji: "😎", sentence: "That's a cool hat." },
+                    { word: "gain", emoji: "📈", sentence: "You'll gain experience." },
+                    { word: "importance", emoji: "⭐", sentence: "Health is of great importance." },
+                    { word: "knowledge", emoji: "📚", sentence: "Knowledge is power." },
+                    { word: "major", emoji: "📚", sentence: "What's your major in college?" },
+                    { word: "mean", emoji: "😠", sentence: "Don't be so mean." },
+                    { word: "prefer", emoji: "👍", sentence: "I prefer tea over coffee." },
+                    { word: "president", emoji: "👔", sentence: "The president gave a speech." },
+                    { word: "progress", emoji: "📈", sentence: "You're making good progress." },
+                    { word: "respect", emoji: "🙏", sentence: "Respect your elders." },
+                    { word: "rich", emoji: "💰", sentence: "He became rich from his business." },
+                    { word: "skill", emoji: "🎯", sentence: "Cooking is a useful skill." },
+                    { word: "somehow", emoji: "🤷", sentence: "We'll finish somehow." },
+                    { word: "strength", emoji: "💪", sentence: "Exercise builds strength." },
+                    { word: "vote", emoji: "🗳️", sentence: "Don't forget to vote." }
+                ]
+            },
+            // Ingot 30: Soulforge
+            30: {
+                name: "Soulforge",
+                words: [
+                    { word: "above", emoji: "⬆️", sentence: "The stars are above us." },
+                    { word: "ahead", emoji: "⬆️", sentence: "There's a storm ahead." },
+                    { word: "amount", emoji: "📏", sentence: "A small amount of sugar." },
+                    { word: "belief", emoji: "🙏", sentence: "She has strong beliefs." },
+                    { word: "center", emoji: "🎯", sentence: "Meet me at the town center." },
+                    { word: "common", emoji: "👥", sentence: "It's common to feel nervous." },
+                    { word: "cost", emoji: "💰", sentence: "The cost is too high." },
+                    { word: "demonstrate", emoji: "📢", sentence: "Let me demonstrate how it works." },
+                    { word: "different", emoji: "🔄", sentence: "We have different opinions." },
+                    { word: "evidence", emoji: "🔍", sentence: "The police found evidence." },
+                    { word: "honesty", emoji: "⚖️", sentence: "Honesty is the best policy." },
+                    { word: "idiom", emoji: "📚", sentence: "'Break a leg' is an idiom." },
+                    { word: "independent", emoji: "🦸", sentence: "She's very independent." },
+                    { word: "inside", emoji: "🏠", sentence: "Come inside; it's cold out." },
+                    { word: "master", emoji: "👑", sentence: "He's a master of chess." },
+                    { word: "memory", emoji: "🧠", sentence: "I have fond memories of childhood." },
+                    { word: "proper", emoji: "✅", sentence: "Use the proper tools." },
+                    { word: "scan", emoji: "📱", sentence: "Scan the QR code." },
+                    { word: "section", emoji: "📚", sentence: "This section is for fiction." },
+                    { word: "surface", emoji: "📏", sentence: "The surface is smooth." }
+                ]
             }
         }
+    },
+    // WORLD 2: ENCHANTED FOREST (600 words) - Placeholder structure
+    world2: {
+        name: "Enchanted Forest",
+        icon: "🌳",
+        unitType: "Seed",
+        units: {}
+    },
+    // WORLD 3: CRYSTAL CAVERNS (600 words) - Placeholder structure
+    world3: {
+        name: "Crystal Caverns",
+        icon: "💎",
+        unitType: "Geode",
+        units: {}
+    },
+    // WORLD 4: SKY CITADEL (600 words) - Placeholder structure
+    world4: {
+        name: "Sky Citadel",
+        icon: "☁️",
+        unitType: "Cloud",
+        units: {}
+    },
+    // WORLD 5: DRAGON'S PEAK (600 words) - Placeholder structure
+    world5: {
+        name: "Dragon's Peak",
+        icon: "🐉",
+        unitType: "Scale",
+        units: {}
+    },
+    // WORLD 6: STAR FORGE (600 words) - Placeholder structure
+    world6: {
+        name: "Star Forge",
+        icon: "⭐",
+        unitType: "Star",
+        units: {}
     }
-};
-
-// Continue with Ingots 12-30... (I'll provide the rest in Part 2)
-// ---------- MASTER WORD BANK CONTINUED ----------
-// Ingot 12: Steel Blend
-MASTER_WORDS.world1.units[12] = {
-    name: "Steel Blend",
-    words: [
-        { word: "alone", emoji: "🧍", sentence: "He likes to walk alone in the park." },
-        { word: "apartment", emoji: "🏢", sentence: "They live in a small apartment." },
-        { word: "article", emoji: "📰", sentence: "She wrote an article for the school paper." },
-        { word: "artist", emoji: "🎨", sentence: "The artist painted a beautiful landscape." },
-        { word: "attitude", emoji: "😎", sentence: "A positive attitude makes a difference." },
-        { word: "compare", emoji: "🔍", sentence: "Compare these two pictures carefully." },
-        { word: "judge", emoji: "⚖️", sentence: "The judge listened to both sides." },
-        { word: "magazine", emoji: "📚", sentence: "The magazine has interesting articles." },
-        { word: "material", emoji: "🧵", sentence: "What material is this dress made of?" },
-        { word: "meal", emoji: "🍽️", sentence: "We shared a delicious meal together." },
-        { word: "method", emoji: "🔬", sentence: "This method works better than the old one." },
-        { word: "neighbor", emoji: "🏘️", sentence: "Our neighbor helped us carry groceries." },
-        { word: "professional", emoji: "👔", sentence: "She is a professional photographer." },
-        { word: "profit", emoji: "📈", sentence: "The company made a large profit this year." },
-        { word: "quality", emoji: "⭐", sentence: "This product is known for its quality." },
-        { word: "shape", emoji: "🔵", sentence: "The cloud had a strange shape." },
-        { word: "space", emoji: "🚀", sentence: "Astronauts travel through space." },
-        { word: "stair", emoji: "🪜", sentence: "Be careful on the steep stair." },
-        { word: "symbol", emoji: "🔣", sentence: "The heart is a symbol of love." },
-        { word: "thin", emoji: "📏", sentence: "The ice was too thin to walk on." }
-    ]
-};
-
-// Ingot 13: Fold
-MASTER_WORDS.world1.units[13] = {
-    name: "Fold",
-    words: [
-        { word: "blood", emoji: "🩸", sentence: "The doctor tested his blood." },
-        { word: "burn", emoji: "🔥", sentence: "Be careful not to burn the toast." },
-        { word: "cell", emoji: "🔬", sentence: "Every living thing is made of cells." },
-        { word: "contain", emoji: "📦", sentence: "This box contains old photographs." },
-        { word: "correct", emoji: "✅", sentence: "Your answer is correct." },
-        { word: "crop", emoji: "🌾", sentence: "Farmers harvest their crops in autumn." },
-        { word: "demand", emoji: "📊", sentence: "There is high demand for fresh fruit." },
-        { word: "equal", emoji: "⚖️", sentence: "All people deserve equal rights." },
-        { word: "feed", emoji: "🍲", sentence: "We need to feed the hungry cat." },
-        { word: "hole", emoji: "🕳️", sentence: "There's a hole in my sock." },
-        { word: "increase", emoji: "📈", sentence: "The price of gas continues to increase." },
-        { word: "lord", emoji: "👑", sentence: "The lord lived in a large castle." },
-        { word: "owe", emoji: "💰", sentence: "I owe you ten dollars." },
-        { word: "position", emoji: "📍", sentence: "Apply for the position if you're qualified." },
-        { word: "raise", emoji: "📈", sentence: "They plan to raise the flag at dawn." },
-        { word: "responsible", emoji: "✅", sentence: "Parents are responsible for their children." },
-        { word: "sight", emoji: "👁️", sentence: "The sunset was a beautiful sight." },
-        { word: "spot", emoji: "🔴", sentence: "I spotted a deer in the woods." },
-        { word: "structure", emoji: "🏛️", sentence: "The building has a steel structure." },
-        { word: "whole", emoji: "🟤", sentence: "She ate the whole pizza by herself." }
-    ]
-};
-
-// Ingot 14: Shape
-MASTER_WORDS.world1.units[14] = {
-    name: "Shape",
-    words: [
-        { word: "coach", emoji: "🏋️", sentence: "The coach taught us how to play better." },
-        { word: "control", emoji: "🎮", sentence: "Learn to control your emotions." },
-        { word: "description", emoji: "📝", sentence: "Give a detailed description of the thief." },
-        { word: "direct", emoji: "⬆️", sentence: "Can you direct me to the station?" },
-        { word: "exam", emoji: "📋", sentence: "She studied hard for the final exam." },
-        { word: "example", emoji: "📌", sentence: "Let me give you an example." },
-        { word: "limit", emoji: "⏱️", sentence: "There's a limit to how much we can carry." },
-        { word: "local", emoji: "🏠", sentence: "We buy our food from local farmers." },
-        { word: "magical", emoji: "✨", sentence: "The fairy tale had a magical ending." },
-        { word: "mail", emoji: "📬", sentence: "I need to mail this letter today." },
-        { word: "novel", emoji: "📖", sentence: "She's reading a novel about pirates." },
-        { word: "outline", emoji: "✏️", sentence: "Draw an outline of the map first." },
-        { word: "poet", emoji: "🖋️", sentence: "The poet wrote beautiful verses." },
-        { word: "print", emoji: "🖨️", sentence: "Please print your name clearly." },
-        { word: "scene", emoji: "🎬", sentence: "The movie's opening scene was exciting." },
-        { word: "sheet", emoji: "📄", sentence: "Write your answers on this sheet." },
-        { word: "silly", emoji: "🤪", sentence: "That's a silly joke." },
-        { word: "store", emoji: "🏪", sentence: "We went to the store to buy milk." },
-        { word: "suffer", emoji: "😔", sentence: "Many people suffer from allergies." },
-        { word: "technology", emoji: "💻", sentence: "Technology changes so fast." }
-    ]
-};
-
-// Ingot 15: Edge
-MASTER_WORDS.world1.units[15] = {
-    name: "Edge",
-    words: [
-        { word: "across", emoji: "↔️", sentence: "We swam across the river." },
-        { word: "breathe", emoji: "🌬️", sentence: "Remember to breathe deeply when stressed." },
-        { word: "characteristic", emoji: "🔍", sentence: "Politeness is a characteristic of a good person." },
-        { word: "consume", emoji: "🍽️", sentence: "Americans consume a lot of coffee." },
-        { word: "excite", emoji: "🎉", sentence: "The news will excite the whole family." },
-        { word: "extreme", emoji: "⚠️", sentence: "Don't take extreme risks." },
-        { word: "fear", emoji: "😨", sentence: "She has a fear of heights." },
-        { word: "fortunate", emoji: "🍀", sentence: "We were fortunate to find a parking spot." },
-        { word: "happen", emoji: "✨", sentence: "Good things happen when you least expect them." },
-        { word: "length", emoji: "📏", sentence: "The length of the table is six feet." },
-        { word: "mistake", emoji: "❌", sentence: "Everyone makes a mistake sometimes." },
-        { word: "observe", emoji: "👀", sentence: "Scientists observe the stars through telescopes." },
-        { word: "opportunity", emoji: "🚪", sentence: "Don't miss this opportunity to learn." },
-        { word: "prize", emoji: "🏆", sentence: "She won first prize in the contest." },
-        { word: "race", emoji: "🏃", sentence: "He won the race by a second." },
-        { word: "realize", emoji: "💡", sentence: "I didn't realize how late it was." },
-        { word: "respond", emoji: "📢", sentence: "Please respond to my message." },
-        { word: "risk", emoji: "⚠️", sentence: "Don't risk your safety." },
-        { word: "wonder", emoji: "🤔", sentence: "I wonder what will happen next." },
-        { word: "yet", emoji: "⏳", sentence: "She hasn't arrived yet." }
-    ]
-};
-
-// Ingot 16: Curve
-MASTER_WORDS.world1.units[16] = {
-    name: "Curve",
-    words: [
-        { word: "academy", emoji: "🏫", sentence: "She attends the music academy." },
-        { word: "ancient", emoji: "🏛️", sentence: "We visited ancient ruins in Greece." },
-        { word: "board", emoji: "📋", sentence: "Write your ideas on the board." },
-        { word: "century", emoji: "📅", sentence: "The building is over a century old." },
-        { word: "clue", emoji: "🔍", sentence: "The detective found an important clue." },
-        { word: "concert", emoji: "🎵", sentence: "We went to a rock concert last night." },
-        { word: "county", emoji: "🗺️", sentence: "They live in a small county." },
-        { word: "dictionary", emoji: "📚", sentence: "Look up the word in the dictionary." },
-        { word: "exist", emoji: "✨", sentence: "Do ghosts really exist?" },
-        { word: "flat", emoji: "🏢", sentence: "They live in a flat in the city." },
-        { word: "gentleman", emoji: "🎩", sentence: "He's a true gentleman." },
-        { word: "hidden", emoji: "🕵️", sentence: "There's a hidden treasure on the island." },
-        { word: "maybe", emoji: "🤔", sentence: "Maybe we'll go to the beach tomorrow." },
-        { word: "officer", emoji: "👮", sentence: "The officer helped us cross the street." },
-        { word: "original", emoji: "🖼️", sentence: "This is the original painting." },
-        { word: "pound", emoji: "💷", sentence: "The cake weighs two pounds." },
-        { word: "process", emoji: "⚙️", sentence: "Learning is a slow process." },
-        { word: "publish", emoji: "📰", sentence: "They will publish the book next month." },
-        { word: "theater", emoji: "🎭", sentence: "We saw a play at the theater." },
-        { word: "wealth", emoji: "💰", sentence: "His wealth comes from hard work." }
-    ]
-};
-
-// Ingot 17: Point
-MASTER_WORDS.world1.units[17] = {
-    name: "Point",
-    words: [
-        { word: "appreciate", emoji: "🙏", sentence: "I appreciate all your help." },
-        { word: "available", emoji: "✅", sentence: "Is this seat available?" },
-        { word: "beat", emoji: "🥁", sentence: "The drummer beat the drum loudly." },
-        { word: "bright", emoji: "💡", sentence: "The sun is very bright today." },
-        { word: "celebrate", emoji: "🎉", sentence: "Let's celebrate your birthday!" },
-        { word: "determine", emoji: "🔍", sentence: "We need to determine the cause." },
-        { word: "disappear", emoji: "👻", sentence: "The magician made the coin disappear." },
-        { word: "else", emoji: "🤷", sentence: "What else do you need?" },
-        { word: "fair", emoji: "⚖️", sentence: "That's not fair!" },
-        { word: "flow", emoji: "🌊", sentence: "The river flows to the sea." },
-        { word: "forward", emoji: "⬆️", sentence: "Please step forward." },
-        { word: "hill", emoji: "⛰️", sentence: "They rolled down the hill." },
-        { word: "level", emoji: "📊", sentence: "What level are you in the game?" },
-        { word: "lone", emoji: "🧍", sentence: "A lone tree stood in the field." },
-        { word: "puddle", emoji: "💧", sentence: "The child jumped in the puddle." },
-        { word: "response", emoji: "💬", sentence: "I'm waiting for a response." },
-        { word: "season", emoji: "🍂", sentence: "Autumn is my favorite season." },
-        { word: "solution", emoji: "🧪", sentence: "We found a solution to the problem." },
-        { word: "waste", emoji: "🗑️", sentence: "Don't waste food." },
-        { word: "whether", emoji: "🤔", sentence: "I don't know whether to go or stay." }
-    ]
-};
-
-// Ingot 18: Balance
-MASTER_WORDS.world1.units[18] = {
-    name: "Balance",
-    words: [
-        { word: "argue", emoji: "🗣️", sentence: "Don't argue with your sister." },
-        { word: "communicate", emoji: "📞", sentence: "We communicate by email." },
-        { word: "crowd", emoji: "👥", sentence: "There was a large crowd at the concert." },
-        { word: "depend", emoji: "🤝", sentence: "You can depend on me." },
-        { word: "dish", emoji: "🍽️", sentence: "Please wash the dishes." },
-        { word: "empty", emoji: "📦", sentence: "The box is empty." },
-        { word: "exact", emoji: "🎯", sentence: "Tell me the exact time." },
-        { word: "fresh", emoji: "🥗", sentence: "We bought fresh vegetables." },
-        { word: "gather", emoji: "👥", sentence: "Let's gather around the fire." },
-        { word: "indicate", emoji: "👉", sentence: "The sign indicates the way out." },
-        { word: "item", emoji: "📦", sentence: "Each item has a price tag." },
-        { word: "offer", emoji: "🎁", sentence: "They made me a job offer." },
-        { word: "price", emoji: "💰", sentence: "The price of gas is rising." },
-        { word: "product", emoji: "📦", sentence: "This product is made in China." },
-        { word: "property", emoji: "🏠", sentence: "That house is my property." },
-        { word: "purchase", emoji: "💳", sentence: "I need to purchase a new phone." },
-        { word: "recommend", emoji: "👍", sentence: "I recommend this restaurant." },
-        { word: "select", emoji: "✅", sentence: "Select your favorite color." },
-        { word: "tool", emoji: "🔧", sentence: "A hammer is a useful tool." },
-        { word: "treat", emoji: "🍬", sentence: "Grandma gave us a treat." }
-    ]
-};
-
-// Ingot 19: Polish
-MASTER_WORDS.world1.units[19] = {
-    name: "Polish",
-    words: [
-        { word: "alive", emoji: "💚", sentence: "The plant is still alive." },
-        { word: "bone", emoji: "🦴", sentence: "The dog buried a bone." },
-        { word: "bother", emoji: "😤", sentence: "Don't bother me while I'm working." },
-        { word: "captain", emoji: "👨‍✈️", sentence: "The captain welcomed us aboard." },
-        { word: "conclusion", emoji: "🔚", sentence: "What conclusion did you reach?" },
-        { word: "doubt", emoji: "🤨", sentence: "I doubt he'll arrive on time." },
-        { word: "explore", emoji: "🧭", sentence: "Let's explore the forest." },
-        { word: "foreign", emoji: "🌍", sentence: "She speaks two foreign languages." },
-        { word: "glad", emoji: "😊", sentence: "I'm glad you came." },
-        { word: "however", emoji: "🔄", sentence: "It's raining; however, we'll still go." },
-        { word: "injustice", emoji: "⚖️", sentence: "They fought against injustice." },
-        { word: "international", emoji: "🌐", sentence: "She works for an international company." },
-        { word: "lawyer", emoji: "⚖️", sentence: "The lawyer defended her client." },
-        { word: "mention", emoji: "🗣️", sentence: "Did she mention the party?" },
-        { word: "policy", emoji: "📋", sentence: "The school has a strict policy." },
-        { word: "social", emoji: "👥", sentence: "Humans are social creatures." },
-        { word: "speech", emoji: "🎤", sentence: "He gave an inspiring speech." },
-        { word: "staff", emoji: "👔", sentence: "The hotel staff are friendly." },
-        { word: "toward", emoji: "➡️", sentence: "She walked toward the door." },
-        { word: "wood", emoji: "🪵", sentence: "The table is made of wood." }
-    ]
-};
-
-// Ingot 20: Gleam
-MASTER_WORDS.world1.units[20] = {
-    name: "Gleam",
-    words: [
-        { word: "achieve", emoji: "🏆", sentence: "You can achieve anything with hard work." },
-        { word: "advise", emoji: "💬", sentence: "I advise you to study harder." },
-        { word: "already", emoji: "✅", sentence: "I've already eaten lunch." },
-        { word: "basic", emoji: "📚", sentence: "These are the basic rules." },
-        { word: "bit", emoji: "🔹", sentence: "Just a bit of sugar, please." },
-        { word: "consider", emoji: "🤔", sentence: "Consider all your options." },
-        { word: "destroy", emoji: "💥", sentence: "The fire destroyed the building." },
-        { word: "entertain", emoji: "🎪", sentence: "The clown entertained the children." },
-        { word: "extra", emoji: "➕", sentence: "Do you have an extra pencil?" },
-        { word: "goal", emoji: "🥅", sentence: "Her goal is to become a doctor." },
-        { word: "lie", emoji: "🤥", sentence: "Never tell a lie." },
-        { word: "meat", emoji: "🥩", sentence: "They don't eat meat." },
-        { word: "opinion", emoji: "💭", sentence: "In my opinion, it's a bad idea." },
-        { word: "real", emoji: "✅", sentence: "Is that a real diamond?" },
-        { word: "reflect", emoji: "🪞", sentence: "The water reflected the trees." },
-        { word: "regard", emoji: "👀", sentence: "Please regard the rules carefully." },
-        { word: "serve", emoji: "🍽️", sentence: "They serve breakfast until 11." },
-        { word: "vegetable", emoji: "🥕", sentence: "Eat your vegetables." },
-        { word: "war", emoji: "⚔️", sentence: "The war lasted five years." },
-        { word: "worth", emoji: "💰", sentence: "How much is it worth?" }
-    ]
-};
-
-// Ingot 21: Pattern
-MASTER_WORDS.world1.units[21] = {
-    name: "Pattern",
-    words: [
-        { word: "appear", emoji: "👻", sentence: "A figure appeared in the fog." },
-        { word: "base", emoji: "🏛️", sentence: "The base of the mountain is rocky." },
-        { word: "brain", emoji: "🧠", sentence: "The brain controls the body." },
-        { word: "career", emoji: "💼", sentence: "She has a successful career in law." },
-        { word: "clerk", emoji: "🧑‍💼", sentence: "The clerk helped me find the book." },
-        { word: "effort", emoji: "💪", sentence: "Put some effort into your work." },
-        { word: "enter", emoji: "🚪", sentence: "Please enter through the front door." },
-        { word: "excellent", emoji: "🌟", sentence: "You did an excellent job." },
-        { word: "hero", emoji: "🦸", sentence: "The firefighter is a hero." },
-        { word: "hurry", emoji: "⏰", sentence: "We need to hurry or we'll be late." },
-        { word: "inform", emoji: "📢", sentence: "I must inform you of the news." },
-        { word: "later", emoji: "⏱️", sentence: "I'll call you later." },
-        { word: "leave", emoji: "👋", sentence: "Don't leave your bags unattended." },
-        { word: "locate", emoji: "📍", sentence: "I can't locate my keys." },
-        { word: "nurse", emoji: "👩‍⚕️", sentence: "The nurse took my temperature." },
-        { word: "operation", emoji: "🏥", sentence: "He needs an operation on his knee." },
-        { word: "pain", emoji: "🤕", sentence: "I have a pain in my back." },
-        { word: "refuse", emoji: "🚫", sentence: "I refuse to answer that question." },
-        { word: "though", emoji: "🤔", sentence: "Though it's late, I'm not tired." },
-        { word: "various", emoji: "🌈", sentence: "We saw various birds at the park." }
-    ]
-};
-
-// Ingot 22: Inlay
-MASTER_WORDS.world1.units[22] = {
-    name: "Inlay",
-    words: [
-        { word: "actual", emoji: "✅", sentence: "The actual cost was higher than expected." },
-        { word: "amaze", emoji: "😲", sentence: "Magicians amaze their audiences." },
-        { word: "charge", emoji: "🔋", sentence: "Don't forget to charge your phone." },
-        { word: "comfort", emoji: "😌", sentence: "A soft pillow provides comfort." },
-        { word: "contact", emoji: "📞", sentence: "I'll contact you tomorrow." },
-        { word: "customer", emoji: "🛒", sentence: "The customer is always right." },
-        { word: "deliver", emoji: "📦", sentence: "They deliver pizza in 30 minutes." },
-        { word: "earn", emoji: "💰", sentence: "You need to earn your allowance." },
-        { word: "gate", emoji: "🚪", sentence: "Meet me at the airport gate." },
-        { word: "include", emoji: "📋", sentence: "Does the price include tax?" },
-        { word: "manage", emoji: "📊", sentence: "Can you manage the project?" },
-        { word: "mystery", emoji: "🕵️", sentence: "The mystery was finally solved." },
-        { word: "occur", emoji: "✨", sentence: "When did the accident occur?" },
-        { word: "opposite", emoji: "🔄", sentence: "Hot is the opposite of cold." },
-        { word: "plate", emoji: "🍽️", sentence: "He cleaned his plate." },
-        { word: "receive", emoji: "📨", sentence: "Did you receive my letter?" },
-        { word: "reward", emoji: "🎁", sentence: "There's a reward for finding the dog." },
-        { word: "set", emoji: "🎬", sentence: "The movie set was enormous." },
-        { word: "steal", emoji: "🚫", sentence: "It's wrong to steal." },
-        { word: "thief", emoji: "🦹", sentence: "The thief was caught on camera." }
-    ]
-};
-
-// Ingot 23: Filigree
-MASTER_WORDS.world1.units[23] = {
-    name: "Filigree",
-    words: [
-        { word: "advance", emoji: "⬆️", sentence: "Technology continues to advance." },
-        { word: "athlete", emoji: "🏃", sentence: "The athlete trained for months." },
-        { word: "average", emoji: "📊", sentence: "His grades are above average." },
-        { word: "behavior", emoji: "😊", sentence: "Good behavior is rewarded." },
-        { word: "behind", emoji: "⬅️", sentence: "The sun is behind the clouds." },
-        { word: "course", emoji: "⛳", sentence: "Of course you can come!" },
-        { word: "lower", emoji: "⬇️", sentence: "Please lower your voice." },
-        { word: "match", emoji: "🏆", sentence: "The colors match perfectly." },
-        { word: "member", emoji: "👥", sentence: "She's a member of the club." },
-        { word: "mental", emoji: "🧠", sentence: "Mental health is important." },
-        { word: "passenger", emoji: "🚗", sentence: "The passenger fell asleep." },
-        { word: "personality", emoji: "🌟", sentence: "She has a bright personality." },
-        { word: "poem", emoji: "📝", sentence: "He wrote a poem for her." },
-        { word: "pole", emoji: "🎣", sentence: "The flag flew on the pole." },
-        { word: "remove", emoji: "❌", sentence: "Please remove your shoes." },
-        { word: "safety", emoji: "🛡️", sentence: "Safety comes first." },
-        { word: "shoot", emoji: "📸", sentence: "I'll shoot some photos." },
-        { word: "sound", emoji: "🔊", sentence: "I heard a strange sound." },
-        { word: "swim", emoji: "🏊", sentence: "Let's swim in the lake." },
-        { word: "web", emoji: "🕸️", sentence: "The spider spun a web." }
-    ]
-};
-
-// Ingot 24: Engrave
-MASTER_WORDS.world1.units[24] = {
-    name: "Engrave",
-    words: [
-        { word: "block", emoji: "🧱", sentence: "There's a block in the road." },
-        { word: "cheer", emoji: "🎉", sentence: "The crowd began to cheer." },
-        { word: "complex", emoji: "🔷", sentence: "This puzzle is too complex." },
-        { word: "critic", emoji: "🎬", sentence: "The critic loved the movie." },
-        { word: "event", emoji: "📅", sentence: "The event starts at 8." },
-        { word: "exercise", emoji: "🏋️", sentence: "Daily exercise is healthy." },
-        { word: "fit", emoji: "💪", sentence: "These shoes don't fit me." },
-        { word: "friendship", emoji: "🤝", sentence: "True friendship lasts forever." },
-        { word: "guide", emoji: "🧭", sentence: "The guide showed us around." },
-        { word: "lack", emoji: "❌", sentence: "A lack of sleep makes you tired." },
-        { word: "passage", emoji: "📖", sentence: "Read the passage aloud." },
-        { word: "perform", emoji: "🎭", sentence: "The band will perform tonight." },
-        { word: "pressure", emoji: "⚙️", sentence: "Don't put pressure on yourself." },
-        { word: "probable", emoji: "📊", sentence: "It's probable that it will rain." },
-        { word: "public", emoji: "👥", sentence: "The library is a public place." },
-        { word: "strike", emoji: "⚡", sentence: "Lightning might strike." },
-        { word: "support", emoji: "🤝", sentence: "Friends support each other." },
-        { word: "task", emoji: "📋", sentence: "Finish your task first." },
-        { word: "term", emoji: "📚", sentence: "This term ends in June." },
-        { word: "unite", emoji: "🤝", sentence: "Let's unite for a common cause." }
-    ]
-};
-
-// Ingot 25: Harden
-MASTER_WORDS.world1.units[25] = {
-    name: "Harden",
-    words: [
-        { word: "associate", emoji: "👥", sentence: "I associate summer with beach trips." },
-        { word: "environment", emoji: "🌍", sentence: "Protect the environment." },
-        { word: "factory", emoji: "🏭", sentence: "He works in a shoe factory." },
-        { word: "feature", emoji: "📱", sentence: "The new phone has many features." },
-        { word: "instance", emoji: "📌", sentence: "For instance, take this example." },
-        { word: "involve", emoji: "🔄", sentence: "Don't involve me in your argument." },
-        { word: "medicine", emoji: "💊", sentence: "Take this medicine twice a day." },
-        { word: "mix", emoji: "🔄", sentence: "Mix the ingredients together." },
-        { word: "organize", emoji: "📋", sentence: "Help me organize the closet." },
-        { word: "period", emoji: "⏰", sentence: "The class lasts for a period." },
-        { word: "populate", emoji: "👥", sentence: "Birds populate the island." },
-        { word: "produce", emoji: "🍎", sentence: "The farm produces fresh vegetables." },
-        { word: "range", emoji: "📏", sentence: "The price range is wide." },
-        { word: "recognize", emoji: "👤", sentence: "I didn't recognize you with glasses." },
-        { word: "regular", emoji: "🔄", sentence: "He's a regular customer." },
-        { word: "sign", emoji: "🪧", sentence: "The sign said 'No Parking'." },
-        { word: "tip", emoji: "💡", sentence: "Here's a helpful tip." },
-        { word: "tradition", emoji: "🎭", sentence: "It's a family tradition." },
-        { word: "trash", emoji: "🗑️", sentence: "Take out the trash." },
-        { word: "wide", emoji: "📏", sentence: "The river is very wide." }
-    ]
-};
-
-// Ingot 26: Resilience
-MASTER_WORDS.world1.units[26] = {
-    name: "Resilience",
-    words: [
-        { word: "advice", emoji: "💬", sentence: "Take my advice and study." },
-        { word: "along", emoji: "➡️", sentence: "Walk along the path." },
-        { word: "attention", emoji: "👀", sentence: "Pay attention in class." },
-        { word: "attract", emoji: "🧲", sentence: "Flowers attract bees." },
-        { word: "climb", emoji: "🧗", sentence: "Let's climb that mountain." },
-        { word: "drop", emoji: "💧", sentence: "Don't drop the glass." },
-        { word: "final", emoji: "🏁", sentence: "This is the final question." },
-        { word: "further", emoji: "➡️", sentence: "Let's discuss this further." },
-        { word: "imply", emoji: "🤔", sentence: "What are you trying to imply?" },
-        { word: "maintain", emoji: "🔧", sentence: "Maintain your car regularly." },
-        { word: "neither", emoji: "🚫", sentence: "Neither answer is correct." },
-        { word: "otherwise", emoji: "🔄", sentence: "Hurry, otherwise we'll be late." },
-        { word: "physical", emoji: "💪", sentence: "Physical exercise is important." },
-        { word: "prove", emoji: "✅", sentence: "Can you prove your theory?" },
-        { word: "react", emoji: "⚡", sentence: "How did she react to the news?" },
-        { word: "ride", emoji: "🚲", sentence: "I ride my bike to school." },
-        { word: "situated", emoji: "📍", sentence: "The hotel is situated by the lake." },
-        { word: "society", emoji: "👥", sentence: "Society expects good behavior." },
-        { word: "standard", emoji: "📏", sentence: "This meets the standard." },
-        { word: "suggest", emoji: "💡", sentence: "I suggest we leave now." }
-    ]
-};
-
-// Ingot 27: Legacy
-MASTER_WORDS.world1.units[27] = {
-    name: "Legacy",
-    words: [
-        { word: "actually", emoji: "✅", sentence: "I actually finished the whole book." },
-        { word: "bite", emoji: "🦷", sentence: "Don't bite your nails." },
-        { word: "coast", emoji: "🏖️", sentence: "We drove along the coast." },
-        { word: "deal", emoji: "🤝", sentence: "It's a deal!" },
-        { word: "desert", emoji: "🏜️", sentence: "Camels live in the desert." },
-        { word: "earthquake", emoji: "🌋", sentence: "The earthquake shook the city." },
-        { word: "effective", emoji: "✅", sentence: "This medicine is effective." },
-        { word: "examine", emoji: "🔍", sentence: "The doctor will examine you." },
-        { word: "false", emoji: "❌", sentence: "Her statement was false." },
-        { word: "gift", emoji: "🎁", sentence: "She received a lovely gift." },
-        { word: "hunger", emoji: "🍽️", sentence: "Hunger made him irritable." },
-        { word: "imagine", emoji: "💭", sentence: "Imagine a world without war." },
-        { word: "journey", emoji: "🧳", sentence: "The journey took three days." },
-        { word: "puzzle", emoji: "🧩", sentence: "This puzzle has 100 pieces." },
-        { word: "quite", emoji: "✅", sentence: "It's quite cold today." },
-        { word: "rather", emoji: "🤔", sentence: "I'd rather stay home." },
-        { word: "specific", emoji: "🎯", sentence: "Be more specific about what you want." },
-        { word: "tour", emoji: "🚌", sentence: "We took a tour of the city." },
-        { word: "trip", emoji: "✈️", sentence: "Have a safe trip." },
-        { word: "value", emoji: "💰", sentence: "This ring has great value." }
-    ]
-};
-
-// Ingot 28: Masterpiece
-MASTER_WORDS.world1.units[28] = {
-    name: "Masterpiece",
-    words: [
-        { word: "band", emoji: "🎸", sentence: "The band played our favorite song." },
-        { word: "barely", emoji: "📏", sentence: "I barely passed the test." },
-        { word: "boring", emoji: "😴", sentence: "The movie was so boring." },
-        { word: "cancel", emoji: "❌", sentence: "They had to cancel the game." },
-        { word: "driveway", emoji: "🚗", sentence: "The car is in the driveway." },
-        { word: "garbage", emoji: "🗑️", sentence: "Take out the garbage." },
-        { word: "instrument", emoji: "🎻", sentence: "The violin is a beautiful instrument." },
-        { word: "list", emoji: "📝", sentence: "Make a list of things to do." },
-        { word: "magic", emoji: "✨", sentence: "The magic trick amazed everyone." },
-        { word: "message", emoji: "💬", sentence: "I got your message." },
-        { word: "notice", emoji: "👀", sentence: "Did you notice the sign?" },
-        { word: "own", emoji: "🏠", sentence: "I own my own house." },
-        { word: "predict", emoji: "🔮", sentence: "Can you predict the future?" },
-        { word: "professor", emoji: "👨‍🏫", sentence: "The professor gave a lecture." },
-        { word: "rush", emoji: "⏰", sentence: "Don't rush; take your time." },
-        { word: "schedule", emoji: "📅", sentence: "Check the schedule for train times." },
-        { word: "share", emoji: "🤝", sentence: "Let's share our snacks." },
-        { word: "stage", emoji: "🎭", sentence: "She danced on the stage." },
-        { word: "storm", emoji: "⛈️", sentence: "The storm knocked down trees." },
-        { word: "within", emoji: "🔲", sentence: "Stay within the lines." }
-    ]
-};
-
-// Ingot 29: Legendary
-MASTER_WORDS.world1.units[29] = {
-    name: "Legendary",
-    words: [
-        { word: "advertise", emoji: "📢", sentence: "Companies advertise on TV." },
-        { word: "assign", emoji: "📝", sentence: "The teacher will assign homework." },
-        { word: "audience", emoji: "👥", sentence: "The audience clapped loudly." },
-        { word: "breakfast", emoji: "🍳", sentence: "Breakfast is the most important meal." },
-        { word: "competition", emoji: "🏆", sentence: "She won the singing competition." },
-        { word: "cool", emoji: "😎", sentence: "That's a cool hat." },
-        { word: "gain", emoji: "📈", sentence: "You'll gain experience." },
-        { word: "importance", emoji: "⭐", sentence: "Health is of great importance." },
-        { word: "knowledge", emoji: "📚", sentence: "Knowledge is power." },
-        { word: "major", emoji: "📚", sentence: "What's your major in college?" },
-        { word: "mean", emoji: "😠", sentence: "Don't be so mean." },
-        { word: "prefer", emoji: "👍", sentence: "I prefer tea over coffee." },
-        { word: "president", emoji: "👔", sentence: "The president gave a speech." },
-        { word: "progress", emoji: "📈", sentence: "You're making good progress." },
-        { word: "respect", emoji: "🙏", sentence: "Respect your elders." },
-        { word: "rich", emoji: "💰", sentence: "He became rich from his business." },
-        { word: "skill", emoji: "🎯", sentence: "Cooking is a useful skill." },
-        { word: "somehow", emoji: "🤷", sentence: "We'll finish somehow." },
-        { word: "strength", emoji: "💪", sentence: "Exercise builds strength." },
-        { word: "vote", emoji: "🗳️", sentence: "Don't forget to vote." }
-    ]
-};
-
-// Ingot 30: Soulforge
-MASTER_WORDS.world1.units[30] = {
-    name: "Soulforge",
-    words: [
-        { word: "above", emoji: "⬆️", sentence: "The stars are above us." },
-        { word: "ahead", emoji: "⬆️", sentence: "There's a storm ahead." },
-        { word: "amount", emoji: "📏", sentence: "A small amount of sugar." },
-        { word: "belief", emoji: "🙏", sentence: "She has strong beliefs." },
-        { word: "center", emoji: "🎯", sentence: "Meet me at the town center." },
-        { word: "common", emoji: "👥", sentence: "It's common to feel nervous." },
-        { word: "cost", emoji: "💰", sentence: "The cost is too high." },
-        { word: "demonstrate", emoji: "📢", sentence: "Let me demonstrate how it works." },
-        { word: "different", emoji: "🔄", sentence: "We have different opinions." },
-        { word: "evidence", emoji: "🔍", sentence: "The police found evidence." },
-        { word: "honesty", emoji: "⚖️", sentence: "Honesty is the best policy." },
-        { word: "idiom", emoji: "📚", sentence: "'Break a leg' is an idiom." },
-        { word: "independent", emoji: "🦸", sentence: "She's very independent." },
-        { word: "inside", emoji: "🏠", sentence: "Come inside; it's cold out." },
-        { word: "master", emoji: "👑", sentence: "He's a master of chess." },
-        { word: "memory", emoji: "🧠", sentence: "I have fond memories of childhood." },
-        { word: "proper", emoji: "✅", sentence: "Use the proper tools." },
-        { word: "scan", emoji: "📱", sentence: "Scan the QR code." },
-        { word: "section", emoji: "📚", sentence: "This section is for fiction." },
-        { word: "surface", emoji: "📏", sentence: "The surface is smooth." }
-    ]
-};
-
-// WORLD 2: ENCHANTED FOREST (600 words) - Placeholder structure
-MASTER_WORDS.world2 = {
-    name: "Enchanted Forest",
-    icon: "🌳",
-    unitType: "Seed",
-    units: {}
 };
 
 // Add placeholder units for world2
@@ -918,14 +924,7 @@ for (let i = 31; i <= 60; i++) {
     };
 }
 
-// WORLD 3: CRYSTAL CAVERNS (600 words) - Placeholder structure
-MASTER_WORDS.world3 = {
-    name: "Crystal Caverns",
-    icon: "💎",
-    unitType: "Geode",
-    units: {}
-};
-
+// Add placeholder units for world3
 for (let i = 61; i <= 90; i++) {
     MASTER_WORDS.world3.units[i] = {
         name: `Geode ${i-60}`,
@@ -933,14 +932,7 @@ for (let i = 61; i <= 90; i++) {
     };
 }
 
-// WORLD 4: SKY CITADEL (600 words) - Placeholder structure
-MASTER_WORDS.world4 = {
-    name: "Sky Citadel",
-    icon: "☁️",
-    unitType: "Cloud",
-    units: {}
-};
-
+// Add placeholder units for world4
 for (let i = 91; i <= 120; i++) {
     MASTER_WORDS.world4.units[i] = {
         name: `Cloud ${i-90}`,
@@ -948,14 +940,7 @@ for (let i = 91; i <= 120; i++) {
     };
 }
 
-// WORLD 5: DRAGON'S PEAK (600 words) - Placeholder structure
-MASTER_WORDS.world5 = {
-    name: "Dragon's Peak",
-    icon: "🐉",
-    unitType: "Scale",
-    units: {}
-};
-
+// Add placeholder units for world5
 for (let i = 121; i <= 150; i++) {
     MASTER_WORDS.world5.units[i] = {
         name: `Scale ${i-120}`,
@@ -963,14 +948,7 @@ for (let i = 121; i <= 150; i++) {
     };
 }
 
-// WORLD 6: STAR FORGE (600 words) - Placeholder structure
-MASTER_WORDS.world6 = {
-    name: "Star Forge",
-    icon: "⭐",
-    unitType: "Star",
-    units: {}
-};
-
+// Add placeholder units for world6
 for (let i = 151; i <= 180; i++) {
     MASTER_WORDS.world6.units[i] = {
         name: `Star ${i-150}`,
