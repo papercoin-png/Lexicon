@@ -102,10 +102,8 @@ function hideForgeMessage() {
 
 // ---------- QUICK RESUME SYSTEM ----------
 const QUICK_RESUME = {
-    // Save current game state on every meaningful action
     saveSession() {
         const sessionData = {
-            // Game progress
             currentWorld: currentWorld,
             currentUnit: currentUnit,
             completedWords: [...completedWords],
@@ -113,16 +111,10 @@ const QUICK_RESUME = {
             activeWordIndex: activeWordIndex,
             currentPosition: currentPosition,
             tempUsedLetters: [...tempUsedLetters],
-            
-            // Performance tracking
             gameStartTime: gameStartTime,
             totalTaps: totalTaps,
             correctTaps: correctTaps,
-            
-            // World progression data (includes wordsCompleted for all ingots)
-            worlds: JSON.parse(JSON.stringify(worlds)), // Deep copy of worlds data
-            
-            // Timestamp for "Last played" display
+            worlds: JSON.parse(JSON.stringify(worlds)),
             lastPlayed: new Date().toISOString(),
             version: '1.1'
         };
@@ -134,28 +126,21 @@ const QUICK_RESUME = {
         }
     },
     
-    // Load the last session
     loadSession() {
         try {
             const saved = localStorage.getItem('spellforge_quicksave');
             if (!saved) return null;
             
             const session = JSON.parse(saved);
+            if (!session.version) return null;
             
-            // Version check
-            if (!session.version) return null; // Old version, discard
-            
-            // Validate session is recent (keep last 7 days)
             const lastPlayed = new Date(session.lastPlayed);
             const daysSince = (Date.now() - lastPlayed) / (1000 * 60 * 60 * 24);
             if (daysSince > 7) {
-                console.log('Session too old, starting fresh');
                 return null;
             }
             
-            // Restore world progression if available
             if (session.worlds && session.version >= '1.1') {
-                // Merge saved world progression with current worlds
                 Object.keys(session.worlds).forEach(key => {
                     if (worlds[key]) {
                         const savedWorld = session.worlds[key];
@@ -180,11 +165,9 @@ const QUICK_RESUME = {
         }
     },
     
-    // Restore a loaded session - FIXED to mark all previous ingots as COMPLETED
     restoreSession(session) {
         if (!session) return false;
         
-        // Restore game state
         currentWorld = session.currentWorld || 1;
         currentUnit = session.currentUnit || 1;
         completedWords = session.completedWords || [];
@@ -196,43 +179,35 @@ const QUICK_RESUME = {
         totalTaps = session.totalTaps || 0;
         correctTaps = session.correctTaps || 0;
         
-        // FIX: Restore world progression including completed words
         const world = worlds[currentWorld];
         if (world) {
-            // First, restore from the saved worlds data if available
             if (session.worlds && session.worlds[currentWorld]) {
                 const savedWorld = session.worlds[currentWorld];
                 savedWorld.units.forEach(savedUnit => {
                     const unit = world.units.find(u => u.id === savedUnit.id);
                     if (unit) {
-                        // Restore the exact wordsCompleted count
                         unit.wordsCompleted = savedUnit.wordsCompleted;
                         unit.unlocked = savedUnit.unlocked;
                     }
                 });
             }
             
-            // CRITICAL FIX: Mark ALL ingots before currentUnit as COMPLETED (20/20)
             for (let i = 1; i < currentUnit; i++) {
                 const unit = world.units.find(u => u.id === i);
                 if (unit) {
-                    unit.wordsCompleted = 20; // Force complete
+                    unit.wordsCompleted = 20;
                     unit.unlocked = true;
                 }
             }
             
-            // Ensure current unit is unlocked
             const currentUnitObj = world.units.find(u => u.id === currentUnit);
             if (currentUnitObj) {
                 currentUnitObj.unlocked = true;
-                // Don't change its wordsCompleted - keep actual progress
             }
             
-            // Also unlock any ingots that have been completed
             world.units.forEach(unit => {
                 if (unit.wordsCompleted === 20) {
                     unit.unlocked = true;
-                    // Also unlock the next one if not already unlocked
                     const nextUnit = world.units.find(u => u.id === unit.id + 1);
                     if (nextUnit && !nextUnit.unlocked) {
                         nextUnit.unlocked = true;
@@ -241,17 +216,12 @@ const QUICK_RESUME = {
             });
         }
         
-        // Update UI
         updateWorldDisplay();
         renderAll();
-        
-        // Show resume notification
         this.showResumeNotification(session);
-        
         return true;
     },
     
-    // Show a subtle notification that game was resumed
     showResumeNotification(session) {
         const lastPlayed = new Date(session.lastPlayed);
         const timeDiff = Math.floor((Date.now() - lastPlayed) / 1000);
@@ -262,7 +232,6 @@ const QUICK_RESUME = {
         else if (timeDiff < 86400) timeMessage = `${Math.floor(timeDiff / 3600)} hours ago`;
         else timeMessage = `${Math.floor(timeDiff / 86400)} days ago`;
         
-        // Create temporary notification
         const notification = document.createElement('div');
         notification.className = 'resume-notification';
         notification.innerHTML = `
@@ -278,16 +247,13 @@ const QUICK_RESUME = {
         
         document.body.appendChild(notification);
         
-        // Animate in
         setTimeout(() => notification.classList.add('show'), 10);
         
-        // Auto-dismiss after 5 seconds
         const dismissTimer = setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
         }, 5000);
         
-        // Manual dismiss
         notification.querySelector('.resume-dismiss').addEventListener('click', () => {
             clearTimeout(dismissTimer);
             notification.classList.remove('show');
@@ -295,7 +261,6 @@ const QUICK_RESUME = {
         });
     },
     
-    // Clear saved session (when starting fresh)
     clearSession() {
         localStorage.removeItem('spellforge_quicksave');
     }
@@ -1639,30 +1604,41 @@ function getPlayerStats() {
     };
 }
 
+// ---------- FIXED: Always generates 35 tiles (7 rows × 5 columns) ----------
 function generateInitialLetters() {
     const words = getCurrentUnitWords();
     if (!words || words.length === 0) return [];
     
-    const letterCounts = {};
-    words.forEach(entry => {
-        entry.word.split('').forEach(letter => {
-            letterCounts[letter] = (letterCounts[letter] || 0) + 1;
-        });
-    });
-    
-    const letterBank = [];
-    Object.keys(letterCounts).forEach(letter => {
-        for (let i = 0; i < letterCounts[letter]; i++) {
-            letterBank.push(letter);
-        }
-    });
-    
-    for (let i = letterBank.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [letterBank[i], letterBank[j]] = [letterBank[j], letterBank[i]];
+    // Get the active word if one is selected, otherwise use the first word
+    let targetWord = '';
+    if (activeWordIndex !== null && words[activeWordIndex]) {
+        targetWord = words[activeWordIndex].word;
+    } else {
+        targetWord = words[0]?.word || '';
     }
     
-    return letterBank;
+    if (!targetWord) return [];
+    
+    // Total tiles needed: 35 (7 rows × 5 columns)
+    const TOTAL_TILES = 35;
+    
+    // Start with all letters from the target word
+    const letters = targetWord.split('');
+    
+    // Add random letters until we reach 35
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    while (letters.length < TOTAL_TILES) {
+        const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
+        letters.push(randomLetter);
+    }
+    
+    // Shuffle thoroughly
+    for (let i = letters.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [letters[i], letters[j]] = [letters[j], letters[i]];
+    }
+    
+    return letters;
 }
 
 function getCurrentUnitWords() {
@@ -1852,7 +1828,6 @@ function resetForNewUnit() {
     setUnitSectionVisibility(true);
     updateHeaderForSelection();
     
-    // QUICK RESUME: Save session after reset
     QUICK_RESUME.saveSession();
 }
 
@@ -2223,7 +2198,6 @@ function showFailurePopup() {
     document.getElementById('tryAgainBtn').addEventListener('click', () => {
         overlay.classList.add('hidden');
         resetForNewUnit();
-        // QUICK RESUME: Clear session on failure and restart
         QUICK_RESUME.clearSession();
     });
     
@@ -2291,7 +2265,6 @@ function showIngotCompletePopup() {
             }
         }
         saveProgress();
-        // QUICK RESUME: Save after completing ingot
         QUICK_RESUME.saveSession();
     });
     
@@ -2490,7 +2463,6 @@ function handleWordCompletion(wordIndex) {
             showWordCard(words[wordIndex]);
         }
         
-        // QUICK RESUME: Save after word completion
         QUICK_RESUME.saveSession();
     }
 
@@ -2566,7 +2538,7 @@ function handleWordCompletion(wordIndex) {
     }
 }
 
-// ---------- OPTIMIZED handleLetterTap FUNCTION with Simple Flash & Haptic ----------
+// ---------- OPTIMIZED handleLetterTap FUNCTION with Simple Flash & Reduced Renders ----------
 function handleLetterTap(letter, indexInGrid) {
     if (gameCompleted) return;
     totalTaps++;
@@ -2618,7 +2590,7 @@ function handleLetterTap(letter, indexInGrid) {
         }, 150);
     }
     
-    // Haptic feedback (works great in Telegram)
+    // Haptic feedback
     tg?.HapticFeedback?.impactOccurred?.('light');
     
     // Update game state
@@ -2627,25 +2599,60 @@ function handleLetterTap(letter, indexInGrid) {
     tempUsedLetters.push(removed);
     currentPosition++;
     
-    // Batch render updates for better performance
-    requestAnimationFrame(() => {
-        renderAll();
-        
-        // QUICK RESUME: Save after each correct letter tap (do this async)
-        setTimeout(() => {
-            QUICK_RESUME.saveSession();
-        }, 50);
-    });
+    // OPTIMIZATION: Only update the letter grid, not the whole game
+    updateLetterGridOnly();
+    
+    // Update active word display without full render
+    updateActiveWordDisplay(targetWord);
+    
+    // QUICK RESUME: Save after each correct letter tap (do this async)
+    setTimeout(() => {
+        QUICK_RESUME.saveSession();
+    }, 50);
 
     if (currentPosition === targetWord.length) {
         handleWordCompletion(activeWordIndex);
     }
 }
 
-// ---------- RENDER UI ----------
+// ---------- OPTIMIZED: Update only the letter grid ----------
+function updateLetterGridOnly() {
+    const gridContainer = document.getElementById('letterGridContainer');
+    
+    // Clear existing tiles
+    gridContainer.innerHTML = '';
+    
+    // Recreate tiles
+    if (currentLetters.length > 0) {
+        currentLetters.forEach((letter, idx) => {
+            const tile = document.createElement('div');
+            tile.className = 'letter-tile';
+            tile.innerText = letter.toUpperCase();
+            tile.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleLetterTap(letter, idx);
+            });
+            gridContainer.appendChild(tile);
+        });
+    }
+}
+
+// ---------- OPTIMIZED: Update only the active word display ----------
+function updateActiveWordDisplay(targetWord) {
+    const progressWord = targetWord.split('').map((l, i) => 
+        i < currentPosition ? l.toUpperCase() : '_'
+    ).join(' ');
+    
+    document.getElementById('activeWordDisplay').innerText = progressWord || '—';
+    document.getElementById('nextLetterDisplay').innerText = 
+        (currentPosition < targetWord.length) ? targetWord[currentPosition].toUpperCase() : '✅';
+}
+
+// ---------- OPTIMIZED RENDER UI (full render when needed) ----------
 function renderAll() {
     const words = getCurrentUnitWords();
     
+    // Update word list
     const wordContainer = document.getElementById('wordListContainer');
     if (wordContainer) {
         wordContainer.innerHTML = '';
@@ -2662,6 +2669,10 @@ function renderAll() {
                     if (activeWordIndex !== null && activeWordIndex !== idx) returnTempLetters();
                     activeWordIndex = idx;
                     currentPosition = 0;
+                    
+                    // IMPORTANT: When selecting a new word, regenerate letters
+                    currentLetters = generateInitialLetters();
+                    
                     setUnitSectionVisibility(false);
                     updateHeaderForGameplay();
                     renderAll();
@@ -2677,31 +2688,19 @@ function renderAll() {
         }
     }
 
+    // Update active word display
     if (activeWordIndex !== null && !completedWords.includes(activeWordIndex) && !gameCompleted && words && words.length > 0) {
         const w = words[activeWordIndex].word;
-        const progressWord = w.split('').map((l, i) => i < currentPosition ? l.toUpperCase() : '_').join(' ');
-        document.getElementById('activeWordDisplay').innerText = progressWord || '—';
-        document.getElementById('nextLetterDisplay').innerText = (currentPosition < w.length) ? w[currentPosition].toUpperCase() : '✅';
+        updateActiveWordDisplay(w);
     } else {
         document.getElementById('activeWordDisplay').innerText = '—';
         document.getElementById('nextLetterDisplay').innerText = '?';
     }
 
-    const gridContainer = document.getElementById('letterGridContainer');
-    gridContainer.innerHTML = '';
-    if (currentLetters.length > 0) {
-        currentLetters.forEach((letter, idx) => {
-            const tile = document.createElement('div');
-            tile.className = 'letter-tile';
-            tile.innerText = letter.toUpperCase();
-            tile.addEventListener('click', (e) => {
-                e.preventDefault();
-                handleLetterTap(letter, idx);
-            });
-            gridContainer.appendChild(tile);
-        });
-    }
+    // Update letter grid
+    updateLetterGridOnly();
 
+    // Update artifact
     const artifactEl = document.getElementById('artifactText');
     const unit = worlds[currentWorld].units.find(u => u.id === currentUnit);
     if (unit) {
@@ -2726,24 +2725,20 @@ function handleReset() {
 
 // ---------- INITIALIZATION FUNCTION ----------
 function initializeGame() {
-    // First try to load saved session
     const savedSession = QUICK_RESUME.loadSession();
     
     if (savedSession) {
-        // Ask user if they want to resume
         if (tg) {
             tg.showConfirm('Resume your last forging session?', (resume) => {
                 if (resume) {
                     QUICK_RESUME.restoreSession(savedSession);
                 } else {
-                    // Start fresh but keep progress
                     loadProgress();
                     resetForNewUnit();
                     QUICK_RESUME.clearSession();
                 }
             });
         } else {
-            // Fallback for browser testing
             if (confirm('Resume your last forging session?')) {
                 QUICK_RESUME.restoreSession(savedSession);
             } else {
@@ -2753,12 +2748,10 @@ function initializeGame() {
             }
         }
     } else {
-        // No saved session, normal start
         loadProgress();
         resetForNewUnit();
     }
     
-    // Start auto-save interval (backup every 30 seconds)
     setInterval(() => {
         if (!gameCompleted && activeWordIndex !== null) {
             QUICK_RESUME.saveSession();
@@ -2786,6 +2779,9 @@ document.addEventListener('click', (e) => {
         currentPosition = 0;
         setUnitSectionVisibility(true);
         updateHeaderForSelection();
+        
+        // Regenerate letters when returning to selection mode
+        currentLetters = generateInitialLetters();
         renderAll();
     }
 });
@@ -2797,7 +2793,7 @@ initializeGame();
 if (tg) {
     tg.onEvent('backButtonClicked', () => {
         saveProgress();
-        QUICK_RESUME.saveSession(); // Save before closing
+        QUICK_RESUME.saveSession();
         setTimeout(() => tg.close(), 100);
     });
     tg.BackButton?.show();
