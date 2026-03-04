@@ -221,8 +221,8 @@ button:hover .icon {
     max-width: 500px;
     margin: 0 auto;
     padding: 20px;
-    /* Move content higher on screen */
-    transform: translateY(-8%);
+    /* Fixed: Changed from -8% to 0 to prevent top bleeding */
+    transform: translateY(0);
 }
 
 /* Make image responsive but prevent bleeding */
@@ -325,7 +325,7 @@ button:hover .icon {
 /* Responsive adjustments for very tall screens */
 @media (min-height: 800px) {
     .loading-content {
-        transform: translateY(-12%);
+        transform: translateY(0);
     }
     
     .loading-image {
@@ -337,7 +337,7 @@ button:hover .icon {
 /* Responsive adjustments for short screens */
 @media (max-height: 600px) {
     .loading-content {
-        transform: translateY(-2%);
+        transform: translateY(0);
     }
     
     .loading-image {
