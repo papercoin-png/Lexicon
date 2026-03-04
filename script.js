@@ -121,9 +121,7 @@ const QUICK_RESUME = {
         
         try {
             localStorage.setItem('spellforge_quicksave', JSON.stringify(sessionData));
-        } catch (e) {
-            console.warn('Could not save session:', e);
-        }
+        } catch (e) {}
     },
     
     loadSession() {
@@ -160,7 +158,6 @@ const QUICK_RESUME = {
             
             return session;
         } catch (e) {
-            console.warn('Could not load session:', e);
             return null;
         }
     },
@@ -1356,9 +1353,7 @@ function loadProfile() {
                 };
             }
         }
-    } catch (e) {
-        console.log('Profile load error, using defaults');
-    }
+    } catch (e) {}
 }
 
 function saveProfile() {
@@ -1530,39 +1525,8 @@ let gameCompleted = false;
 let wordCardQueue = [];
 let showingWordCard = false;
 
-// ---------- MOCK LEADERBOARD ----------
-const mockLeaderboard = [
-    { name: "LIAM", words: 580, rank: 1 },
-    { name: "ELENA", words: 580, rank: 2 },
-    { name: "SOFIA", words: 560, rank: 3 },
-    { name: "NOAH", words: 560, rank: 4 },
-    { name: "OLIVER", words: 540, rank: 5 },
-    { name: "MIA", words: 540, rank: 6 },
-    { name: "LUCAS", words: 520, rank: 7 },
-    { name: "AMELIA", words: 520, rank: 8 },
-    { name: "ELIJAH", words: 500, rank: 9 },
-    { name: "HARPER", words: 500, rank: 10 },
-    { name: "JAMES", words: 480, rank: 11 },
-    { name: "EVELYN", words: 480, rank: 12 },
-    { name: "BENJAMIN", words: 460, rank: 13 },
-    { name: "ABIGAIL", words: 460, rank: 14 },
-    { name: "ALEXANDER", words: 440, rank: 15 },
-    { name: "ELIZABETH", words: 440, rank: 16 },
-    { name: "HENRY", words: 420, rank: 17 },
-    { name: "SOPHIA", words: 420, rank: 18 },
-    { name: "DANIEL", words: 400, rank: 19 },
-    { name: "CHARLOTTE", words: 400, rank: 20 },
-    { name: "MATTHEW", words: 380, rank: 21 },
-    { name: "AVA", words: 380, rank: 22 },
-    { name: "JACKSON", words: 360, rank: 23 },
-    { name: "SCARLETT", words: 360, rank: 24 },
-    { name: "SEBASTIAN", words: 340, rank: 25 },
-    { name: "GRACE", words: 340, rank: 26 },
-    { name: "DAVID", words: 320, rank: 27 },
-    { name: "CHLOE", words: 320, rank: 28 },
-    { name: "JOSEPH", words: 300, rank: 29 },
-    { name: "VICTORIA", words: 300, rank: 30 }
-];
+// ---------- GOOGLE SHEETS LEADERBOARD ----------
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzPM894XIU0OQttwV_2iROjISCTnw0jFGdup47jCMuEWgxxfvT8UoEMJrCcjViSOe5gEQ/exec';
 
 // ---------- HELPER FUNCTIONS ----------
 function calculateTotalWords() {
@@ -1604,12 +1568,51 @@ function getPlayerStats() {
     };
 }
 
-// ---------- FIXED: Always generates 35 tiles (7 rows × 5 columns) ----------
+// ---------- GOOGLE SHEETS LEADERBOARD FUNCTIONS ----------
+function saveScoreToGoogleSheets() {
+    const totalWords = calculateTotalWords();
+    const playerName = playerProfile.displayName || "Forgemaster";
+    
+    // Don't save if score is 0 (new players)
+    if (totalWords === 0) return;
+    
+    fetch(GOOGLE_SHEETS_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'save',
+            player_name: playerName,
+            total_words: totalWords,
+            telegram_id: playerProfile.telegramId || 'local_' + Date.now(),
+            display_name: playerProfile.displayName
+        })
+    }).catch(error => {});
+}
+
+function loadLeaderboardFromSheets(callback) {
+    const timeout = setTimeout(() => {
+        callback([]);
+    }, 5000);
+    
+    fetch(`${GOOGLE_SHEETS_URL}?action=get&t=${Date.now()}`)
+        .then(response => response.json())
+        .then(data => {
+            clearTimeout(timeout);
+            callback(Array.isArray(data) ? data : []);
+        })
+        .catch(() => {
+            clearTimeout(timeout);
+            callback([]);
+        });
+}
+
+// ---------- Always generates 30 tiles (6 rows × 5 columns) ----------
 function generateInitialLetters() {
     const words = getCurrentUnitWords();
     if (!words || words.length === 0) return [];
     
-    // Get the active word if one is selected, otherwise use the first word
     let targetWord = '';
     if (activeWordIndex !== null && words[activeWordIndex]) {
         targetWord = words[activeWordIndex].word;
@@ -1619,20 +1622,15 @@ function generateInitialLetters() {
     
     if (!targetWord) return [];
     
-    // Total tiles needed: 35 (7 rows × 5 columns)
-    const TOTAL_TILES = 35;
-    
-    // Start with all letters from the target word
+    const TOTAL_TILES = 30;
     const letters = targetWord.split('');
-    
-    // Add random letters until we reach 35
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    
     while (letters.length < TOTAL_TILES) {
         const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
         letters.push(randomLetter);
     }
     
-    // Shuffle thoroughly
     for (let i = letters.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [letters[i], letters[j]] = [letters[j], letters[i]];
@@ -2016,47 +2014,97 @@ function returnToPreviousScreen(returnToLeaderboard) {
     }
 }
 
-// ---------- LEADERBOARD POPUP ----------
+// ---------- GOOGLE SHEETS LEADERBOARD POPUP ----------
 function showLeaderboardPopup(fromCompletion = false) {
+    const overlay = document.getElementById('popupOverlay');
+    
+    overlay.innerHTML = `
+        <div class="leaderboard-card">
+            <div class="leaderboard-title">🏆 FORGEMASTER RANKINGS</div>
+            <div style="text-align: center; padding: 40px; color: #FFD700;">
+                <div style="margin-bottom: 15px;">Loading leaderboard...</div>
+                <div style="font-size: 14px; color: #ACCCDD;">If this takes too long, press BACK and try again</div>
+            </div>
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="action-btn" id="loadingBackBtn">← BACK</button>
+                <button class="action-btn secondary" id="loadingRetryBtn">🔄 RETRY</button>
+            </div>
+        </div>
+    `;
+    overlay.classList.remove('hidden');
+    
+    document.getElementById('loadingBackBtn')?.addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        handleLeaderboardReturn(fromCompletion);
+    });
+    
+    document.getElementById('loadingRetryBtn')?.addEventListener('click', () => {
+        showLeaderboardPopup(fromCompletion);
+    });
+    
+    loadLeaderboardFromSheets(function(leaderboard) {
+        if (!overlay.classList.contains('hidden')) {
+            displayLeaderboard(leaderboard, fromCompletion);
+        }
+    });
+}
+
+function handleLeaderboardReturn(fromCompletion) {
+    if (fromCompletion) {
+        const world = worlds[currentWorld];
+        const allUnitsCompleted = world.units.every(u => u.wordsCompleted === 20);
+        if (allUnitsCompleted) {
+            setTimeout(() => showWorldArtifactPopup(), 100);
+        } else {
+            const nextIngotId = currentUnit + 1;
+            const nextUnit = world.units.find(u => u.id === nextIngotId);
+            if (nextUnit && nextUnit.unlocked) {
+                setTimeout(() => showNextIngotPreview(), 100);
+            } else {
+                renderAll();
+                setUnitSectionVisibility(true);
+                updateHeaderForSelection();
+            }
+        }
+    } else {
+        renderAll();
+    }
+}
+
+function displayLeaderboard(leaderboard, fromCompletion) {
     const overlay = document.getElementById('popupOverlay');
     const playerTotal = calculateTotalWords();
     const playerWordsByWorld = getWordsByWorld();
     const worldIcons = ['⚒️', '🌳', '💎', '☁️', '🐉', '⭐'];
     
-    const leaderboardWithPlayer = [...mockLeaderboard];
-    const yourEntry = {
-        name: playerProfile.displayName,
-        words: playerTotal,
-        rank: 0
-    };
+    const safeLeaderboard = Array.isArray(leaderboard) ? leaderboard : [];
     
-    leaderboardWithPlayer.push(yourEntry);
-    leaderboardWithPlayer.sort((a, b) => b.words - a.words);
-    leaderboardWithPlayer.forEach((entry, index) => {
-        entry.rank = index + 1;
-    });
-    
-    const yourRank = leaderboardWithPlayer.find(e => e.name === playerProfile.displayName).rank;
-    const playerAhead = leaderboardWithPlayer.find(e => e.rank === yourRank - 1);
-    const wordsToCatch = playerAhead ? playerAhead.words - playerTotal : 0;
+    const playerRank = safeLeaderboard.findIndex(e => e.name === playerProfile.displayName) + 1;
+    const playerAhead = playerRank > 1 ? safeLeaderboard[playerRank - 2] : null;
+    const wordsToCatch = playerAhead ? playerAhead.score - playerTotal : 0;
     
     let leaderboardHtml = '';
-    leaderboardWithPlayer.slice(0, 20).forEach(entry => {
-        const youClass = entry.name === playerProfile.displayName ? ' you' : '';
-        let crownEmoji = '';
-        if (entry.rank === 1) crownEmoji = '👑';
-        else if (entry.rank === 2) crownEmoji = '⚡';
-        else if (entry.rank === 3) crownEmoji = '🥉';
-        
-        leaderboardHtml += `
-            <div class="leaderboard-row${youClass}" data-player="${entry.name}">
-                <span class="rank">${entry.rank}.</span>
-                <span class="player-name">${entry.name}</span>
-                <span class="score">${entry.words}</span>
-                <span class="crown">${crownEmoji}</span>
-            </div>
-        `;
-    });
+    if (safeLeaderboard.length === 0) {
+        leaderboardHtml = '<div style="text-align: center; padding: 20px; color: #ACCCDD;">Be the first to forge words!</div>';
+    } else {
+        safeLeaderboard.slice(0, 20).forEach((entry, index) => {
+            const rank = index + 1;
+            const youClass = entry.name === playerProfile.displayName ? ' you' : '';
+            let crownEmoji = '';
+            if (rank === 1) crownEmoji = '👑';
+            else if (rank === 2) crownEmoji = '⚡';
+            else if (rank === 3) crownEmoji = '🥉';
+            
+            leaderboardHtml += `
+                <div class="leaderboard-row${youClass}">
+                    <span class="rank">${rank}.</span>
+                    <span class="player-name">${entry.name || 'Unknown'}</span>
+                    <span class="score">${entry.score || 0}</span>
+                    <span class="crown">${crownEmoji}</span>
+                </div>
+            `;
+        });
+    }
     
     overlay.innerHTML = `
         <div class="leaderboard-card">
@@ -2066,7 +2114,7 @@ function showLeaderboardPopup(fromCompletion = false) {
                 ${worldIcons.map((icon, i) => `
                     <div class="world-stat-item">
                         <div class="world-stat-icon">${icon}</div>
-                        <div class="world-stat-value">${playerWordsByWorld[i]}</div>
+                        <div class="world-stat-value">${playerWordsByWorld[i] || 0}</div>
                         <div class="world-stat-label">${i === 0 ? 'Grand' : ''}</div>
                     </div>
                 `).join('')}
@@ -2079,56 +2127,30 @@ function showLeaderboardPopup(fromCompletion = false) {
             </div>
             
             <div class="leaderboard-title">🏆 TOP FORGEMASTERS</div>
-            <div class="leaderboard-list" id="leaderboardList">
+            <div class="leaderboard-list">
                 ${leaderboardHtml}
             </div>
             
             <div class="leaderboard-footer">
-                You're #${yourRank} of ${leaderboardWithPlayer.length} forgemasters!
-                ${wordsToCatch > 0 ? `<br>${wordsToCatch} words to catch #${yourRank-1} ${playerAhead.name}!` : ''}
-                ${yourRank === 1 ? '<br>👑 CHAMPION! You are the greatest!' : ''}
+                ${playerRank ? `You're #${playerRank} of ${safeLeaderboard.length} forgemasters!` : 'Play to join the rankings!'}
+                ${wordsToCatch > 0 ? `<br>${wordsToCatch} words to catch #${playerRank-1} ${playerAhead?.name || 'next'}!` : ''}
+                ${playerRank === 1 ? '<br>👑 CHAMPION! You are the greatest!' : ''}
             </div>
             
             <div class="button-group">
                 <button class="action-btn" id="backBtn">← BACK</button>
+                <button class="action-btn secondary" id="refreshBtn">🔄 REFRESH</button>
             </div>
         </div>
     `;
     
-    overlay.classList.remove('hidden');
-    
-    const yourRow = overlay.querySelector('.leaderboard-row.you');
-    if (yourRow) {
-        yourRow.style.cursor = 'pointer';
-        yourRow.addEventListener('click', () => {
-            overlay.classList.add('hidden');
-            showProfilePopup(true);
-        });
-    }
-    
     document.getElementById('backBtn').addEventListener('click', () => {
         overlay.classList.add('hidden');
-        if (fromCompletion) {
-            const world = worlds[currentWorld];
-            const allUnitsCompleted = world.units.every(u => u.wordsCompleted === 20);
-            if (allUnitsCompleted) {
-                setTimeout(() => showWorldArtifactPopup(), 100);
-            } else {
-                const nextIngotId = currentUnit + 1;
-                const nextUnit = world.units.find(u => u.id === nextIngotId);
-                if (nextUnit && nextUnit.unlocked) {
-                    setTimeout(() => showNextIngotPreview(), 100);
-                } else {
-                    renderAll();
-                    setUnitSectionVisibility(true);
-                    updateHeaderForSelection();
-                }
-            }
-        } else {
-            renderAll();
-            setUnitSectionVisibility(true);
-            updateHeaderForSelection();
-        }
+        handleLeaderboardReturn(fromCompletion);
+    });
+    
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+        showLeaderboardPopup(fromCompletion);
     });
 }
 
@@ -2266,6 +2288,7 @@ function showIngotCompletePopup() {
         }
         saveProgress();
         QUICK_RESUME.saveSession();
+        saveScoreToGoogleSheets();
     });
     
     tg?.HapticFeedback?.notificationOccurred?.('success');
@@ -2538,7 +2561,7 @@ function handleWordCompletion(wordIndex) {
     }
 }
 
-// ---------- OPTIMIZED handleLetterTap FUNCTION with Simple Flash & Reduced Renders ----------
+// ---------- OPTIMIZED handleLetterTap FUNCTION ----------
 function handleLetterTap(letter, indexInGrid) {
     if (gameCompleted) return;
     totalTaps++;
@@ -2567,21 +2590,17 @@ function handleLetterTap(letter, indexInGrid) {
         return;
     }
 
-    // CORRECT TAP - Simple visual feedback (guaranteed to work in Telegram)
     const tile = document.querySelector(`.letter-tile:nth-child(${indexInGrid + 1})`);
     if (tile) {
-        // Store original styles
         const originalBg = tile.style.backgroundColor;
         const originalTransform = tile.style.transform;
         const originalBoxShadow = tile.style.boxShadow;
         
-        // Apply flash effect
         tile.style.backgroundColor = '#A5D6A5';
         tile.style.transform = 'translateY(4px)';
         tile.style.boxShadow = '0 4px 0 #2A5A2A, 0 8px 15px rgba(0, 0, 0, 0.5)';
         tile.style.transition = 'all 0.1s ease';
         
-        // Reset after short delay
         setTimeout(() => {
             tile.style.backgroundColor = originalBg;
             tile.style.transform = originalTransform;
@@ -2590,22 +2609,16 @@ function handleLetterTap(letter, indexInGrid) {
         }, 150);
     }
     
-    // Haptic feedback
     tg?.HapticFeedback?.impactOccurred?.('light');
     
-    // Update game state
     correctTaps++;
     const removed = currentLetters.splice(indexInGrid, 1)[0];
     tempUsedLetters.push(removed);
     currentPosition++;
     
-    // OPTIMIZATION: Only update the letter grid, not the whole game
     updateLetterGridOnly();
-    
-    // Update active word display without full render
     updateActiveWordDisplay(targetWord);
     
-    // QUICK RESUME: Save after each correct letter tap (do this async)
     setTimeout(() => {
         QUICK_RESUME.saveSession();
     }, 50);
@@ -2619,10 +2632,8 @@ function handleLetterTap(letter, indexInGrid) {
 function updateLetterGridOnly() {
     const gridContainer = document.getElementById('letterGridContainer');
     
-    // Clear existing tiles
     gridContainer.innerHTML = '';
     
-    // Recreate tiles
     if (currentLetters.length > 0) {
         currentLetters.forEach((letter, idx) => {
             const tile = document.createElement('div');
@@ -2648,11 +2659,10 @@ function updateActiveWordDisplay(targetWord) {
         (currentPosition < targetWord.length) ? targetWord[currentPosition].toUpperCase() : '✅';
 }
 
-// ---------- OPTIMIZED RENDER UI (full render when needed) ----------
+// ---------- OPTIMIZED RENDER UI ----------
 function renderAll() {
     const words = getCurrentUnitWords();
     
-    // Update word list
     const wordContainer = document.getElementById('wordListContainer');
     if (wordContainer) {
         wordContainer.innerHTML = '';
@@ -2670,7 +2680,6 @@ function renderAll() {
                     activeWordIndex = idx;
                     currentPosition = 0;
                     
-                    // IMPORTANT: When selecting a new word, regenerate letters
                     currentLetters = generateInitialLetters();
                     
                     setUnitSectionVisibility(false);
@@ -2688,7 +2697,6 @@ function renderAll() {
         }
     }
 
-    // Update active word display
     if (activeWordIndex !== null && !completedWords.includes(activeWordIndex) && !gameCompleted && words && words.length > 0) {
         const w = words[activeWordIndex].word;
         updateActiveWordDisplay(w);
@@ -2697,10 +2705,8 @@ function renderAll() {
         document.getElementById('nextLetterDisplay').innerText = '?';
     }
 
-    // Update letter grid
     updateLetterGridOnly();
 
-    // Update artifact
     const artifactEl = document.getElementById('artifactText');
     const unit = worlds[currentWorld].units.find(u => u.id === currentUnit);
     if (unit) {
@@ -2780,7 +2786,6 @@ document.addEventListener('click', (e) => {
         setUnitSectionVisibility(true);
         updateHeaderForSelection();
         
-        // Regenerate letters when returning to selection mode
         currentLetters = generateInitialLetters();
         renderAll();
     }
