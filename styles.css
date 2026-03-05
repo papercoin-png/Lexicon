@@ -183,7 +183,7 @@ button:hover .icon {
     75% { transform: rotate(5deg); }
 }
 
-/* ---------- DEVOTION NOTIFICATION (NEW) ---------- */
+/* ---------- DEVOTION NOTIFICATION ---------- */
 .devotion-notification {
     position: fixed;
     top: 80px;
@@ -664,6 +664,89 @@ button:hover .icon {
     color: var(--forge-glow);
     backdrop-filter: blur(4px);
     font-family: 'Cinzel', serif;
+}
+
+/* ---------- TRAIN BUTTON (NEW) ---------- */
+.train-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 4px;
+}
+
+.train-btn {
+    position: relative;
+    background: linear-gradient(145deg, #4A3E32, #2A1E12);
+    border: 2px solid var(--forge-gold);
+    border-radius: 30px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--iron-dark);
+    transition: all 0.1s ease;
+}
+
+.train-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--iron-dark);
+}
+
+.train-btn svg {
+    width: 26px;
+    height: 26px;
+    fill: var(--forge-glow);
+}
+
+.train-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--forge-orange);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid var(--iron-dark);
+}
+
+/* ---------- CODEX BUTTON (NEW) ---------- */
+.codex-icon {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s var(--strike-timing);
+    border-radius: 50%;
+}
+
+.codex-icon svg {
+    width: 30px;
+    height: 30px;
+    fill: var(--forge-glow);
+    stroke: var(--forge-gold);
+}
+
+.codex-icon:hover {
+    transform: scale(1.1);
+}
+
+.codex-icon:hover svg {
+    fill: var(--forge-gold);
+    filter: drop-shadow(0 0 8px var(--forge-glow));
 }
 
 .profile-icon {
@@ -2075,9 +2158,9 @@ button:hover .icon {
     border-radius: 10px;
 }
 
+/* ---------- UPDATED LEADERBOARD ROW WITH MASTERY STARS ---------- */
 .leaderboard-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 8px 15px;
     margin: 4px 0;
@@ -2104,63 +2187,75 @@ button:hover .icon {
     transform: scale(1.02);
 }
 
-.rank {
-    min-width: 35px;
-    font-size: 15px;
+.rank-icon {
+    width: 30px;
+    font-size: 20px;
+    text-align: center;
+}
+
+.rank-number {
+    width: 30px;
+    font-weight: 600;
+    color: #ACCCDD;
 }
 
 .player-name {
     flex: 1;
     text-align: left;
-    padding-left: 8px;
-    font-size: 15px;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 130px;
 }
 
-.score {
+.words-forged {
     font-weight: 700;
-    color: var(--forge-glow);
-    font-size: 15px;
-    min-width: 45px;
+    color: #FFD966;
+    margin-right: 15px;
+    min-width: 60px;
     text-align: right;
 }
 
-/* Devotion Badge in Leaderboard (NEW) */
-.devotion-badge {
+.mastery-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 60px;
+}
+
+.mastery-count {
+    font-weight: 600;
+    color: #FFD966;
+}
+
+.star-icon {
     font-size: 16px;
-    min-width: 24px;
-    text-align: center;
-    margin: 0 2px;
-    filter: drop-shadow(0 0 3px currentColor);
-}
-
-.devotion-badge[title*="Crystal"] {
-    color: #88CCFF;
-    animation: crystalPulse 3s infinite;
-}
-
-.devotion-badge[title*="Gold"] {
     color: #FFD700;
 }
 
-.devotion-badge[title*="Silver"] {
-    color: #C0C0C0;
+/* Top 3 special styling */
+.leaderboard-row.rank-1 .player-name { color: #FFD700; font-weight: 700; }
+.leaderboard-row.rank-2 .player-name { color: #C0C0C0; font-weight: 700; }
+.leaderboard-row.rank-3 .player-name { color: #CD7F32; font-weight: 700; }
+
+.leaderboard-row.rank-1 .words-forged { color: #FFD700; }
+.leaderboard-row.rank-2 .words-forged { color: #C0C0C0; }
+.leaderboard-row.rank-3 .words-forged { color: #CD7F32; }
+
+.leaderboard-row.rank-1 .mastery-count { color: #FFD700; }
+.leaderboard-row.rank-2 .mastery-count { color: #C0C0C0; }
+.leaderboard-row.rank-3 .mastery-count { color: #CD7F32; }
+
+.you .words-forged {
+    color: #2D1905;
 }
 
-.devotion-badge[title*="Bronze"] {
-    color: #CD7F32;
+.you .mastery-count {
+    color: #2D1905;
 }
 
-.you .devotion-badge {
-    filter: drop-shadow(0 0 5px currentColor);
-}
-
-@keyframes crystalPulse {
-    0%, 100% { filter: drop-shadow(0 0 3px #88CCFF); }
-    50% { filter: drop-shadow(0 0 10px #AADDFF); }
+.you .star-icon {
+    color: #2D1905;
 }
 
 .crown {
@@ -2283,7 +2378,7 @@ button:hover .icon {
     border: 3px solid var(--forge-bronze);
 }
 
-/* ---------- DEVOTION SECTION IN PROFILE (NEW) ---------- */
+/* ---------- DEVOTION SECTION IN PROFILE ---------- */
 .devotion-section {
     background: #0E2938;
     border-radius: 40px;
@@ -2421,6 +2516,101 @@ button:hover .icon {
     font-weight: 600;
 }
 
+/* ---------- CODEX SECTION IN PROFILE (NEW) ---------- */
+.codex-section {
+    background: #0E2938;
+    border-radius: 40px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px solid #B8944A;
+}
+
+.codex-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.codex-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.codex-count {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+}
+
+.codex-progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #1D3F4F;
+    border-radius: 30px;
+    border: 1px solid #B8944A;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.codex-progress-bar .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--forge-bronze), var(--forge-gold), #FFD700);
+    border-radius: 30px;
+    transition: width 0.3s ease;
+}
+
+.codex-stats-row {
+    display: flex;
+    justify-content: space-around;
+    margin: 15px 0;
+}
+
+.codex-stat {
+    text-align: center;
+}
+
+.codex-stat .stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--forge-glow);
+    line-height: 1.2;
+}
+
+.codex-stat .stat-label {
+    font-size: 12px;
+    color: #ACCCDD;
+    text-transform: uppercase;
+}
+
+.codex-view-btn {
+    background: linear-gradient(135deg, var(--forge-glow), var(--forge-orange));
+    border: none;
+    border-radius: 40px;
+    padding: 10px 20px;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--iron-dark);
+    box-shadow: 0 4px 0 #9E691F;
+    cursor: pointer;
+    border: 2px solid #FFE694;
+    transition: 0.08s var(--strike-timing);
+    font-family: 'Cinzel', serif;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.codex-view-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #9E691F;
+}
+
 /* ---------- PROFILE TROPHY BUTTON ---------- */
 .profile-trophy {
     display: flex;
@@ -2550,6 +2740,865 @@ button:hover .icon {
     display: none !important;
 }
 
+/* ---------- DIFFICULTY SELECTOR (NEW) ---------- */
+.difficulty-card {
+    max-width: 400px;
+    width: 100%;
+    background: linear-gradient(165deg, #1E3B4A, #16323F);
+    border-radius: 50px;
+    padding: 30px 25px;
+    box-shadow: 
+        0 25px 45px #000000,
+        0 0 0 6px var(--forge-bronze);
+    text-align: center;
+    border: 2px solid #DBB45C;
+    animation: pop 0.3s ease-out;
+    margin: auto;
+}
+
+.difficulty-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--forge-glow);
+    margin-bottom: 10px;
+    font-family: 'Cinzel', serif;
+}
+
+.difficulty-sub {
+    font-size: 16px;
+    color: #ACCCDD;
+    margin-bottom: 25px;
+}
+
+.difficulty-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.difficulty-option {
+    background: #1D3F4F;
+    border: 2px solid #B8944A;
+    border-radius: 40px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.difficulty-option:hover {
+    background: #2C5A6E;
+    transform: scale(1.02);
+    border-color: var(--forge-gold);
+}
+
+.difficulty-option:active {
+    transform: scale(0.98);
+}
+
+.difficulty-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+}
+
+.difficulty-words {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+.difficulty-time {
+    font-size: 14px;
+    color: #ACCCDD;
+}
+
+.difficulty-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ACCCDD;
+    font-size: 14px;
+}
+
+.difficulty-cancel {
+    background: #557A8B;
+    border: none;
+    border-radius: 30px;
+    padding: 8px 20px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2E4A57;
+    transition: all 0.1s ease;
+}
+
+.difficulty-cancel:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #2E4A57;
+}
+
+/* ---------- TRAINING UI (NEW) ---------- */
+.training-card {
+    max-width: 450px;
+    width: 100%;
+    background: linear-gradient(165deg, #1E3B4A, #16323F);
+    border-radius: 50px;
+    padding: 25px 20px;
+    box-shadow: 
+        0 25px 45px #000000,
+        0 0 0 6px var(--forge-bronze);
+    text-align: center;
+    border: 2px solid #DBB45C;
+    animation: pop 0.3s ease-out;
+    margin: auto;
+}
+
+.training-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 5px;
+}
+
+.training-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+}
+
+.training-progress {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ACCCDD;
+}
+
+.training-word-area {
+    background: #0E2938;
+    border-radius: 40px;
+    padding: 30px 20px;
+    margin-bottom: 25px;
+    border: 2px solid #B8944A;
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.word-emoji {
+    font-size: 70px;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+}
+
+.word-text {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+    text-shadow: 0 3px 0 #7F5F2F;
+    margin-bottom: 10px;
+    transition: opacity 0.2s ease;
+}
+
+.flash-count {
+    font-size: 16px;
+    color: #ACCCDD;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.flash-feedback {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 50px;
+    padding: 15px 30px;
+    animation: feedbackPop 0.3s ease;
+}
+
+.flash-feedback.correct {
+    border: 2px solid #4ADE80;
+}
+
+.flash-feedback.incorrect {
+    border: 2px solid #F87171;
+}
+
+.feedback-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.flash-feedback.correct .feedback-icon {
+    color: #4ADE80;
+}
+
+.flash-feedback.incorrect .feedback-icon {
+    color: #F87171;
+}
+
+@keyframes feedbackPop {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.training-input-area {
+    margin-bottom: 20px;
+}
+
+.timer-display {
+    font-size: 18px;
+    color: #ACCCDD;
+    margin-bottom: 10px;
+    font-family: monospace;
+}
+
+.training-input {
+    width: 100%;
+    background: #0E2938;
+    border: 2px solid #B8944A;
+    border-radius: 40px;
+    padding: 15px 20px;
+    font-size: 20px;
+    color: #FFDB8E;
+    font-weight: 600;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.training-input:focus {
+    border-color: var(--forge-glow);
+    box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+}
+
+.training-submit {
+    background: linear-gradient(135deg, var(--forge-glow), var(--forge-orange));
+    border: none;
+    border-radius: 40px;
+    padding: 14px 20px;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--iron-dark);
+    box-shadow: 0 5px 0 #9E691F;
+    cursor: pointer;
+    border: 2px solid #FFE694;
+    transition: 0.08s var(--strike-timing);
+    font-family: 'Cinzel', serif;
+    width: 100%;
+}
+
+.training-submit:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #9E691F;
+}
+
+.training-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mastery-progress {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #0E2938;
+    border-radius: 30px;
+    padding: 8px 15px;
+    border: 1px solid #B8944A;
+}
+
+.mastery-progress .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: #1D3F4F;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.mastery-progress .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--forge-bronze), var(--forge-gold));
+    border-radius: 10px;
+}
+
+.progress-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--forge-glow);
+    min-width: 45px;
+}
+
+.training-skip {
+    background: #557A8B;
+    border: none;
+    border-radius: 30px;
+    padding: 8px 15px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #2E4A57;
+    transition: all 0.1s ease;
+    font-size: 14px;
+}
+
+.training-skip:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #2E4A57;
+}
+
+/* ---------- TRAINING SUMMARY (NEW) ---------- */
+.summary-card {
+    max-width: 400px;
+    width: 100%;
+    background: linear-gradient(165deg, #1E3B4A, #16323F);
+    border-radius: 50px;
+    padding: 30px 25px;
+    box-shadow: 
+        0 25px 45px #000000,
+        0 0 0 6px var(--forge-bronze);
+    text-align: center;
+    border: 2px solid #DBB45C;
+    animation: pop 0.3s ease-out;
+    margin: auto;
+}
+
+.summary-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--forge-glow);
+    margin-bottom: 25px;
+    font-family: 'Cinzel', serif;
+}
+
+.summary-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+}
+
+.summary-stat {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--forge-glow);
+    line-height: 1.2;
+    font-family: 'Cinzel', serif;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #ACCCDD;
+    text-transform: uppercase;
+}
+
+.summary-progress {
+    margin-bottom: 30px;
+}
+
+.progress-label {
+    font-size: 14px;
+    color: #ACCCDD;
+    margin-bottom: 5px;
+}
+
+.summary-progress .progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #1D3F4F;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #B8944A;
+}
+
+.summary-progress .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--forge-bronze), var(--forge-gold), #FFD700);
+    border-radius: 10px;
+}
+
+.summary-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.summary-btn {
+    flex: 1;
+    background: linear-gradient(135deg, var(--forge-glow), var(--forge-orange));
+    border: none;
+    border-radius: 40px;
+    padding: 14px 10px;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--iron-dark);
+    box-shadow: 0 5px 0 #9E691F;
+    cursor: pointer;
+    border: 2px solid #FFE694;
+    transition: 0.08s var(--strike-timing);
+    font-family: 'Cinzel', serif;
+}
+
+.summary-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #9E691F;
+}
+
+.summary-btn.secondary {
+    background: #557A8B;
+    box-shadow: 0 5px 0 #2E4A57;
+    color: white;
+}
+
+/* ---------- CODEX UI (NEW) ---------- */
+.codex-container {
+    max-width: 500px;
+    width: 100%;
+    max-height: 85vh;
+    background: linear-gradient(165deg, #1E3B4A, #16323F);
+    border-radius: 50px;
+    padding: 20px 15px;
+    box-shadow: 
+        0 25px 45px #000000,
+        0 0 0 6px var(--forge-bronze);
+    border: 2px solid #DBB45C;
+    animation: pop 0.3s ease-out;
+    margin: auto;
+    overflow-y: auto;
+    position: relative;
+}
+
+.codex-loading {
+    text-align: center;
+    padding: 40px;
+    color: #FFD700;
+    font-size: 18px;
+}
+
+.codex-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 5px;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(165deg, #1E3B4A, #16323F);
+    z-index: 10;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #B8944A;
+}
+
+.codex-header h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+    margin: 0;
+}
+
+.codex-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #ACCCDD;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.1s ease;
+}
+
+.codex-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.codex-header .codex-stats {
+    font-size: 14px;
+    color: #ACCCDD;
+}
+
+.world-section {
+    margin-bottom: 20px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+}
+
+.world-section.locked {
+    opacity: 0.6;
+    filter: grayscale(0.5);
+}
+
+.world-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 0 5px;
+}
+
+.world-icon {
+    font-size: 24px;
+}
+
+.world-name {
+    flex: 1;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+}
+
+.world-progress {
+    font-size: 14px;
+    color: #ACCCDD;
+}
+
+.world-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #1D3F4F;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.world-progress-bar .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--forge-bronze), var(--forge-gold));
+    border-radius: 10px;
+}
+
+.ingot-card {
+    background: #1D3F4F;
+    border-radius: 15px;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    border: 1px solid #B8944A;
+}
+
+.ingot-card:hover {
+    background: #2C5A6E;
+    transform: translateX(5px);
+    border-color: var(--forge-gold);
+}
+
+.ingot-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.ingot-icon {
+    font-size: 20px;
+}
+
+.ingot-name {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+}
+
+.ingot-count {
+    font-size: 14px;
+    color: var(--forge-glow);
+}
+
+.ingot-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #0E2938;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.ingot-progress-bar .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--forge-bronze), var(--forge-gold));
+    border-radius: 10px;
+}
+
+/* Constellation View */
+.constellation-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 0 5px;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(165deg, #1E3B4A, #16323F);
+    z-index: 10;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #B8944A;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--forge-glow);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.1s ease;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.constellation-header h3 {
+    flex: 1;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.constellation-stats {
+    font-size: 14px;
+    color: var(--forge-glow);
+}
+
+.word-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 5px;
+}
+
+.word-card {
+    background: #1D3F4F;
+    border-radius: 15px;
+    padding: 15px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    border: 1px solid #B8944A;
+    position: relative;
+}
+
+.word-card:hover {
+    background: #2C5A6E;
+    transform: translateY(-2px);
+    border-color: var(--forge-gold);
+}
+
+.word-card.mastered {
+    background: linear-gradient(145deg, #4A3E32, #2A1E12);
+    border-color: #FFD700;
+}
+
+.word-card.in-progress {
+    border-color: var(--forge-bronze);
+}
+
+.word-card.new {
+    border-color: #4A5C63;
+}
+
+.word-card .word-emoji {
+    font-size: 40px;
+    margin-bottom: 8px;
+}
+
+.word-card .word-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 8px;
+    text-shadow: none;
+    opacity: 1;
+}
+
+.word-card .word-progress {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.word-card .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: #0E2938;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.word-card .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--forge-bronze), var(--forge-gold));
+    border-radius: 10px;
+}
+
+.word-card .progress-count {
+    font-size: 11px;
+    color: #ACCCDD;
+    min-width: 30px;
+}
+
+.mastered-star {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 20px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    animation: starPulse 2s infinite;
+}
+
+@keyframes starPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Word Detail View */
+.word-detail {
+    padding: 10px;
+}
+
+.word-detail .word-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.detail-emoji {
+    font-size: 80px;
+    margin-bottom: 10px;
+}
+
+.detail-word {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+    text-shadow: 0 3px 0 #7F5F2F;
+}
+
+.detail-section {
+    background: #0E2938;
+    border-radius: 20px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #B8944A;
+}
+
+.detail-section h4 {
+    font-size: 16px;
+    color: var(--forge-glow);
+    margin-bottom: 10px;
+    font-family: 'Cinzel', serif;
+}
+
+.mastery-bar {
+    width: 100%;
+    height: 10px;
+    background: #1D3F4F;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.mastery-bar .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--forge-bronze), var(--forge-gold), #FFD700);
+    border-radius: 10px;
+}
+
+.mastery-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #ACCCDD;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #1D3F4F;
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+.word-sentence {
+    font-style: italic;
+    color: #FFDCAA;
+    line-height: 1.5;
+}
+
+.history-list {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 13px;
+    color: #ACCCDD;
+    border-bottom: 1px solid #1D3F4F;
+}
+
+.train-word-btn {
+    background: linear-gradient(135deg, var(--forge-glow), var(--forge-orange));
+    border: none;
+    border-radius: 40px;
+    padding: 14px 20px;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--iron-dark);
+    box-shadow: 0 5px 0 #9E691F;
+    cursor: pointer;
+    border: 2px solid #FFE694;
+    transition: 0.08s var(--strike-timing);
+    font-family: 'Cinzel', serif;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.train-word-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #9E691F;
+}
+
 /* ---------- RESPONSIVE DESIGN ---------- */
 @media (max-height: 700px) {
     .game-container {
@@ -2586,21 +3635,21 @@ button:hover .icon {
         font-size: 14px;
     }
     
-    /* Responsive devotion section */
-    .devotion-section {
+    .devotion-section,
+    .codex-section {
         padding: 15px;
     }
     
-    .devotion-title {
-        font-size: 16px;
+    .training-card {
+        padding: 15px;
     }
     
-    .devotion-percent {
-        font-size: 18px;
+    .word-emoji {
+        font-size: 50px;
     }
     
-    .milestone-icon {
-        font-size: 18px;
+    .word-text {
+        font-size: 36px;
     }
 }
 
@@ -2622,6 +3671,26 @@ button:hover .icon {
         font-size: 14px;
     }
     
+    .train-btn {
+        width: 38px;
+        height: 38px;
+    }
+    
+    .train-btn svg {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .codex-icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .codex-icon svg {
+        width: 26px;
+        height: 26px;
+    }
+    
     .letter-tile {
         font-size: min(12vw, 64px);
     }
@@ -2641,13 +3710,18 @@ button:hover .icon {
         padding: 8px 12px;
     }
     
-    /* Responsive devotion */
-    .devotion-milestones {
+    .word-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .difficulty-option {
+        flex-wrap: wrap;
         gap: 5px;
     }
     
-    .milestone-item div:last-child {
-        font-size: 10px;
+    .difficulty-name {
+        width: 100%;
+        text-align: center;
     }
 }
 
@@ -2669,7 +3743,8 @@ button:hover .icon {
     .devotion-icon,
     .devotion-bar-fill::after,
     .crystalPulse,
-    .milestone-item.achieved .milestone-icon {
+    .milestone-item.achieved .milestone-icon,
+    .mastered-star {
         animation: none !important;
     }
 }
