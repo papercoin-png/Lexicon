@@ -60,23 +60,124 @@
             </div>
         </div>
 
-        <!-- Main Game Container -->
-        <div class="game-container" id="gameContainer">
+        <!-- HOME SCREEN - NEW -->
+        <div class="home-screen" id="homeScreen">
             <!-- Header with world info and profile -->
+            <div class="home-header">
+                <div class="home-world-info">
+                    <span class="world-name" id="homeWorldName">Grand Forge</span>
+                    <span class="tier-badge" id="homeTierBadge">Foundation</span>
+                </div>
+                <button class="profile-icon" id="homeProfileIconBtn">
+                    <svg width="32" height="32">
+                        <use href="assets/icons.svg#icon-blacksmith"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Streak Card - Prominent -->
+            <div class="streak-card">
+                <div class="streak-title">🔥 STREAK 🔥</div>
+                <div class="streak-days" id="streakDays">45</div>
+                <div class="streak-bonus" id="streakBonus">+3.7% BONUS</div>
+            </div>
+
+            <!-- Current Ingot Card with Dropdown -->
+            <div class="ingot-card-home">
+                <div class="ingot-header">
+                    <span class="ingot-label">CURRENT INGOT</span>
+                </div>
+                <div class="ingot-name" id="currentIngotName">INGOT 07: Anvil</div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="currentIngotProgress" style="width: 60%"></div>
+                    </div>
+                    <span class="progress-text" id="currentIngotCount">12/20</span>
+                </div>
+                
+                <!-- Dropdown Button -->
+                <div class="dropdown-container">
+                    <button class="dropdown-button" id="ingotDropdownBtn">
+                        <span>⌄  SELECT INGOT  ⌄</span>
+                    </button>
+                    <div class="dropdown-menu hidden" id="ingotDropdownMenu">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Codex Summary Card -->
+            <div class="codex-summary-card">
+                <span class="codex-label">CODEX:</span>
+                <span class="codex-count" id="codexMasteredCount">43⭐ mastered</span>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="home-action-btn" id="forgeSelectedBtn">
+                    <span class="action-icon">⚒️</span>
+                    <span class="action-text">FORGE SELECTED</span>
+                </button>
+                
+                <div class="train-action-container">
+                    <button class="home-action-btn train-btn-home" id="homeTrainBtn">
+                        <span class="action-icon">📖</span>
+                        <span class="action-text">DAILY TRAIN</span>
+                    </button>
+                    <span class="train-timer" id="trainTimer">8h 23m</span>
+                </div>
+                
+                <button class="home-action-btn" id="homeLeaderboardBtn">
+                    <span class="action-icon">🏆</span>
+                    <span class="action-text">LEADERBOARD</span>
+                </button>
+                
+                <button class="home-action-btn" id="homeCodexBtn">
+                    <span class="action-icon">📚</span>
+                    <span class="action-text">VIEW CODEX</span>
+                </button>
+            </div>
+
+            <!-- Footer Icons -->
+            <div class="footer-icons">
+                <button class="footer-icon" id="homeFooterProfileBtn" title="Profile">
+                    <svg width="28" height="28">
+                        <use href="assets/icons.svg#icon-blacksmith"/>
+                    </svg>
+                </button>
+                <button class="footer-icon" id="homeFooterSettingsBtn" title="Settings">
+                    <svg width="28" height="28">
+                        <use href="assets/icons.svg#icon-settings"/>
+                    </svg>
+                </button>
+                <button class="footer-icon" id="homeFooterInfoBtn" title="Info">
+                    <svg width="28" height="28">
+                        <use href="assets/icons.svg#icon-info"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Game Container - EXISTING (hidden initially) -->
+        <div class="game-container hidden" id="gameContainer">
+            <!-- Header with world info and profile - UPDATED with back button -->
             <div class="header">
-                <div class="world-info" id="worldInfo">
-                    <span class="world-icon" id="worldIcon">
-                        <svg width="28" height="28">
-                            <use href="assets/icons.svg#icon-anvil"/>
-                        </svg>
-                    </span>
-                    <span class="world-name" id="worldName">Grand Forge</span>
-                    <span class="tier-badge" id="tierBadge">Foundation</span>
+                <div class="game-header-left">
+                    <button class="back-btn" id="backToHomeBtn" title="Back to Home">←</button>
+                    <div class="world-info" id="worldInfo">
+                        <span class="world-icon" id="worldIcon">
+                            <svg width="28" height="28">
+                                <use href="assets/icons.svg#icon-anvil"/>
+                            </svg>
+                        </span>
+                        <span class="world-name" id="worldName">Grand Forge</span>
+                        <span class="tier-badge" id="tierBadge">Foundation</span>
+                    </div>
                 </div>
                 <div class="header-right">
                     <span class="progress-badge" id="progressDisplay">0/600</span>
                     
-                    <!-- DEVOTION BADGE - (from previous update) -->
+                    <!-- DEVOTION BADGE -->
                     <span class="devotion-badge-header" id="devotionBadge" title="Devotion Bonus" style="display: none;">
                         <svg width="20" height="20">
                             <use href="assets/icons.svg#icon-devotion"/>
@@ -84,7 +185,7 @@
                         <span id="devotionPercent">0%</span>
                     </span>
                     
-                    <!-- CODEX TRAIN BUTTON - NEW -->
+                    <!-- TRAIN BUTTON -->
                     <div class="train-indicator" id="trainIndicator">
                         <button class="train-btn" id="trainButton" title="Daily Training">
                             <svg width="24" height="24">
@@ -94,7 +195,7 @@
                         </button>
                     </div>
                     
-                    <!-- CODEX BUTTON - NEW -->
+                    <!-- CODEX BUTTON -->
                     <button class="codex-icon" id="codexButton" title="View Codex">
                         <svg width="28" height="28">
                             <use href="assets/icons.svg#icon-codex"/>
@@ -183,7 +284,7 @@
             </div>
         </div>
 
-        <!-- Popup Overlay - Used for all modals (Codex, Training, etc.) -->
+        <!-- Popup Overlay -->
         <div id="popupOverlay" class="popup-overlay hidden"></div>
     </div>
 
