@@ -1383,7 +1383,6 @@ let playerPerformance = {
             day365: false
         }
     },
-    // NEW: Training cooldown
     lastTrainTime: null
 };
 
@@ -1706,31 +1705,22 @@ function migrateToCodex(oldSaveData) {
     let wordsAdded = 0;
     let wordsMastered = 0;
     
-    // Loop through all worlds
     for (let worldId = 1; worldId <= 6; worldId++) {
         const world = oldSaveData.worlds?.[worldId];
         if (!world) continue;
         
-        // Loop through all ingots in this world
         world.units.forEach(unit => {
-            // Skip locked ingots
             if (!unit.unlocked) return;
             
-            // Get ALL words for this ingot from MASTER_WORDS (all 20 of them)
             const words = MASTER_WORDS[`world${worldId}`]?.units[unit.id]?.words || [];
             
             if (words.length === 0) return;
             
-            console.log(`Migrating ingot ${worldId}-${unit.id} with ${unit.wordsCompleted}/20 words completed`);
-            
-            // For each word in this ingot
             words.forEach((wordData, index) => {
                 const wordId = wordData.word;
                 
-                // Skip if already in Codex
                 if (codex.getWord(wordId)) return;
                 
-                // Create Codex entry with all word data
                 const wordMemory = new WordMemory(wordId, {
                     word: wordData.word,
                     emoji: wordData.emoji,
@@ -1739,27 +1729,22 @@ function migrateToCodex(oldSaveData) {
                     ingot: unit.id
                 });
                 
-                // Set firstForged to a date in the past
                 wordMemory.firstForged = oldSaveData.lastUpdated || new Date().toISOString();
                 
                 if (unit.wordsCompleted === 20) {
-                    // COMPLETED INGOT - All words get full mastery credit (30/30)
                     wordMemory.correctCount = 30;
                     wordMemory.mastered = true;
                     wordMemory.masteredDate = oldSaveData.lastUpdated || new Date().toISOString();
                     
-                    // Set FSRS card to "Review" state
                     wordMemory.fsrsCard.state = 'Review';
                     wordMemory.fsrsCard.reps = 30;
                     wordMemory.fsrsCard.stability = 90;
                     wordMemory.fsrsCard.difficulty = 0.3;
                     
-                    // Set due date far in the future
                     const futureDate = new Date();
                     futureDate.setMonth(futureDate.getMonth() + 3);
                     wordMemory.fsrsCard.due = futureDate;
                     
-                    // Add training history
                     for (let i = 0; i < 30; i++) {
                         wordMemory.trainingHistory.push({
                             date: oldSaveData.lastUpdated || new Date().toISOString(),
@@ -1772,21 +1757,16 @@ function migrateToCodex(oldSaveData) {
                     wordsMastered++;
                     
                 } else if (unit.wordsCompleted > 0) {
-                    // PARTIALLY COMPLETED INGOT - Distribute credit fairly
-                    // Calculate base exposure count
                     const baseExposures = Math.max(1, Math.floor(unit.wordsCompleted / 5));
                     
-                    // Give earlier words slightly more credit
                     let exposureCount = baseExposures;
                     
-                    // Some words get an extra exposure based on position
                     if (index < unit.wordsCompleted % 5) {
                         exposureCount++;
                     }
                     
                     wordMemory.correctCount = Math.min(exposureCount, 29);
                     
-                    // Set FSRS card to appropriate state
                     if (wordMemory.correctCount <= 3) {
                         wordMemory.fsrsCard.state = 'Learning';
                     } else {
@@ -1796,7 +1776,6 @@ function migrateToCodex(oldSaveData) {
                     wordMemory.fsrsCard.stability = wordMemory.correctCount * 2;
                     wordMemory.fsrsCard.difficulty = 0.5;
                     
-                    // Set due date based on when they last played
                     const lastPlayed = new Date(oldSaveData.lastUpdated || new Date());
                     const daysSinceLastPlay = Math.floor((Date.now() - lastPlayed.getTime()) / (1000 * 60 * 60 * 24));
                     
@@ -1808,7 +1787,6 @@ function migrateToCodex(oldSaveData) {
                         wordMemory.fsrsCard.due = dueDate;
                     }
                     
-                    // Add training history
                     for (let i = 0; i < wordMemory.correctCount; i++) {
                         wordMemory.trainingHistory.push({
                             date: oldSaveData.lastUpdated || new Date().toISOString(),
@@ -1820,7 +1798,6 @@ function migrateToCodex(oldSaveData) {
                     }
                 }
                 
-                // Make sure unlocked ingot words are available for training
                 if (unit.unlocked && wordMemory.correctCount < 30) {
                     if (new Date(wordMemory.fsrsCard.due) > new Date()) {
                         wordMemory.fsrsCard.due = new Date();
@@ -2545,7 +2522,6 @@ function loadProgress() {
                 };
             }
             
-            // Initialize training timer if not present
             if (!saveData.playerPerformance.lastTrainTime) {
                 saveData.playerPerformance.lastTrainTime = null;
             }
@@ -2622,7 +2598,7 @@ function getHoursUntilNextTrain() {
 function recordTraining() {
     playerPerformance.lastTrainTime = new Date().toISOString();
     saveProgress();
-    updateHomeScreen(); // Refresh home screen with new timer
+    updateHomeScreen();
 }
 
 // ---------- TRAINING UI FUNCTIONS ----------
@@ -2830,7 +2806,6 @@ function moveToNextWord() {
     const result = currentTrainingSession.nextWord();
     
     if (result.completed) {
-        // Record training time when session completes
         recordTraining();
         showTrainingSummary(result.results);
     } else {
@@ -2889,7 +2864,7 @@ function showTrainingSummary(summary) {
         overlay.classList.add('hidden');
         currentTrainingSession = null;
         updateTrainBadge();
-        updateHomeScreen(); // Refresh home screen
+        updateHomeScreen();
         saveProgress();
     });
 }
@@ -2929,7 +2904,6 @@ function showGameScreen() {
     document.getElementById('homeScreen').classList.add('hidden');
     document.getElementById('gameContainer').classList.remove('hidden');
     
-    // Ensure game display is updated
     updateWorldDisplay();
     renderAll();
     updateTrainBadge();
@@ -2939,26 +2913,21 @@ function updateHomeScreen() {
     const world = worlds[currentWorld];
     const unit = world.units.find(u => u.id === currentUnit);
     
-    // Update header
     document.getElementById('homeWorldName').innerText = world.name;
     document.getElementById('homeTierBadge').innerText = getWorldTier();
     
-    // Update streak
     document.getElementById('streakDays').innerText = playerPerformance.devotion.days;
     document.getElementById('streakBonus').innerText = `+${playerPerformance.devotion.bonus.toFixed(1)}% BONUS`;
     
-    // Update current ingot
     const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
     document.getElementById('currentIngotName').innerText = `${world.unitName} ${currentUnit.toString().padStart(2, '0')}: ${unitData?.name || 'Unknown'}`;
     const progressPercent = (unit.wordsCompleted / 20) * 100;
     document.getElementById('currentIngotProgress').style.width = `${progressPercent}%`;
     document.getElementById('currentIngotCount').innerText = `${unit.wordsCompleted}/20`;
     
-    // Update codex
     const masteredCount = codex.getMasteredCount();
     document.getElementById('codexMasteredCount').innerText = `${masteredCount}⭐ mastered`;
     
-    // Update train timer
     const timerSpan = document.getElementById('trainTimer');
     const trainBtn = document.getElementById('homeTrainBtn');
     const timeLeft = getHoursUntilNextTrain();
@@ -2974,7 +2943,6 @@ function updateHomeScreen() {
         trainBtn.disabled = false;
     }
     
-    // Populate ingot dropdown
     populateIngotDropdown();
 }
 
@@ -2994,14 +2962,12 @@ function populateIngotDropdown() {
     
     dropdownMenu.innerHTML = html;
     
-    // Add click handlers
     dropdownMenu.querySelectorAll('.dropdown-item').forEach(item => {
         item.addEventListener('click', (e) => {
             e.stopPropagation();
             const ingotId = parseInt(item.dataset.ingot);
             currentUnit = ingotId;
             
-            // Update current ingot display
             const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
             document.getElementById('currentIngotName').innerText = `${world.unitName} ${currentUnit.toString().padStart(2, '0')}: ${unitData?.name || 'Unknown'}`;
             const unit = world.units.find(u => u.id === currentUnit);
@@ -3009,13 +2975,11 @@ function populateIngotDropdown() {
             document.getElementById('currentIngotProgress').style.width = `${progressPercent}%`;
             document.getElementById('currentIngotCount').innerText = `${unit.wordsCompleted}/20`;
             
-            // Close dropdown
             document.getElementById('ingotDropdownBtn').classList.remove('active');
             dropdownMenu.classList.add('hidden');
         });
     });
     
-    // Toggle dropdown on button click
     const dropdownBtn = document.getElementById('ingotDropdownBtn');
     dropdownBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -3023,7 +2987,6 @@ function populateIngotDropdown() {
         dropdownMenu.classList.toggle('hidden');
     });
     
-    // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.dropdown-container')) {
             dropdownBtn.classList.remove('active');
@@ -3263,7 +3226,6 @@ function showWordDetail(wordId) {
     });
     
     document.getElementById('trainWordBtn').addEventListener('click', () => {
-        // TODO: Implement single word training
         document.getElementById('popupOverlay').classList.add('hidden');
         showToast('Single word training coming soon!', '🔨');
     });
@@ -3799,7 +3761,7 @@ function showIngotCompletePopup() {
         }
         saveProgress();
         QUICK_RESUME.saveSession();
-        showHomeScreen(); // Return to home after ingot completion
+        showHomeScreen();
     });
     
     tg?.HapticFeedback?.notificationOccurred?.('success');
@@ -4311,7 +4273,6 @@ function initializeGame() {
 // ---------- EVENT LISTENERS ----------
 document.addEventListener('DOMContentLoaded', () => {
     // Home screen buttons
-    document.getElementById('homeProfileIconBtn').addEventListener('click', () => showProfilePopup(false));
     document.getElementById('forgeSelectedBtn').addEventListener('click', () => showGameScreen());
     
     document.getElementById('homeTrainBtn').addEventListener('click', () => {
@@ -4338,7 +4299,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Game screen buttons
     document.getElementById('backToHomeBtn').addEventListener('click', () => showHomeScreen());
     document.getElementById('resetButton').addEventListener('click', handleReset);
-    document.getElementById('profileIconBtn').addEventListener('click', () => showProfilePopup(false));
     
     document.getElementById('unitSelector').addEventListener('change', (e) => {
         currentUnit = parseInt(e.target.value);
@@ -4346,30 +4306,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateWorldDisplay();
         saveProgress();
     });
-    
-    const trainButton = document.getElementById('trainButton');
-    if (trainButton) {
-        trainButton.addEventListener('click', () => {
-            if (!canTrain()) {
-                const timeLeft = getHoursUntilNextTrain();
-                showToast(`Training available in ${timeLeft}`, '⏳');
-                return;
-            }
-            const dueCount = codex.getDueCount();
-            if (dueCount === 0) {
-                showToast('No words due for training!', '📖');
-                return;
-            }
-            showDifficultySelector();
-        });
-    }
-    
-    const codexButton = document.getElementById('codexButton');
-    if (codexButton) {
-        codexButton.addEventListener('click', () => {
-            showCodexUI();
-        });
-    }
     
     document.addEventListener('click', (e) => {
         if (activeWordIndex !== null && 
