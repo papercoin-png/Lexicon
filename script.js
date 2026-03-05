@@ -1382,7 +1382,9 @@ let playerPerformance = {
             day200: false,
             day365: false
         }
-    }
+    },
+    // NEW: Training cooldown
+    lastTrainTime: null
 };
 
 // ---------- CODEX SYSTEM ----------
@@ -1702,21 +1704,33 @@ const fsrsManager = new FSRSManager();
 function migrateToCodex(oldSaveData) {
     console.log('Migrating save to Codex v1.3...');
     let wordsAdded = 0;
+    let wordsMastered = 0;
     
+    // Loop through all worlds
     for (let worldId = 1; worldId <= 6; worldId++) {
         const world = oldSaveData.worlds?.[worldId];
         if (!world) continue;
         
+        // Loop through all ingots in this world
         world.units.forEach(unit => {
+            // Skip locked ingots
             if (!unit.unlocked) return;
             
+            // Get ALL words for this ingot from MASTER_WORDS (all 20 of them)
             const words = MASTER_WORDS[`world${worldId}`]?.units[unit.id]?.words || [];
             
-            words.forEach(wordData => {
+            if (words.length === 0) return;
+            
+            console.log(`Migrating ingot ${worldId}-${unit.id} with ${unit.wordsCompleted}/20 words completed`);
+            
+            // For each word in this ingot
+            words.forEach((wordData, index) => {
                 const wordId = wordData.word;
                 
+                // Skip if already in Codex
                 if (codex.getWord(wordId)) return;
                 
+                // Create Codex entry with all word data
                 const wordMemory = new WordMemory(wordId, {
                     word: wordData.word,
                     emoji: wordData.emoji,
@@ -1725,31 +1739,91 @@ function migrateToCodex(oldSaveData) {
                     ingot: unit.id
                 });
                 
+                // Set firstForged to a date in the past
+                wordMemory.firstForged = oldSaveData.lastUpdated || new Date().toISOString();
+                
                 if (unit.wordsCompleted === 20) {
+                    // COMPLETED INGOT - All words get full mastery credit (30/30)
                     wordMemory.correctCount = 30;
                     wordMemory.mastered = true;
                     wordMemory.masteredDate = oldSaveData.lastUpdated || new Date().toISOString();
                     
+                    // Set FSRS card to "Review" state
+                    wordMemory.fsrsCard.state = 'Review';
+                    wordMemory.fsrsCard.reps = 30;
+                    wordMemory.fsrsCard.stability = 90;
+                    wordMemory.fsrsCard.difficulty = 0.3;
+                    
+                    // Set due date far in the future
+                    const futureDate = new Date();
+                    futureDate.setMonth(futureDate.getMonth() + 3);
+                    wordMemory.fsrsCard.due = futureDate;
+                    
+                    // Add training history
                     for (let i = 0; i < 30; i++) {
                         wordMemory.trainingHistory.push({
                             date: oldSaveData.lastUpdated || new Date().toISOString(),
                             flashNumber: 1,
-                            responseTime: 2.0,
+                            responseTime: 1.5 + Math.random(),
                             isCorrect: true,
                             rating: 'good'
                         });
                     }
-                } else if (unit.wordsCompleted > 0) {
-                    wordMemory.correctCount = unit.wordsCompleted;
+                    wordsMastered++;
                     
-                    for (let i = 0; i < unit.wordsCompleted; i++) {
+                } else if (unit.wordsCompleted > 0) {
+                    // PARTIALLY COMPLETED INGOT - Distribute credit fairly
+                    // Calculate base exposure count
+                    const baseExposures = Math.max(1, Math.floor(unit.wordsCompleted / 5));
+                    
+                    // Give earlier words slightly more credit
+                    let exposureCount = baseExposures;
+                    
+                    // Some words get an extra exposure based on position
+                    if (index < unit.wordsCompleted % 5) {
+                        exposureCount++;
+                    }
+                    
+                    wordMemory.correctCount = Math.min(exposureCount, 29);
+                    
+                    // Set FSRS card to appropriate state
+                    if (wordMemory.correctCount <= 3) {
+                        wordMemory.fsrsCard.state = 'Learning';
+                    } else {
+                        wordMemory.fsrsCard.state = 'Review';
+                    }
+                    wordMemory.fsrsCard.reps = wordMemory.correctCount;
+                    wordMemory.fsrsCard.stability = wordMemory.correctCount * 2;
+                    wordMemory.fsrsCard.difficulty = 0.5;
+                    
+                    // Set due date based on when they last played
+                    const lastPlayed = new Date(oldSaveData.lastUpdated || new Date());
+                    const daysSinceLastPlay = Math.floor((Date.now() - lastPlayed.getTime()) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysSinceLastPlay > 7) {
+                        wordMemory.fsrsCard.due = new Date();
+                    } else {
+                        const dueDate = new Date(lastPlayed);
+                        dueDate.setDate(dueDate.getDate() + (7 - wordMemory.correctCount));
+                        wordMemory.fsrsCard.due = dueDate;
+                    }
+                    
+                    // Add training history
+                    for (let i = 0; i < wordMemory.correctCount; i++) {
                         wordMemory.trainingHistory.push({
                             date: oldSaveData.lastUpdated || new Date().toISOString(),
                             flashNumber: 1,
-                            responseTime: 3.0,
+                            responseTime: 2.5 + (i * 0.1),
                             isCorrect: true,
-                            rating: 'good'
+                            rating: i < 3 ? 'hard' : 'good'
                         });
+                    }
+                }
+                
+                // Make sure unlocked ingot words are available for training
+                if (unit.unlocked && wordMemory.correctCount < 30) {
+                    if (new Date(wordMemory.fsrsCard.due) > new Date()) {
+                        wordMemory.fsrsCard.due = new Date();
                     }
                 }
                 
@@ -2471,6 +2545,11 @@ function loadProgress() {
                 };
             }
             
+            // Initialize training timer if not present
+            if (!saveData.playerPerformance.lastTrainTime) {
+                saveData.playerPerformance.lastTrainTime = null;
+            }
+            
             if (saveData.worlds) {
                 Object.keys(saveData.worlds).forEach(key => {
                     if (worlds[key]) {
@@ -2511,6 +2590,39 @@ function loadProgress() {
 
 function startAutoSave() {
     setInterval(saveProgress, 60000);
+}
+
+// ---------- TRAINING TIMER FUNCTIONS ----------
+function canTrain() {
+    if (!playerPerformance.lastTrainTime) return true;
+    
+    const lastTrain = new Date(playerPerformance.lastTrainTime).getTime();
+    const now = Date.now();
+    const hoursSince = (now - lastTrain) / (1000 * 60 * 60);
+    
+    return hoursSince >= 12;
+}
+
+function getHoursUntilNextTrain() {
+    if (!playerPerformance.lastTrainTime) return null;
+    if (canTrain()) return null;
+    
+    const lastTrain = new Date(playerPerformance.lastTrainTime).getTime();
+    const now = Date.now();
+    const hoursSince = (now - lastTrain) / (1000 * 60 * 60);
+    const hoursUntil = 12 - hoursSince;
+    
+    if (hoursUntil <= 0) return null;
+    
+    const h = Math.floor(hoursUntil);
+    const m = Math.floor((hoursUntil - h) * 60);
+    return `${h}h ${m}m`;
+}
+
+function recordTraining() {
+    playerPerformance.lastTrainTime = new Date().toISOString();
+    saveProgress();
+    updateHomeScreen(); // Refresh home screen with new timer
 }
 
 // ---------- TRAINING UI FUNCTIONS ----------
@@ -2584,6 +2696,18 @@ function showDifficultySelector() {
 let currentTrainingSession = null;
 
 function startTraining(difficulty) {
+    if (!canTrain()) {
+        const timeLeft = getHoursUntilNextTrain();
+        showToast(`Training available in ${timeLeft}`, '⏳');
+        return;
+    }
+    
+    const dueCount = codex.getDueCount();
+    if (dueCount === 0) {
+        showToast('No words due for training!', '📖');
+        return;
+    }
+    
     currentTrainingSession = new TrainingSession(codex, fsrsManager, difficulty);
     const sessionData = currentTrainingSession.start();
     
@@ -2706,6 +2830,8 @@ function moveToNextWord() {
     const result = currentTrainingSession.nextWord();
     
     if (result.completed) {
+        // Record training time when session completes
+        recordTraining();
         showTrainingSummary(result.results);
     } else {
         showTrainingUI(currentTrainingSession, {
@@ -2763,7 +2889,146 @@ function showTrainingSummary(summary) {
         overlay.classList.add('hidden');
         currentTrainingSession = null;
         updateTrainBadge();
+        updateHomeScreen(); // Refresh home screen
         saveProgress();
+    });
+}
+
+// ---------- TOAST NOTIFICATION ----------
+function showToast(message, icon = 'ℹ️', duration = 3000) {
+    const existingToast = document.querySelector('.toast-notification');
+    if (existingToast) existingToast.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = `
+        <div class="toast-content">
+            <span class="toast-icon">${icon}</span>
+            <span class="toast-message">${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+// ---------- HOME SCREEN FUNCTIONS ----------
+function showHomeScreen() {
+    document.getElementById('homeScreen').classList.remove('hidden');
+    document.getElementById('gameContainer').classList.add('hidden');
+    updateHomeScreen();
+}
+
+function showGameScreen() {
+    document.getElementById('homeScreen').classList.add('hidden');
+    document.getElementById('gameContainer').classList.remove('hidden');
+    
+    // Ensure game display is updated
+    updateWorldDisplay();
+    renderAll();
+    updateTrainBadge();
+}
+
+function updateHomeScreen() {
+    const world = worlds[currentWorld];
+    const unit = world.units.find(u => u.id === currentUnit);
+    
+    // Update header
+    document.getElementById('homeWorldName').innerText = world.name;
+    document.getElementById('homeTierBadge').innerText = getWorldTier();
+    
+    // Update streak
+    document.getElementById('streakDays').innerText = playerPerformance.devotion.days;
+    document.getElementById('streakBonus').innerText = `+${playerPerformance.devotion.bonus.toFixed(1)}% BONUS`;
+    
+    // Update current ingot
+    const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
+    document.getElementById('currentIngotName').innerText = `${world.unitName} ${currentUnit.toString().padStart(2, '0')}: ${unitData?.name || 'Unknown'}`;
+    const progressPercent = (unit.wordsCompleted / 20) * 100;
+    document.getElementById('currentIngotProgress').style.width = `${progressPercent}%`;
+    document.getElementById('currentIngotCount').innerText = `${unit.wordsCompleted}/20`;
+    
+    // Update codex
+    const masteredCount = codex.getMasteredCount();
+    document.getElementById('codexMasteredCount').innerText = `${masteredCount}⭐ mastered`;
+    
+    // Update train timer
+    const timerSpan = document.getElementById('trainTimer');
+    const trainBtn = document.getElementById('homeTrainBtn');
+    const timeLeft = getHoursUntilNextTrain();
+    
+    if (timeLeft) {
+        timerSpan.innerText = timeLeft;
+        timerSpan.style.display = 'inline';
+        trainBtn.style.opacity = '0.5';
+        trainBtn.disabled = true;
+    } else {
+        timerSpan.style.display = 'none';
+        trainBtn.style.opacity = '1';
+        trainBtn.disabled = false;
+    }
+    
+    // Populate ingot dropdown
+    populateIngotDropdown();
+}
+
+function populateIngotDropdown() {
+    const dropdownMenu = document.getElementById('ingotDropdownMenu');
+    const world = worlds[currentWorld];
+    
+    let html = '';
+    world.units.forEach(unit => {
+        if (unit.unlocked) {
+            const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[unit.id];
+            const unitName = unitData?.name || 'Unknown';
+            const currentClass = unit.id === currentUnit ? 'dropdown-item current' : 'dropdown-item';
+            html += `<div class="${currentClass}" data-ingot="${unit.id}">${world.unitName} ${unit.id.toString().padStart(2, '0')}: ${unitName}</div>`;
+        }
+    });
+    
+    dropdownMenu.innerHTML = html;
+    
+    // Add click handlers
+    dropdownMenu.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const ingotId = parseInt(item.dataset.ingot);
+            currentUnit = ingotId;
+            
+            // Update current ingot display
+            const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
+            document.getElementById('currentIngotName').innerText = `${world.unitName} ${currentUnit.toString().padStart(2, '0')}: ${unitData?.name || 'Unknown'}`;
+            const unit = world.units.find(u => u.id === currentUnit);
+            const progressPercent = (unit.wordsCompleted / 20) * 100;
+            document.getElementById('currentIngotProgress').style.width = `${progressPercent}%`;
+            document.getElementById('currentIngotCount').innerText = `${unit.wordsCompleted}/20`;
+            
+            // Close dropdown
+            document.getElementById('ingotDropdownBtn').classList.remove('active');
+            dropdownMenu.classList.add('hidden');
+        });
+    });
+    
+    // Toggle dropdown on button click
+    const dropdownBtn = document.getElementById('ingotDropdownBtn');
+    dropdownBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownBtn.classList.toggle('active');
+        dropdownMenu.classList.toggle('hidden');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.dropdown-container')) {
+            dropdownBtn.classList.remove('active');
+            dropdownMenu.classList.add('hidden');
+        }
     });
 }
 
@@ -2998,14 +3263,10 @@ function showWordDetail(wordId) {
     });
     
     document.getElementById('trainWordBtn').addEventListener('click', () => {
-        startSingleWordTraining(word);
+        // TODO: Implement single word training
+        document.getElementById('popupOverlay').classList.add('hidden');
+        showToast('Single word training coming soon!', '🔨');
     });
-}
-
-function startSingleWordTraining(word) {
-    // TODO: Implement single word training session
-    document.getElementById('popupOverlay').classList.add('hidden');
-    alert('Single word training coming soon!');
 }
 
 function getWorldName(world) {
@@ -3031,7 +3292,7 @@ function getIngotName(world, ingot) {
     return `Ingot ${ingot.toString().padStart(2, '0')}`;
 }
 
-// ---------- PROFILE POPUP WITH LEADERBOARD TROPHY AND CODEX STATS ----------
+// ---------- PROFILE POPUP ----------
 function showProfilePopup(returnToLeaderboard = false) {
     const overlay = document.getElementById('popupOverlay');
     const stats = getPlayerStats();
@@ -3235,11 +3496,11 @@ function returnToPreviousScreen(returnToLeaderboard) {
     if (returnToLeaderboard) {
         showLeaderboardPopup(true);
     } else {
-        renderAll();
+        showHomeScreen();
     }
 }
 
-// ---------- LEADERBOARD POPUP WITH FETCH AND MASTERY STARS ----------
+// ---------- LEADERBOARD POPUP ----------
 function showLeaderboardPopup(fromCompletion = false) {
     const overlay = document.getElementById('popupOverlay');
     
@@ -3286,13 +3547,11 @@ function handleLeaderboardReturn(fromCompletion) {
             if (nextUnit && nextUnit.unlocked) {
                 setTimeout(() => showNextIngotPreview(), 100);
             } else {
-                renderAll();
-                setUnitSectionVisibility(true);
-                updateHeaderForSelection();
+                showHomeScreen();
             }
         }
     } else {
-        renderAll();
+        showHomeScreen();
     }
 }
 
@@ -3389,7 +3648,7 @@ function displayLeaderboard(leaderboard, fromCompletion) {
     });
 }
 
-// ---------- POPUP FUNCTIONS ----------
+// ---------- WORD CARD POPUP ----------
 function showWordCard(wordData) {
     wordCardQueue.push(wordData);
     processWordCardQueue();
@@ -3439,10 +3698,8 @@ function processWordCardQueue() {
     tg?.HapticFeedback?.notificationOccurred?.('success');
 }
 
-// ---------- FAILURE POPUP - FIXED ----------
+// ---------- FAILURE POPUP ----------
 function showFailurePopup() {
-    console.log('Showing failure popup');
-    
     const overlay = document.getElementById('popupOverlay');
     overlay.innerHTML = '';
     
@@ -3461,31 +3718,22 @@ function showFailurePopup() {
     overlay.appendChild(card);
     overlay.classList.remove('hidden');
     
-    const viewLeaderboardBtn = document.getElementById('viewLeaderboardBtn');
-    const tryAgainBtn = document.getElementById('tryAgainBtn');
+    document.getElementById('viewLeaderboardBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        setTimeout(() => showLeaderboardPopup(true), 100);
+    });
     
-    if (viewLeaderboardBtn) {
-        viewLeaderboardBtn.addEventListener('click', () => {
-            overlay.classList.add('hidden');
-            setTimeout(() => showLeaderboardPopup(true), 100);
-        });
-    }
-    
-    if (tryAgainBtn) {
-        tryAgainBtn.addEventListener('click', () => {
-            overlay.classList.add('hidden');
-            resetForNewUnit();
-            QUICK_RESUME.clearSession();
-        });
-    }
+    document.getElementById('tryAgainBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        resetForNewUnit();
+        QUICK_RESUME.clearSession();
+    });
     
     tg?.HapticFeedback?.notificationOccurred?.('error');
 }
 
-// ---------- INGOT COMPLETE POPUP - FIXED ----------
+// ---------- INGOT COMPLETE POPUP ----------
 function showIngotCompletePopup() {
-    console.log('Showing ingot complete popup');
-    
     const overlay = document.getElementById('popupOverlay');
     const world = worlds[currentWorld];
     const unit = world.units.find(u => u.id === currentUnit);
@@ -3530,35 +3778,29 @@ function showIngotCompletePopup() {
     overlay.appendChild(card);
     overlay.classList.remove('hidden');
     
-    const viewLeaderboardBtn = document.getElementById('viewLeaderboardBtn');
-    const continueBtn = document.getElementById('continueBtn');
+    document.getElementById('viewLeaderboardBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        setTimeout(() => showLeaderboardPopup(true), 100);
+    });
     
-    if (viewLeaderboardBtn) {
-        viewLeaderboardBtn.addEventListener('click', () => {
-            overlay.classList.add('hidden');
-            setTimeout(() => showLeaderboardPopup(true), 100);
-        });
-    }
-    
-    if (continueBtn) {
-        continueBtn.addEventListener('click', () => {
-            overlay.classList.add('hidden');
-            
-            const allUnitsCompleted = world.units.every(u => u.wordsCompleted === 20);
-            if (allUnitsCompleted) {
-                setTimeout(() => showWorldArtifactPopup(), 100);
-            } else {
-                const nextIngotId = currentUnit + 1;
-                const nextUnit = world.units.find(u => u.id === nextIngotId);
-                if (nextUnit) {
-                    nextUnit.unlocked = true;
-                    setTimeout(() => showNextIngotPreview(), 100);
-                }
+    document.getElementById('continueBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        
+        const allUnitsCompleted = world.units.every(u => u.wordsCompleted === 20);
+        if (allUnitsCompleted) {
+            setTimeout(() => showWorldArtifactPopup(), 100);
+        } else {
+            const nextIngotId = currentUnit + 1;
+            const nextUnit = world.units.find(u => u.id === nextIngotId);
+            if (nextUnit) {
+                nextUnit.unlocked = true;
+                setTimeout(() => showNextIngotPreview(), 100);
             }
-            saveProgress();
-            QUICK_RESUME.saveSession();
-        });
-    }
+        }
+        saveProgress();
+        QUICK_RESUME.saveSession();
+        showHomeScreen(); // Return to home after ingot completion
+    });
     
     tg?.HapticFeedback?.notificationOccurred?.('success');
 }
@@ -3620,6 +3862,7 @@ function showNextIngotPreview() {
         resetForNewUnit();
         updateWorldDisplay();
         saveProgress();
+        showGameScreen();
     });
     
     document.getElementById('practiceBtn').addEventListener('click', () => {
@@ -3672,6 +3915,7 @@ function showPracticeMode() {
             resetForNewUnit();
             updateWorldDisplay();
             saveProgress();
+            showGameScreen();
         });
     });
     
@@ -3744,6 +3988,7 @@ function showWorldUnlockPopup(worldId) {
     
     card.addEventListener('click', () => {
         overlay.classList.add('hidden');
+        showHomeScreen();
     });
 }
 
@@ -3851,7 +4096,7 @@ function handleWordCompletion(wordIndex) {
     }
 }
 
-// ---------- OPTIMIZED handleLetterTap FUNCTION ----------
+// ---------- handleLetterTap FUNCTION ----------
 function handleLetterTap(letter, indexInGrid) {
     if (gameCompleted) return;
     totalTaps++;
@@ -3918,7 +4163,7 @@ function handleLetterTap(letter, indexInGrid) {
     }
 }
 
-// ---------- OPTIMIZED: Update only the letter grid ----------
+// ---------- Update letter grid ----------
 function updateLetterGridOnly() {
     const gridContainer = document.getElementById('letterGridContainer');
     
@@ -3938,7 +4183,6 @@ function updateLetterGridOnly() {
     }
 }
 
-// ---------- OPTIMIZED: Update only the active word display ----------
 function updateActiveWordDisplay(targetWord) {
     const progressWord = targetWord.split('').map((l, i) => 
         i < currentPosition ? l.toUpperCase() : '_'
@@ -3949,7 +4193,6 @@ function updateActiveWordDisplay(targetWord) {
         (currentPosition < targetWord.length) ? targetWord[currentPosition].toUpperCase() : '✅';
 }
 
-// ---------- OPTIMIZED RENDER UI ----------
 function renderAll() {
     const words = getCurrentUnitWords();
     
@@ -4004,7 +4247,6 @@ function renderAll() {
     }
 }
 
-// ---------- RESET HANDLER ----------
 function handleReset() {
     if (tg) {
         tg.showConfirm('View success chance before resetting?', (ok) => {
@@ -4019,7 +4261,7 @@ function handleReset() {
     }
 }
 
-// ---------- INITIALIZATION FUNCTION ----------
+// ---------- INITIALIZATION ----------
 function initializeGame() {
     updateDevotion();
     
@@ -4035,6 +4277,7 @@ function initializeGame() {
                     resetForNewUnit();
                     QUICK_RESUME.clearSession();
                 }
+                showHomeScreen();
             });
         } else {
             if (confirm('Resume your last forging session?')) {
@@ -4044,10 +4287,12 @@ function initializeGame() {
                 resetForNewUnit();
                 QUICK_RESUME.clearSession();
             }
+            showHomeScreen();
         }
     } else {
         loadProgress();
         resetForNewUnit();
+        showHomeScreen();
     }
     
     updateTrainBadge();
@@ -4057,55 +4302,92 @@ function initializeGame() {
             QUICK_RESUME.saveSession();
         }
         updateTrainBadge();
+        if (!document.getElementById('homeScreen').classList.contains('hidden')) {
+            updateHomeScreen();
+        }
     }, 30000);
 }
 
 // ---------- EVENT LISTENERS ----------
-document.getElementById('resetButton').addEventListener('click', handleReset);
-document.getElementById('profileIconBtn').addEventListener('click', () => showProfilePopup(false));
-
-document.getElementById('unitSelector').addEventListener('change', (e) => {
-    currentUnit = parseInt(e.target.value);
-    resetForNewUnit();
-    updateWorldDisplay();
-    saveProgress();
-});
-
-document.addEventListener('click', (e) => {
-    if (activeWordIndex !== null && 
-        !e.target.closest('.word-chip') && 
-        !e.target.closest('.letter-tile')) {
-        returnTempLetters();
-        activeWordIndex = null;
-        currentPosition = 0;
-        setUnitSectionVisibility(true);
-        updateHeaderForSelection();
-        
-        currentLetters = generateInitialLetters();
-        renderAll();
-    }
-});
-
-const trainButton = document.getElementById('trainButton');
-if (trainButton) {
-    trainButton.addEventListener('click', () => {
+document.addEventListener('DOMContentLoaded', () => {
+    // Home screen buttons
+    document.getElementById('homeProfileIconBtn').addEventListener('click', () => showProfilePopup(false));
+    document.getElementById('forgeSelectedBtn').addEventListener('click', () => showGameScreen());
+    
+    document.getElementById('homeTrainBtn').addEventListener('click', () => {
+        if (!canTrain()) {
+            const timeLeft = getHoursUntilNextTrain();
+            showToast(`Training available in ${timeLeft}`, '⏳');
+            return;
+        }
         const dueCount = codex.getDueCount();
         if (dueCount === 0) {
-            alert('No words due for training today! Check back tomorrow.');
+            showToast('No words due for training!', '📖');
             return;
         }
         showDifficultySelector();
     });
-}
-
-const codexButton = document.getElementById('codexButton');
-if (codexButton) {
-    codexButton.addEventListener('click', () => {
-        showCodexUI();
+    
+    document.getElementById('homeLeaderboardBtn').addEventListener('click', () => showLeaderboardPopup(false));
+    document.getElementById('homeCodexBtn').addEventListener('click', () => showCodexUI());
+    
+    document.getElementById('homeFooterProfileBtn').addEventListener('click', () => showProfilePopup(false));
+    document.getElementById('homeFooterSettingsBtn').addEventListener('click', () => showToast('Settings coming soon!', '⚙️'));
+    document.getElementById('homeFooterInfoBtn').addEventListener('click', () => showToast('Spellforge v1.3 · Forge words, master vocabulary', 'ℹ️'));
+    
+    // Game screen buttons
+    document.getElementById('backToHomeBtn').addEventListener('click', () => showHomeScreen());
+    document.getElementById('resetButton').addEventListener('click', handleReset);
+    document.getElementById('profileIconBtn').addEventListener('click', () => showProfilePopup(false));
+    
+    document.getElementById('unitSelector').addEventListener('change', (e) => {
+        currentUnit = parseInt(e.target.value);
+        resetForNewUnit();
+        updateWorldDisplay();
+        saveProgress();
     });
-}
+    
+    const trainButton = document.getElementById('trainButton');
+    if (trainButton) {
+        trainButton.addEventListener('click', () => {
+            if (!canTrain()) {
+                const timeLeft = getHoursUntilNextTrain();
+                showToast(`Training available in ${timeLeft}`, '⏳');
+                return;
+            }
+            const dueCount = codex.getDueCount();
+            if (dueCount === 0) {
+                showToast('No words due for training!', '📖');
+                return;
+            }
+            showDifficultySelector();
+        });
+    }
+    
+    const codexButton = document.getElementById('codexButton');
+    if (codexButton) {
+        codexButton.addEventListener('click', () => {
+            showCodexUI();
+        });
+    }
+    
+    document.addEventListener('click', (e) => {
+        if (activeWordIndex !== null && 
+            !e.target.closest('.word-chip') && 
+            !e.target.closest('.letter-tile')) {
+            returnTempLetters();
+            activeWordIndex = null;
+            currentPosition = 0;
+            setUnitSectionVisibility(true);
+            updateHeaderForSelection();
+            
+            currentLetters = generateInitialLetters();
+            renderAll();
+        }
+    });
+});
 
-// ---------- INITIALIZATION ----------
+// ---------- START THE GAME ----------
 loadProfile();
 initializeGame();
 
@@ -4113,7 +4395,11 @@ if (tg) {
     tg.onEvent('backButtonClicked', () => {
         saveProgress();
         QUICK_RESUME.saveSession();
-        setTimeout(() => tg.close(), 100);
+        if (!document.getElementById('homeScreen').classList.contains('hidden')) {
+            setTimeout(() => tg.close(), 100);
+        } else {
+            showHomeScreen();
+        }
     });
     tg.BackButton?.show();
     tg.ready();
