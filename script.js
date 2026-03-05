@@ -1301,17 +1301,15 @@ for (let i = 1; i <= 180; i++) {
     ingotGrace[i] = 0;
 }
 
-// ---------- DEVOTION SYSTEM - NEW ----------
+// ---------- DEVOTION SYSTEM ----------
 const DEVOTION = {
     MAX_DAYS: 365,
     MAX_BONUS: 30,
     
-    // Calculate bonus percentage based on days
     calculateBonus(days) {
         return Math.min(Math.round((days / this.MAX_DAYS) * this.MAX_BONUS * 100) / 100, this.MAX_BONUS);
     },
     
-    // Get tier based on days
     getTier(days) {
         if (days >= 365) return { name: "Crystal", icon: "💎", color: "#88CCFF", svg: "icon-anvil-crystal" };
         if (days >= 200) return { name: "Gold", icon: "🥇", color: "#FFD700", svg: "icon-anvil-gold" };
@@ -1320,7 +1318,6 @@ const DEVOTION = {
         return { name: "None", icon: "⚒️", color: "#6A6A6A", svg: "icon-anvil" };
     },
     
-    // Check if milestone achieved
     checkMilestones(days, oldDays) {
         const milestones = [];
         if (oldDays < 30 && days >= 30) milestones.push(30);
@@ -1331,7 +1328,7 @@ const DEVOTION = {
     }
 };
 
-// ---------- PLAYER PERFORMANCE TRACKING - UPDATED with Devotion ----------
+// ---------- PLAYER PERFORMANCE TRACKING ----------
 let playerPerformance = {
     currentStreak: 0,
     bestStreak: 0,
@@ -1348,7 +1345,6 @@ let playerPerformance = {
         5: { completed: 0, failed: 0, bestTime: null },
         6: { completed: 0, failed: 0, bestTime: null }
     },
-    // Devotion data
     devotion: {
         days: 0,
         lastLogin: null,
@@ -1363,41 +1359,347 @@ let playerPerformance = {
     }
 };
 
-// ---------- UPDATE DEVOTION FUNCTION - NEW ----------
+// ---------- CODEX SYSTEM - NEW ----------
+class WordMemory {
+    constructor(wordId, wordData) {
+        this.wordId = wordId;
+        this.word = wordData.word;
+        this.emoji = wordData.emoji;
+        this.sentence = wordData.sentence;
+        
+        this.sourceWorld = wordData.world;
+        this.sourceIngot = wordData.ingot;
+        this.firstForged = new Date().toISOString();
+        
+        this.fsrsCard = {
+            due: new Date(),
+            stability: 0,
+            difficulty: 0,
+            elapsed_days: 0,
+            scheduled_days: 0,
+            reps: 0,
+            lapses: 0,
+            state: 'New'
+        };
+        
+        this.correctCount = 0;
+        this.mastered = false;
+        this.masteredDate = null;
+        this.trainingHistory = [];
+        this.bestTime = null;
+    }
+    
+    recordTraining(flashNumber, responseTime, isCorrect, rating) {
+        this.trainingHistory.push({
+            date: new Date().toISOString(),
+            flashNumber,
+            responseTime,
+            isCorrect,
+            rating
+        });
+        
+        if (isCorrect && (!this.bestTime || responseTime < this.bestTime)) {
+            this.bestTime = responseTime;
+        }
+        
+        if (flashNumber === 1 && isCorrect && rating !== 'again') {
+            this.correctCount++;
+            
+            if (this.correctCount >= 30 && !this.mastered) {
+                this.mastered = true;
+                this.masteredDate = new Date().toISOString();
+            }
+        }
+    }
+    
+    getMasteryPercent() {
+        return (this.correctCount / 30) * 100;
+    }
+    
+    isDue() {
+        return new Date(this.fsrsCard.due) <= new Date();
+    }
+}
+
+class Codex {
+    constructor() {
+        this.words = new Map();
+        this.version = '1.0';
+        this.lastSync = new Date().toISOString();
+    }
+    
+    addWord(wordId, wordData) {
+        if (!this.words.has(wordId)) {
+            this.words.set(wordId, new WordMemory(wordId, wordData));
+        }
+        return this.words.get(wordId);
+    }
+    
+    getWord(wordId) {
+        return this.words.get(wordId);
+    }
+    
+    getAllWords() {
+        return Array.from(this.words.values());
+    }
+    
+    getDueWords(limit = 10) {
+        return this.getAllWords()
+            .filter(word => word.isDue() && !word.mastered)
+            .sort((a, b) => new Date(a.fsrsCard.due) - new Date(b.fsrsCard.due))
+            .slice(0, limit);
+    }
+    
+    getDueCount() {
+        return this.getAllWords().filter(word => word.isDue() && !word.mastered).length;
+    }
+    
+    getMasteredCount() {
+        return this.getAllWords().filter(w => w.mastered).length;
+    }
+    
+    getStats() {
+        const all = this.getAllWords();
+        const mastered = all.filter(w => w.mastered).length;
+        
+        return {
+            total: all.length,
+            mastered: mastered,
+            learning: all.filter(w => w.correctCount > 0 && !w.mastered).length,
+            new: all.filter(w => w.correctCount === 0).length,
+            due: this.getDueCount(),
+            percentComplete: (mastered / 3600) * 100
+        };
+    }
+    
+    getWordsByIngot(world, ingot) {
+        return this.getAllWords().filter(w => 
+            w.sourceWorld === world && w.sourceIngot === ingot
+        );
+    }
+    
+    export() {
+        return {
+            version: this.version,
+            lastSync: this.lastSync,
+            words: Array.from(this.words.entries()).map(([id, word]) => ({
+                id,
+                ...word
+            }))
+        };
+    }
+    
+    import(data) {
+        if (!data) return;
+        this.version = data.version || '1.0';
+        this.lastSync = data.lastSync || new Date().toISOString();
+        
+        if (data.words) {
+            this.words = new Map();
+            data.words.forEach(w => {
+                const word = new WordMemory(w.wordId, w);
+                Object.assign(word, w);
+                this.words.set(w.id, word);
+            });
+        }
+    }
+}
+
+class FSRSManager {
+    constructor() {
+        this.requestRetention = 0.9;
+        this.maximumInterval = 3650;
+    }
+    
+    processResult(wordMemory, rating, responseTime) {
+        const now = new Date();
+        let interval = 1;
+        
+        switch(rating) {
+            case 'again':
+                interval = 1;
+                wordMemory.fsrsCard.lapses++;
+                wordMemory.fsrsCard.difficulty = Math.min(1, wordMemory.fsrsCard.difficulty + 0.1);
+                break;
+            case 'hard':
+                interval = wordMemory.fsrsCard.scheduled_days * 1.2 || 2;
+                wordMemory.fsrsCard.difficulty += 0.05;
+                break;
+            case 'good':
+                interval = wordMemory.fsrsCard.scheduled_days * (1.5 + wordMemory.fsrsCard.stability) || 3;
+                wordMemory.fsrsCard.difficulty = Math.max(0, wordMemory.fsrsCard.difficulty - 0.02);
+                break;
+            case 'easy':
+                interval = wordMemory.fsrsCard.scheduled_days * 2.5 || 5;
+                wordMemory.fsrsCard.difficulty = Math.max(0, wordMemory.fsrsCard.difficulty - 0.05);
+                break;
+        }
+        
+        interval = Math.min(interval, this.maximumInterval);
+        
+        const dueDate = new Date(now);
+        dueDate.setDate(dueDate.getDate() + interval);
+        
+        wordMemory.fsrsCard.due = dueDate;
+        wordMemory.fsrsCard.scheduled_days = interval;
+        wordMemory.fsrsCard.elapsed_days = interval;
+        wordMemory.fsrsCard.reps++;
+        wordMemory.fsrsCard.stability = interval / 10;
+        
+        if (wordMemory.fsrsCard.state === 'New' && rating !== 'again') {
+            wordMemory.fsrsCard.state = 'Learning';
+        } else if (wordMemory.fsrsCard.state === 'Learning' && wordMemory.fsrsCard.reps >= 3) {
+            wordMemory.fsrsCard.state = 'Review';
+        } else if (rating === 'again') {
+            wordMemory.fsrsCard.state = 'Relearning';
+        }
+        
+        return {
+            nextReview: dueDate,
+            retrievability: 0.9
+        };
+    }
+    
+    getRatingFromSpeed(seconds, isCorrect) {
+        if (!isCorrect) return 'again';
+        if (seconds < 2.0) return 'easy';
+        if (seconds < 4.0) return 'good';
+        if (seconds < 7.0) return 'hard';
+        return 'again';
+    }
+}
+
+class TrainingSession {
+    constructor(codex, fsrsManager, difficulty = 'medium') {
+        this.codex = codex;
+        this.fsrs = fsrsManager;
+        this.difficulty = difficulty;
+        this.wordCount = {
+            easy: 5,
+            medium: 10,
+            hard: 20,
+            insane: 50
+        }[difficulty];
+        
+        this.words = [];
+        this.currentIndex = 0;
+        this.currentFlash = 0;
+        this.results = [];
+    }
+    
+    start() {
+        this.words = this.codex.getDueWords(this.wordCount);
+        
+        if (this.words.length < this.wordCount) {
+            const extra = this.getRandomWords(this.wordCount - this.words.length);
+            this.words.push(...extra);
+        }
+        
+        return {
+            totalWords: this.words.length,
+            firstWord: this.words[0]
+        };
+    }
+    
+    getCurrentWord() {
+        return this.words[this.currentIndex];
+    }
+    
+    processFlash(typedWord, responseTime) {
+        const word = this.getCurrentWord();
+        const isCorrect = typedWord.toLowerCase() === word.word.toLowerCase();
+        
+        if (this.currentFlash === 1) {
+            const rating = this.fsrs.getRatingFromSpeed(responseTime, isCorrect);
+            this.fsrs.processResult(word, rating, responseTime);
+            word.recordTraining(1, responseTime, isCorrect, rating);
+        } else {
+            word.recordTraining(this.currentFlash, responseTime, isCorrect, 'practice');
+        }
+        
+        this.results.push({
+            wordId: word.wordId,
+            flash: this.currentFlash,
+            correct: isCorrect,
+            responseTime
+        });
+        
+        return {
+            isCorrect,
+            nextFlash: this.currentFlash < 3 ? this.currentFlash + 1 : null,
+            mastered: word.mastered,
+            progress: word.getMasteryPercent()
+        };
+    }
+    
+    nextWord() {
+        this.currentIndex++;
+        this.currentFlash = 0;
+        
+        if (this.currentIndex >= this.words.length) {
+            return { completed: true, results: this.getSummary() };
+        }
+        
+        return {
+            completed: false,
+            nextWord: this.words[this.currentIndex]
+        };
+    }
+    
+    getSummary() {
+        const correct = this.results.filter(r => r.correct).length;
+        const total = this.results.length;
+        const mastered = this.results.filter(r => r.mastered).length;
+        
+        return {
+            totalWords: this.words.length,
+            totalFlashes: total,
+            correctFlashes: correct,
+            accuracy: total > 0 ? (correct / total) * 100 : 0,
+            wordsMastered: mastered
+        };
+    }
+    
+    getRandomWords(count) {
+        const available = this.codex.getAllWords()
+            .filter(w => !w.mastered && !this.words.includes(w));
+        
+        return available.sort(() => 0.5 - Math.random()).slice(0, count);
+    }
+}
+
+// Initialize Codex
+const codex = new Codex();
+const fsrsManager = new FSRSManager();
+
+// ---------- UPDATE DEVOTION FUNCTION ----------
 function updateDevotion() {
     const today = new Date().toDateString();
     const lastLogin = playerPerformance.devotion.lastLogin ? new Date(playerPerformance.devotion.lastLogin).toDateString() : null;
     const oldDays = playerPerformance.devotion.days;
     
     if (!lastLogin) {
-        // First time playing
         playerPerformance.devotion.days = 1;
         playerPerformance.devotion.lastLogin = new Date().toISOString();
     } else if (lastLogin !== today) {
-        // Calculate days since last login
         const lastDate = new Date(playerPerformance.devotion.lastLogin);
         const currentDate = new Date();
         const daysDiff = Math.floor((currentDate - lastDate) / (1000 * 60 * 60 * 24));
         
         if (daysDiff === 1) {
-            // Consecutive day - add one
             playerPerformance.devotion.days = Math.min(playerPerformance.devotion.days + 1, DEVOTION.MAX_DAYS);
         } else if (daysDiff > 1) {
-            // Missed days - cool down by the number of missed days (but not below 0)
             playerPerformance.devotion.days = Math.max(playerPerformance.devotion.days - (daysDiff - 1), 0);
-            // Then add today
             playerPerformance.devotion.days = Math.min(playerPerformance.devotion.days + 1, DEVOTION.MAX_DAYS);
         }
         
         playerPerformance.devotion.lastLogin = new Date().toISOString();
     }
     
-    // Calculate bonus and tier
     playerPerformance.devotion.bonus = DEVOTION.calculateBonus(playerPerformance.devotion.days);
     const tier = DEVOTION.getTier(playerPerformance.devotion.days);
     playerPerformance.devotion.tier = tier.name;
     
-    // Check for milestones
     const newMilestones = DEVOTION.checkMilestones(playerPerformance.devotion.days, oldDays);
     newMilestones.forEach(day => {
         const milestoneKey = `day${day}`;
@@ -1407,7 +1709,6 @@ function updateDevotion() {
         }
     });
     
-    // Show daily devotion notification if days changed
     if (playerPerformance.devotion.days !== oldDays) {
         showDevotionNotification();
     }
@@ -1415,7 +1716,6 @@ function updateDevotion() {
     saveProgress();
 }
 
-// ---------- DEVOTION NOTIFICATION - NEW ----------
 function showDevotionNotification() {
     const days = playerPerformance.devotion.days;
     const bonus = playerPerformance.devotion.bonus.toFixed(1);
@@ -1451,7 +1751,6 @@ function showDevotionNotification() {
     }, 4000);
 }
 
-// ---------- MILESTONE NOTIFICATION - NEW ----------
 function showMilestoneNotification(day, tier) {
     const messages = {
         30: { text: "Bronze Anvil Unlocked!", desc: "Your devotion begins to show" },
@@ -1542,9 +1841,6 @@ function validateDisplayName(name) {
     if (!/^[a-zA-Z0-9 ]+$/.test(name)) return false;
     return true;
 }
-
-// ---------- PLAYER PERFORMANCE TRACKING ----------
-// Already updated above with devotion
 
 // ---------- WORLD DATA STRUCTURE ----------
 const worlds = {
@@ -1685,23 +1981,22 @@ let gameCompleted = false;
 let wordCardQueue = [];
 let showingWordCard = false;
 
-// ---------- GOOGLE SHEETS LEADERBOARD WITH FETCH - FIXED VERSION ----------
+// ---------- GOOGLE SHEETS LEADERBOARD WITH FETCH - UPDATED with mastered_count ----------
 const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxb816QBBx6q6kwIPMBHGghpUZX4554Etg2G-mcU5akYnhcUMNaAI9sdT2tlq7kzWH2Lw/exec';
 
-// Save score using fetch - USING LOCALSTORAGE ID (FIXED)
 async function saveScoreToGoogleSheetsWithCallback(callback) {
     const totalWords = calculateTotalWords();
+    const masteredCount = codex.getMasteredCount(); // NEW
     const playerName = playerProfile.displayName || "Forgemaster";
     
-    console.log('Saving score:', { totalWords, playerName });
+    console.log('Saving score:', { totalWords, masteredCount, playerName });
     
-    if (totalWords === 0) {
-        console.log('No words to save');
-        if (callback) callback({ success: false, message: 'No words to save' });
+    if (totalWords === 0 && masteredCount === 0) {
+        console.log('No data to save');
+        if (callback) callback({ success: false, message: 'No data to save' });
         return;
     }
     
-    // Get or create persistent local ID (this is your permanent player ID)
     let playerId = localStorage.getItem('spellforge_local_id');
     if (!playerId) {
         playerId = 'player_' + Math.random().toString(36).substring(2, 15);
@@ -1716,9 +2011,10 @@ async function saveScoreToGoogleSheetsWithCallback(callback) {
         url.searchParams.append('action', 'save');
         url.searchParams.append('player_name', playerName);
         url.searchParams.append('total_words', totalWords);
-        url.searchParams.append('telegram_id', playerId);  // Using localStorage ID
+        url.searchParams.append('mastered_count', masteredCount); // NEW
+        url.searchParams.append('telegram_id', playerId);
         url.searchParams.append('display_name', playerProfile.displayName);
-        url.searchParams.append('_', Date.now()); // Cache buster
+        url.searchParams.append('_', Date.now());
         
         console.log('Saving to URL:', url.toString());
         
@@ -1733,19 +2029,17 @@ async function saveScoreToGoogleSheetsWithCallback(callback) {
     }
 }
 
-// Legacy support
 function saveScoreToGoogleSheets() {
     saveScoreToGoogleSheetsWithCallback();
 }
 
-// Load leaderboard using fetch
 async function loadLeaderboardFromSheets(callback) {
     try {
         console.log('Loading leaderboard...');
         
         const url = new URL(GOOGLE_SHEETS_URL);
         url.searchParams.append('action', 'get');
-        url.searchParams.append('_', Date.now()); // Cache buster
+        url.searchParams.append('_', Date.now());
         
         console.log('Fetching leaderboard URL:', url.toString());
         
@@ -1944,7 +2238,7 @@ function updateWorldDisplay() {
     }
 }
 
-// ---------- Show current ingot preview for FORGE AGAIN - UPDATED with Devotion ----------
+// ---------- Show current ingot preview for FORGE AGAIN ----------
 function showCurrentIngotPreview() {
     const world = worlds[currentWorld];
     const unitData = MASTER_WORDS[`world${currentWorld}`].units[currentUnit];
@@ -2047,31 +2341,31 @@ function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-// ---------- SAVE PROGRESS - UPDATED with Devotion ----------
+// ---------- SAVE PROGRESS - UPDATED with Codex ----------
 function saveProgress() {
     const saveData = {
-        version: "1.1",
+        version: "1.2",
         lastUpdated: new Date().toISOString(),
         currentWorld: currentWorld,
         currentUnit: currentUnit,
         completedWords: completedWords,
         playerPerformance: playerPerformance,
         worlds: worlds,
-        ingotGrace: ingotGrace
+        ingotGrace: ingotGrace,
+        codex: codex.export()
     };
     try {
         localStorage.setItem('spellforge_save', JSON.stringify(saveData));
     } catch (e) {}
 }
 
-// ---------- LOAD PROGRESS - UPDATED with Devotion ----------
+// ---------- LOAD PROGRESS - UPDATED with Codex ----------
 function loadProgress() {
     try {
         const saved = localStorage.getItem('spellforge_save');
         if (saved) {
             const saveData = JSON.parse(saved);
             
-            // Handle old save versions
             if (!saveData.playerPerformance.devotion) {
                 saveData.playerPerformance.devotion = {
                     days: 0,
@@ -2115,6 +2409,9 @@ function loadProgress() {
             if (saveData.playerPerformance) {
                 playerPerformance = { ...playerPerformance, ...saveData.playerPerformance };
             }
+            if (saveData.codex) {
+                codex.import(saveData.codex);
+            }
         }
     } catch (e) {}
 }
@@ -2123,10 +2420,529 @@ function startAutoSave() {
     setInterval(saveProgress, 60000);
 }
 
-// ---------- PROFILE POPUP WITH LEADERBOARD TROPHY AND DEVOTION SECTION - UPDATED ----------
+// ---------- TRAINING UI FUNCTIONS - NEW ----------
+function updateTrainBadge() {
+    const dueCount = codex.getDueCount();
+    const badge = document.getElementById('trainBadge');
+    
+    if (badge) {
+        if (dueCount > 0) {
+            badge.textContent = dueCount;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+}
+
+function showDifficultySelector() {
+    const overlay = document.getElementById('popupOverlay');
+    
+    overlay.innerHTML = `
+        <div class="difficulty-card">
+            <div class="difficulty-title">🔥 TRAINING SESSION</div>
+            <div class="difficulty-sub">Choose your daily load</div>
+            
+            <div class="difficulty-options">
+                <div class="difficulty-option" data-difficulty="easy">
+                    <span class="difficulty-name">EASY</span>
+                    <span class="difficulty-words">5 words</span>
+                    <span class="difficulty-time">~30 sec</span>
+                </div>
+                <div class="difficulty-option" data-difficulty="medium">
+                    <span class="difficulty-name">MEDIUM</span>
+                    <span class="difficulty-words">10 words</span>
+                    <span class="difficulty-time">~1 min</span>
+                </div>
+                <div class="difficulty-option" data-difficulty="hard">
+                    <span class="difficulty-name">HARD</span>
+                    <span class="difficulty-words">20 words</span>
+                    <span class="difficulty-time">~2 min</span>
+                </div>
+                <div class="difficulty-option" data-difficulty="insane">
+                    <span class="difficulty-name">INSANE</span>
+                    <span class="difficulty-words">50 words</span>
+                    <span class="difficulty-time">~4 min</span>
+                </div>
+            </div>
+            
+            <div class="difficulty-footer">
+                <span>${codex.getDueCount()} words due today</span>
+                <button class="difficulty-cancel">CANCEL</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    document.querySelectorAll('.difficulty-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            const difficulty = opt.dataset.difficulty;
+            overlay.classList.add('hidden');
+            startTraining(difficulty);
+        });
+    });
+    
+    document.querySelector('.difficulty-cancel').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+}
+
+let currentTrainingSession = null;
+
+function startTraining(difficulty) {
+    currentTrainingSession = new TrainingSession(codex, fsrsManager, difficulty);
+    const sessionData = currentTrainingSession.start();
+    
+    showTrainingUI(currentTrainingSession, sessionData);
+}
+
+function showTrainingUI(session, sessionData) {
+    const overlay = document.getElementById('popupOverlay');
+    const word = session.getCurrentWord();
+    
+    overlay.innerHTML = `
+        <div class="training-card">
+            <div class="training-header">
+                <span class="training-title">🔥 TRAIN · ${session.difficulty.toUpperCase()}</span>
+                <span class="training-progress">${session.currentIndex + 1}/${session.words.length}</span>
+            </div>
+            
+            <div class="training-word-area" id="trainingWordArea">
+                <div class="word-emoji" id="wordEmoji">${word.emoji}</div>
+                <div class="word-text" id="wordText">${word.word.toUpperCase()}</div>
+                <div class="flash-count" id="flashCount">FLASH 1/3</div>
+            </div>
+            
+            <div class="training-input-area">
+                <div class="timer-display" id="timerDisplay">0.0s</div>
+                <input type="text" class="training-input" id="trainingInput" placeholder="Type the word..." autofocus>
+                <button class="training-submit" id="trainingSubmit">SUBMIT</button>
+            </div>
+            
+            <div class="training-footer">
+                <div class="mastery-progress" id="masteryProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${word.getMasteryPercent()}%"></div>
+                    </div>
+                    <span class="progress-text">${word.correctCount}/30</span>
+                </div>
+                <button class="training-skip" id="trainingSkip">SKIP WORD</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    startFlashSequence(session);
+    
+    document.getElementById('trainingSkip').addEventListener('click', () => {
+        moveToNextWord();
+    });
+}
+
+function startFlashSequence(session) {
+    const word = session.getCurrentWord();
+    const wordText = document.getElementById('wordText');
+    const flashCount = document.getElementById('flashCount');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const input = document.getElementById('trainingInput');
+    const submitBtn = document.getElementById('trainingSubmit');
+    
+    session.currentFlash++;
+    flashCount.textContent = `FLASH ${session.currentFlash}/3`;
+    
+    wordText.style.opacity = '1';
+    
+    setTimeout(() => {
+        wordText.style.opacity = '0';
+        
+        const startTime = Date.now();
+        timerDisplay.textContent = '0.0s';
+        
+        const timerInterval = setInterval(() => {
+            const elapsed = (Date.now() - startTime) / 1000;
+            timerDisplay.textContent = `${elapsed.toFixed(1)}s`;
+        }, 100);
+        
+        const submitHandler = () => {
+            const responseTime = (Date.now() - startTime) / 1000;
+            clearInterval(timerInterval);
+            
+            const typedWord = input.value.trim().toLowerCase();
+            const result = session.processFlash(typedWord, responseTime);
+            
+            showFlashFeedback(result.isCorrect, responseTime, session.currentFlash);
+            
+            if (result.nextFlash) {
+                setTimeout(() => {
+                    input.value = '';
+                    startFlashSequence(session);
+                }, 1500);
+            } else {
+                setTimeout(() => moveToNextWord(), 1500);
+            }
+        };
+        
+        submitBtn.onclick = submitHandler;
+        input.onkeypress = (e) => {
+            if (e.key === 'Enter') submitHandler();
+        };
+        
+    }, 1000);
+}
+
+function showFlashFeedback(isCorrect, responseTime, flashNumber) {
+    const feedback = document.createElement('div');
+    feedback.className = `flash-feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+    feedback.innerHTML = `
+        <div class="feedback-content">
+            <span class="feedback-icon">${isCorrect ? '✓' : '✗'}</span>
+            <span class="feedback-text">${isCorrect ? `${responseTime.toFixed(1)}s` : 'Try again'}</span>
+        </div>
+    `;
+    
+    document.getElementById('trainingWordArea').appendChild(feedback);
+    
+    setTimeout(() => feedback.remove(), 1000);
+}
+
+function moveToNextWord() {
+    if (!currentTrainingSession) return;
+    
+    const result = currentTrainingSession.nextWord();
+    
+    if (result.completed) {
+        showTrainingSummary(result.results);
+    } else {
+        showTrainingUI(currentTrainingSession, {
+            totalWords: currentTrainingSession.words.length,
+            firstWord: result.nextWord
+        });
+    }
+}
+
+function showTrainingSummary(summary) {
+    const overlay = document.getElementById('popupOverlay');
+    const masteredCount = codex.getMasteredCount();
+    
+    overlay.innerHTML = `
+        <div class="summary-card">
+            <div class="summary-title">🎉 TRAINING COMPLETE!</div>
+            
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <div class="stat-value">${summary.totalWords}</div>
+                    <div class="stat-label">Words</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value">${summary.accuracy.toFixed(0)}%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value">${summary.wordsMastered}</div>
+                    <div class="stat-label">Mastered</div>
+                </div>
+            </div>
+            
+            <div class="summary-progress">
+                <div class="progress-label">Total Mastered: ${masteredCount}</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${(masteredCount/3600)*100}%"></div>
+                </div>
+            </div>
+            
+            <div class="summary-buttons">
+                <button class="summary-btn" id="viewCodexBtn">VIEW CODEX</button>
+                <button class="summary-btn secondary" id="closeBtn">CLOSE</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    document.getElementById('viewCodexBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        showCodexUI();
+    });
+    
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        currentTrainingSession = null;
+        updateTrainBadge();
+        saveProgress();
+    });
+}
+
+// ---------- CODEX UI FUNCTIONS - NEW ----------
+function showCodexUI() {
+    const overlay = document.getElementById('popupOverlay');
+    
+    overlay.innerHTML = `
+        <div class="codex-container" id="codexContainer">
+            <div class="codex-loading">Loading Codex...</div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    renderBookshelf(document.getElementById('codexContainer'));
+}
+
+function renderBookshelf(container) {
+    const stats = codex.getStats();
+    
+    let html = `
+        <div class="codex-header">
+            <button class="codex-close" id="codexClose">✕</button>
+            <h2>📖 THE CODEX</h2>
+            <div class="codex-stats">
+                <span>${stats.mastered}/${stats.total} mastered</span>
+                <span>${stats.due} due today</span>
+            </div>
+        </div>
+    `;
+    
+    for (let world = 1; world <= 6; world++) {
+        const worldName = getWorldName(world);
+        const worldIcon = getWorldIcon(world);
+        const worldWords = codex.getWordsByIngot(world, 0).length > 0 ? 
+            codex.getWordsByIngot(world, 0) : [];
+        const worldMastered = worldWords.filter(w => w.mastered).length;
+        const worldTotal = worldWords.length;
+        
+        const isUnlocked = world === 1 || worlds[world]?.unlocked;
+        
+        html += `
+            <div class="world-section ${!isUnlocked ? 'locked' : ''}">
+                <div class="world-header">
+                    <span class="world-icon">${worldIcon}</span>
+                    <span class="world-name">${worldName}</span>
+                    <span class="world-progress">${worldMastered}/${worldTotal || 600}</span>
+                </div>
+                <div class="world-progress-bar">
+                    <div class="progress-fill" style="width: ${worldTotal ? (worldMastered/worldTotal)*100 : 0}%"></div>
+                </div>
+        `;
+        
+        for (let ingot = 1; ingot <= 30; ingot++) {
+            const ingotWords = codex.getWordsByIngot(world, ingot);
+            if (ingotWords.length === 0 && ingot > 1) continue;
+            
+            const ingotMastered = ingotWords.filter(w => w.mastered).length;
+            const ingotName = getIngotName(world, ingot);
+            const ingotIcon = getIngotIcon(ingot);
+            
+            html += `
+                <div class="ingot-card" data-world="${world}" data-ingot="${ingot}">
+                    <div class="ingot-header">
+                        <span class="ingot-icon">${ingotIcon}</span>
+                        <span class="ingot-name">${ingotName}</span>
+                        <span class="ingot-count">${ingotMastered}/20</span>
+                    </div>
+                    <div class="ingot-progress-bar">
+                        <div class="progress-fill" style="width: ${(ingotMastered/20)*100}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+    }
+    
+    container.innerHTML = html;
+    
+    document.getElementById('codexClose').addEventListener('click', () => {
+        document.getElementById('popupOverlay').classList.add('hidden');
+    });
+    
+    container.querySelectorAll('.ingot-card').forEach(card => {
+        card.addEventListener('click', () => {
+            showConstellation(
+                parseInt(card.dataset.world),
+                parseInt(card.dataset.ingot)
+            );
+        });
+    });
+}
+
+function showConstellation(world, ingot) {
+    const container = document.getElementById('codexContainer');
+    const words = codex.getWordsByIngot(world, ingot);
+    const ingotName = getIngotName(world, ingot);
+    const masteredCount = words.filter(w => w.mastered).length;
+    
+    let html = `
+        <div class="constellation-header">
+            <button class="back-btn" id="backToBookshelf">←</button>
+            <h3>${ingotName}</h3>
+            <span class="constellation-stats">${masteredCount}/20 mastered</span>
+        </div>
+        <div class="word-grid">
+    `;
+    
+    words.sort((a, b) => a.word.localeCompare(b.word)).forEach(word => {
+        const percent = word.getMasteryPercent();
+        const starClass = word.mastered ? 'mastered' : 
+                          word.correctCount > 0 ? 'in-progress' : 'new';
+        
+        html += `
+            <div class="word-card ${starClass}" data-word="${word.wordId}">
+                <div class="word-emoji">${word.emoji}</div>
+                <div class="word-text">${word.word}</div>
+                <div class="word-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${percent}%"></div>
+                    </div>
+                    <span class="progress-count">${word.correctCount}/30</span>
+                </div>
+                ${word.mastered ? '<span class="mastered-star">⭐</span>' : ''}
+            </div>
+        `;
+    });
+    
+    html += `</div>`;
+    
+    container.innerHTML = html;
+    
+    document.getElementById('backToBookshelf').addEventListener('click', () => {
+        renderBookshelf(container);
+    });
+    
+    container.querySelectorAll('.word-card').forEach(card => {
+        card.addEventListener('click', () => {
+            showWordDetail(card.dataset.word);
+        });
+    });
+}
+
+function showWordDetail(wordId) {
+    const word = codex.getWord(wordId);
+    if (!word) return;
+    
+    const container = document.getElementById('codexContainer');
+    const recentHistory = word.trainingHistory.slice(-5).reverse();
+    
+    let historyHtml = '';
+    recentHistory.forEach(h => {
+        const date = new Date(h.date).toLocaleDateString();
+        historyHtml += `
+            <div class="history-item">
+                <span>${date}</span>
+                <span>${h.flashNumber}/3</span>
+                <span>${h.responseTime.toFixed(1)}s</span>
+                <span>${h.isCorrect ? '✓' : '✗'}</span>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = `
+        <div class="word-detail">
+            <button class="back-btn" id="backToConstellation">←</button>
+            
+            <div class="word-header">
+                <span class="detail-emoji">${word.emoji}</span>
+                <span class="detail-word">${word.word}</span>
+            </div>
+            
+            <div class="detail-section">
+                <h4>Mastery Progress</h4>
+                <div class="mastery-bar">
+                    <div class="progress-fill" style="width: ${word.getMasteryPercent()}%"></div>
+                </div>
+                <div class="mastery-stats">
+                    <span>${word.correctCount}/30</span>
+                    <span>${word.mastered ? 'MASTERED ⭐' : 'In Progress'}</span>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h4>Statistics</h4>
+                <div class="stat-row">
+                    <span>First Forged:</span>
+                    <span>${new Date(word.firstForged).toLocaleDateString()}</span>
+                </div>
+                <div class="stat-row">
+                    <span>Last Trained:</span>
+                    <span>${word.trainingHistory.length ? new Date(word.trainingHistory[word.trainingHistory.length-1].date).toLocaleDateString() : 'Never'}</span>
+                </div>
+                <div class="stat-row">
+                    <span>Best Time:</span>
+                    <span>${word.bestTime ? word.bestTime.toFixed(1) + 's' : '--'}</span>
+                </div>
+                <div class="stat-row">
+                    <span>Total Exposures:</span>
+                    <span>${word.trainingHistory.length}</span>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h4>Next Review</h4>
+                <div class="stat-row">
+                    <span>Due:</span>
+                    <span>${new Date(word.fsrsCard.due).toLocaleDateString()}</span>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h4>Sentence</h4>
+                <p class="word-sentence">"${word.sentence}"</p>
+            </div>
+            
+            <div class="detail-section">
+                <h4>Recent History</h4>
+                <div class="history-list">
+                    ${historyHtml || '<p>No training history yet</p>'}
+                </div>
+            </div>
+            
+            <button class="train-word-btn" id="trainWordBtn">TRAIN THIS WORD</button>
+        </div>
+    `;
+    
+    document.getElementById('backToConstellation').addEventListener('click', () => {
+        showConstellation(word.sourceWorld, word.sourceIngot);
+    });
+    
+    document.getElementById('trainWordBtn').addEventListener('click', () => {
+        startSingleWordTraining(word);
+    });
+}
+
+function startSingleWordTraining(word) {
+    // TODO: Implement single word training session
+    document.getElementById('popupOverlay').classList.add('hidden');
+    alert('Single word training coming soon!');
+}
+
+function getWorldName(world) {
+    const names = ['Grand Forge', 'Enchanted Forest', 'Crystal Caverns', 
+                   'Sky Citadel', 'Dragon\'s Peak', 'Star Forge'];
+    return names[world-1];
+}
+
+function getWorldIcon(world) {
+    const icons = ['⚒️', '🌳', '💎', '☁️', '🐉', '⭐'];
+    return icons[world-1];
+}
+
+function getIngotIcon(ingot) {
+    const icons = ['📘', '📗', '📙', '📕', '📔', '📒'];
+    return icons[(ingot-1) % 6];
+}
+
+function getIngotName(world, ingot) {
+    if (world === 1 && MASTER_WORDS.world1.units[ingot]) {
+        return MASTER_WORDS.world1.units[ingot].name;
+    }
+    return `Ingot ${ingot.toString().padStart(2, '0')}`;
+}
+
+// ---------- PROFILE POPUP WITH LEADERBOARD TROPHY AND CODEX STATS - UPDATED ----------
 function showProfilePopup(returnToLeaderboard = false) {
     const overlay = document.getElementById('popupOverlay');
     const stats = getPlayerStats();
+    const codexStats = codex.getStats();
     const worldNames = ['Grand Forge', 'Enchanted Forest', 'Crystal Caverns', 'Sky Citadel', 'Dragon\'s Peak', 'Star Forge'];
     const worldIcons = ['⚒️', '🌳', '💎', '☁️', '🐉', '⭐'];
     
@@ -2140,7 +2956,6 @@ function showProfilePopup(returnToLeaderboard = false) {
         `;
     }
     
-    // Devotion data
     const devotionDays = playerPerformance.devotion?.days || 0;
     const devotionBonus = playerPerformance.devotion?.bonus || 0;
     const devotionTier = DEVOTION.getTier(devotionDays);
@@ -2173,7 +2988,7 @@ function showProfilePopup(returnToLeaderboard = false) {
                 <div class="profile-id">${playerProfile.telegramId || 'Not available'}</div>
             </div>
             
-            <!-- DEVOTION SECTION - NEW -->
+            <!-- DEVOTION SECTION -->
             <div class="devotion-section">
                 <div class="devotion-header">
                     <span class="devotion-title">
@@ -2215,6 +3030,36 @@ function showProfilePopup(returnToLeaderboard = false) {
                         <div>365</div>
                     </div>
                 </div>
+            </div>
+            
+            <!-- CODEX SECTION - NEW -->
+            <div class="codex-section">
+                <div class="codex-header">
+                    <span class="codex-title">📖 CODEX</span>
+                    <span class="codex-count">${codexStats.mastered}/${codexStats.total}</span>
+                </div>
+                <div class="codex-progress-bar">
+                    <div class="progress-fill" style="width: ${codexStats.percentComplete}%"></div>
+                </div>
+                <div class="codex-stats-row">
+                    <div class="codex-stat">
+                        <span class="stat-value">${codexStats.mastered}</span>
+                        <span class="stat-label">Mastered</span>
+                    </div>
+                    <div class="codex-stat">
+                        <span class="stat-value">${codexStats.learning}</span>
+                        <span class="stat-label">Learning</span>
+                    </div>
+                    <div class="codex-stat">
+                        <span class="stat-value">${codexStats.new}</span>
+                        <span class="stat-label">New</span>
+                    </div>
+                    <div class="codex-stat">
+                        <span class="stat-value">${codexStats.due}</span>
+                        <span class="stat-label">Due</span>
+                    </div>
+                </div>
+                <button class="codex-view-btn" id="viewCodexBtn">VIEW CODEX</button>
             </div>
             
             <div class="profile-field">
@@ -2279,10 +3124,14 @@ function showProfilePopup(returnToLeaderboard = false) {
     
     document.getElementById('profileSaveBtn').addEventListener('click', validateAndSave);
     
-    // Trophy button event listener
     document.getElementById('profileTrophyBtn').addEventListener('click', () => {
         overlay.classList.add('hidden');
-        showLeaderboardPopup(false); // false = not from completion
+        showLeaderboardPopup(false);
+    });
+    
+    document.getElementById('viewCodexBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        showCodexUI();
     });
     
     nameInput.addEventListener('keypress', (e) => {
@@ -2300,7 +3149,7 @@ function returnToPreviousScreen(returnToLeaderboard) {
     }
 }
 
-// ---------- LEADERBOARD POPUP WITH FETCH AND DEVOTION BADGES - UPDATED ----------
+// ---------- LEADERBOARD POPUP WITH FETCH AND MASTERY STARS - UPDATED ----------
 function showLeaderboardPopup(fromCompletion = false) {
     const overlay = document.getElementById('popupOverlay');
     
@@ -2335,10 +3184,33 @@ function showLeaderboardPopup(fromCompletion = false) {
     });
 }
 
-// ---------- DISPLAY LEADERBOARD - UPDATED with Devotion Badges ----------
+function handleLeaderboardReturn(fromCompletion) {
+    if (fromCompletion) {
+        const world = worlds[currentWorld];
+        const allUnitsCompleted = world.units.every(u => u.wordsCompleted === 20);
+        if (allUnitsCompleted) {
+            setTimeout(() => showWorldArtifactPopup(), 100);
+        } else {
+            const nextIngotId = currentUnit + 1;
+            const nextUnit = world.units.find(u => u.id === nextIngotId);
+            if (nextUnit && nextUnit.unlocked) {
+                setTimeout(() => showNextIngotPreview(), 100);
+            } else {
+                renderAll();
+                setUnitSectionVisibility(true);
+                updateHeaderForSelection();
+            }
+        }
+    } else {
+        renderAll();
+    }
+}
+
+// ---------- DISPLAY LEADERBOARD - UPDATED with mastery stars ----------
 function displayLeaderboard(leaderboard, fromCompletion) {
     const overlay = document.getElementById('popupOverlay');
     const playerTotal = calculateTotalWords();
+    const playerMastered = codex.getMasteredCount();
     const playerWordsByWorld = getWordsByWorld();
     const worldIcons = ['⚒️', '🌳', '💎', '☁️', '🐉', '⭐'];
     
@@ -2348,14 +3220,11 @@ function displayLeaderboard(leaderboard, fromCompletion) {
     const playerAhead = playerRank > 1 ? safeLeaderboard[playerRank - 2] : null;
     const wordsToCatch = playerAhead ? playerAhead.score - playerTotal : 0;
     
-    // For demo purposes, we'll add devotion badges based on score (in real implementation, this would come from the server)
-    // This is a placeholder - actual devotion data would need to be stored and retrieved from the server
-    const getDevotionBadge = (score) => {
-        if (score > 2000) return { icon: "💎", tier: "Crystal" };
-        if (score > 1500) return { icon: "🥇", tier: "Gold" };
-        if (score > 1000) return { icon: "🥈", tier: "Silver" };
-        if (score > 500) return { icon: "🥉", tier: "Bronze" };
-        return { icon: "⚒️", tier: "None" };
+    const getRankIcon = (rank) => {
+        if (rank === 1) return '👑';
+        if (rank === 2) return '⚡';
+        if (rank === 3) return '🥉';
+        return '';
     };
     
     let leaderboardHtml = '';
@@ -2365,20 +3234,19 @@ function displayLeaderboard(leaderboard, fromCompletion) {
         safeLeaderboard.slice(0, 20).forEach((entry, index) => {
             const rank = index + 1;
             const youClass = entry.name === playerProfile.displayName ? ' you' : '';
-            let crownEmoji = '';
-            if (rank === 1) crownEmoji = '👑';
-            else if (rank === 2) crownEmoji = '⚡';
-            else if (rank === 3) crownEmoji = '🥉';
-            
-            const devotionBadge = getDevotionBadge(entry.score || 0);
+            const rankIcon = getRankIcon(rank);
+            const mastered = entry.mastered || 0;
             
             leaderboardHtml += `
                 <div class="leaderboard-row${youClass}">
-                    <span class="rank">${rank}.</span>
+                    <span class="rank-icon">${rankIcon}</span>
+                    <span class="rank-number">${rank}.</span>
                     <span class="player-name">${entry.name || 'Unknown'}</span>
-                    <span class="score">${entry.score || 0}</span>
-                    <span class="devotion-badge" title="${devotionBadge.tier} Devotion">${devotionBadge.icon}</span>
-                    <span class="crown">${crownEmoji}</span>
+                    <span class="words-forged">${entry.score || 0}</span>
+                    <span class="mastery-badge">
+                        <span class="mastery-count">${mastered}</span>
+                        <span class="star-icon">⭐</span>
+                    </span>
                 </div>
             `;
         });
@@ -2399,9 +3267,9 @@ function displayLeaderboard(leaderboard, fromCompletion) {
             </div>
             
             <div class="score-highlight">
-                <div class="score-title">YOUR TOTAL</div>
+                <div class="score-title">YOUR STATS</div>
                 <div class="score-number">${playerTotal}</div>
-                <div class="score-rating">of 600 words</div>
+                <div class="score-rating">${playerMastered}⭐ mastered</div>
             </div>
             
             <div class="leaderboard-title">🏆 TOP FORGEMASTERS</div>
@@ -2466,6 +3334,18 @@ function processWordCardQueue() {
         showingWordCard = false;
         processWordCardQueue();
         saveProgress();
+        
+        // Add word to Codex when collected
+        const wordId = wordData.word;
+        if (!codex.getWord(wordId)) {
+            codex.addWord(wordId, {
+                word: wordData.word,
+                emoji: wordData.emoji,
+                sentence: wordData.sentence,
+                world: currentWorld,
+                ingot: currentUnit
+            });
+        }
     });
     
     tg?.HapticFeedback?.notificationOccurred?.('success');
@@ -2576,7 +3456,6 @@ function showIngotCompletePopup() {
     tg?.HapticFeedback?.notificationOccurred?.('success');
 }
 
-// ---------- NEXT INGOT PREVIEW - UPDATED with Devotion ----------
 function showNextIngotPreview() {
     const nextIngotId = currentUnit + 1;
     const world = worlds[currentWorld];
@@ -2761,7 +3640,7 @@ function showWorldUnlockPopup(worldId) {
     });
 }
 
-// ---------- handleWordCompletion FUNCTION (WITH AUTOMATIC SAVE) ----------
+// ---------- handleWordCompletion FUNCTION (WITH AUTOMATIC SAVE AND CODEX ADD) ----------
 function handleWordCompletion(wordIndex) {
     if (!completedWords.includes(wordIndex)) {
         completedWords.push(wordIndex);
@@ -2769,8 +3648,22 @@ function handleWordCompletion(wordIndex) {
         if (unit) unit.wordsCompleted = completedWords.length;
         
         const words = getCurrentUnitWords();
-        if (words && words.length > 0 && words[wordIndex]) {
-            showWordCard(words[wordIndex]);
+        const wordData = words[wordIndex];
+        
+        if (words && words.length > 0 && wordData) {
+            // Add to Codex if new
+            const wordId = wordData.word;
+            if (!codex.getWord(wordId)) {
+                codex.addWord(wordId, {
+                    word: wordData.word,
+                    emoji: wordData.emoji,
+                    sentence: wordData.sentence,
+                    world: currentWorld,
+                    ingot: currentUnit
+                });
+            }
+            
+            showWordCard(wordData);
         }
         
         QUICK_RESUME.saveSession();
@@ -3021,9 +3914,8 @@ function handleReset() {
     }
 }
 
-// ---------- INITIALIZATION FUNCTION - UPDATED with Devotion ----------
+// ---------- INITIALIZATION FUNCTION - UPDATED with Codex and Train Badge ----------
 function initializeGame() {
-    // Update devotion on game start
     updateDevotion();
     
     const savedSession = QUICK_RESUME.loadSession();
@@ -3053,14 +3945,18 @@ function initializeGame() {
         resetForNewUnit();
     }
     
+    // Update train badge
+    updateTrainBadge();
+    
     setInterval(() => {
         if (!gameCompleted && activeWordIndex !== null) {
             QUICK_RESUME.saveSession();
         }
+        updateTrainBadge(); // Update badge periodically
     }, 30000);
 }
 
-// ---------- EVENT LISTENERS ----------
+// ---------- EVENT LISTENERS - UPDATED with Train and Codex buttons ----------
 document.getElementById('resetButton').addEventListener('click', handleReset);
 document.getElementById('profileIconBtn').addEventListener('click', () => showProfilePopup(false));
 
@@ -3085,6 +3981,27 @@ document.addEventListener('click', (e) => {
         renderAll();
     }
 });
+
+// NEW: Train button
+const trainButton = document.getElementById('trainButton');
+if (trainButton) {
+    trainButton.addEventListener('click', () => {
+        const dueCount = codex.getDueCount();
+        if (dueCount === 0) {
+            alert('No words due for training today! Check back tomorrow.');
+            return;
+        }
+        showDifficultySelector();
+    });
+}
+
+// NEW: Codex button
+const codexButton = document.getElementById('codexButton');
+if (codexButton) {
+    codexButton.addEventListener('click', () => {
+        showCodexUI();
+    });
+}
 
 // ---------- INITIALIZATION ----------
 loadProfile();
