@@ -1359,7 +1359,7 @@ let playerPerformance = {
     }
 };
 
-// ---------- CODEX SYSTEM - NEW ----------
+// ---------- CODEX SYSTEM ----------
 class WordMemory {
     constructor(wordId, wordData) {
         this.wordId = wordId;
@@ -1424,7 +1424,7 @@ class WordMemory {
 class Codex {
     constructor() {
         this.words = new Map();
-        this.version = '1.0';
+        this.version = '1.3';
         this.lastSync = new Date().toISOString();
     }
     
@@ -1468,7 +1468,7 @@ class Codex {
             learning: all.filter(w => w.correctCount > 0 && !w.mastered).length,
             new: all.filter(w => w.correctCount === 0).length,
             due: this.getDueCount(),
-            percentComplete: (mastered / 3600) * 100
+            percentComplete: all.length > 0 ? (mastered / all.length) * 100 : 0
         };
     }
     
@@ -1671,6 +1671,82 @@ class TrainingSession {
 // Initialize Codex
 const codex = new Codex();
 const fsrsManager = new FSRSManager();
+
+// ---------- MIGRATION FUNCTION FOR EXISTING PLAYERS ----------
+function migrateToCodex(oldSaveData) {
+    console.log('Migrating save to Codex v1.3...');
+    let wordsAdded = 0;
+    
+    // Loop through all worlds
+    for (let worldId = 1; worldId <= 6; worldId++) {
+        const world = oldSaveData.worlds?.[worldId];
+        if (!world) continue;
+        
+        // Loop through all ingots in this world
+        world.units.forEach(unit => {
+            // Only process unlocked ingots
+            if (!unit.unlocked) return;
+            
+            // Get all words for this ingot from MASTER_WORDS
+            const words = MASTER_WORDS[`world${worldId}`]?.units[unit.id]?.words || [];
+            
+            // For each word in this ingot
+            words.forEach(wordData => {
+                const wordId = wordData.word;
+                
+                // Skip if already in Codex
+                if (codex.getWord(wordId)) return;
+                
+                // Create Codex entry
+                const wordMemory = new WordMemory(wordId, {
+                    word: wordData.word,
+                    emoji: wordData.emoji,
+                    sentence: wordData.sentence,
+                    world: worldId,
+                    ingot: unit.id
+                });
+                
+                // If ingot is completed (20/20), give full credit (30/30)
+                if (unit.wordsCompleted === 20) {
+                    wordMemory.correctCount = 30;
+                    wordMemory.mastered = true;
+                    wordMemory.masteredDate = oldSaveData.lastUpdated || new Date().toISOString();
+                    
+                    // Add training history (simplified)
+                    for (let i = 0; i < 30; i++) {
+                        wordMemory.trainingHistory.push({
+                            date: oldSaveData.lastUpdated || new Date().toISOString(),
+                            flashNumber: 1,
+                            responseTime: 2.0,
+                            isCorrect: true,
+                            rating: 'good'
+                        });
+                    }
+                } 
+                // If ingot is in progress, give credit for number of words completed
+                else if (unit.wordsCompleted > 0) {
+                    wordMemory.correctCount = unit.wordsCompleted;
+                    
+                    // Add training history
+                    for (let i = 0; i < unit.wordsCompleted; i++) {
+                        wordMemory.trainingHistory.push({
+                            date: oldSaveData.lastUpdated || new Date().toISOString(),
+                            flashNumber: 1,
+                            responseTime: 3.0,
+                            isCorrect: true,
+                            rating: 'good'
+                        });
+                    }
+                }
+                
+                codex.words.set(wordId, wordMemory);
+                wordsAdded++;
+            });
+        });
+    }
+    
+    console.log(`Migration complete! Added ${wordsAdded} words to Codex.`, codex.getStats());
+}
 
 // ---------- UPDATE DEVOTION FUNCTION ----------
 function updateDevotion() {
@@ -1981,12 +2057,12 @@ let gameCompleted = false;
 let wordCardQueue = [];
 let showingWordCard = false;
 
-// ---------- GOOGLE SHEETS LEADERBOARD WITH FETCH - UPDATED with mastered_count ----------
+// ---------- GOOGLE SHEETS LEADERBOARD WITH FETCH ----------
 const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxb816QBBx6q6kwIPMBHGghpUZX4554Etg2G-mcU5akYnhcUMNaAI9sdT2tlq7kzWH2Lw/exec';
 
 async function saveScoreToGoogleSheetsWithCallback(callback) {
     const totalWords = calculateTotalWords();
-    const masteredCount = codex.getMasteredCount(); // NEW
+    const masteredCount = codex.getMasteredCount();
     const playerName = playerProfile.displayName || "Forgemaster";
     
     console.log('Saving score:', { totalWords, masteredCount, playerName });
@@ -2011,7 +2087,7 @@ async function saveScoreToGoogleSheetsWithCallback(callback) {
         url.searchParams.append('action', 'save');
         url.searchParams.append('player_name', playerName);
         url.searchParams.append('total_words', totalWords);
-        url.searchParams.append('mastered_count', masteredCount); // NEW
+        url.searchParams.append('mastered_count', masteredCount);
         url.searchParams.append('telegram_id', playerId);
         url.searchParams.append('display_name', playerProfile.displayName);
         url.searchParams.append('_', Date.now());
@@ -2341,10 +2417,10 @@ function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-// ---------- SAVE PROGRESS - UPDATED with Codex ----------
+// ---------- SAVE PROGRESS ----------
 function saveProgress() {
     const saveData = {
-        version: "1.2",
+        version: "1.3",
         lastUpdated: new Date().toISOString(),
         currentWorld: currentWorld,
         currentUnit: currentUnit,
@@ -2359,13 +2435,14 @@ function saveProgress() {
     } catch (e) {}
 }
 
-// ---------- LOAD PROGRESS - UPDATED with Codex ----------
+// ---------- LOAD PROGRESS - UPDATED WITH MIGRATION ----------
 function loadProgress() {
     try {
         const saved = localStorage.getItem('spellforge_save');
         if (saved) {
             const saveData = JSON.parse(saved);
             
+            // Handle old save versions (pre-devotion)
             if (!saveData.playerPerformance.devotion) {
                 saveData.playerPerformance.devotion = {
                     days: 0,
@@ -2409,7 +2486,11 @@ function loadProgress() {
             if (saveData.playerPerformance) {
                 playerPerformance = { ...playerPerformance, ...saveData.playerPerformance };
             }
-            if (saveData.codex) {
+            
+            // MIGRATION: Check if this is a pre-Codex save
+            if (!saveData.codex || saveData.version < '1.3') {
+                migrateToCodex(saveData);
+            } else {
                 codex.import(saveData.codex);
             }
         }
@@ -2420,7 +2501,7 @@ function startAutoSave() {
     setInterval(saveProgress, 60000);
 }
 
-// ---------- TRAINING UI FUNCTIONS - NEW ----------
+// ---------- TRAINING UI FUNCTIONS ----------
 function updateTrainBadge() {
     const dueCount = codex.getDueCount();
     const badge = document.getElementById('trainBadge');
@@ -2674,7 +2755,7 @@ function showTrainingSummary(summary) {
     });
 }
 
-// ---------- CODEX UI FUNCTIONS - NEW ----------
+// ---------- CODEX UI FUNCTIONS ----------
 function showCodexUI() {
     const overlay = document.getElementById('popupOverlay');
     
@@ -2938,7 +3019,7 @@ function getIngotName(world, ingot) {
     return `Ingot ${ingot.toString().padStart(2, '0')}`;
 }
 
-// ---------- PROFILE POPUP WITH LEADERBOARD TROPHY AND CODEX STATS - UPDATED ----------
+// ---------- PROFILE POPUP WITH LEADERBOARD TROPHY AND CODEX STATS ----------
 function showProfilePopup(returnToLeaderboard = false) {
     const overlay = document.getElementById('popupOverlay');
     const stats = getPlayerStats();
@@ -3032,7 +3113,7 @@ function showProfilePopup(returnToLeaderboard = false) {
                 </div>
             </div>
             
-            <!-- CODEX SECTION - NEW -->
+            <!-- CODEX SECTION -->
             <div class="codex-section">
                 <div class="codex-header">
                     <span class="codex-title">📖 CODEX</span>
@@ -3149,7 +3230,7 @@ function returnToPreviousScreen(returnToLeaderboard) {
     }
 }
 
-// ---------- LEADERBOARD POPUP WITH FETCH AND MASTERY STARS - UPDATED ----------
+// ---------- LEADERBOARD POPUP WITH FETCH AND MASTERY STARS ----------
 function showLeaderboardPopup(fromCompletion = false) {
     const overlay = document.getElementById('popupOverlay');
     
@@ -3206,7 +3287,6 @@ function handleLeaderboardReturn(fromCompletion) {
     }
 }
 
-// ---------- DISPLAY LEADERBOARD - UPDATED with mastery stars ----------
 function displayLeaderboard(leaderboard, fromCompletion) {
     const overlay = document.getElementById('popupOverlay');
     const playerTotal = calculateTotalWords();
@@ -3914,7 +3994,7 @@ function handleReset() {
     }
 }
 
-// ---------- INITIALIZATION FUNCTION - UPDATED with Codex and Train Badge ----------
+// ---------- INITIALIZATION FUNCTION ----------
 function initializeGame() {
     updateDevotion();
     
@@ -3956,7 +4036,7 @@ function initializeGame() {
     }, 30000);
 }
 
-// ---------- EVENT LISTENERS - UPDATED with Train and Codex buttons ----------
+// ---------- EVENT LISTENERS ----------
 document.getElementById('resetButton').addEventListener('click', handleReset);
 document.getElementById('profileIconBtn').addEventListener('click', () => showProfilePopup(false));
 
@@ -3982,7 +4062,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// NEW: Train button
+// Train button
 const trainButton = document.getElementById('trainButton');
 if (trainButton) {
     trainButton.addEventListener('click', () => {
@@ -3995,7 +4075,7 @@ if (trainButton) {
     });
 }
 
-// NEW: Codex button
+// Codex button
 const codexButton = document.getElementById('codexButton');
 if (codexButton) {
     codexButton.addEventListener('click', () => {
