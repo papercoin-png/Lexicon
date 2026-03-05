@@ -60,19 +60,14 @@
             </div>
         </div>
 
-        <!-- HOME SCREEN - NEW -->
+        <!-- HOME SCREEN -->
         <div class="home-screen" id="homeScreen">
-            <!-- Header with world info and profile -->
+            <!-- Header with world info only (no profile icon) -->
             <div class="home-header">
                 <div class="home-world-info">
                     <span class="world-name" id="homeWorldName">Grand Forge</span>
                     <span class="tier-badge" id="homeTierBadge">Foundation</span>
                 </div>
-                <button class="profile-icon" id="homeProfileIconBtn">
-                    <svg width="32" height="32">
-                        <use href="assets/icons.svg#icon-blacksmith"/>
-                    </svg>
-                </button>
             </div>
 
             <!-- Streak Card - Prominent -->
@@ -95,13 +90,13 @@
                     <span class="progress-text" id="currentIngotCount">12/20</span>
                 </div>
                 
-                <!-- Dropdown Button -->
+                <!-- Dropdown Button - Expands Downward -->
                 <div class="dropdown-container">
                     <button class="dropdown-button" id="ingotDropdownBtn">
-                        <span>⌄  SELECT INGOT  ⌄</span>
+                        <span>▼  SELECT INGOT  ▼</span>
                     </button>
                     <div class="dropdown-menu hidden" id="ingotDropdownMenu">
-                        <!-- Populated by JavaScript -->
+                        <!-- Populated by JavaScript with all unlocked ingots -->
                     </div>
                 </div>
             </div>
@@ -138,29 +133,27 @@
                 </button>
             </div>
 
-            <!-- Footer Icons -->
+            <!-- Footer Icons - All White for Visibility -->
             <div class="footer-icons">
                 <button class="footer-icon" id="homeFooterProfileBtn" title="Profile">
-                    <svg width="28" height="28">
-                        <use href="assets/icons.svg#icon-blacksmith"/>
+                    <svg width="32" height="32">
+                        <use href="assets/icons.svg#icon-profile"/>
                     </svg>
                 </button>
                 <button class="footer-icon" id="homeFooterSettingsBtn" title="Settings">
-                    <svg width="28" height="28">
+                    <svg width="32" height="32">
                         <use href="assets/icons.svg#icon-settings"/>
                     </svg>
                 </button>
                 <button class="footer-icon" id="homeFooterInfoBtn" title="Info">
-                    <svg width="28" height="28">
-                        <use href="assets/icons.svg#icon-info"/>
-                    </svg>
+                    ?
                 </button>
             </div>
         </div>
 
-        <!-- Main Game Container - EXISTING (hidden initially) -->
+        <!-- MAIN GAME CONTAINER - Streamlined, No Ingots Section -->
         <div class="game-container hidden" id="gameContainer">
-            <!-- Header with world info and profile - UPDATED with back button -->
+            <!-- Header with back button and progress only (no profile, train, or codex icons) -->
             <div class="header">
                 <div class="game-header-left">
                     <button class="back-btn" id="backToHomeBtn" title="Back to Home">←</button>
@@ -176,55 +169,10 @@
                 </div>
                 <div class="header-right">
                     <span class="progress-badge" id="progressDisplay">0/600</span>
-                    
-                    <!-- DEVOTION BADGE -->
-                    <span class="devotion-badge-header" id="devotionBadge" title="Devotion Bonus" style="display: none;">
-                        <svg width="20" height="20">
-                            <use href="assets/icons.svg#icon-devotion"/>
-                        </svg>
-                        <span id="devotionPercent">0%</span>
-                    </span>
-                    
-                    <!-- TRAIN BUTTON -->
-                    <div class="train-indicator" id="trainIndicator">
-                        <button class="train-btn" id="trainButton" title="Daily Training">
-                            <svg width="24" height="24">
-                                <use href="assets/icons.svg#icon-train"/>
-                            </svg>
-                            <span class="train-badge" id="trainBadge">0</span>
-                        </button>
-                    </div>
-                    
-                    <!-- CODEX BUTTON -->
-                    <button class="codex-icon" id="codexButton" title="View Codex">
-                        <svg width="28" height="28">
-                            <use href="assets/icons.svg#icon-codex"/>
-                        </svg>
-                    </button>
-                    
-                    <button class="profile-icon" id="profileIconBtn">
-                        <svg width="32" height="32">
-                            <use href="assets/icons.svg#icon-blacksmith"/>
-                        </svg>
-                    </button>
                 </div>
             </div>
 
-            <!-- Unit Selector Section - Hidden during gameplay -->
-            <div class="unit-section" id="unitSection">
-                <div class="unit-header">
-                    <span class="unit-label" id="unitLabel">
-                        <svg width="20" height="20" style="margin-right: 8px;">
-                            <use href="assets/icons.svg#icon-ingot"/>
-                        </svg>
-                        INGOTS
-                    </span>
-                    <select class="unit-selector" id="unitSelector">
-                        <option value="1">Ingot 01 · First Spark</option>
-                    </select>
-                </div>
-                <div class="unit-grid" id="unitGrid"></div>
-            </div>
+            <!-- INGOTS SECTION REMOVED - Now on home screen only -->
 
             <!-- Word List Area - The Workbench -->
             <div class="word-section">
@@ -237,7 +185,7 @@
                 <div class="word-grid" id="wordListContainer"></div>
             </div>
 
-            <!-- Active Word Hint - The Blueprint -->
+            <!-- Active Word Hint - Simple underscores only -->
             <div class="active-hint" id="activeHintArea">
                 <span class="target-word" id="activeWordDisplay">—</span>
                 <span class="next-letter" id="nextLetterDisplay">?</span>
@@ -284,7 +232,7 @@
             </div>
         </div>
 
-        <!-- Popup Overlay -->
+        <!-- Popup Overlay - Used for all modals -->
         <div id="popupOverlay" class="popup-overlay hidden"></div>
     </div>
 
