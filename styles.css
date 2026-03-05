@@ -263,6 +263,45 @@ button:hover .icon {
     line-height: 1.4;
 }
 
+/* ---------- TOAST NOTIFICATION (NEW) ---------- */
+.toast-notification {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    z-index: 3000;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.toast-notification.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast-content {
+    background: linear-gradient(145deg, #2A3F4F, #1A2F3F);
+    border: 2px solid var(--forge-gold);
+    border-radius: 60px;
+    padding: 12px 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+}
+
+.toast-icon {
+    font-size: 24px;
+}
+
+.toast-message {
+    color: var(--forge-glow);
+    font-size: 16px;
+    font-weight: 500;
+}
+
 /* ---------- LOADING SCREEN ---------- */
 .loading-screen {
     position: fixed;
@@ -301,16 +340,14 @@ button:hover .icon {
     max-width: 500px;
     margin: 0 auto;
     padding: 20px;
-    /* Fixed: Changed from -8% to 0 to prevent top bleeding */
     transform: translateY(0);
 }
 
-/* Make image responsive but prevent bleeding */
 .loading-image {
     width: 100%;
     max-width: 400px;
     height: auto;
-    max-height: 60vh; /* Prevents image from getting too tall */
+    max-height: 60vh;
     object-fit: contain;
     border-radius: 30px 30px 30px 60px;
     margin-bottom: 30px;
@@ -402,64 +439,12 @@ button:hover .icon {
     backdrop-filter: blur(4px);
 }
 
-/* Responsive adjustments for very tall screens */
-@media (min-height: 800px) {
-    .loading-content {
-        transform: translateY(0);
-    }
-    
-    .loading-image {
-        max-width: 450px;
-        max-height: 50vh;
-    }
-}
-
-/* Responsive adjustments for short screens */
-@media (max-height: 600px) {
-    .loading-content {
-        transform: translateY(0);
-    }
-    
-    .loading-image {
-        max-width: 250px;
-        margin-bottom: 15px;
-        max-height: 40vh;
-    }
-    
-    .loading-bar-container {
-        margin: 10px auto;
-    }
-    
-    .loading-tip {
-        margin: 10px auto;
-        padding: 10px 15px;
-        font-size: 14px;
-    }
-    
-    .loading-text {
-        font-size: 16px;
-        margin: 8px 0;
-    }
-}
-
-/* Ensure image never bleeds on small screens */
-@media (max-width: 400px) {
-    .loading-image {
-        max-width: 260px;
-        border-radius: 20px 20px 20px 40px;
-    }
-    
-    .loading-content {
-        padding: 10px;
-    }
-}
-
 @keyframes liquidShimmer {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
 }
 
-/* ---------- MAIN GAME CONTAINER ---------- */
+/* ---------- MAIN GAME CONTAINER (EXISTING) ---------- */
 .game-container {
     max-width: 600px;
     width: 100%;
@@ -477,7 +462,6 @@ button:hover .icon {
     z-index: 1;
 }
 
-/* Riveted corners effect */
 .game-container::before {
     content: '';
     position: absolute;
@@ -490,7 +474,6 @@ button:hover .icon {
     pointer-events: none;
 }
 
-/* Forge glow effect */
 .game-container::after {
     content: '';
     position: absolute;
@@ -505,6 +488,417 @@ button:hover .icon {
     filter: blur(20px);
     pointer-events: none;
     z-index: -1;
+}
+
+/* ---------- HOME SCREEN (NEW) ---------- */
+.home-screen {
+    max-width: 600px;
+    width: 100%;
+    margin: var(--space-md) auto;
+    padding: var(--space-lg) var(--space-md) var(--space-xl);
+    background: rgba(26, 18, 11, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid var(--forge-bronze);
+    border-radius: 48px 48px 48px 48px;
+    box-shadow: 
+        0 25px 40px -10px rgba(0, 0, 0, 0.8),
+        inset 0 1px 3px rgba(255, 215, 140, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.home-screen::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 1px dashed rgba(184, 134, 11, 0.2);
+    border-radius: 38px;
+    pointer-events: none;
+}
+
+.home-screen::after {
+    content: '';
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, 
+        rgba(255, 107, 53, 0.2) 0%,
+        transparent 70%);
+    border-radius: 50%;
+    filter: blur(20px);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+    color: white;
+    padding: 0 var(--space-xs);
+}
+
+.home-world-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: rgba(0, 0, 0, 0.5);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: 60px;
+    border: 1px solid rgba(255, 215, 140, 0.3);
+    backdrop-filter: blur(4px);
+}
+
+.home-world-info .world-name {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+}
+
+/* ---------- STREAK CARD ---------- */
+.streak-card {
+    background: linear-gradient(145deg, 
+        rgba(42, 30, 20, 0.9), 
+        rgba(26, 18, 11, 0.95));
+    border: 2px solid var(--forge-bronze);
+    border-radius: 20px 5px 20px 5px;
+    box-shadow: 
+        inset 0 2px 5px rgba(0, 0, 0, 0.8),
+        0 8px 0 var(--iron-dark);
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.streak-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 30%, 
+        rgba(255, 255, 255, 0.1), 
+        transparent 70%);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+.streak-card:hover::after {
+    opacity: 0.2;
+}
+
+.streak-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+}
+
+.streak-days {
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--forge-gold);
+    font-family: 'Cinzel', serif;
+    line-height: 1.2;
+    margin-bottom: 5px;
+    text-shadow: 0 4px 0 #7F5F2F;
+}
+
+.streak-bonus {
+    font-size: 18px;
+    color: #ACCCDD;
+    font-weight: 600;
+}
+
+/* ---------- INGOT CARD HOME ---------- */
+.ingot-card-home {
+    background: linear-gradient(145deg, 
+        rgba(42, 30, 20, 0.9), 
+        rgba(26, 18, 11, 0.95));
+    border: 2px solid var(--forge-bronze);
+    border-radius: 20px 5px 20px 5px;
+    box-shadow: 
+        inset 0 2px 5px rgba(0, 0, 0, 0.8),
+        0 8px 0 var(--iron-dark);
+    padding: 15px;
+    margin-bottom: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ingot-card-home .ingot-header {
+    margin-bottom: 10px;
+}
+
+.ingot-card-home .ingot-label {
+    font-size: 14px;
+    color: var(--steel-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ingot-card-home .ingot-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    font-family: 'Cinzel', serif;
+    margin-bottom: 10px;
+}
+
+.ingot-card-home .progress-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.ingot-card-home .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--iron-dark);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(184, 134, 11, 0.3);
+}
+
+.ingot-card-home .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--forge-orange), var(--forge-glow));
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.ingot-card-home .progress-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--forge-glow);
+    min-width: 45px;
+}
+
+/* ---------- DROPDOWN ---------- */
+.dropdown-container {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-button {
+    width: 100%;
+    background: var(--iron-deep);
+    border: 2px solid var(--forge-bronze);
+    border-radius: 40px;
+    padding: 12px 16px;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 4px 0 var(--iron-dark);
+    transition: all 0.1s ease;
+}
+
+.dropdown-button:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--iron-dark);
+}
+
+.dropdown-button.active {
+    border-color: var(--forge-gold);
+    box-shadow: 0 0 15px var(--forge-gold);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 5px;
+    background: var(--iron-deep);
+    border: 2px solid var(--forge-bronze);
+    border-radius: 20px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.dropdown-menu.hidden {
+    display: none;
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(184, 134, 11, 0.2);
+    transition: all 0.1s ease;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background: #2C5A6E;
+}
+
+.dropdown-item.current {
+    color: var(--forge-gold);
+    font-weight: 700;
+    background: rgba(212, 175, 55, 0.1);
+}
+
+/* ---------- CODEX SUMMARY CARD ---------- */
+.codex-summary-card {
+    background: linear-gradient(145deg, 
+        rgba(42, 30, 20, 0.9), 
+        rgba(26, 18, 11, 0.95));
+    border: 2px solid var(--forge-bronze);
+    border-radius: 20px 5px 20px 5px;
+    box-shadow: 
+        inset 0 2px 5px rgba(0, 0, 0, 0.8),
+        0 8px 0 var(--iron-dark);
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.codex-label {
+    font-size: 16px;
+    color: var(--steel-light);
+    font-weight: 500;
+}
+
+.codex-count {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+}
+
+/* ---------- QUICK ACTIONS ---------- */
+.quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.home-action-btn {
+    background: linear-gradient(145deg, #4A3E32, #2A1E12);
+    border: 2px solid var(--forge-bronze);
+    border-radius: 40px;
+    padding: 14px 20px;
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 6px 0 var(--iron-dark);
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.1s ease;
+}
+
+.home-action-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 var(--iron-dark);
+}
+
+.home-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 6px 0 var(--iron-dark);
+}
+
+.home-action-btn .action-icon {
+    font-size: 24px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.home-action-btn .action-text {
+    flex: 1;
+}
+
+.train-action-container {
+    position: relative;
+    width: 100%;
+}
+
+.train-timer {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--forge-glow);
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 10px;
+    border-radius: 30px;
+    border: 1px solid var(--forge-gold);
+}
+
+/* ---------- FOOTER ICONS ---------- */
+.footer-icons {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    padding: 15px 0 5px;
+    border-top: 1px solid rgba(184, 134, 11, 0.3);
+    margin-top: 10px;
+}
+
+.footer-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s var(--strike-timing);
+    border-radius: 50%;
+}
+
+.footer-icon svg {
+    width: 32px;
+    height: 32px;
+    fill: var(--forge-glow);
+    stroke: var(--forge-gold);
+}
+
+.footer-icon:hover {
+    transform: scale(1.1);
+}
+
+.footer-icon:hover svg {
+    fill: var(--forge-gold);
+    filter: drop-shadow(0 0 8px var(--forge-glow));
 }
 
 /* ---------- FORGE MESSAGE OVERLAY ---------- */
@@ -603,7 +997,7 @@ button:hover .icon {
     to { width: 100%; }
 }
 
-/* ---------- HEADER ---------- */
+/* ---------- GAME HEADER (UPDATED) ---------- */
 .header {
     display: flex;
     justify-content: space-between;
@@ -611,6 +1005,33 @@ button:hover .icon {
     margin-bottom: var(--space-lg);
     color: white;
     padding: 0 var(--space-xs);
+}
+
+.game-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: var(--forge-glow);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.1s ease;
+    text-shadow: 0 2px 0 var(--iron-dark);
+}
+
+.back-btn:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .world-info {
@@ -666,7 +1087,7 @@ button:hover .icon {
     font-family: 'Cinzel', serif;
 }
 
-/* ---------- TRAIN BUTTON (NEW) ---------- */
+/* ---------- TRAIN BUTTON ---------- */
 .train-indicator {
     display: flex;
     flex-direction: column;
@@ -718,7 +1139,7 @@ button:hover .icon {
     border: 2px solid var(--iron-dark);
 }
 
-/* ---------- CODEX BUTTON (NEW) ---------- */
+/* ---------- CODEX BUTTON ---------- */
 .codex-icon {
     background: none;
     border: none;
@@ -1205,7 +1626,7 @@ button:hover .icon {
     width: calc((100% - 40px) / 5);
     max-width: 70px;
     aspect-ratio: 1 / 1;
-    background: #D2B48C;  /* Wood base color */
+    background: #D2B48C;
     background-image: 
         linear-gradient(90deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.1) 100%),
         repeating-linear-gradient(45deg, #8B5A2B 0px, #8B5A2B 2px, #A0522D 2px, #A0522D 4px);
@@ -1234,16 +1655,12 @@ button:hover .icon {
     border: 2px solid #8B5A2B;
     font-family: 'Cinzel', serif;
     overflow: visible;
-    /* Telegram-friendly */
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     z-index: 1;
 }
-
-/* Note: Flash effect is applied via JavaScript inline styles */
-/* This ensures it works in all Telegram environments */
 
 .letter-tile::before {
     content: '';
@@ -2158,7 +2575,6 @@ button:hover .icon {
     border-radius: 10px;
 }
 
-/* ---------- UPDATED LEADERBOARD ROW WITH MASTERY STARS ---------- */
 .leaderboard-row {
     display: flex;
     align-items: center;
@@ -2233,7 +2649,6 @@ button:hover .icon {
     color: #FFD700;
 }
 
-/* Top 3 special styling */
 .leaderboard-row.rank-1 .player-name { color: #FFD700; font-weight: 700; }
 .leaderboard-row.rank-2 .player-name { color: #C0C0C0; font-weight: 700; }
 .leaderboard-row.rank-3 .player-name { color: #CD7F32; font-weight: 700; }
@@ -2255,17 +2670,6 @@ button:hover .icon {
 }
 
 .you .star-icon {
-    color: #2D1905;
-}
-
-.crown {
-    font-size: 18px;
-    margin-left: 4px;
-    min-width: 22px;
-    text-align: right;
-}
-
-.you .score {
     color: #2D1905;
 }
 
@@ -2516,7 +2920,7 @@ button:hover .icon {
     font-weight: 600;
 }
 
-/* ---------- CODEX SECTION IN PROFILE (NEW) ---------- */
+/* ---------- CODEX SECTION IN PROFILE ---------- */
 .codex-section {
     background: #0E2938;
     border-radius: 40px;
@@ -2740,7 +3144,7 @@ button:hover .icon {
     display: none !important;
 }
 
-/* ---------- DIFFICULTY SELECTOR (NEW) ---------- */
+/* ---------- DIFFICULTY SELECTOR ---------- */
 .difficulty-card {
     max-width: 400px;
     width: 100%;
@@ -2842,7 +3246,7 @@ button:hover .icon {
     box-shadow: 0 0 0 #2E4A57;
 }
 
-/* ---------- TRAINING UI (NEW) ---------- */
+/* ---------- TRAINING UI ---------- */
 .training-card {
     max-width: 450px;
     width: 100%;
@@ -3064,7 +3468,7 @@ button:hover .icon {
     box-shadow: 0 0 0 #2E4A57;
 }
 
-/* ---------- TRAINING SUMMARY (NEW) ---------- */
+/* ---------- TRAINING SUMMARY ---------- */
 .summary-card {
     max-width: 400px;
     width: 100%;
@@ -3169,7 +3573,7 @@ button:hover .icon {
     color: white;
 }
 
-/* ---------- CODEX UI (NEW) ---------- */
+/* ---------- CODEX UI ---------- */
 .codex-container {
     max-width: 500px;
     width: 100%;
@@ -3346,7 +3750,6 @@ button:hover .icon {
     border-radius: 10px;
 }
 
-/* Constellation View */
 .constellation-header {
     display: flex;
     align-items: center;
@@ -3484,7 +3887,6 @@ button:hover .icon {
     50% { transform: scale(1.1); }
 }
 
-/* Word Detail View */
 .word-detail {
     padding: 10px;
 }
@@ -3601,7 +4003,8 @@ button:hover .icon {
 
 /* ---------- RESPONSIVE DESIGN ---------- */
 @media (max-height: 700px) {
-    .game-container {
+    .game-container,
+    .home-screen {
         padding: var(--space-md) var(--space-sm) var(--space-lg);
     }
     
@@ -3635,30 +4038,24 @@ button:hover .icon {
         font-size: 14px;
     }
     
-    .devotion-section,
-    .codex-section {
-        padding: 15px;
+    .streak-days {
+        font-size: 42px;
     }
     
-    .training-card {
-        padding: 15px;
-    }
-    
-    .word-emoji {
-        font-size: 50px;
-    }
-    
-    .word-text {
-        font-size: 36px;
+    .home-action-btn {
+        padding: 12px 16px;
+        font-size: 16px;
     }
 }
 
 @media (max-width: 400px) {
-    .game-container {
+    .game-container,
+    .home-screen {
         padding: var(--space-md) var(--space-sm);
     }
     
-    .world-info {
+    .world-info,
+    .home-world-info {
         padding: 4px 10px;
     }
     
@@ -3691,6 +4088,35 @@ button:hover .icon {
         height: 26px;
     }
     
+    .footer-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .footer-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .streak-days {
+        font-size: 38px;
+    }
+    
+    .home-action-btn {
+        padding: 10px 14px;
+        font-size: 15px;
+    }
+    
+    .home-action-btn .action-icon {
+        font-size: 20px;
+        min-width: 30px;
+    }
+    
+    .train-timer {
+        font-size: 14px;
+        padding: 2px 8px;
+    }
+    
     .letter-tile {
         font-size: min(12vw, 64px);
     }
@@ -3713,19 +4139,8 @@ button:hover .icon {
     .word-grid {
         grid-template-columns: 1fr;
     }
-    
-    .difficulty-option {
-        flex-wrap: wrap;
-        gap: 5px;
-    }
-    
-    .difficulty-name {
-        width: 100%;
-        text-align: center;
-    }
 }
 
-/* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation-duration: 0.01ms !important;
@@ -3744,7 +4159,8 @@ button:hover .icon {
     .devotion-bar-fill::after,
     .crystalPulse,
     .milestone-item.achieved .milestone-icon,
-    .mastered-star {
+    .mastered-star,
+    .streak-card::after {
         animation: none !important;
     }
 }
