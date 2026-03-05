@@ -76,13 +76,30 @@
                 <div class="header-right">
                     <span class="progress-badge" id="progressDisplay">0/600</span>
                     
-                    <!-- DEVOTION BADGE - NEW (Optional) -->
+                    <!-- DEVOTION BADGE - (from previous update) -->
                     <span class="devotion-badge-header" id="devotionBadge" title="Devotion Bonus" style="display: none;">
                         <svg width="20" height="20">
                             <use href="assets/icons.svg#icon-devotion"/>
                         </svg>
                         <span id="devotionPercent">0%</span>
                     </span>
+                    
+                    <!-- CODEX TRAIN BUTTON - NEW -->
+                    <div class="train-indicator" id="trainIndicator">
+                        <button class="train-btn" id="trainButton" title="Daily Training">
+                            <svg width="24" height="24">
+                                <use href="assets/icons.svg#icon-train"/>
+                            </svg>
+                            <span class="train-badge" id="trainBadge">0</span>
+                        </button>
+                    </div>
+                    
+                    <!-- CODEX BUTTON - NEW -->
+                    <button class="codex-icon" id="codexButton" title="View Codex">
+                        <svg width="28" height="28">
+                            <use href="assets/icons.svg#icon-codex"/>
+                        </svg>
+                    </button>
                     
                     <button class="profile-icon" id="profileIconBtn">
                         <svg width="32" height="32">
@@ -166,7 +183,7 @@
             </div>
         </div>
 
-        <!-- Popup Overlay -->
+        <!-- Popup Overlay - Used for all modals (Codex, Training, etc.) -->
         <div id="popupOverlay" class="popup-overlay hidden"></div>
     </div>
 
