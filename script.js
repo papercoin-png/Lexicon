@@ -1786,6 +1786,7 @@ let isPracticeMode = false;
 
 // ---------- TRAINING TIMER CONSTANTS ----------
 const TRAINING_COOLDOWN = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
+const FORTY_HOURS = 40 * 60 * 60 * 1000; // 40 hours for streak grace period
 // ---------- HELPER FUNCTIONS ----------
 function calculateTotalWords() {
     let total = 0;
@@ -2024,6 +2025,27 @@ async function loadLeaderboardFromSheets(callback) {
         console.error('Error loading leaderboard:', error);
         callback([]);
     }
+}
+
+// ---------- GET HIGHEST UNLOCKED INGOT (NEW) ----------
+function getHighestUnlockedIngot() {
+    // Start from World 6 down to World 1
+    for (let worldId = 6; worldId >= 1; worldId--) {
+        const world = worlds[worldId];
+        if (!world || !world.unlocked) continue;
+        
+        // In this world, find highest unlocked ingot
+        for (let i = world.units.length - 1; i >= 0; i--) {
+            if (world.units[i].unlocked) {
+                return {
+                    world: worldId,
+                    unit: world.units[i].id
+                };
+            }
+        }
+    }
+    // Fallback to World 1, Ingot 1
+    return { world: 1, unit: 1 };
 }
 // ---------- generateInitialLetters ----------
 function generateInitialLetters() {
@@ -2508,31 +2530,41 @@ function showResetIngotPopup() {
     });
 }
 
-// ---------- PRACTICE MODE POPUP (from FORGE SELECTED button) ----------
+// ---------- PRACTICE MODE POPUP (from PRACTICE button) - UPDATED: Full screen, all worlds ----------
 function showPracticeModePopup() {
-    const world = worlds[currentWorld];
     const overlay = document.getElementById('popupOverlay');
     
     let practiceIngotsHtml = '';
-    world.units.forEach(unit => {
-        // Only show completed ingots (wordsCompleted === 20)
-        if (unit.wordsCompleted === 20) {
-            const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[unit.id];
+    
+    // Loop through all worlds 1-6
+    for (let worldId = 1; worldId <= 6; worldId++) {
+        const world = worlds[worldId];
+        if (!world || !world.unlocked) continue;
+        
+        const worldCompletedIngots = world.units.filter(unit => unit.wordsCompleted === 20);
+        if (worldCompletedIngots.length === 0) continue;
+        
+        // Add world header
+        practiceIngotsHtml += `<div class="practice-world-header">${world.icon} ${world.name}</div>`;
+        
+        // Add ingots from this world
+        worldCompletedIngots.forEach(unit => {
+            const unitData = MASTER_WORDS[`world${worldId}`]?.units[unit.id];
             const unitName = unitData ? unitData.name : "Unknown";
             practiceIngotsHtml += `
-                <div class="practice-item" data-id="${unit.id}">
+                <div class="practice-item" data-world="${worldId}" data-id="${unit.id}">
                     <span class="practice-icon">🔨</span>
                     <span class="practice-name">${world.unitName} ${unit.id.toString().padStart(2, '0')}: ${unitName}</span>
                 </div>
             `;
-        }
-    });
+        });
+    }
     
     overlay.innerHTML = `
-        <div class="practice-card">
+        <div class="practice-card fullscreen">
             <div class="preview-title">🔨 PRACTICE INGOT</div>
             <div class="close-x" id="closePopupBtn">✕</div>
-            <div class="practice-list" id="practiceList">
+            <div class="practice-list fullscreen-list" id="practiceList">
                 ${practiceIngotsHtml || '<div style="padding: 20px; text-align: center; color: #ACCCDD;">No completed ingots yet</div>'}
             </div>
             <div class="preview-buttons">
@@ -2545,8 +2577,10 @@ function showPracticeModePopup() {
     
     document.querySelectorAll('.practice-item').forEach(item => {
         item.addEventListener('click', () => {
+            const worldId = parseInt(item.dataset.world);
             const practiceId = parseInt(item.dataset.id);
             overlay.classList.add('hidden');
+            currentWorld = worldId;
             currentUnit = practiceId;
             isPracticeMode = true;
             showGameScreen();
@@ -2826,6 +2860,7 @@ function showTrainingWord() {
     else if (elapsedSeconds < 4) timerColorClass += ' medium';
     else timerColorClass += ' slow';
     
+    // UPDATED: Removed sentence, only word and emoji
     overlay.innerHTML = `
         <div class="training-card">
             <div class="close-x" id="closePopupBtn">✕</div>
@@ -2835,7 +2870,6 @@ function showTrainingWord() {
             </div>
             <div class="training-word">${word.word}</div>
             <div class="training-emoji">${word.emoji}</div>
-            <div class="training-sentence">${word.sentence}</div>
             <input type="text" class="training-input" id="trainingInput" placeholder="Type the word..." autofocus>
             <div class="training-progress">
                 <div class="training-progress-bar">
@@ -2881,15 +2915,18 @@ function showTrainingWord() {
     });
 }
 
+// ---------- FIXED: processTrainingResponse - Properly advances flashes ----------
 function processTrainingResponse(typedWord, responseTime) {
     const result = currentTrainingSession.processFlash(typedWord, responseTime);
     
     tg?.HapticFeedback?.impactOccurred?.(result.isCorrect ? 'light' : 'heavy');
     
     if (result.nextFlash) {
-        currentTrainingSession.currentFlash = result.nextFlash - 1;
+        // Advance to next flash
+        currentTrainingSession.currentFlash = result.nextFlash;
         showTrainingWord();
     } else {
+        // Move to next word
         const next = currentTrainingSession.nextWord();
         if (next.completed) {
             completeTraining(next.results);
@@ -3779,34 +3816,43 @@ function startAutoSave() {
     setInterval(saveProgress, 60000);
 }
 
-// ---------- UPDATE DEVOTION FUNCTION ----------
+// ---------- UPDATED: updateDevotion with 40-hour grace period ----------
 function updateDevotion() {
     const today = new Date().toDateString();
     const lastLogin = playerPerformance.devotion.lastLogin ? new Date(playerPerformance.devotion.lastLogin).toDateString() : null;
     const oldDays = playerPerformance.devotion.days;
     
     if (!lastLogin) {
+        // First time playing
         playerPerformance.devotion.days = 1;
         playerPerformance.devotion.lastLogin = new Date().toISOString();
     } else if (lastLogin !== today) {
+        // Calculate time since last login
         const lastDate = new Date(playerPerformance.devotion.lastLogin);
         const currentDate = new Date();
-        const daysDiff = Math.floor((currentDate - lastDate) / (1000 * 60 * 60 * 24));
+        const timeDiffMs = currentDate - lastDate;
+        const hoursDiff = timeDiffMs / (1000 * 60 * 60);
         
-        if (daysDiff === 1) {
+        if (hoursDiff <= 40) {
+            // Within 40 hours - add one
             playerPerformance.devotion.days = Math.min(playerPerformance.devotion.days + 1, DEVOTION.MAX_DAYS);
-        } else if (daysDiff > 1) {
-            playerPerformance.devotion.days = Math.max(playerPerformance.devotion.days - (daysDiff - 1), 0);
+        } else {
+            // Missed the 40-hour window - decrease by number of missed days
+            const daysMissed = Math.floor(hoursDiff / 24);
+            playerPerformance.devotion.days = Math.max(playerPerformance.devotion.days - daysMissed, 0);
+            // Add today
             playerPerformance.devotion.days = Math.min(playerPerformance.devotion.days + 1, DEVOTION.MAX_DAYS);
         }
         
         playerPerformance.devotion.lastLogin = new Date().toISOString();
     }
     
+    // Calculate bonus and tier
     playerPerformance.devotion.bonus = DEVOTION.calculateBonus(playerPerformance.devotion.days);
     const tier = DEVOTION.getTier(playerPerformance.devotion.days);
     playerPerformance.devotion.tier = tier.name;
     
+    // Check for milestones
     const newMilestones = DEVOTION.checkMilestones(playerPerformance.devotion.days, oldDays);
     newMilestones.forEach(day => {
         const milestoneKey = `day${day}`;
@@ -3816,6 +3862,7 @@ function updateDevotion() {
         }
     });
     
+    // Show daily devotion notification if days changed
     if (playerPerformance.devotion.days !== oldDays) {
         showDevotionNotification();
     }
@@ -3972,8 +4019,13 @@ function onFailure(unitId) {
     ingotGrace[unitId] = Math.min(ingotGrace[unitId], 25);
 }
 
-// ---------- HOME SCREEN NAVIGATION ----------
+// ---------- UPDATED: HOME SCREEN NAVIGATION with highest unlocked ingot ----------
 function showHomeScreen() {
+    // Set currentUnit to highest unlocked ingot
+    const highest = getHighestUnlockedIngot();
+    currentWorld = highest.world;
+    currentUnit = highest.unit;
+    
     document.getElementById('homeScreen').classList.remove('hidden');
     document.getElementById('gameContainer').classList.add('hidden');
     document.getElementById('unitSection').classList.add('hidden');
@@ -4049,7 +4101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 2. Forge Selected (second) - opens practice mode
+    // 2. Practice (second) - button text changed to PRACTICE in HTML
     const forgeSelectedBtn = document.getElementById('forgeSelectedBtn');
     if (forgeSelectedBtn) {
         forgeSelectedBtn.addEventListener('click', showPracticeModePopup);
