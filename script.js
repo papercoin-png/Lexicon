@@ -2389,7 +2389,7 @@ function handleLetterTap(letter, indexInGrid) {
         handleWordCompletion(activeWordIndex);
     }
 }
-// ---------- Show current ingot preview popup (Home Screen READY button) ----------
+// ---------- HOME SCREEN READY POPUP (from READY button) ----------
 function showReadyToForgePopup() {
     const world = worlds[currentWorld];
     const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
@@ -2445,7 +2445,7 @@ function showReadyToForgePopup() {
     });
 }
 
-// ---------- Show reset ingot preview popup (Game Screen FORGE AGAIN button) ----------
+// ---------- RESET INGOT POPUP (from FORGE AGAIN button) ----------
 function showResetIngotPopup() {
     const world = worlds[currentWorld];
     const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
@@ -2501,7 +2501,7 @@ function showResetIngotPopup() {
     });
 }
 
-// ---------- Show practice mode popup (Forge Selected button) ----------
+// ---------- PRACTICE MODE POPUP (from FORGE SELECTED button) ----------
 function showPracticeModePopup() {
     const world = worlds[currentWorld];
     const overlay = document.getElementById('popupOverlay');
@@ -2511,11 +2511,10 @@ function showPracticeModePopup() {
         if (unit.wordsCompleted === 20) {
             const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[unit.id];
             const unitName = unitData ? unitData.name : "Unknown";
-            const isCurrent = unit.id === currentUnit ? ' (Current)' : '';
             practiceIngotsHtml += `
                 <div class="practice-item" data-id="${unit.id}">
                     <span class="practice-icon">🔨</span>
-                    <span class="practice-name">${world.unitName} ${unit.id.toString().padStart(2, '0')}: ${unitName}${isCurrent}</span>
+                    <span class="practice-name">${world.unitName} ${unit.id.toString().padStart(2, '0')}: ${unitName}</span>
                 </div>
             `;
         }
@@ -2556,7 +2555,7 @@ function showPracticeModePopup() {
     });
 }
 
-// ---------- Word Card Popup ----------
+// ---------- WORD CARD POPUP ----------
 function showWordCard(wordData) {
     wordCardQueue.push(wordData);
     processWordCardQueue();
@@ -2595,7 +2594,7 @@ function processWordCardQueue() {
     tg?.HapticFeedback?.notificationOccurred?.('success');
 }
 
-// ---------- Ingot Complete Popup ----------
+// ---------- INGOT COMPLETE POPUP ----------
 function showIngotCompletePopup() {
     const overlay = document.getElementById('popupOverlay');
     const world = worlds[currentWorld];
@@ -2665,7 +2664,7 @@ function showIngotCompletePopup() {
     tg?.HapticFeedback?.notificationOccurred?.('success');
 }
 
-// ---------- Practice Complete Popup ----------
+// ---------- PRACTICE COMPLETE POPUP ----------
 function showPracticeCompletePopup() {
     const overlay = document.getElementById('popupOverlay');
     const world = worlds[currentWorld];
@@ -2708,7 +2707,7 @@ function showPracticeCompletePopup() {
     tg?.HapticFeedback?.notificationOccurred?.('success');
 }
 
-// ---------- Failure Popup ----------
+// ---------- FAILURE POPUP ----------
 function showFailurePopup() {
     const overlay = document.getElementById('popupOverlay');
     overlay.innerHTML = '';
@@ -2740,6 +2739,131 @@ function showFailurePopup() {
     });
     
     tg?.HapticFeedback?.notificationOccurred?.('error');
+}
+
+// ---------- NEXT INGOT PREVIEW POPUP ----------
+function showNextIngotPreview() {
+    const nextIngotId = currentUnit + 1;
+    const world = worlds[currentWorld];
+    if (!world) return;
+    
+    const nextUnitData = MASTER_WORDS[`world${currentWorld}`]?.units[nextIngotId];
+    if (!nextUnitData) return;
+    
+    const chance = calculateSuccessChance(nextIngotId);
+    let chanceColorClass = 'chance-medium';
+    if (chance.final >= 80) chanceColorClass = 'chance-high';
+    else if (chance.final < 50) chanceColorClass = 'chance-low';
+    
+    const unitName = nextUnitData.name || "Unknown";
+    const devotionTier = DEVOTION.getTier(chance.devotionDays);
+    
+    const overlay = document.getElementById('popupOverlay');
+    overlay.innerHTML = '';
+    
+    const card = document.createElement('div');
+    card.className = 'preview-card';
+    card.innerHTML = `
+        <div class="preview-title">⚒️ NEXT INGOT</div>
+        <div class="close-x" id="closePopupBtn">✕</div>
+        <div class="preview-ingot">${world.unitName} ${nextIngotId.toString().padStart(2, '0')} · ${unitName}</div>
+        <div class="chance-container">
+            <div class="chance-label">CHANCE OF SUCCESS</div>
+            <div class="chance-value ${chanceColorClass}">${chance.final}%</div>
+            <div class="chance-bar">
+                <div class="chance-bar-fill" style="width: ${chance.final}%"></div>
+            </div>
+            <div class="grace-info">
+                Base: ${chance.base}% · Grace: +${chance.grace}% · Devotion: +${chance.devotion.toFixed(1)}%
+                <div class="grace-badge">
+                    ${devotionTier.icon} ${chance.devotionDays} day${chance.devotionDays !== 1 ? 's' : ''} of devotion
+                </div>
+                ${chance.maxed ? '<div style="color: #ffd966; margin-top: 5px;">⚡ MAXIMUM GRACE REACHED! ⚡</div>' : ''}
+            </div>
+        </div>
+        <div class="preview-buttons">
+            <button class="preview-btn" id="forgeAheadBtn">⚒️ FORGE AHEAD</button>
+            <button class="preview-btn secondary" id="practiceBtn">🔨 PRACTICE</button>
+        </div>
+    `;
+    
+    overlay.appendChild(card);
+    overlay.classList.remove('hidden');
+    
+    document.getElementById('forgeAheadBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        currentUnit = nextIngotId;
+        resetForNewUnit();
+        updateWorldDisplay();
+        saveProgress();
+    });
+    
+    document.getElementById('practiceBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        showPracticeMode();
+    });
+    
+    document.getElementById('closePopupBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+    
+    tg?.HapticFeedback?.notificationOccurred?.('success');
+}
+
+function showPracticeMode() {
+    const world = worlds[currentWorld];
+    const overlay = document.getElementById('popupOverlay');
+    const completedIngots = world.units.filter(u => u.wordsCompleted === 20 && u.id !== currentUnit);
+    
+    overlay.innerHTML = '';
+    
+    const card = document.createElement('div');
+    card.className = 'practice-card';
+    card.innerHTML = `
+        <div class="practice-title">🔨 PRACTICE MODE</div>
+        <div class="close-x" id="closePopupBtn">✕</div>
+        <div class="practice-list" id="practiceList">
+            ${completedIngots.map(unit => {
+                const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[unit.id];
+                const unitName = unitData ? unitData.name : "Unknown";
+                return `
+                    <div class="practice-item" data-id="${unit.id}">
+                        <div class="practice-item-left">
+                            <span class="practice-icon">⚒️</span>
+                            <span class="practice-name">${world.unitName} ${unit.id.toString().padStart(2, '0')} · ${unitName}</span>
+                        </div>
+                        <span class="practice-chance">${unit.wordsCompleted}/20</span>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        <div class="preview-buttons">
+            <button class="preview-btn secondary" id="backBtn">← BACK</button>
+        </div>
+    `;
+    
+    overlay.appendChild(card);
+    overlay.classList.remove('hidden');
+    
+    document.querySelectorAll('.practice-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const practiceId = parseInt(item.dataset.id);
+            overlay.classList.add('hidden');
+            currentUnit = practiceId;
+            isPracticeMode = true;
+            showGameScreen();
+        });
+    });
+    
+    document.getElementById('closePopupBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        showNextIngotPreview();
+    });
+    
+    document.getElementById('backBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        showNextIngotPreview();
+    });
 }
 // ---------- TRAINING DIFFICULTY POPUP ----------
 function showTrainingDifficultyPopup() {
@@ -3431,130 +3555,6 @@ function showInfoPopup() {
         overlay.classList.add('hidden');
     });
 }
-// ---------- NEXT INGOT PREVIEW ----------
-function showNextIngotPreview() {
-    const nextIngotId = currentUnit + 1;
-    const world = worlds[currentWorld];
-    if (!world) return;
-    
-    const nextUnitData = MASTER_WORDS[`world${currentWorld}`]?.units[nextIngotId];
-    if (!nextUnitData) return;
-    
-    const chance = calculateSuccessChance(nextIngotId);
-    let chanceColorClass = 'chance-medium';
-    if (chance.final >= 80) chanceColorClass = 'chance-high';
-    else if (chance.final < 50) chanceColorClass = 'chance-low';
-    
-    const unitName = nextUnitData.name || "Unknown";
-    const devotionTier = DEVOTION.getTier(chance.devotionDays);
-    
-    const overlay = document.getElementById('popupOverlay');
-    overlay.innerHTML = '';
-    
-    const card = document.createElement('div');
-    card.className = 'preview-card';
-    card.innerHTML = `
-        <div class="preview-title">⚒️ NEXT INGOT</div>
-        <div class="close-x" id="closePopupBtn">✕</div>
-        <div class="preview-ingot">${world.unitName} ${nextIngotId.toString().padStart(2, '0')} · ${unitName}</div>
-        <div class="chance-container">
-            <div class="chance-label">CHANCE OF SUCCESS</div>
-            <div class="chance-value ${chanceColorClass}">${chance.final}%</div>
-            <div class="chance-bar">
-                <div class="chance-bar-fill" style="width: ${chance.final}%"></div>
-            </div>
-            <div class="grace-info">
-                Base: ${chance.base}% · Grace: +${chance.grace}% · Devotion: +${chance.devotion.toFixed(1)}%
-                <div class="grace-badge">
-                    ${devotionTier.icon} ${chance.devotionDays} day${chance.devotionDays !== 1 ? 's' : ''} of devotion
-                </div>
-                ${chance.maxed ? '<div style="color: #ffd966; margin-top: 5px;">⚡ MAXIMUM GRACE REACHED! ⚡</div>' : ''}
-            </div>
-        </div>
-        <div class="preview-buttons">
-            <button class="preview-btn" id="forgeAheadBtn">⚒️ FORGE AHEAD</button>
-            <button class="preview-btn secondary" id="practiceBtn">🔨 PRACTICE</button>
-        </div>
-    `;
-    
-    overlay.appendChild(card);
-    overlay.classList.remove('hidden');
-    
-    document.getElementById('forgeAheadBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-        currentUnit = nextIngotId;
-        resetForNewUnit();
-        updateWorldDisplay();
-        saveProgress();
-    });
-    
-    document.getElementById('practiceBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-        showPracticeMode();
-    });
-    
-    document.getElementById('closePopupBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-    
-    tg?.HapticFeedback?.notificationOccurred?.('success');
-}
-
-function showPracticeMode() {
-    const world = worlds[currentWorld];
-    const overlay = document.getElementById('popupOverlay');
-    const completedIngots = world.units.filter(u => u.wordsCompleted === 20 && u.id !== currentUnit);
-    
-    overlay.innerHTML = '';
-    
-    const card = document.createElement('div');
-    card.className = 'practice-card';
-    card.innerHTML = `
-        <div class="practice-title">🔨 PRACTICE MODE</div>
-        <div class="close-x" id="closePopupBtn">✕</div>
-        <div class="practice-list" id="practiceList">
-            ${completedIngots.map(unit => {
-                const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[unit.id];
-                const unitName = unitData ? unitData.name : "Unknown";
-                return `
-                    <div class="practice-item" data-id="${unit.id}">
-                        <div class="practice-item-left">
-                            <span class="practice-icon">⚒️</span>
-                            <span class="practice-name">${world.unitName} ${unit.id.toString().padStart(2, '0')} · ${unitName}</span>
-                        </div>
-                        <span class="practice-chance">${unit.wordsCompleted}/20</span>
-                    </div>
-                `;
-            }).join('')}
-        </div>
-        <div class="preview-buttons">
-            <button class="preview-btn secondary" id="backBtn">← BACK</button>
-        </div>
-    `;
-    
-    overlay.appendChild(card);
-    overlay.classList.remove('hidden');
-    
-    document.querySelectorAll('.practice-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const practiceId = parseInt(item.dataset.id);
-            overlay.classList.add('hidden');
-            currentUnit = practiceId;
-            isPracticeMode = true;
-            showGameScreen();
-        });
-    });
-    
-    document.getElementById('closePopupBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-        showNextIngotPreview();
-    });
-    
-    document.getElementById('backBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-        showNextIngotPreview();
-    });
-}
 
 function showWorldArtifactPopup() {
     const overlay = document.getElementById('popupOverlay');
@@ -3639,7 +3639,6 @@ function handleLeaderboardReturn(fromCompletion) {
         updateHomeScreenStats();
     }
 }
-
 // ---------- PROFILE FUNCTIONS ----------
 function loadProfile() {
     try {
@@ -3999,13 +3998,13 @@ document.addEventListener('DOMContentLoaded', function() {
         backToHomeBtn.addEventListener('click', showHomeScreen);
     }
     
-    // Profile button (footer only)
+    // Profile button (footer only - top right removed)
     const homeFooterProfileBtn = document.getElementById('homeFooterProfileBtn');
     if (homeFooterProfileBtn) {
         homeFooterProfileBtn.addEventListener('click', () => showProfilePopup(false));
     }
     
-    // Quick action buttons
+    // Quick action buttons in correct order
     const homeLeaderboardBtn = document.getElementById('homeLeaderboardBtn');
     if (homeLeaderboardBtn) {
         homeLeaderboardBtn.addEventListener('click', () => showLeaderboardPopup(false));
@@ -4050,7 +4049,7 @@ document.addEventListener('DOMContentLoaded', function() {
         resetButton.addEventListener('click', handleReset);
     }
     
-    // Unit selector
+    // Unit selector (kept for compatibility but will be hidden)
     const unitSelector = document.getElementById('unitSelector');
     if (unitSelector) {
         unitSelector.addEventListener('change', (e) => {
