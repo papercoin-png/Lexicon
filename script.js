@@ -215,47 +215,7 @@ const QUICK_RESUME = {
         
         updateWorldDisplay();
         renderAll();
-        this.showResumeNotification(session);
         return true;
-    },
-    
-    showResumeNotification(session) {
-        const lastPlayed = new Date(session.lastPlayed);
-        const timeDiff = Math.floor((Date.now() - lastPlayed) / 1000);
-        
-        let timeMessage = '';
-        if (timeDiff < 60) timeMessage = 'just now';
-        else if (timeDiff < 3600) timeMessage = `${Math.floor(timeDiff / 60)} minutes ago`;
-        else if (timeDiff < 86400) timeMessage = `${Math.floor(timeDiff / 3600)} hours ago`;
-        else timeMessage = `${Math.floor(timeDiff / 86400)} days ago`;
-        
-        const notification = document.createElement('div');
-        notification.className = 'resume-notification';
-        notification.innerHTML = `
-            <div class="resume-content">
-                <span class="resume-icon">⚒️</span>
-                <div class="resume-text">
-                    <strong>Welcome back, Forgemaster!</strong>
-                    <small>Resumed from ${timeMessage} · Ingot ${session.currentUnit}</small>
-                </div>
-                <button class="resume-dismiss">✕</button>
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => notification.classList.add('show'), 10);
-        
-        const dismissTimer = setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
-        }, 5000);
-        
-        notification.querySelector('.resume-dismiss').addEventListener('click', () => {
-            clearTimeout(dismissTimer);
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
-        });
     },
     
     clearSession() {
@@ -1328,6 +1288,321 @@ const DEVOTION = {
     }
 };
 
+// ---------- CODEX SYSTEM ----------
+class WordMemory {
+    constructor(wordId, wordData) {
+        this.wordId = wordId;
+        this.word = wordData.word;
+        this.emoji = wordData.emoji;
+        this.sentence = wordData.sentence;
+        
+        this.sourceWorld = wordData.world;
+        this.sourceIngot = wordData.ingot;
+        this.firstForged = new Date().toISOString();
+        
+        this.fsrsCard = {
+            due: new Date(),
+            stability: 0,
+            difficulty: 0,
+            elapsed_days: 0,
+            scheduled_days: 0,
+            reps: 0,
+            lapses: 0,
+            state: 'New'
+        };
+        
+        this.correctCount = 0;
+        this.mastered = false;
+        this.masteredDate = null;
+        this.trainingHistory = [];
+        this.bestTime = null;
+    }
+    
+    recordTraining(flashNumber, responseTime, isCorrect, rating) {
+        this.trainingHistory.push({
+            date: new Date().toISOString(),
+            flashNumber,
+            responseTime,
+            isCorrect,
+            rating
+        });
+        
+        if (isCorrect && (!this.bestTime || responseTime < this.bestTime)) {
+            this.bestTime = responseTime;
+        }
+        
+        if (flashNumber === 1 && isCorrect && rating !== 'again') {
+            this.correctCount++;
+            
+            if (this.correctCount >= 30 && !this.mastered) {
+                this.mastered = true;
+                this.masteredDate = new Date().toISOString();
+            }
+        }
+    }
+    
+    getMasteryPercent() {
+        return (this.correctCount / 30) * 100;
+    }
+    
+    isDue() {
+        return new Date(this.fsrsCard.due) <= new Date();
+    }
+}
+
+class Codex {
+    constructor() {
+        this.words = new Map();
+        this.version = '1.3';
+        this.lastSync = new Date().toISOString();
+    }
+    
+    addWord(wordId, wordData) {
+        if (!this.words.has(wordId)) {
+            this.words.set(wordId, new WordMemory(wordId, wordData));
+        }
+        return this.words.get(wordId);
+    }
+    
+    getWord(wordId) {
+        return this.words.get(wordId);
+    }
+    
+    getAllWords() {
+        return Array.from(this.words.values());
+    }
+    
+    getDueWords(limit = 10) {
+        return this.getAllWords()
+            .filter(word => word.isDue() && !word.mastered)
+            .sort((a, b) => new Date(a.fsrsCard.due) - new Date(b.fsrsCard.due))
+            .slice(0, limit);
+    }
+    
+    getDueCount() {
+        return this.getAllWords().filter(word => word.isDue() && !word.mastered).length;
+    }
+    
+    getMasteredCount() {
+        return this.getAllWords().filter(w => w.mastered).length;
+    }
+    
+    getStats() {
+        const all = this.getAllWords();
+        const mastered = all.filter(w => w.mastered).length;
+        
+        return {
+            total: all.length,
+            mastered: mastered,
+            learning: all.filter(w => w.correctCount > 0 && !w.mastered).length,
+            new: all.filter(w => w.correctCount === 0).length,
+            due: this.getDueCount(),
+            percentComplete: all.length > 0 ? (mastered / all.length) * 100 : 0
+        };
+    }
+    
+    getWordsByIngot(world, ingot) {
+        return this.getAllWords().filter(w => 
+            w.sourceWorld === world && w.sourceIngot === ingot
+        );
+    }
+    
+    export() {
+        return {
+            version: this.version,
+            lastSync: this.lastSync,
+            words: Array.from(this.words.entries()).map(([id, word]) => ({
+                id,
+                ...word
+            }))
+        };
+    }
+    
+    import(data) {
+        if (!data) return;
+        this.version = data.version || '1.0';
+        this.lastSync = data.lastSync || new Date().toISOString();
+        
+        if (data.words) {
+            this.words = new Map();
+            data.words.forEach(w => {
+                const word = new WordMemory(w.wordId, w);
+                Object.assign(word, w);
+                this.words.set(w.id, word);
+            });
+        }
+    }
+}
+
+// ---------- FSRS MANAGER ----------
+class FSRSManager {
+    constructor() {
+        this.requestRetention = 0.9;
+        this.maximumInterval = 3650;
+    }
+    
+    processResult(wordMemory, rating, responseTime) {
+        const now = new Date();
+        let interval = 1;
+        
+        switch(rating) {
+            case 'again':
+                interval = 1;
+                wordMemory.fsrsCard.lapses++;
+                wordMemory.fsrsCard.difficulty = Math.min(1, wordMemory.fsrsCard.difficulty + 0.1);
+                break;
+            case 'hard':
+                interval = wordMemory.fsrsCard.scheduled_days * 1.2 || 2;
+                wordMemory.fsrsCard.difficulty += 0.05;
+                break;
+            case 'good':
+                interval = wordMemory.fsrsCard.scheduled_days * (1.5 + wordMemory.fsrsCard.stability) || 3;
+                wordMemory.fsrsCard.difficulty = Math.max(0, wordMemory.fsrsCard.difficulty - 0.02);
+                break;
+            case 'easy':
+                interval = wordMemory.fsrsCard.scheduled_days * 2.5 || 5;
+                wordMemory.fsrsCard.difficulty = Math.max(0, wordMemory.fsrsCard.difficulty - 0.05);
+                break;
+        }
+        
+        interval = Math.min(interval, this.maximumInterval);
+        
+        const dueDate = new Date(now);
+        dueDate.setDate(dueDate.getDate() + interval);
+        
+        wordMemory.fsrsCard.due = dueDate;
+        wordMemory.fsrsCard.scheduled_days = interval;
+        wordMemory.fsrsCard.elapsed_days = interval;
+        wordMemory.fsrsCard.reps++;
+        wordMemory.fsrsCard.stability = interval / 10;
+        
+        if (wordMemory.fsrsCard.state === 'New' && rating !== 'again') {
+            wordMemory.fsrsCard.state = 'Learning';
+        } else if (wordMemory.fsrsCard.state === 'Learning' && wordMemory.fsrsCard.reps >= 3) {
+            wordMemory.fsrsCard.state = 'Review';
+        } else if (rating === 'again') {
+            wordMemory.fsrsCard.state = 'Relearning';
+        }
+        
+        return {
+            nextReview: dueDate,
+            retrievability: 0.9
+        };
+    }
+    
+    getRatingFromSpeed(seconds, isCorrect) {
+        if (!isCorrect) return 'again';
+        if (seconds < 2.0) return 'easy';
+        if (seconds < 4.0) return 'good';
+        if (seconds < 7.0) return 'hard';
+        return 'again';
+    }
+}
+
+// ---------- TRAINING SESSION ----------
+class TrainingSession {
+    constructor(codex, fsrsManager, difficulty = 'medium') {
+        this.codex = codex;
+        this.fsrs = fsrsManager;
+        this.difficulty = difficulty;
+        this.wordCount = {
+            easy: 5,
+            medium: 10,
+            hard: 20,
+            insane: 50
+        }[difficulty];
+        
+        this.words = [];
+        this.currentIndex = 0;
+        this.currentFlash = 0;
+        this.results = [];
+    }
+    
+    start() {
+        this.words = this.codex.getDueWords(this.wordCount);
+        
+        if (this.words.length < this.wordCount) {
+            const extra = this.getRandomWords(this.wordCount - this.words.length);
+            this.words.push(...extra);
+        }
+        
+        return {
+            totalWords: this.words.length,
+            firstWord: this.words[0]
+        };
+    }
+    
+    getCurrentWord() {
+        return this.words[this.currentIndex];
+    }
+    
+    processFlash(typedWord, responseTime) {
+        const word = this.getCurrentWord();
+        const isCorrect = typedWord.toLowerCase() === word.word.toLowerCase();
+        
+        if (this.currentFlash === 1) {
+            const rating = this.fsrs.getRatingFromSpeed(responseTime, isCorrect);
+            this.fsrs.processResult(word, rating, responseTime);
+            word.recordTraining(1, responseTime, isCorrect, rating);
+        } else {
+            word.recordTraining(this.currentFlash, responseTime, isCorrect, 'practice');
+        }
+        
+        this.results.push({
+            wordId: word.wordId,
+            flash: this.currentFlash,
+            correct: isCorrect,
+            responseTime
+        });
+        
+        return {
+            isCorrect,
+            nextFlash: this.currentFlash < 3 ? this.currentFlash + 1 : null,
+            mastered: word.mastered,
+            progress: word.getMasteryPercent()
+        };
+    }
+    
+    nextWord() {
+        this.currentIndex++;
+        this.currentFlash = 0;
+        
+        if (this.currentIndex >= this.words.length) {
+            return { completed: true, results: this.getSummary() };
+        }
+        
+        return {
+            completed: false,
+            nextWord: this.words[this.currentIndex]
+        };
+    }
+    
+    getSummary() {
+        const correct = this.results.filter(r => r.correct).length;
+        const total = this.results.length;
+        const mastered = this.results.filter(r => r.mastered).length;
+        
+        return {
+            totalWords: this.words.length,
+            totalFlashes: total,
+            correctFlashes: correct,
+            accuracy: total > 0 ? (correct / total) * 100 : 0,
+            wordsMastered: mastered
+        };
+    }
+    
+    getRandomWords(count) {
+        const available = this.codex.getAllWords()
+            .filter(w => !w.mastered && !this.words.includes(w));
+        
+        return available.sort(() => 0.5 - Math.random()).slice(0, count);
+    }
+}
+
+// Initialize Codex and FSRS
+const codex = new Codex();
+const fsrsManager = new FSRSManager();
+
 // ---------- PLAYER PERFORMANCE TRACKING ----------
 let playerPerformance = {
     currentStreak: 0,
@@ -1337,6 +1612,8 @@ let playerPerformance = {
     lastPlayedDate: new Date().toISOString(),
     totalRiskBonus: 0,
     ingotHistory: [],
+    lastTrainingTime: null,
+    trainingHistory: [],
     worldProgress: {
         1: { completed: 0, failed: 0, bestTime: null },
         2: { completed: 0, failed: 0, bestTime: null },
@@ -1671,6 +1948,63 @@ let gameCompleted = false;
 let wordCardQueue = [];
 let showingWordCard = false;
 
+// ---------- TRAINING TIMER CONSTANTS ----------
+const TRAINING_COOLDOWN = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
+
+function isTrainingAvailable() {
+    if (!playerPerformance.lastTrainingTime) return true;
+    
+    const now = Date.now();
+    const timeSinceLast = now - playerPerformance.lastTrainingTime;
+    
+    if (timeSinceLast < 0 || timeSinceLast > 7 * 24 * 60 * 60 * 1000) {
+        playerPerformance.lastTrainingTime = now - TRAINING_COOLDOWN;
+        saveProgress();
+        return true;
+    }
+    
+    return timeSinceLast >= TRAINING_COOLDOWN;
+}
+
+function getTimeRemaining() {
+    if (!playerPerformance.lastTrainingTime) return null;
+    
+    const now = Date.now();
+    const timeSinceLast = now - playerPerformance.lastTrainingTime;
+    const timeRemaining = TRAINING_COOLDOWN - timeSinceLast;
+    
+    if (timeRemaining <= 0) return null;
+    
+    const hours = Math.floor(timeRemaining / (60 * 60 * 1000));
+    const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
+    
+    return { hours, minutes };
+}
+
+function updateTrainTimerDisplay() {
+    const timerEl = document.getElementById('trainTimer');
+    const trainBtn = document.getElementById('homeTrainBtn');
+    if (!timerEl || !trainBtn) return;
+    
+    const available = isTrainingAvailable();
+    
+    if (available) {
+        timerEl.innerText = 'READY!';
+        timerEl.style.color = '#4ADE80';
+        trainBtn.disabled = false;
+        trainBtn.style.opacity = '1';
+    } else {
+        const remaining = getTimeRemaining();
+        if (remaining) {
+            timerEl.innerText = `${remaining.hours}h ${remaining.minutes}m`;
+        } else {
+            timerEl.innerText = 'READY!';
+        }
+        timerEl.style.color = '#FFB347';
+        trainBtn.disabled = false;
+    }
+}
+
 // ---------- GOOGLE SHEETS LEADERBOARD ----------
 const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxb816QBBx6q6kwIPMBHGghpUZX4554Etg2G-mcU5akYnhcUMNaAI9sdT2tlq7kzWH2Lw/exec';
 
@@ -1678,10 +2012,7 @@ async function saveScoreToGoogleSheetsWithCallback(callback) {
     const totalWords = calculateTotalWords();
     const playerName = playerProfile.displayName || "Forgemaster";
     
-    console.log('Saving score:', { totalWords, playerName });
-    
     if (totalWords === 0) {
-        console.log('No words to save');
         if (callback) callback({ success: false, message: 'No words to save' });
         return;
     }
@@ -1690,9 +2021,6 @@ async function saveScoreToGoogleSheetsWithCallback(callback) {
     if (!playerId) {
         playerId = 'player_' + Math.random().toString(36).substring(2, 15);
         localStorage.setItem('spellforge_local_id', playerId);
-        console.log('Created new player ID:', playerId);
-    } else {
-        console.log('Using existing player ID:', playerId);
     }
     
     try {
@@ -1704,11 +2032,8 @@ async function saveScoreToGoogleSheetsWithCallback(callback) {
         url.searchParams.append('display_name', playerProfile.displayName);
         url.searchParams.append('_', Date.now());
         
-        console.log('Saving to URL:', url.toString());
-        
         const response = await fetch(url.toString());
         const result = await response.json();
-        console.log('Save result:', result);
         
         if (callback) callback(result);
     } catch (error) {
@@ -1723,17 +2048,12 @@ function saveScoreToGoogleSheets() {
 
 async function loadLeaderboardFromSheets(callback) {
     try {
-        console.log('Loading leaderboard...');
-        
         const url = new URL(GOOGLE_SHEETS_URL);
         url.searchParams.append('action', 'get');
         url.searchParams.append('_', Date.now());
         
-        console.log('Fetching leaderboard URL:', url.toString());
-        
         const response = await fetch(url.toString());
         const data = await response.json();
-        console.log('Leaderboard data received:', data);
         
         callback(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -1782,29 +2102,74 @@ function getPlayerStats() {
     };
 }
 
-// ---------- NEW: UPDATE HOME SCREEN STATS FUNCTION ----------
+// ---------- BACKFILL CODEX FROM PROGRESS ----------
+function backfillCodexFromProgress() {
+    for (let worldId = 1; worldId <= 6; worldId++) {
+        const world = worlds[worldId];
+        if (!world || !world.unlocked) continue;
+        
+        world.units.forEach(unit => {
+            if (unit.wordsCompleted === 0) return;
+            
+            const unitWords = MASTER_WORDS[`world${worldId}`]?.units[unit.id]?.words;
+            if (!unitWords) return;
+            
+            unitWords.forEach((wordData, wordIndex) => {
+                const wordId = `w${worldId}u${unit.id}w${wordIndex}`;
+                
+                const isCompleted = (worldId === currentWorld && 
+                                     unit.id === currentUnit && 
+                                     completedWords.includes(wordIndex)) ||
+                                    unit.wordsCompleted > wordIndex;
+                
+                if (isCompleted) {
+                    let wordMemory = codex.getWord(wordId);
+                    if (!wordMemory) {
+                        wordMemory = codex.addWord(wordId, {
+                            ...wordData,
+                            world: worldId,
+                            ingot: unit.id
+                        });
+                    }
+                    
+                    if (wordMemory.correctCount === 0) {
+                        wordMemory.correctCount = 1;
+                        wordMemory.recordTraining(1, 3000, true, 'good');
+                    }
+                    
+                    if (unit.wordsCompleted === 20) {
+                        const baseProgress = Math.min(15, Math.floor(unit.wordsCompleted / 2));
+                        if (wordMemory.correctCount < baseProgress) {
+                            wordMemory.correctCount = baseProgress;
+                        }
+                    }
+                }
+            });
+        });
+    }
+    
+    saveProgress();
+}
+
+// ---------- UPDATE HOME SCREEN STATS ----------
 function updateHomeScreenStats() {
-    // Update streak
     const streakDaysEl = document.getElementById('streakDays');
     if (streakDaysEl) {
         streakDaysEl.innerText = playerPerformance.currentStreak || 0;
     }
     
-    // Update devotion bonus
     const streakBonusEl = document.getElementById('streakBonus');
     if (streakBonusEl) {
         const bonus = playerPerformance.devotion?.bonus || 0;
         streakBonusEl.innerText = `+${bonus.toFixed(1)}% BONUS`;
     }
     
-    // Update codex mastered count
     const codexCountEl = document.getElementById('codexMasteredCount');
     if (codexCountEl) {
         const mastered = worlds[1].units.filter(u => u.wordsCompleted === 20).length;
         codexCountEl.innerText = `${mastered}⭐ mastered`;
     }
     
-    // Update current ingot display
     const world = worlds[currentWorld];
     const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
     const currentIngotNameEl = document.getElementById('currentIngotName');
@@ -1819,6 +2184,38 @@ function updateHomeScreenStats() {
         currentIngotProgressEl.style.width = `${(unit.wordsCompleted/20)*100}%`;
         currentIngotCountEl.innerText = `${unit.wordsCompleted}/20`;
     }
+}
+
+// ---------- POPULATE INGOT DROPDOWN ----------
+function populateIngotDropdown() {
+    const dropdownMenu = document.getElementById('ingotDropdownMenu');
+    if (!dropdownMenu) return;
+    
+    const world = worlds[currentWorld];
+    dropdownMenu.innerHTML = '';
+    
+    world.units.forEach(unit => {
+        if (unit.unlocked) {
+            const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[unit.id];
+            const unitName = unitData ? unitData.name : "???";
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            if (unit.id === currentUnit) {
+                item.classList.add('active');
+            }
+            item.innerText = `${world.unitName} ${unit.id.toString().padStart(2, '0')}: ${unitName}`;
+            item.addEventListener('click', () => {
+                if (unit.id !== currentUnit) {
+                    currentUnit = unit.id;
+                    resetForNewUnit();
+                    updateWorldDisplay();
+                    saveProgress();
+                }
+                dropdownMenu.classList.add('hidden');
+            });
+            dropdownMenu.appendChild(item);
+        }
+    });
 }
 
 // ---------- generateInitialLetters ----------
@@ -1856,25 +2253,15 @@ function generateInitialLetters() {
 function getCurrentUnitWords() {
     try {
         const worldData = MASTER_WORDS[`world${currentWorld}`];
-        if (!worldData) {
-            console.warn(`World ${currentWorld} not found in MASTER_WORDS`);
-            return [];
-        }
+        if (!worldData) return [];
         
         const unitData = worldData.units[currentUnit];
-        if (!unitData) {
-            console.warn(`Unit ${currentUnit} not found in World ${currentWorld}`);
-            return [];
-        }
+        if (!unitData) return [];
         
-        if (!unitData.words || unitData.words.length === 0) {
-            console.warn(`No words for World ${currentWorld}, Unit ${currentUnit}`);
-            return [];
-        }
+        if (!unitData.words || unitData.words.length === 0) return [];
         
         return unitData.words;
     } catch (e) {
-        console.error('Error in getCurrentUnitWords:', e);
         return [];
     }
 }
@@ -1988,6 +2375,7 @@ function updateWorldDisplay() {
     const homeTierBadge = document.getElementById('homeTierBadge');
     if (homeTierBadge) homeTierBadge.innerText = getWorldTier();
     
+    populateIngotDropdown();
     updateHomeScreenStats();
 
     if (activeWordIndex !== null) {
@@ -1997,7 +2385,7 @@ function updateWorldDisplay() {
     }
 }
 
-// ---------- showCurrentIngotPreview ----------
+// ---------- Show current ingot preview for FORGE AGAIN ----------
 function showCurrentIngotPreview() {
     const world = worlds[currentWorld];
     const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
@@ -2100,14 +2488,15 @@ function formatTime(seconds) {
 // ---------- SAVE PROGRESS ----------
 function saveProgress() {
     const saveData = {
-        version: "1.1",
+        version: "1.3",
         lastUpdated: new Date().toISOString(),
         currentWorld: currentWorld,
         currentUnit: currentUnit,
         completedWords: completedWords,
         playerPerformance: playerPerformance,
         worlds: worlds,
-        ingotGrace: ingotGrace
+        ingotGrace: ingotGrace,
+        codex: codex.export()
     };
     try {
         localStorage.setItem('spellforge_save', JSON.stringify(saveData));
@@ -2134,6 +2523,14 @@ function loadProgress() {
                         day365: false
                     }
                 };
+            }
+            
+            if (!saveData.playerPerformance.lastTrainingTime) {
+                saveData.playerPerformance.lastTrainingTime = null;
+            }
+            
+            if (!saveData.playerPerformance.trainingHistory) {
+                saveData.playerPerformance.trainingHistory = [];
             }
             
             if (saveData.worlds) {
@@ -2164,12 +2561,186 @@ function loadProgress() {
             if (saveData.playerPerformance) {
                 playerPerformance = { ...playerPerformance, ...saveData.playerPerformance };
             }
+            if (saveData.codex) {
+                codex.import(saveData.codex);
+            }
         }
     } catch (e) {}
 }
 
 function startAutoSave() {
     setInterval(saveProgress, 60000);
+}
+
+// ---------- TRAINING DIFFICULTY POPUP ----------
+function showTrainingDifficultyPopup() {
+    const overlay = document.getElementById('popupOverlay');
+    
+    overlay.innerHTML = `
+        <div class="preview-card">
+            <div class="preview-title">📖 DAILY TRAINING</div>
+            <div style="color: #FFDCAA; margin: 20px 0; text-align: center;">
+                Select difficulty:
+            </div>
+            <div class="preview-buttons" style="flex-direction: column; gap: 10px;">
+                <button class="preview-btn" id="easyBtn">🌱 EASY · 5 words</button>
+                <button class="preview-btn" id="mediumBtn">📘 MEDIUM · 10 words</button>
+                <button class="preview-btn" id="hardBtn">⚡ HARD · 20 words</button>
+                <button class="preview-btn" id="insaneBtn">🔥 INSANE · 50 words</button>
+                <button class="preview-btn secondary" id="cancelBtn">✕ CANCEL</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    document.getElementById('easyBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        startTrainingSession('easy');
+    });
+    
+    document.getElementById('mediumBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        startTrainingSession('medium');
+    });
+    
+    document.getElementById('hardBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        startTrainingSession('hard');
+    });
+    
+    document.getElementById('insaneBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        startTrainingSession('insane');
+    });
+    
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+}
+
+// ---------- TRAINING SESSION UI ----------
+let currentTrainingSession = null;
+
+function startTrainingSession(difficulty) {
+    currentTrainingSession = new TrainingSession(codex, fsrsManager, difficulty);
+    const sessionInfo = currentTrainingSession.start();
+    
+    showTrainingWord();
+}
+
+function showTrainingWord() {
+    const overlay = document.getElementById('popupOverlay');
+    const word = currentTrainingSession.getCurrentWord();
+    const flashNumber = currentTrainingSession.currentFlash + 1;
+    const wordIndex = currentTrainingSession.currentIndex + 1;
+    const totalWords = currentTrainingSession.words.length;
+    
+    overlay.innerHTML = `
+        <div class="training-card">
+            <div class="training-header">
+                <span>Word ${wordIndex}/${totalWords}</span>
+                <span>Flash ${flashNumber}/3</span>
+            </div>
+            <div class="training-word">${word.word}</div>
+            <div class="training-emoji">${word.emoji}</div>
+            <div class="training-sentence">${word.sentence}</div>
+            <input type="text" class="training-input" id="trainingInput" placeholder="Type the word..." autofocus>
+            <div class="training-progress">
+                <div class="training-progress-bar">
+                    <div class="training-progress-fill" style="width: ${word.getMasteryPercent()}%"></div>
+                </div>
+                <div class="training-progress-text">Mastery: ${Math.round(word.getMasteryPercent())}%</div>
+            </div>
+            <div class="preview-buttons">
+                <button class="preview-btn" id="submitBtn">✓ SUBMIT</button>
+                <button class="preview-btn secondary" id="cancelBtn">✕ CANCEL</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    const startTime = Date.now();
+    const input = document.getElementById('trainingInput');
+    input.focus();
+    
+    document.getElementById('submitBtn').addEventListener('click', () => {
+        const responseTime = (Date.now() - startTime) / 1000;
+        const typedWord = input.value.trim();
+        processTrainingResponse(typedWord, responseTime);
+    });
+    
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        currentTrainingSession = null;
+    });
+    
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const responseTime = (Date.now() - startTime) / 1000;
+            const typedWord = input.value.trim();
+            processTrainingResponse(typedWord, responseTime);
+        }
+    });
+}
+
+function processTrainingResponse(typedWord, responseTime) {
+    const result = currentTrainingSession.processFlash(typedWord, responseTime);
+    
+    tg?.HapticFeedback?.impactOccurred?.(result.isCorrect ? 'light' : 'heavy');
+    
+    if (result.nextFlash) {
+        currentTrainingSession.currentFlash = result.nextFlash - 1;
+        showTrainingWord();
+    } else {
+        const next = currentTrainingSession.nextWord();
+        if (next.completed) {
+            completeTraining(next.results);
+        } else {
+            showTrainingWord();
+        }
+    }
+}
+
+function completeTraining(results) {
+    playerPerformance.lastTrainingTime = Date.now();
+    playerPerformance.trainingHistory.push({
+        timestamp: playerPerformance.lastTrainingTime,
+        wordsTrained: results.totalWords,
+        accuracy: results.accuracy,
+        wordsMastered: results.wordsMastered
+    });
+    
+    if (playerPerformance.trainingHistory.length > 20) {
+        playerPerformance.trainingHistory.shift();
+    }
+    
+    saveProgress();
+    updateTrainTimerDisplay();
+    
+    const overlay = document.getElementById('popupOverlay');
+    overlay.innerHTML = `
+        <div class="training-card">
+            <div class="training-header">TRAINING COMPLETE!</div>
+            <div class="training-stats">
+                <div>Words: ${results.totalWords}</div>
+                <div>Accuracy: ${Math.round(results.accuracy)}%</div>
+                <div>Mastered: ${results.wordsMastered}</div>
+            </div>
+            <div class="preview-buttons">
+                <button class="preview-btn" id="closeBtn">✨ DONE</button>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        currentTrainingSession = null;
+        updateHomeScreenStats();
+    });
+    
+    tg?.HapticFeedback?.notificationOccurred?.('success');
 }
 
 // ---------- PROFILE POPUP ----------
@@ -2820,7 +3391,22 @@ function handleWordCompletion(wordIndex) {
         
         const words = getCurrentUnitWords();
         if (words && words.length > 0 && words[wordIndex]) {
-            showWordCard(words[wordIndex]);
+            const wordData = words[wordIndex];
+            showWordCard(wordData);
+            
+            const wordId = `w${currentWorld}u${currentUnit}w${wordIndex}`;
+            let wordMemory = codex.getWord(wordId);
+            if (!wordMemory) {
+                wordMemory = codex.addWord(wordId, {
+                    ...wordData,
+                    world: currentWorld,
+                    ingot: currentUnit
+                });
+            }
+            
+            const responseTime = 3.0;
+            wordMemory.recordTraining(1, responseTime, true, 'good');
+            fsrsManager.processResult(wordMemory, 'good', responseTime);
         }
         
         QUICK_RESUME.saveSession();
@@ -2860,9 +3446,7 @@ function handleWordCompletion(wordIndex) {
             hideForgeMessage();
             
             if (success) {
-                saveScoreToGoogleSheetsWithCallback(() => {
-                    console.log('Score saved automatically on ingot completion');
-                });
+                saveScoreToGoogleSheetsWithCallback(() => {});
                 
                 playerPerformance.currentStreak++;
                 playerPerformance.bestStreak = Math.max(playerPerformance.bestStreak, playerPerformance.currentStreak);
@@ -3087,21 +3671,61 @@ function handleReset() {
     }
 }
 
-// ---------- NEW: Codex, Settings, Info Popup Functions ----------
+// ---------- CODEX, SETTINGS, INFO POPUP FUNCTIONS ----------
 function showCodexPopup() {
     const overlay = document.getElementById('popupOverlay');
-    const mastered = worlds[1].units.filter(u => u.wordsCompleted === 20).length;
+    const stats = codex.getStats();
+    
+    let ingotsHtml = '';
+    for (let i = 1; i <= 30; i++) {
+        const unit = worlds[1].units.find(u => u.id === i);
+        const unitData = MASTER_WORDS.world1.units[i];
+        const wordsInIngot = codex.getWordsByIngot(1, i);
+        const masteredInIngot = wordsInIngot.filter(w => w.mastered).length;
+        const totalInIngot = unitData ? unitData.words.length : 20;
+        
+        ingotsHtml += `
+            <div class="codex-ingot-item">
+                <div class="codex-ingot-header">
+                    <span>INGOT ${i.toString().padStart(2, '0')}: ${unitData?.name || 'Unknown'}</span>
+                    <span>${unit?.wordsCompleted || 0}/20 · ${masteredInIngot}/${totalInIngot}⭐</span>
+                </div>
+                <div class="codex-ingot-bar">
+                    <div class="codex-ingot-fill" style="width: ${((unit?.wordsCompleted || 0)/20)*100}%"></div>
+                </div>
+            </div>
+        `;
+    }
     
     overlay.innerHTML = `
-        <div class="profile-card">
+        <div class="profile-card" style="max-width: 500px;">
             <button class="profile-close" id="closeBtn">✕</button>
             <div class="profile-title">📚 CODEX</div>
-            <div style="text-align: center; padding: 20px; color: #FFD700; font-size: 48px;">📖</div>
-            <div style="text-align: center; color: #FFDCAA; margin: 20px 0;">
-                <div style="font-size: 24px; margin-bottom: 10px;">${mastered} / 30 Ingots Mastered</div>
-                <div style="font-size: 16px;">Words Forged: ${calculateTotalWords()}</div>
+            
+            <div style="display: flex; justify-content: space-around; margin: 20px 0; padding: 15px; background: #0E2938; border-radius: 40px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #FFD700;">${stats.mastered}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Mastered</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #FFB347;">${stats.learning}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Learning</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #4ADE80;">${stats.due}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Due Now</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #C0C0C0;">${stats.total}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Total</div>
+                </div>
             </div>
-            <div class="button-group">
+            
+            <div class="codex-ingots-list" style="max-height: 300px; overflow-y: auto; padding: 10px; background: #0E2938; border-radius: 40px;">
+                ${ingotsHtml}
+            </div>
+            
+            <div class="button-group" style="margin-top: 20px;">
                 <button class="action-btn" id="closeBtn2">CLOSE</button>
             </div>
         </div>
@@ -3129,7 +3753,7 @@ function showSettingsPopup() {
             <div style="text-align: center; color: #FFDCAA; margin: 20px 0;">
                 <div style="margin-bottom: 15px;">Sound: ON</div>
                 <div style="margin-bottom: 15px;">Haptic Feedback: ON</div>
-                <div>Version 1.1.0</div>
+                <div>Version 1.3.0</div>
             </div>
             <div class="button-group">
                 <button class="action-btn" id="closeBtn2">CLOSE</button>
@@ -3159,7 +3783,7 @@ function showInfoPopup() {
                 <div style="margin: 15px 0;">⚒️ Spellforge · Master Blacksmith</div>
                 <div style="margin: 15px 0;">Forge words by tapping letters in order</div>
                 <div style="margin: 15px 0;">Complete all 20 words to forge an ingot</div>
-                <div style="margin: 15px 0;">Higher streaks increase your devotion bonus</div>
+                <div style="margin: 15px 0;">Daily training helps master words forever</div>
                 <div style="margin: 25px 0 10px; color: #FFD700;">Created for Telegram Mini Apps</div>
             </div>
             <div class="button-group">
@@ -3185,6 +3809,7 @@ function showHomeScreen() {
     document.getElementById('gameContainer').classList.add('hidden');
     document.getElementById('unitSection').classList.add('hidden');
     updateHomeScreenStats();
+    updateTrainTimerDisplay();
 }
 
 function showGameScreen() {
@@ -3196,47 +3821,24 @@ function showGameScreen() {
 
 // ---------- INITIALIZATION FUNCTION ----------
 function initializeGame() {
+    loadProgress();
     updateDevotion();
+    backfillCodexFromProgress();
     
-    const savedSession = QUICK_RESUME.loadSession();
-    
-    if (savedSession) {
-        if (tg) {
-            tg.showConfirm('Resume your last forging session?', (resume) => {
-                if (resume) {
-                    QUICK_RESUME.restoreSession(savedSession);
-                } else {
-                    loadProgress();
-                    resetForNewUnit();
-                    QUICK_RESUME.clearSession();
-                }
-            });
-        } else {
-            if (confirm('Resume your last forging session?')) {
-                QUICK_RESUME.restoreSession(savedSession);
-            } else {
-                loadProgress();
-                resetForNewUnit();
-                QUICK_RESUME.clearSession();
-            }
-        }
-    } else {
-        loadProgress();
-        resetForNewUnit();
-    }
-    
-    updateHomeScreenStats();
+    resetForNewUnit();
+    showHomeScreen();
+    updateTrainTimerDisplay();
     
     setInterval(() => {
         if (!gameCompleted && activeWordIndex !== null) {
             QUICK_RESUME.saveSession();
         }
-    }, 30000);
+        updateTrainTimerDisplay();
+    }, 60000);
 }
 
 // ---------- EVENT LISTENERS ----------
 document.addEventListener('DOMContentLoaded', function() {
-    // Game container navigation
     const forgeSelectedBtn = document.getElementById('forgeSelectedBtn');
     if (forgeSelectedBtn) {
         forgeSelectedBtn.addEventListener('click', showGameScreen);
@@ -3247,7 +3849,6 @@ document.addEventListener('DOMContentLoaded', function() {
         backToHomeBtn.addEventListener('click', showHomeScreen);
     }
     
-    // Profile buttons
     const profileIconBtn = document.getElementById('profileIconBtn');
     if (profileIconBtn) {
         profileIconBtn.addEventListener('click', () => showProfilePopup(false));
@@ -3258,7 +3859,6 @@ document.addEventListener('DOMContentLoaded', function() {
         homeFooterProfileBtn.addEventListener('click', () => showProfilePopup(false));
     }
     
-    // NEW: Home screen button listeners
     const homeLeaderboardBtn = document.getElementById('homeLeaderboardBtn');
     if (homeLeaderboardBtn) {
         homeLeaderboardBtn.addEventListener('click', () => showLeaderboardPopup(false));
@@ -3267,6 +3867,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const homeCodexBtn = document.getElementById('homeCodexBtn');
     if (homeCodexBtn) {
         homeCodexBtn.addEventListener('click', showCodexPopup);
+    }
+    
+    const homeTrainBtn = document.getElementById('homeTrainBtn');
+    if (homeTrainBtn) {
+        homeTrainBtn.addEventListener('click', () => {
+            if (isTrainingAvailable()) {
+                showTrainingDifficultyPopup();
+            } else {
+                const remaining = getTimeRemaining();
+                showForgeMessage(
+                    `Training available in ${remaining.hours}h ${remaining.minutes}m`,
+                    '⏳',
+                    3000
+                );
+                tg?.HapticFeedback?.notificationOccurred?.('warning');
+            }
+        });
     }
     
     const homeFooterSettingsBtn = document.getElementById('homeFooterSettingsBtn');
@@ -3279,13 +3896,11 @@ document.addEventListener('DOMContentLoaded', function() {
         homeFooterInfoBtn.addEventListener('click', showInfoPopup);
     }
     
-    // Reset button
     const resetButton = document.getElementById('resetButton');
     if (resetButton) {
         resetButton.addEventListener('click', handleReset);
     }
     
-    // Unit selector change
     const unitSelector = document.getElementById('unitSelector');
     if (unitSelector) {
         unitSelector.addEventListener('change', (e) => {
@@ -3296,7 +3911,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Document click for returning to selection
+    const ingotDropdownBtn = document.getElementById('ingotDropdownBtn');
+    const ingotDropdownMenu = document.getElementById('ingotDropdownMenu');
+    if (ingotDropdownBtn && ingotDropdownMenu) {
+        ingotDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            populateIngotDropdown();
+            ingotDropdownMenu.classList.toggle('hidden');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!ingotDropdownMenu.contains(e.target) && !ingotDropdownBtn.contains(e.target)) {
+                ingotDropdownMenu.classList.add('hidden');
+            }
+        });
+    }
+    
     document.addEventListener('click', (e) => {
         if (activeWordIndex !== null && 
             !e.target.closest('.word-chip') && 
@@ -3312,7 +3942,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Load profile and initialize game
     loadProfile();
     initializeGame();
     
