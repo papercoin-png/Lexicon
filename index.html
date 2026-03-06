@@ -151,9 +151,9 @@
             </div>
         </div>
 
-        <!-- MAIN GAME CONTAINER - Streamlined, No Ingots Section -->
+        <!-- MAIN GAME CONTAINER -->
         <div class="game-container hidden" id="gameContainer">
-            <!-- Header with back button and progress only (no profile, train, or codex icons) -->
+            <!-- Header with back button and progress only -->
             <div class="header">
                 <div class="game-header-left">
                     <button class="back-btn" id="backToHomeBtn" title="Back to Home">←</button>
@@ -171,8 +171,6 @@
                     <span class="progress-badge" id="progressDisplay">0/600</span>
                 </div>
             </div>
-
-            <!-- INGOTS SECTION REMOVED - Now on home screen only -->
 
             <!-- Word List Area - The Workbench -->
             <div class="word-section">
@@ -231,6 +229,31 @@
                 Telegram Mini App · forge words to unlock
             </div>
         </div>
+
+        <!-- UNIT SELECTION SECTION - Fixed: Added missing elements -->
+        <div class="unit-section" id="unitSection">
+            <div class="unit-header">
+                <span class="unit-label">
+                    <svg width="20" height="20" style="margin-right: 8px;">
+                        <use href="assets/icons.svg#icon-ingot"/>
+                    </svg>
+                    SELECT INGOT
+                </span>
+                <select class="unit-selector" id="unitSelector">
+                    <option value="1">INGOT 01 · First Spark</option>
+                </select>
+            </div>
+            <div class="unit-grid" id="unitGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- PROFILE ICON - Fixed: Added missing element -->
+        <button class="profile-icon" id="profileIconBtn" title="Profile" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+            <svg width="32" height="32">
+                <use href="assets/icons.svg#icon-profile"/>
+            </svg>
+        </button>
 
         <!-- Popup Overlay - Used for all modals -->
         <div id="popupOverlay" class="popup-overlay hidden"></div>
