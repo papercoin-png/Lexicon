@@ -89,6 +89,11 @@ function showForgeMessage(text, icon = '⚒️', duration = 3000) {
     forgeProgressFill.style.animation = 'none';
     forgeProgressFill.offsetHeight;
     forgeProgressFill.style.animation = 'progressFill ' + (duration/1000) + 's linear forwards';
+    
+    // Auto-hide after duration
+    setTimeout(() => {
+        hideForgeMessage();
+    }, duration);
 }
 
 function updateForgeMessage(text, icon = '⚒️') {
@@ -1632,7 +1637,8 @@ let playerPerformance = {
             day200: false,
             day365: false
         }
-    }
+    },
+    lastStreakUpdate: null // Track when streak was last updated
 };
 
 // ---------- PLAYER PROFILE ----------
@@ -1784,9 +1790,10 @@ let wordCardQueue = [];
 let showingWordCard = false;
 let isPracticeMode = false;
 
-// ---------- TRAINING TIMER CONSTANTS ----------
+// ---------- TIMER CONSTANTS ----------
 const TRAINING_COOLDOWN = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 const FORTY_HOURS = 40 * 60 * 60 * 1000; // 40 hours for streak grace period
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; // 24 hours for streak update
 // ---------- HELPER FUNCTIONS ----------
 function calculateTotalWords() {
     let total = 0;
@@ -1883,6 +1890,33 @@ function updateTrainTimerDisplay() {
     }
 }
 
+// ---------- STREAK TIMER FUNCTIONS (NEW) ----------
+function updateStreakTimerDisplay() {
+    const timerEl = document.getElementById('streakTimer');
+    if (!timerEl) return;
+    
+    const now = Date.now();
+    const lastUpdate = playerPerformance.lastStreakUpdate ? new Date(playerPerformance.lastStreakUpdate).getTime() : null;
+    
+    if (!lastUpdate) {
+        timerEl.innerText = 'Next in: --h --m';
+        return;
+    }
+    
+    const nextUpdate = lastUpdate + TWENTY_FOUR_HOURS;
+    const timeRemaining = nextUpdate - now;
+    
+    if (timeRemaining <= 0) {
+        timerEl.innerText = 'Ready!';
+        timerEl.style.color = '#4ADE80';
+    } else {
+        const hours = Math.floor(timeRemaining / (60 * 60 * 1000));
+        const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
+        timerEl.innerText = `Next in: ${hours}h ${minutes}m`;
+        timerEl.style.color = '#FFB347';
+    }
+}
+
 // ---------- UPDATED: BACKFILL CODEX FROM PROGRESS (NO CREDIT) ----------
 function backfillCodexFromProgress() {
     console.log("Backfilling Codex from progress...");
@@ -1927,7 +1961,7 @@ function backfillCodexFromProgress() {
 function updateHomeScreenStats() {
     const streakDaysEl = document.getElementById('streakDays');
     if (streakDaysEl) {
-        streakDaysEl.innerText = playerPerformance.currentStreak || 0;
+        streakDaysEl.innerText = playerPerformance.devotion?.days || 0;
     }
     
     const streakBonusEl = document.getElementById('streakBonus');
@@ -1956,6 +1990,9 @@ function updateHomeScreenStats() {
         currentIngotProgressEl.style.width = `${(unit.wordsCompleted/20)*100}%`;
         currentIngotCountEl.innerText = `${unit.wordsCompleted}/20`;
     }
+    
+    // Update streak timer
+    updateStreakTimerDisplay();
 }
 
 // ---------- GOOGLE SHEETS LEADERBOARD ----------
@@ -2036,7 +2073,7 @@ function getHighestUnlockedIngot() {
     return { world: 1, unit: 1 };
 }
 
-// ---------- SCROLL FUNCTIONS (NEW) ----------
+// ---------- SCROLL FUNCTIONS ----------
 function scrollToLetterGrid() {
     setTimeout(() => {
         const letterGrid = document.getElementById('letterGridContainer');
@@ -2046,7 +2083,7 @@ function scrollToLetterGrid() {
                 block: 'center' 
             });
         }
-    }, 100); // Small delay to ensure DOM is updated
+    }, 100);
 }
 
 function scrollToWordGrid() {
@@ -2058,7 +2095,7 @@ function scrollToWordGrid() {
                 block: 'start' 
             });
         }
-    }, 100); // Small delay to ensure DOM is updated
+    }, 100);
 }
 // ---------- generateInitialLetters ----------
 function generateInitialLetters() {
@@ -2138,7 +2175,7 @@ function updateHeaderForSelection() {
     document.getElementById('progressDisplay').innerText = `${totalProgress}/${world.totalWords}`;
 }
 
-// Unit section removed from game screen - this function is kept for compatibility but hidden
+// Unit section removed from game screen - function kept empty
 function setUnitSectionVisibility(visible) {
     // Unit section removed - do nothing
     return;
@@ -3771,6 +3808,10 @@ function loadProgress() {
                 saveData.playerPerformance.trainingHistory = [];
             }
             
+            if (!saveData.playerPerformance.lastStreakUpdate) {
+                saveData.playerPerformance.lastStreakUpdate = null;
+            }
+            
             if (saveData.worlds) {
                 Object.keys(saveData.worlds).forEach(key => {
                     if (worlds[key]) {
@@ -3810,16 +3851,18 @@ function startAutoSave() {
     setInterval(saveProgress, 60000);
 }
 
-// ---------- UPDATED: updateDevotion with 40-hour grace period ----------
+// ---------- UPDATED: updateDevotion with 40-hour grace period and 24-hour streak ----------
 function updateDevotion() {
     const today = new Date().toDateString();
     const lastLogin = playerPerformance.devotion.lastLogin ? new Date(playerPerformance.devotion.lastLogin).toDateString() : null;
     const oldDays = playerPerformance.devotion.days;
+    const now = Date.now();
     
     if (!lastLogin) {
         // First time playing
         playerPerformance.devotion.days = 1;
         playerPerformance.devotion.lastLogin = new Date().toISOString();
+        playerPerformance.lastStreakUpdate = now;
     } else if (lastLogin !== today) {
         // Calculate time since last login
         const lastDate = new Date(playerPerformance.devotion.lastLogin);
@@ -3827,15 +3870,21 @@ function updateDevotion() {
         const timeDiffMs = currentDate - lastDate;
         const hoursDiff = timeDiffMs / (1000 * 60 * 60);
         
-        if (hoursDiff <= 40) {
-            // Within 40 hours - add one
-            playerPerformance.devotion.days = Math.min(playerPerformance.devotion.days + 1, DEVOTION.MAX_DAYS);
-        } else {
-            // Missed the 40-hour window - decrease by number of missed days
-            const daysMissed = Math.floor(hoursDiff / 24);
-            playerPerformance.devotion.days = Math.max(playerPerformance.devotion.days - daysMissed, 0);
-            // Add today
-            playerPerformance.devotion.days = Math.min(playerPerformance.devotion.days + 1, DEVOTION.MAX_DAYS);
+        // Check if 24 hours have passed since last streak update
+        if (!playerPerformance.lastStreakUpdate || (now - playerPerformance.lastStreakUpdate) >= TWENTY_FOUR_HOURS) {
+            
+            if (hoursDiff <= 40) {
+                // Within 40 hours - add one
+                playerPerformance.devotion.days = Math.min(playerPerformance.devotion.days + 1, DEVOTION.MAX_DAYS);
+            } else {
+                // Missed the 40-hour window - decrease by number of missed days
+                const daysMissed = Math.floor(hoursDiff / 24);
+                playerPerformance.devotion.days = Math.max(playerPerformance.devotion.days - daysMissed, 0);
+                // Add today
+                playerPerformance.devotion.days = Math.min(playerPerformance.devotion.days + 1, DEVOTION.MAX_DAYS);
+            }
+            
+            playerPerformance.lastStreakUpdate = now;
         }
         
         playerPerformance.devotion.lastLogin = new Date().toISOString();
@@ -4021,6 +4070,7 @@ function showHomeScreen() {
     document.getElementById('gameContainer').classList.add('hidden');
     updateHomeScreenStats();
     updateTrainTimerDisplay();
+    updateStreakTimerDisplay();
 }
 
 function showGameScreen() {
@@ -4043,12 +4093,14 @@ function initializeGame() {
     resetForNewUnit();
     showHomeScreen();
     updateTrainTimerDisplay();
+    updateStreakTimerDisplay();
     
     setInterval(() => {
         if (!gameCompleted && activeWordIndex !== null) {
             QUICK_RESUME.saveSession();
         }
         updateTrainTimerDisplay();
+        updateStreakTimerDisplay();
     }, 60000);
 }
 
