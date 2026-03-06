@@ -81,7 +81,7 @@ const forgeMessageIcon = document.getElementById('forgeMessageIcon');
 const forgeMessageText = document.getElementById('forgeMessageText');
 const forgeProgressFill = document.getElementById('forgeProgressFill');
 
-function showForgeMessage(text, icon = '⚒️', duration = 4000) {
+function showForgeMessage(text, icon = '⚒️', duration = 3000) {
     forgeMessageIcon.innerText = icon;
     forgeMessageText.innerText = text;
     forgeMessageOverlay.style.display = 'flex';
@@ -1328,6 +1328,7 @@ class WordMemory {
             this.bestTime = responseTime;
         }
         
+        // Only flash 1 counts toward mastery (30 exposures needed)
         if (flashNumber === 1 && isCorrect && rating !== 'again') {
             this.correctCount++;
             
@@ -1513,6 +1514,7 @@ class TrainingSession {
         this.currentIndex = 0;
         this.currentFlash = 0;
         this.results = [];
+        this.startTime = null;
     }
     
     start() {
@@ -1523,6 +1525,7 @@ class TrainingSession {
             this.words.push(...extra);
         }
         
+        this.startTime = Date.now();
         return {
             totalWords: this.words.length,
             firstWord: this.words[0]
@@ -1830,6 +1833,7 @@ function isTrainingAvailable() {
     const now = Date.now();
     const timeSinceLast = now - playerPerformance.lastTrainingTime;
     
+    // Sanity check for clock manipulation
     if (timeSinceLast < 0 || timeSinceLast > 7 * 24 * 60 * 60 * 1000) {
         playerPerformance.lastTrainingTime = now - TRAINING_COOLDOWN;
         saveProgress();
@@ -1893,6 +1897,7 @@ function backfillCodexFromProgress() {
             unitWords.forEach((wordData, wordIndex) => {
                 const wordId = `w${worldId}u${unit.id}w${wordIndex}`;
                 
+                // Check if this word was completed based on progress
                 const isCompleted = (worldId === currentWorld && 
                                      unit.id === currentUnit && 
                                      completedWords.includes(wordIndex)) ||
@@ -1908,11 +1913,13 @@ function backfillCodexFromProgress() {
                         });
                     }
                     
+                    // Give credit for completed words (but not full mastery)
                     if (wordMemory.correctCount === 0) {
                         wordMemory.correctCount = 1;
                         wordMemory.recordTraining(1, 3000, true, 'good');
                     }
                     
+                    // For fully completed ingots, give partial credit (up to 15)
                     if (unit.wordsCompleted === 20) {
                         const baseProgress = Math.min(15, Math.floor(unit.wordsCompleted / 2));
                         if (wordMemory.correctCount < baseProgress) {
@@ -2508,6 +2515,7 @@ function showPracticeModePopup() {
     
     let practiceIngotsHtml = '';
     world.units.forEach(unit => {
+        // Only show completed ingots (wordsCompleted === 20)
         if (unit.wordsCompleted === 20) {
             const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[unit.id];
             const unitName = unitData ? unitData.name : "Unknown";
@@ -2653,6 +2661,8 @@ function showIngotCompletePopup() {
             const nextUnit = world.units.find(u => u.id === nextIngotId);
             if (nextUnit) {
                 nextUnit.unlocked = true;
+                // Set currentUnit to the next ingot so home screen updates
+                currentUnit = nextIngotId;
                 setTimeout(() => showNextIngotPreview(), 100);
             }
         }
@@ -2794,10 +2804,12 @@ function showTrainingDifficultyPopup() {
 
 // ---------- TRAINING SESSION UI ----------
 let currentTrainingSession = null;
+let trainingStartTime = null;
 
 function startTrainingSession(difficulty) {
     currentTrainingSession = new TrainingSession(codex, fsrsManager, difficulty);
     const sessionInfo = currentTrainingSession.start();
+    trainingStartTime = Date.now();
     showTrainingWord();
 }
 
@@ -2807,13 +2819,19 @@ function showTrainingWord() {
     const flashNumber = currentTrainingSession.currentFlash + 1;
     const wordIndex = currentTrainingSession.currentIndex + 1;
     const totalWords = currentTrainingSession.words.length;
+    const elapsedSeconds = ((Date.now() - trainingStartTime) / 1000).toFixed(1);
+    
+    let timerColorClass = 'timer-display';
+    if (elapsedSeconds < 2) timerColorClass += ' fast';
+    else if (elapsedSeconds < 4) timerColorClass += ' medium';
+    else timerColorClass += ' slow';
     
     overlay.innerHTML = `
         <div class="training-card">
             <div class="close-x" id="closePopupBtn">✕</div>
             <div class="training-header">
                 <span>Word ${wordIndex}/${totalWords}</span>
-                <span>Flash ${flashNumber}/3</span>
+                <span>Flash ${flashNumber}/3 <span class="${timerColorClass}">${elapsedSeconds}s</span></span>
             </div>
             <div class="training-word">${word.word}</div>
             <div class="training-emoji">${word.emoji}</div>
@@ -2823,7 +2841,7 @@ function showTrainingWord() {
                 <div class="training-progress-bar">
                     <div class="training-progress-fill" style="width: ${word.getMasteryPercent()}%"></div>
                 </div>
-                <div class="training-progress-text">Mastery: ${Math.round(word.getMasteryPercent())}%</div>
+                <div class="training-progress-text">Mastery: ${Math.round(word.getMasteryPercent())}% (${word.correctCount}/30)</div>
             </div>
             <div class="preview-buttons">
                 <button class="preview-btn" id="submitBtn">✓ SUBMIT</button>
@@ -2834,12 +2852,12 @@ function showTrainingWord() {
     
     overlay.classList.remove('hidden');
     
-    const startTime = Date.now();
+    const wordStartTime = Date.now();
     const input = document.getElementById('trainingInput');
     input.focus();
     
     document.getElementById('submitBtn').addEventListener('click', () => {
-        const responseTime = (Date.now() - startTime) / 1000;
+        const responseTime = (Date.now() - wordStartTime) / 1000;
         const typedWord = input.value.trim();
         processTrainingResponse(typedWord, responseTime);
     });
@@ -2856,7 +2874,7 @@ function showTrainingWord() {
     
     input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            const responseTime = (Date.now() - startTime) / 1000;
+            const responseTime = (Date.now() - wordStartTime) / 1000;
             const typedWord = input.value.trim();
             processTrainingResponse(typedWord, responseTime);
         }
@@ -3501,7 +3519,7 @@ function showWorldUnlockPopup(worldId) {
 
 // ---------- NEXT INGOT PREVIEW POPUP ----------
 function showNextIngotPreview() {
-    const nextIngotId = currentUnit + 1;
+    const nextIngotId = currentUnit;
     const world = worlds[currentWorld];
     if (!world) return;
     
@@ -3550,7 +3568,6 @@ function showNextIngotPreview() {
     
     document.getElementById('forgeAheadBtn').addEventListener('click', () => {
         overlay.classList.add('hidden');
-        currentUnit = nextIngotId;
         resetForNewUnit();
         updateWorldDisplay();
         saveProgress();
@@ -3849,7 +3866,8 @@ function handleWordCompletion(wordIndex) {
                     });
                 }
                 
-                const responseTime = 3.0;
+                // Record successful forge with response time
+                const responseTime = 3.0; // Average response time for main game
                 wordMemory.recordTraining(1, responseTime, true, 'good');
                 fsrsManager.processResult(wordMemory, 'good', responseTime);
             }
@@ -3884,13 +3902,13 @@ function handleWordCompletion(wordIndex) {
         const success = roll <= chance.final;
         
         tg?.HapticFeedback?.impactOccurred?.('heavy');
-        showForgeMessage('Hammer strikes the anvil...', '⚒️', 4000);
+        showForgeMessage('Hammer strikes the anvil...', '⚒️', 3000);
         document.body.style.transition = 'background-color 0.5s';
         document.body.style.backgroundColor = success ? '#4ade80' : '#f87171';
         
         setTimeout(() => {
             updateForgeMessage(success ? 'The metal holds...' : 'A crack forms...', success ? '✨' : '💔');
-        }, 2000);
+        }, 1500);
         
         setTimeout(() => {
             document.body.style.backgroundColor = '';
@@ -3915,9 +3933,15 @@ function handleWordCompletion(wordIndex) {
                     date: new Date().toISOString()
                 });
                 onSuccess(currentUnit);
-                showIngotCompletePopup();
+                
+                // Unlock next ingot and advance current unit
                 const nextUnit = worlds[currentWorld].units.find(u => u.id === currentUnit + 1);
-                if (nextUnit) nextUnit.unlocked = true;
+                if (nextUnit) {
+                    nextUnit.unlocked = true;
+                    currentUnit = currentUnit + 1; // Advance to next ingot
+                }
+                
+                showIngotCompletePopup();
                 saveProgress();
             } else {
                 onFailure(currentUnit);
@@ -3935,7 +3959,7 @@ function handleWordCompletion(wordIndex) {
                 showFailurePopup();
             }
             updateHomeScreenStats();
-        }, 4000);
+        }, 3000);
     }
 }
 
