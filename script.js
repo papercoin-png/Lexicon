@@ -1301,17 +1301,15 @@ for (let i = 1; i <= 180; i++) {
     ingotGrace[i] = 0;
 }
 
-// ---------- DEVOTION SYSTEM - NEW ----------
+// ---------- DEVOTION SYSTEM ----------
 const DEVOTION = {
     MAX_DAYS: 365,
     MAX_BONUS: 30,
     
-    // Calculate bonus percentage based on days
     calculateBonus(days) {
         return Math.min(Math.round((days / this.MAX_DAYS) * this.MAX_BONUS * 100) / 100, this.MAX_BONUS);
     },
     
-    // Get tier based on days
     getTier(days) {
         if (days >= 365) return { name: "Crystal", icon: "💎", color: "#88CCFF", svg: "icon-anvil-crystal" };
         if (days >= 200) return { name: "Gold", icon: "🥇", color: "#FFD700", svg: "icon-anvil-gold" };
@@ -1320,7 +1318,6 @@ const DEVOTION = {
         return { name: "None", icon: "⚒️", color: "#6A6A6A", svg: "icon-anvil" };
     },
     
-    // Check if milestone achieved
     checkMilestones(days, oldDays) {
         const milestones = [];
         if (oldDays < 30 && days >= 30) milestones.push(30);
@@ -1331,7 +1328,7 @@ const DEVOTION = {
     }
 };
 
-// ---------- PLAYER PERFORMANCE TRACKING - UPDATED with Devotion ----------
+// ---------- PLAYER PERFORMANCE TRACKING ----------
 let playerPerformance = {
     currentStreak: 0,
     bestStreak: 0,
@@ -1348,7 +1345,6 @@ let playerPerformance = {
         5: { completed: 0, failed: 0, bestTime: null },
         6: { completed: 0, failed: 0, bestTime: null }
     },
-    // Devotion data
     devotion: {
         days: 0,
         lastLogin: null,
@@ -1363,41 +1359,34 @@ let playerPerformance = {
     }
 };
 
-// ---------- UPDATE DEVOTION FUNCTION - NEW ----------
+// ---------- UPDATE DEVOTION FUNCTION ----------
 function updateDevotion() {
     const today = new Date().toDateString();
     const lastLogin = playerPerformance.devotion.lastLogin ? new Date(playerPerformance.devotion.lastLogin).toDateString() : null;
     const oldDays = playerPerformance.devotion.days;
     
     if (!lastLogin) {
-        // First time playing
         playerPerformance.devotion.days = 1;
         playerPerformance.devotion.lastLogin = new Date().toISOString();
     } else if (lastLogin !== today) {
-        // Calculate days since last login
         const lastDate = new Date(playerPerformance.devotion.lastLogin);
         const currentDate = new Date();
         const daysDiff = Math.floor((currentDate - lastDate) / (1000 * 60 * 60 * 24));
         
         if (daysDiff === 1) {
-            // Consecutive day - add one
             playerPerformance.devotion.days = Math.min(playerPerformance.devotion.days + 1, DEVOTION.MAX_DAYS);
         } else if (daysDiff > 1) {
-            // Missed days - cool down by the number of missed days (but not below 0)
             playerPerformance.devotion.days = Math.max(playerPerformance.devotion.days - (daysDiff - 1), 0);
-            // Then add today
             playerPerformance.devotion.days = Math.min(playerPerformance.devotion.days + 1, DEVOTION.MAX_DAYS);
         }
         
         playerPerformance.devotion.lastLogin = new Date().toISOString();
     }
     
-    // Calculate bonus and tier
     playerPerformance.devotion.bonus = DEVOTION.calculateBonus(playerPerformance.devotion.days);
     const tier = DEVOTION.getTier(playerPerformance.devotion.days);
     playerPerformance.devotion.tier = tier.name;
     
-    // Check for milestones
     const newMilestones = DEVOTION.checkMilestones(playerPerformance.devotion.days, oldDays);
     newMilestones.forEach(day => {
         const milestoneKey = `day${day}`;
@@ -1407,15 +1396,15 @@ function updateDevotion() {
         }
     });
     
-    // Show daily devotion notification if days changed
     if (playerPerformance.devotion.days !== oldDays) {
         showDevotionNotification();
     }
     
     saveProgress();
+    updateHomeScreenStats();
 }
 
-// ---------- DEVOTION NOTIFICATION - NEW ----------
+// ---------- DEVOTION NOTIFICATION ----------
 function showDevotionNotification() {
     const days = playerPerformance.devotion.days;
     const bonus = playerPerformance.devotion.bonus.toFixed(1);
@@ -1451,7 +1440,7 @@ function showDevotionNotification() {
     }, 4000);
 }
 
-// ---------- MILESTONE NOTIFICATION - NEW ----------
+// ---------- MILESTONE NOTIFICATION ----------
 function showMilestoneNotification(day, tier) {
     const messages = {
         30: { text: "Bronze Anvil Unlocked!", desc: "Your devotion begins to show" },
@@ -1484,7 +1473,7 @@ function showMilestoneNotification(day, tier) {
     }, 5000);
 }
 
-// ---------- MODIFIED: calculateSuccessChance with Devotion ----------
+// ---------- calculateSuccessChance ----------
 function calculateSuccessChance(ingotId) {
     const difficulty = ingotDifficulty[ingotId] || { baseChance: 50, tier: "Unknown" };
     const grace = ingotGrace[ingotId] || 0;
@@ -1682,10 +1671,9 @@ let gameCompleted = false;
 let wordCardQueue = [];
 let showingWordCard = false;
 
-// ---------- GOOGLE SHEETS LEADERBOARD WITH FETCH - FIXED VERSION ----------
+// ---------- GOOGLE SHEETS LEADERBOARD ----------
 const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxb816QBBx6q6kwIPMBHGghpUZX4554Etg2G-mcU5akYnhcUMNaAI9sdT2tlq7kzWH2Lw/exec';
 
-// Save score using fetch - USING LOCALSTORAGE ID (FIXED)
 async function saveScoreToGoogleSheetsWithCallback(callback) {
     const totalWords = calculateTotalWords();
     const playerName = playerProfile.displayName || "Forgemaster";
@@ -1698,7 +1686,6 @@ async function saveScoreToGoogleSheetsWithCallback(callback) {
         return;
     }
     
-    // Get or create persistent local ID (this is your permanent player ID)
     let playerId = localStorage.getItem('spellforge_local_id');
     if (!playerId) {
         playerId = 'player_' + Math.random().toString(36).substring(2, 15);
@@ -1713,9 +1700,9 @@ async function saveScoreToGoogleSheetsWithCallback(callback) {
         url.searchParams.append('action', 'save');
         url.searchParams.append('player_name', playerName);
         url.searchParams.append('total_words', totalWords);
-        url.searchParams.append('telegram_id', playerId);  // Using localStorage ID
+        url.searchParams.append('telegram_id', playerId);
         url.searchParams.append('display_name', playerProfile.displayName);
-        url.searchParams.append('_', Date.now()); // Cache buster
+        url.searchParams.append('_', Date.now());
         
         console.log('Saving to URL:', url.toString());
         
@@ -1730,19 +1717,17 @@ async function saveScoreToGoogleSheetsWithCallback(callback) {
     }
 }
 
-// Legacy support
 function saveScoreToGoogleSheets() {
     saveScoreToGoogleSheetsWithCallback();
 }
 
-// Load leaderboard using fetch
 async function loadLeaderboardFromSheets(callback) {
     try {
         console.log('Loading leaderboard...');
         
         const url = new URL(GOOGLE_SHEETS_URL);
         url.searchParams.append('action', 'get');
-        url.searchParams.append('_', Date.now()); // Cache buster
+        url.searchParams.append('_', Date.now());
         
         console.log('Fetching leaderboard URL:', url.toString());
         
@@ -1797,7 +1782,46 @@ function getPlayerStats() {
     };
 }
 
-// ---------- FIXED: Always generates 30 tiles (6 rows × 5 columns) ----------
+// ---------- NEW: UPDATE HOME SCREEN STATS FUNCTION ----------
+function updateHomeScreenStats() {
+    // Update streak
+    const streakDaysEl = document.getElementById('streakDays');
+    if (streakDaysEl) {
+        streakDaysEl.innerText = playerPerformance.currentStreak || 0;
+    }
+    
+    // Update devotion bonus
+    const streakBonusEl = document.getElementById('streakBonus');
+    if (streakBonusEl) {
+        const bonus = playerPerformance.devotion?.bonus || 0;
+        streakBonusEl.innerText = `+${bonus.toFixed(1)}% BONUS`;
+    }
+    
+    // Update codex mastered count
+    const codexCountEl = document.getElementById('codexMasteredCount');
+    if (codexCountEl) {
+        const mastered = worlds[1].units.filter(u => u.wordsCompleted === 20).length;
+        codexCountEl.innerText = `${mastered}⭐ mastered`;
+    }
+    
+    // Update current ingot display
+    const world = worlds[currentWorld];
+    const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
+    const currentIngotNameEl = document.getElementById('currentIngotName');
+    if (currentIngotNameEl && unitData) {
+        currentIngotNameEl.innerText = `${world.unitName} ${currentUnit.toString().padStart(2, '0')}: ${unitData.name}`;
+    }
+    
+    const currentIngotProgressEl = document.getElementById('currentIngotProgress');
+    const currentIngotCountEl = document.getElementById('currentIngotCount');
+    const unit = world.units.find(u => u.id === currentUnit);
+    if (currentIngotProgressEl && currentIngotCountEl && unit) {
+        currentIngotProgressEl.style.width = `${(unit.wordsCompleted/20)*100}%`;
+        currentIngotCountEl.innerText = `${unit.wordsCompleted}/20`;
+    }
+}
+
+// ---------- generateInitialLetters ----------
 function generateInitialLetters() {
     const words = getCurrentUnitWords();
     if (!words || words.length === 0) return [];
@@ -1828,7 +1852,7 @@ function generateInitialLetters() {
     return letters;
 }
 
-// ---------- FIXED: Safe word retrieval with error handling ----------
+// ---------- getCurrentUnitWords ----------
 function getCurrentUnitWords() {
     try {
         const worldData = MASTER_WORDS[`world${currentWorld}`];
@@ -1908,11 +1932,10 @@ function calculateRiskBonus(baseChance, actualChance, success) {
     return Math.min(riskFactor * 10, 1000);
 }
 
-// ---------- FIXED: updateWorldDisplay with safe DOM access ----------
+// ---------- updateWorldDisplay ----------
 function updateWorldDisplay() {
     const world = worlds[currentWorld];
     
-    // Safely update unit selector
     const selector = document.getElementById('unitSelector');
     if (selector) {
         selector.innerHTML = '';
@@ -1929,7 +1952,6 @@ function updateWorldDisplay() {
         });
     }
 
-    // Safely update unit grid
     const grid = document.getElementById('unitGrid');
     if (grid) {
         grid.innerHTML = '';
@@ -1960,32 +1982,13 @@ function updateWorldDisplay() {
         });
     }
 
-    // Update home screen elements
     const homeWorldName = document.getElementById('homeWorldName');
     if (homeWorldName) homeWorldName.innerText = world.name;
     
     const homeTierBadge = document.getElementById('homeTierBadge');
     if (homeTierBadge) homeTierBadge.innerText = getWorldTier();
     
-    const currentIngotName = document.getElementById('currentIngotName');
-    const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
-    if (currentIngotName && unitData) {
-        currentIngotName.innerText = `${world.unitName} ${currentUnit.toString().padStart(2, '0')}: ${unitData.name}`;
-    }
-    
-    const currentIngotProgress = document.getElementById('currentIngotProgress');
-    const currentIngotCount = document.getElementById('currentIngotCount');
-    const unit = world.units.find(u => u.id === currentUnit);
-    if (currentIngotProgress && currentIngotCount && unit) {
-        currentIngotProgress.style.width = `${(unit.wordsCompleted/20)*100}%`;
-        currentIngotCount.innerText = `${unit.wordsCompleted}/20`;
-    }
-    
-    const codexCount = document.getElementById('codexMasteredCount');
-    if (codexCount) {
-        const mastered = worlds[1].units.filter(u => u.wordsCompleted === 20).length;
-        codexCount.innerText = `${mastered}⭐ mastered`;
-    }
+    updateHomeScreenStats();
 
     if (activeWordIndex !== null) {
         updateHeaderForGameplay();
@@ -1994,7 +1997,7 @@ function updateWorldDisplay() {
     }
 }
 
-// ---------- Show current ingot preview for FORGE AGAIN - UPDATED with Devotion ----------
+// ---------- showCurrentIngotPreview ----------
 function showCurrentIngotPreview() {
     const world = worlds[currentWorld];
     const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
@@ -2006,10 +2009,6 @@ function showCurrentIngotPreview() {
     else if (chance.final < 50) chanceColorClass = 'chance-low';
     
     const unitName = unitData.name || "Unknown";
-    const graceMessage = chance.grace > 0 
-        ? `+${chance.grace}% from ${chance.grace} failed attempt${chance.grace > 1 ? 's' : ''}` 
-        : 'No failures yet';
-    
     const devotionTier = DEVOTION.getTier(chance.devotionDays);
     
     const overlay = document.getElementById('popupOverlay');
@@ -2054,7 +2053,7 @@ function showCurrentIngotPreview() {
     });
 }
 
-// ---------- resetForNewUnit FUNCTION ----------
+// ---------- resetForNewUnit ----------
 function resetForNewUnit() {
     currentLetters = generateInitialLetters();
     completedWords = [];
@@ -2071,6 +2070,7 @@ function resetForNewUnit() {
     saveProgress();
     setUnitSectionVisibility(true);
     updateHeaderForSelection();
+    updateHomeScreenStats();
     
     QUICK_RESUME.saveSession();
 }
@@ -2097,7 +2097,7 @@ function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-// ---------- SAVE PROGRESS - UPDATED with Devotion ----------
+// ---------- SAVE PROGRESS ----------
 function saveProgress() {
     const saveData = {
         version: "1.1",
@@ -2114,14 +2114,13 @@ function saveProgress() {
     } catch (e) {}
 }
 
-// ---------- LOAD PROGRESS - UPDATED with Devotion ----------
+// ---------- LOAD PROGRESS ----------
 function loadProgress() {
     try {
         const saved = localStorage.getItem('spellforge_save');
         if (saved) {
             const saveData = JSON.parse(saved);
             
-            // Handle old save versions
             if (!saveData.playerPerformance.devotion) {
                 saveData.playerPerformance.devotion = {
                     days: 0,
@@ -2173,7 +2172,7 @@ function startAutoSave() {
     setInterval(saveProgress, 60000);
 }
 
-// ---------- PROFILE POPUP WITH LEADERBOARD TROPHY AND DEVOTION SECTION - UPDATED ----------
+// ---------- PROFILE POPUP ----------
 function showProfilePopup(returnToLeaderboard = false) {
     const overlay = document.getElementById('popupOverlay');
     const stats = getPlayerStats();
@@ -2190,7 +2189,6 @@ function showProfilePopup(returnToLeaderboard = false) {
         `;
     }
     
-    // Devotion data
     const devotionDays = playerPerformance.devotion?.days || 0;
     const devotionBonus = playerPerformance.devotion?.bonus || 0;
     const devotionTier = DEVOTION.getTier(devotionDays);
@@ -2223,7 +2221,6 @@ function showProfilePopup(returnToLeaderboard = false) {
                 <div class="profile-id">${playerProfile.telegramId || 'Not available'}</div>
             </div>
             
-            <!-- DEVOTION SECTION - NEW -->
             <div class="devotion-section">
                 <div class="devotion-header">
                     <span class="devotion-title">
@@ -2286,7 +2283,6 @@ function showProfilePopup(returnToLeaderboard = false) {
                 </div>
             </div>
             
-            <!-- Leaderboard Trophy Button -->
             <div class="profile-trophy" id="profileTrophyBtn">
                 <span class="trophy-icon">🏆</span>
                 <span class="trophy-text">VIEW LEADERBOARD</span>
@@ -2329,10 +2325,9 @@ function showProfilePopup(returnToLeaderboard = false) {
     
     document.getElementById('profileSaveBtn').addEventListener('click', validateAndSave);
     
-    // Trophy button event listener
     document.getElementById('profileTrophyBtn').addEventListener('click', () => {
         overlay.classList.add('hidden');
-        showLeaderboardPopup(false); // false = not from completion
+        showLeaderboardPopup(false);
     });
     
     nameInput.addEventListener('keypress', (e) => {
@@ -2347,10 +2342,11 @@ function returnToPreviousScreen(returnToLeaderboard) {
         showLeaderboardPopup(true);
     } else {
         renderAll();
+        updateHomeScreenStats();
     }
 }
 
-// ---------- LEADERBOARD POPUP WITH FETCH AND DEVOTION BADGES - UPDATED ----------
+// ---------- LEADERBOARD POPUP ----------
 function showLeaderboardPopup(fromCompletion = false) {
     const overlay = document.getElementById('popupOverlay');
     
@@ -2385,7 +2381,7 @@ function showLeaderboardPopup(fromCompletion = false) {
     });
 }
 
-// ---------- DISPLAY LEADERBOARD - UPDATED with Devotion Badges ----------
+// ---------- DISPLAY LEADERBOARD ----------
 function displayLeaderboard(leaderboard, fromCompletion) {
     const overlay = document.getElementById('popupOverlay');
     const playerTotal = calculateTotalWords();
@@ -2398,8 +2394,6 @@ function displayLeaderboard(leaderboard, fromCompletion) {
     const playerAhead = playerRank > 1 ? safeLeaderboard[playerRank - 2] : null;
     const wordsToCatch = playerAhead ? playerAhead.score - playerTotal : 0;
     
-    // For demo purposes, we'll add devotion badges based on score (in real implementation, this would come from the server)
-    // This is a placeholder - actual devotion data would need to be stored and retrieved from the server
     const getDevotionBadge = (score) => {
         if (score > 2000) return { icon: "💎", tier: "Crystal" };
         if (score > 1500) return { icon: "🥇", tier: "Gold" };
@@ -2484,11 +2478,10 @@ function displayLeaderboard(leaderboard, fromCompletion) {
 
 function handleLeaderboardReturn(fromCompletion) {
     if (fromCompletion) {
-        // Return to the completion screen
         showIngotCompletePopup();
     } else {
-        // Just go back to whatever was showing
         renderAll();
+        updateHomeScreenStats();
     }
 }
 
@@ -2564,7 +2557,7 @@ function showFailurePopup() {
     tg?.HapticFeedback?.notificationOccurred?.('error');
 }
 
-// ---------- INGOT COMPLETE POPUP (WITH AUTOMATIC SAVE) ----------
+// ---------- INGOT COMPLETE POPUP ----------
 function showIngotCompletePopup() {
     const overlay = document.getElementById('popupOverlay');
     const world = worlds[currentWorld];
@@ -2631,12 +2624,13 @@ function showIngotCompletePopup() {
         }
         saveProgress();
         QUICK_RESUME.saveSession();
+        updateHomeScreenStats();
     });
     
     tg?.HapticFeedback?.notificationOccurred?.('success');
 }
 
-// ---------- NEXT INGOT PREVIEW - UPDATED with Devotion ----------
+// ---------- NEXT INGOT PREVIEW ----------
 function showNextIngotPreview() {
     const nextIngotId = currentUnit + 1;
     const world = worlds[currentWorld];
@@ -2651,10 +2645,6 @@ function showNextIngotPreview() {
     else if (chance.final < 50) chanceColorClass = 'chance-low';
     
     const unitName = nextUnitData.name || "Unknown";
-    const graceMessage = chance.grace > 0 
-        ? `+${chance.grace}% from ${chance.grace} failed attempt${chance.grace > 1 ? 's' : ''}` 
-        : 'First attempt';
-    
     const devotionTier = DEVOTION.getTier(chance.devotionDays);
     
     const overlay = document.getElementById('popupOverlay');
@@ -2821,7 +2811,7 @@ function showWorldUnlockPopup(worldId) {
     });
 }
 
-// ---------- handleWordCompletion FUNCTION (WITH AUTOMATIC SAVE) ----------
+// ---------- handleWordCompletion ----------
 function handleWordCompletion(wordIndex) {
     if (!completedWords.includes(wordIndex)) {
         completedWords.push(wordIndex);
@@ -2834,6 +2824,7 @@ function handleWordCompletion(wordIndex) {
         }
         
         QUICK_RESUME.saveSession();
+        updateHomeScreenStats();
     }
 
     activeWordIndex = null;
@@ -2869,7 +2860,6 @@ function handleWordCompletion(wordIndex) {
             hideForgeMessage();
             
             if (success) {
-                // Save score automatically when ingot completes
                 saveScoreToGoogleSheetsWithCallback(() => {
                     console.log('Score saved automatically on ingot completion');
                 });
@@ -2909,6 +2899,7 @@ function handleWordCompletion(wordIndex) {
                 });
                 showFailurePopup();
             }
+            updateHomeScreenStats();
         }, 4000);
     }
 }
@@ -2922,7 +2913,7 @@ function onFailure(unitId) {
     ingotGrace[unitId] = Math.min(ingotGrace[unitId], 25);
 }
 
-// ---------- OPTIMIZED handleLetterTap FUNCTION ----------
+// ---------- handleLetterTap ----------
 function handleLetterTap(letter, indexInGrid) {
     if (gameCompleted) return;
     totalTaps++;
@@ -2989,7 +2980,7 @@ function handleLetterTap(letter, indexInGrid) {
     }
 }
 
-// ---------- OPTIMIZED: Update only the letter grid ----------
+// ---------- updateLetterGridOnly ----------
 function updateLetterGridOnly() {
     const gridContainer = document.getElementById('letterGridContainer');
     if (!gridContainer) return;
@@ -3010,7 +3001,7 @@ function updateLetterGridOnly() {
     }
 }
 
-// ---------- OPTIMIZED: Update only the active word display ----------
+// ---------- updateActiveWordDisplay ----------
 function updateActiveWordDisplay(targetWord) {
     const progressWord = targetWord.split('').map((l, i) => 
         i < currentPosition ? l.toUpperCase() : '_'
@@ -3024,7 +3015,7 @@ function updateActiveWordDisplay(targetWord) {
         (currentPosition < targetWord.length) ? targetWord[currentPosition].toUpperCase() : '✅';
 }
 
-// ---------- OPTIMIZED RENDER UI ----------
+// ---------- renderAll ----------
 function renderAll() {
     const words = getCurrentUnitWords();
     
@@ -3096,9 +3087,115 @@ function handleReset() {
     }
 }
 
-// ---------- INITIALIZATION FUNCTION - UPDATED with Devotion ----------
+// ---------- NEW: Codex, Settings, Info Popup Functions ----------
+function showCodexPopup() {
+    const overlay = document.getElementById('popupOverlay');
+    const mastered = worlds[1].units.filter(u => u.wordsCompleted === 20).length;
+    
+    overlay.innerHTML = `
+        <div class="profile-card">
+            <button class="profile-close" id="closeBtn">✕</button>
+            <div class="profile-title">📚 CODEX</div>
+            <div style="text-align: center; padding: 20px; color: #FFD700; font-size: 48px;">📖</div>
+            <div style="text-align: center; color: #FFDCAA; margin: 20px 0;">
+                <div style="font-size: 24px; margin-bottom: 10px;">${mastered} / 30 Ingots Mastered</div>
+                <div style="font-size: 16px;">Words Forged: ${calculateTotalWords()}</div>
+            </div>
+            <div class="button-group">
+                <button class="action-btn" id="closeBtn2">CLOSE</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+    
+    document.getElementById('closeBtn2').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+}
+
+function showSettingsPopup() {
+    const overlay = document.getElementById('popupOverlay');
+    
+    overlay.innerHTML = `
+        <div class="profile-card">
+            <button class="profile-close" id="closeBtn">✕</button>
+            <div class="profile-title">⚙️ SETTINGS</div>
+            <div style="text-align: center; padding: 20px; color: #FFD700; font-size: 48px;">🔧</div>
+            <div style="text-align: center; color: #FFDCAA; margin: 20px 0;">
+                <div style="margin-bottom: 15px;">Sound: ON</div>
+                <div style="margin-bottom: 15px;">Haptic Feedback: ON</div>
+                <div>Version 1.1.0</div>
+            </div>
+            <div class="button-group">
+                <button class="action-btn" id="closeBtn2">CLOSE</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+    
+    document.getElementById('closeBtn2').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+}
+
+function showInfoPopup() {
+    const overlay = document.getElementById('popupOverlay');
+    
+    overlay.innerHTML = `
+        <div class="profile-card">
+            <button class="profile-close" id="closeBtn">✕</button>
+            <div class="profile-title">ℹ️ INFORMATION</div>
+            <div style="text-align: center; padding: 15px; color: #FFDCAA;">
+                <div style="margin: 15px 0;">⚒️ Spellforge · Master Blacksmith</div>
+                <div style="margin: 15px 0;">Forge words by tapping letters in order</div>
+                <div style="margin: 15px 0;">Complete all 20 words to forge an ingot</div>
+                <div style="margin: 15px 0;">Higher streaks increase your devotion bonus</div>
+                <div style="margin: 25px 0 10px; color: #FFD700;">Created for Telegram Mini Apps</div>
+            </div>
+            <div class="button-group">
+                <button class="action-btn" id="closeBtn2">CLOSE</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+    
+    document.getElementById('closeBtn2').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+}
+
+// ---------- HOME SCREEN NAVIGATION ----------
+function showHomeScreen() {
+    document.getElementById('homeScreen').classList.remove('hidden');
+    document.getElementById('gameContainer').classList.add('hidden');
+    document.getElementById('unitSection').classList.add('hidden');
+    updateHomeScreenStats();
+}
+
+function showGameScreen() {
+    document.getElementById('homeScreen').classList.add('hidden');
+    document.getElementById('gameContainer').classList.remove('hidden');
+    document.getElementById('unitSection').classList.remove('hidden');
+    resetForNewUnit();
+}
+
+// ---------- INITIALIZATION FUNCTION ----------
 function initializeGame() {
-    // Update devotion on game start
     updateDevotion();
     
     const savedSession = QUICK_RESUME.loadSession();
@@ -3128,25 +3225,13 @@ function initializeGame() {
         resetForNewUnit();
     }
     
+    updateHomeScreenStats();
+    
     setInterval(() => {
         if (!gameCompleted && activeWordIndex !== null) {
             QUICK_RESUME.saveSession();
         }
     }, 30000);
-}
-
-// ---------- HOME SCREEN NAVIGATION ----------
-function showHomeScreen() {
-    document.getElementById('homeScreen').classList.remove('hidden');
-    document.getElementById('gameContainer').classList.add('hidden');
-    document.getElementById('unitSection').classList.add('hidden');
-}
-
-function showGameScreen() {
-    document.getElementById('homeScreen').classList.add('hidden');
-    document.getElementById('gameContainer').classList.remove('hidden');
-    document.getElementById('unitSection').classList.remove('hidden');
-    resetForNewUnit();
 }
 
 // ---------- EVENT LISTENERS ----------
@@ -3162,16 +3247,36 @@ document.addEventListener('DOMContentLoaded', function() {
         backToHomeBtn.addEventListener('click', showHomeScreen);
     }
     
-    // Profile button (fixed top-right)
+    // Profile buttons
     const profileIconBtn = document.getElementById('profileIconBtn');
     if (profileIconBtn) {
         profileIconBtn.addEventListener('click', () => showProfilePopup(false));
     }
     
-    // Home footer profile button
     const homeFooterProfileBtn = document.getElementById('homeFooterProfileBtn');
     if (homeFooterProfileBtn) {
         homeFooterProfileBtn.addEventListener('click', () => showProfilePopup(false));
+    }
+    
+    // NEW: Home screen button listeners
+    const homeLeaderboardBtn = document.getElementById('homeLeaderboardBtn');
+    if (homeLeaderboardBtn) {
+        homeLeaderboardBtn.addEventListener('click', () => showLeaderboardPopup(false));
+    }
+    
+    const homeCodexBtn = document.getElementById('homeCodexBtn');
+    if (homeCodexBtn) {
+        homeCodexBtn.addEventListener('click', showCodexPopup);
+    }
+    
+    const homeFooterSettingsBtn = document.getElementById('homeFooterSettingsBtn');
+    if (homeFooterSettingsBtn) {
+        homeFooterSettingsBtn.addEventListener('click', showSettingsPopup);
+    }
+    
+    const homeFooterInfoBtn = document.getElementById('homeFooterInfoBtn');
+    if (homeFooterInfoBtn) {
+        homeFooterInfoBtn.addEventListener('click', showInfoPopup);
     }
     
     // Reset button
