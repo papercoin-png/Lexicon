@@ -1358,6 +1358,8 @@ class Codex {
         this.words = new Map();
         this.version = '1.3';
         this.lastSync = new Date().toISOString();
+        this.currentWorldView = null; // Track current world for drill-down
+        this.currentIngotView = null; // Track current ingot for drill-down
     }
     
     addWord(wordId, wordData) {
@@ -1408,6 +1410,12 @@ class Codex {
         return this.getAllWords().filter(w => 
             w.sourceWorld === world && w.sourceIngot === ingot
         );
+    }
+    
+    getDueWordsByWorld(worldId) {
+        return this.getAllWords().filter(w => 
+            w.sourceWorld === worldId && w.isDue() && !w.mastered
+        ).length;
     }
     
     export() {
@@ -1638,7 +1646,7 @@ let playerPerformance = {
             day365: false
         }
     },
-    lastStreakUpdate: null // Track when streak was last updated
+    lastStreakUpdate: null
 };
 
 // ---------- PLAYER PROFILE ----------
@@ -1890,71 +1898,47 @@ function updateTrainTimerDisplay() {
     }
 }
 
-// ---------- STREAK TIMER FUNCTIONS (NEW) ----------
-function updateStreakTimerDisplay() {
-    const timerEl = document.getElementById('streakTimer');
-    if (!timerEl) return;
-    
-    const now = Date.now();
-    const lastUpdate = playerPerformance.lastStreakUpdate ? new Date(playerPerformance.lastStreakUpdate).getTime() : null;
-    
-    if (!lastUpdate) {
-        timerEl.innerText = 'Next in: --h --m';
-        return;
-    }
-    
-    const nextUpdate = lastUpdate + TWENTY_FOUR_HOURS;
-    const timeRemaining = nextUpdate - now;
-    
-    if (timeRemaining <= 0) {
-        timerEl.innerText = 'Ready!';
-        timerEl.style.color = '#4ADE80';
-    } else {
-        const hours = Math.floor(timeRemaining / (60 * 60 * 1000));
-        const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
-        timerEl.innerText = `Next in: ${hours}h ${minutes}m`;
-        timerEl.style.color = '#FFB347';
-    }
-}
-
-// ---------- UPDATED: BACKFILL CODEX FROM PROGRESS (NO CREDIT) ----------
+// ---------- UPDATED: BACKFILL CODEX FROM PROGRESS (VETERAN PLAYERS) ----------
 function backfillCodexFromProgress() {
-    console.log("Backfilling Codex from progress...");
+    console.log("Backfilling Codex from completed ingots...");
+    let addedCount = 0;
     
+    // Loop through all worlds 1-6
     for (let worldId = 1; worldId <= 6; worldId++) {
         const world = worlds[worldId];
-        if (!world || !world.unlocked) continue;
+        if (!world) continue;
         
+        // Loop through all units in this world
         world.units.forEach(unit => {
-            if (unit.wordsCompleted === 0) return;
-            
-            const unitWords = MASTER_WORDS[`world${worldId}`]?.units[unit.id]?.words;
-            if (!unitWords) return;
-            
-            console.log(`Adding words from World ${worldId}, ${world.unitName} ${unit.id} (${unit.wordsCompleted}/20 completed)`);
-            
-            // Add ALL words from this unit to Codex
-            unitWords.forEach((wordData, wordIndex) => {
-                const wordId = `w${worldId}u${unit.id}w${wordIndex}`;
-                let wordMemory = codex.getWord(wordId);
+            // If this ingot is COMPLETED (20/20 words)
+            if (unit.wordsCompleted === 20) {
+                const unitWords = MASTER_WORDS[`world${worldId}`]?.units[unit.id]?.words;
+                if (!unitWords) return;
                 
-                if (!wordMemory) {
-                    wordMemory = codex.addWord(wordId, {
-                        ...wordData,
-                        world: worldId,
-                        ingot: unit.id
-                    });
+                console.log(`Found completed ingot: World ${worldId}, ${world.unitName} ${unit.id}`);
+                
+                // Add EVERY word from this completed ingot to Codex
+                unitWords.forEach((wordData, wordIndex) => {
+                    const wordId = `w${worldId}u${unit.id}w${wordIndex}`;
                     
-                    // Words start at 0 correct count - ready for training
-                    // NO automatic credit given
-                    console.log(`  Added word: ${wordData.word} (0/30)`);
-                }
-            });
+                    // Only add if not already in Codex
+                    if (!codex.getWord(wordId)) {
+                        codex.addWord(wordId, {
+                            ...wordData,
+                            world: worldId,
+                            ingot: unit.id
+                        });
+                        addedCount++;
+                        console.log(`  Added: ${wordData.word}`);
+                    }
+                });
+            }
         });
     }
     
     saveProgress();
-    console.log("Codex backfill complete. Total words in Codex:", codex.getAllWords().length);
+    console.log(`Backfill complete. Added ${addedCount} words from completed ingots.`);
+    console.log(`Total words in Codex now: ${codex.getAllWords().length}`);
 }
 
 // ---------- UPDATE HOME SCREEN STATS ----------
@@ -1990,9 +1974,6 @@ function updateHomeScreenStats() {
         currentIngotProgressEl.style.width = `${(unit.wordsCompleted/20)*100}%`;
         currentIngotCountEl.innerText = `${unit.wordsCompleted}/20`;
     }
-    
-    // Update streak timer
-    updateStreakTimerDisplay();
 }
 
 // ---------- GOOGLE SHEETS LEADERBOARD ----------
@@ -2578,7 +2559,7 @@ function showResetIngotPopup() {
     });
 }
 
-// ---------- NEW: RANDOM PRACTICE MODE (from PRACTICE button) ----------
+// ---------- RANDOM PRACTICE MODE (from PRACTICE button) ----------
 function startRandomPractice() {
     // Collect all completed units from all worlds
     const completedUnits = [];
@@ -2628,7 +2609,7 @@ function showWordCard(wordData) {
     processWordCardQueue();
 }
 
-// ---------- UPDATED: processWordCardQueue with auto-scroll to top ----------
+// ---------- processWordCardQueue with auto-scroll to top ----------
 function processWordCardQueue() {
     if (showingWordCard || wordCardQueue.length === 0) return;
     showingWordCard = true;
@@ -2877,7 +2858,7 @@ function startTrainingSession(difficulty) {
     showTrainingWord();
 }
 
-// ---------- UPDATED: showTrainingWord without sentence ----------
+// ---------- showTrainingWord without sentence ----------
 function showTrainingWord() {
     const overlay = document.getElementById('popupOverlay');
     const word = currentTrainingSession.getCurrentWord();
@@ -2946,14 +2927,14 @@ function showTrainingWord() {
     });
 }
 
-// ---------- FIXED: processTrainingResponse - Properly advances flashes ----------
+// ---------- FIXED: processTrainingResponse - Properly advances flashes (3 flashes total) ----------
 function processTrainingResponse(typedWord, responseTime) {
     const result = currentTrainingSession.processFlash(typedWord, responseTime);
     
     tg?.HapticFeedback?.impactOccurred?.(result.isCorrect ? 'light' : 'heavy');
     
     if (result.nextFlash) {
-        // Advance to next flash
+        // Advance to next flash (1/3 → 2/3 → 3/3)
         currentTrainingSession.currentFlash = result.nextFlash;
         showTrainingWord();
     } else {
@@ -3076,7 +3057,7 @@ function showMilestoneNotification(day, tier) {
     }, 5000);
 }
 
-// ---------- PROFILE POPUP ----------
+// ---------- UPDATED: PROFILE POPUP (Telegram ID Removed) ----------
 function showProfilePopup(returnToLeaderboard = false) {
     const overlay = document.getElementById('popupOverlay');
     const stats = getPlayerStats();
@@ -3120,10 +3101,7 @@ function showProfilePopup(returnToLeaderboard = false) {
                 <div style="color: #acccdd; font-size: 12px; margin-top: 5px;">3-20 characters, letters and spaces only</div>
             </div>
             
-            <div class="profile-field">
-                <div class="profile-label">TELEGRAM ID</div>
-                <div class="profile-id">${playerProfile.telegramId || 'Not available'}</div>
-            </div>
+            <!-- TELEGRAM ID REMOVED - as agreed -->
             
             <div class="devotion-section">
                 <div class="devotion-header">
@@ -3382,140 +3360,6 @@ function displayLeaderboard(leaderboard, fromCompletion) {
         showLeaderboardPopup(fromCompletion);
     });
 }
-
-// ---------- CODEX POPUP ----------
-function showCodexPopup() {
-    const overlay = document.getElementById('popupOverlay');
-    const stats = codex.getStats();
-    
-    let ingotsHtml = '';
-    for (let i = 1; i <= 30; i++) {
-        const unit = worlds[1].units.find(u => u.id === i);
-        const unitData = MASTER_WORDS.world1.units[i];
-        const wordsInIngot = codex.getWordsByIngot(1, i);
-        const masteredInIngot = wordsInIngot.filter(w => w.mastered).length;
-        const totalInIngot = unitData ? unitData.words.length : 20;
-        
-        ingotsHtml += `
-            <div class="codex-ingot-item">
-                <div class="codex-ingot-header">
-                    <span>INGOT ${i.toString().padStart(2, '0')}: ${unitData?.name || 'Unknown'}</span>
-                    <span>${unit?.wordsCompleted || 0}/20 · ${masteredInIngot}/${totalInIngot}⭐</span>
-                </div>
-                <div class="codex-ingot-bar">
-                    <div class="codex-ingot-fill" style="width: ${((unit?.wordsCompleted || 0)/20)*100}%"></div>
-                </div>
-            </div>
-        `;
-    }
-    
-    overlay.innerHTML = `
-        <div class="profile-card" style="max-width: 500px;">
-            <button class="profile-close" id="closeBtn">✕</button>
-            <div class="profile-title">📚 CODEX</div>
-            
-            <div style="display: flex; justify-content: space-around; margin: 20px 0; padding: 15px; background: #0E2938; border-radius: 40px;">
-                <div style="text-align: center;">
-                    <div style="font-size: 24px; color: #FFD700;">${stats.mastered}</div>
-                    <div style="font-size: 12px; color: #ACCCDD;">Mastered</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 24px; color: #FFB347;">${stats.learning}</div>
-                    <div style="font-size: 12px; color: #ACCCDD;">Learning</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 24px; color: #4ADE80;">${stats.due}</div>
-                    <div style="font-size: 12px; color: #ACCCDD;">Due Now</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 24px; color: #C0C0C0;">${stats.total}</div>
-                    <div style="font-size: 12px; color: #ACCCDD;">Total</div>
-                </div>
-            </div>
-            
-            <div class="codex-ingots-list" style="max-height: 300px; overflow-y: auto; padding: 10px; background: #0E2938; border-radius: 40px;">
-                ${ingotsHtml}
-            </div>
-            
-            <div class="button-group" style="margin-top: 20px;">
-                <button class="action-btn" id="closeBtn2">CLOSE</button>
-            </div>
-        </div>
-    `;
-    
-    overlay.classList.remove('hidden');
-    
-    document.getElementById('closeBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-    
-    document.getElementById('closeBtn2').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-}
-
-// ---------- SETTINGS POPUP ----------
-function showSettingsPopup() {
-    const overlay = document.getElementById('popupOverlay');
-    
-    overlay.innerHTML = `
-        <div class="profile-card">
-            <button class="profile-close" id="closeBtn">✕</button>
-            <div class="profile-title">⚙️ SETTINGS</div>
-            <div style="text-align: center; padding: 20px; color: #FFD700; font-size: 48px;">🔧</div>
-            <div style="text-align: center; color: #FFDCAA; margin: 20px 0;">
-                <div style="margin-bottom: 15px;">Sound: ON</div>
-                <div style="margin-bottom: 15px;">Haptic Feedback: ON</div>
-                <div>Version 1.3.0</div>
-            </div>
-            <div class="button-group">
-                <button class="action-btn" id="closeBtn2">CLOSE</button>
-            </div>
-        </div>
-    `;
-    
-    overlay.classList.remove('hidden');
-    
-    document.getElementById('closeBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-    
-    document.getElementById('closeBtn2').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-}
-
-// ---------- INFO POPUP ----------
-function showInfoPopup() {
-    const overlay = document.getElementById('popupOverlay');
-    
-    overlay.innerHTML = `
-        <div class="profile-card">
-            <button class="profile-close" id="closeBtn">✕</button>
-            <div class="profile-title">ℹ️ INFORMATION</div>
-            <div style="text-align: center; padding: 15px; color: #FFDCAA;">
-                <div style="margin: 15px 0;">⚒️ Spellforge · Master Blacksmith</div>
-                <div style="margin: 15px 0;">Forge words by tapping letters in order</div>
-                <div style="margin: 15px 0;">Complete all 20 words to forge an ingot</div>
-                <div style="margin: 15px 0;">Daily training helps reinforce learning</div>
-                <div style="margin: 25px 0 10px; color: #FFD700;">Created for Telegram Mini Apps</div>
-            </div>
-            <div class="button-group">
-                <button class="action-btn" id="closeBtn2">CLOSE</button>
-            </div>
-        </div>
-    `;
-    
-    overlay.classList.remove('hidden');
-    
-    document.getElementById('closeBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-    
-    document.getElementById('closeBtn2').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-}
 // ---------- WORLD ARTIFACT POPUP ----------
 function showWorldArtifactPopup() {
     const overlay = document.getElementById('popupOverlay');
@@ -3710,6 +3554,327 @@ function showPracticeMode() {
     });
 }
 
+// ---------- NEW: CODEX PROGRESSIVE DISCLOSURE ----------
+function showCodexWorldView() {
+    const overlay = document.getElementById('popupOverlay');
+    const stats = codex.getStats();
+    
+    let worldsHtml = '';
+    
+    // Loop through all worlds 1-6
+    for (let worldId = 1; worldId <= 6; worldId++) {
+        const world = worlds[worldId];
+        if (!world) continue;
+        
+        const worldWords = codex.getAllWords().filter(w => w.sourceWorld === worldId);
+        const worldMastered = worldWords.filter(w => w.mastered).length;
+        const worldTotal = worldWords.length;
+        const worldDue = codex.getDueWordsByWorld(worldId);
+        const progressPercent = worldTotal > 0 ? (worldMastered / worldTotal) * 100 : 0;
+        
+        // Skip worlds with no words unlocked yet
+        if (worldTotal === 0 && !world.unlocked) continue;
+        
+        worldsHtml += `
+            <div class="codex-world-item" data-world="${worldId}">
+                <div class="codex-world-header">
+                    <span class="codex-world-icon">${world.icon}</span>
+                    <span class="codex-world-name">${world.name}</span>
+                    <span class="codex-world-stats">${worldMastered}/${worldTotal}⭐</span>
+                </div>
+                <div class="codex-world-progress">
+                    <div class="codex-world-progress-bar">
+                        <div class="codex-world-progress-fill" style="width: ${progressPercent}%"></div>
+                    </div>
+                    <div class="codex-world-due">${worldDue} due today</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    overlay.innerHTML = `
+        <div class="profile-card" style="max-width: 500px;">
+            <button class="profile-close" id="closeBtn">✕</button>
+            <div class="profile-title">📚 CODEX</div>
+            
+            <div style="display: flex; justify-content: space-around; margin: 20px 0; padding: 15px; background: #0E2938; border-radius: 40px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #FFD700;">${stats.mastered}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Mastered</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #FFB347;">${stats.learning}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Learning</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #4ADE80;">${stats.due}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Due Now</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #C0C0C0;">${stats.total}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Total</div>
+                </div>
+            </div>
+            
+            <div class="codex-worlds-list" style="max-height: 400px; overflow-y: auto; padding: 10px; background: #0E2938; border-radius: 40px;">
+                ${worldsHtml}
+            </div>
+            
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="action-btn" id="closeBtn2">CLOSE</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    // Add click handlers for world items
+    document.querySelectorAll('.codex-world-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const worldId = parseInt(item.dataset.world);
+            showCodexIngotView(worldId);
+        });
+    });
+    
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+    
+    document.getElementById('closeBtn2').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+}
+
+function showCodexIngotView(worldId) {
+    const overlay = document.getElementById('popupOverlay');
+    const world = worlds[worldId];
+    
+    let ingotsHtml = '';
+    
+    // Loop through ingots in this world
+    for (let i = 0; i < world.units.length; i++) {
+        const unit = world.units[i];
+        const unitId = unit.id;
+        const unitData = MASTER_WORDS[`world${worldId}`]?.units[unitId];
+        if (!unitData) continue;
+        
+        const wordsInIngot = codex.getWordsByIngot(worldId, unitId);
+        const masteredInIngot = wordsInIngot.filter(w => w.mastered).length;
+        const totalInIngot = unitData.words.length;
+        const progressPercent = totalInIngot > 0 ? (unit.wordsCompleted / totalInIngot) * 100 : 0;
+        
+        ingotsHtml += `
+            <div class="codex-ingot-item" data-world="${worldId}" data-ingot="${unitId}">
+                <div class="codex-ingot-header">
+                    <span>${world.unitName} ${unitId.toString().padStart(2, '0')}: ${unitData.name}</span>
+                    <span>${unit.wordsCompleted}/${totalInIngot} · ${masteredInIngot}/${totalInIngot}⭐</span>
+                </div>
+                <div class="codex-ingot-bar">
+                    <div class="codex-ingot-fill" style="width: ${progressPercent}%"></div>
+                </div>
+            </div>
+        `;
+    }
+    
+    overlay.innerHTML = `
+        <div class="profile-card" style="max-width: 500px;">
+            <button class="profile-close" id="backBtn">←</button>
+            <button class="profile-close" id="closeBtn" style="right: 20px;">✕</button>
+            <div class="profile-title">${world.icon} ${world.name}</div>
+            
+            <div class="codex-ingots-list" style="max-height: 500px; overflow-y: auto; padding: 10px; background: #0E2938; border-radius: 40px;">
+                ${ingotsHtml}
+            </div>
+            
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="action-btn" id="closeBtn2">CLOSE</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    // Add click handlers for ingot items
+    document.querySelectorAll('.codex-ingot-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const worldId = parseInt(item.dataset.world);
+            const ingotId = parseInt(item.dataset.ingot);
+            showCodexWordGridView(worldId, ingotId);
+        });
+    });
+    
+    document.getElementById('backBtn').addEventListener('click', () => {
+        showCodexWorldView();
+    });
+    
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+    
+    document.getElementById('closeBtn2').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+}
+
+function showCodexWordGridView(worldId, ingotId) {
+    const overlay = document.getElementById('popupOverlay');
+    const world = worlds[worldId];
+    const unitData = MASTER_WORDS[`world${worldId}`]?.units[ingotId];
+    const wordsInIngot = codex.getWordsByIngot(worldId, ingotId);
+    
+    // Create a 4x5 grid of words
+    let gridHtml = '<div class="codex-word-grid">';
+    
+    unitData.words.forEach((wordData, index) => {
+        const wordMemory = wordsInIngot.find(w => w.word === wordData.word);
+        const mastered = wordMemory?.mastered || false;
+        const correctCount = wordMemory?.correctCount || 0;
+        const masteryPercent = wordMemory ? (correctCount / 30) * 100 : 0;
+        
+        gridHtml += `
+            <div class="codex-word-tile ${mastered ? 'mastered' : ''}" 
+                 data-world="${worldId}" 
+                 data-ingot="${ingotId}" 
+                 data-word-index="${index}"
+                 title="${wordData.word} - ${correctCount}/30">
+                <div class="codex-word-emoji">${wordData.emoji}</div>
+                <div class="codex-word">${wordData.word}</div>
+                <div class="codex-word-progress">
+                    <div class="codex-word-progress-fill" style="width: ${masteryPercent}%"></div>
+                </div>
+            </div>
+        `;
+    });
+    
+    gridHtml += '</div>';
+    
+    overlay.innerHTML = `
+        <div class="profile-card" style="max-width: 500px;">
+            <button class="profile-close" id="backBtn">←</button>
+            <button class="profile-close" id="closeBtn" style="right: 20px;">✕</button>
+            <div class="profile-title">${world.unitName} ${ingotId}: ${unitData.name}</div>
+            
+            ${gridHtml}
+            
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="action-btn" id="closeBtn2">CLOSE</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    // Add click handlers for word tiles
+    document.querySelectorAll('.codex-word-tile').forEach(tile => {
+        tile.addEventListener('click', () => {
+            const worldId = parseInt(tile.dataset.world);
+            const ingotId = parseInt(tile.dataset.ingot);
+            const wordIndex = parseInt(tile.dataset.wordIndex);
+            showCodexWordDetailView(worldId, ingotId, wordIndex);
+        });
+    });
+    
+    document.getElementById('backBtn').addEventListener('click', () => {
+        showCodexIngotView(worldId);
+    });
+    
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+    
+    document.getElementById('closeBtn2').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+}
+
+function showCodexWordDetailView(worldId, ingotId, wordIndex) {
+    const overlay = document.getElementById('popupOverlay');
+    const world = worlds[worldId];
+    const unitData = MASTER_WORDS[`world${worldId}`]?.units[ingotId];
+    const wordData = unitData.words[wordIndex];
+    const wordId = `w${worldId}u${ingotId}w${wordIndex}`;
+    const wordMemory = codex.getWord(wordId);
+    
+    const correctCount = wordMemory?.correctCount || 0;
+    const mastered = wordMemory?.mastered || false;
+    const masteryPercent = (correctCount / 30) * 100;
+    const bestTime = wordMemory?.bestTime ? wordMemory.bestTime.toFixed(1) : '--';
+    const firstForged = wordMemory?.firstForged ? new Date(wordMemory.firstForged).toLocaleDateString() : 'Never';
+    
+    // Get recent training history
+    let historyHtml = '';
+    if (wordMemory?.trainingHistory && wordMemory.trainingHistory.length > 0) {
+        const recent = wordMemory.trainingHistory.slice(-5).reverse();
+        recent.forEach(entry => {
+            const date = new Date(entry.date).toLocaleDateString();
+            const result = entry.isCorrect ? '✓' : '✗';
+            const flashEmoji = entry.flashNumber === 1 ? '⭐' : '🔨';
+            historyHtml += `<div class="word-history-item">${date} ${flashEmoji} ${result} ${entry.responseTime.toFixed(1)}s</div>`;
+        });
+    } else {
+        historyHtml = '<div class="word-history-item">No training history yet</div>';
+    }
+    
+    overlay.innerHTML = `
+        <div class="profile-card" style="max-width: 500px;">
+            <button class="profile-close" id="backBtn">←</button>
+            <button class="profile-close" id="closeBtn" style="right: 20px;">✕</button>
+            
+            <div class="word-detail-emoji">${wordData.emoji}</div>
+            <div class="word-detail-word">${wordData.word}</div>
+            
+            <div class="word-detail-section">
+                <div class="word-detail-label">Mastery Progress</div>
+                <div class="word-detail-progress-bar">
+                    <div class="word-detail-progress-fill" style="width: ${masteryPercent}%"></div>
+                </div>
+                <div class="word-detail-progress-text">${correctCount}/30 ${mastered ? '⭐ MASTERED' : ''}</div>
+            </div>
+            
+            <div class="word-detail-stats">
+                <div class="word-detail-stat">
+                    <div class="word-detail-stat-value">${bestTime}s</div>
+                    <div class="word-detail-stat-label">Best Time</div>
+                </div>
+                <div class="word-detail-stat">
+                    <div class="word-detail-stat-value">${firstForged}</div>
+                    <div class="word-detail-stat-label">First Forged</div>
+                </div>
+            </div>
+            
+            <div class="word-detail-section">
+                <div class="word-detail-label">Training History</div>
+                <div class="word-history-list">
+                    ${historyHtml}
+                </div>
+            </div>
+            
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="action-btn" id="closeBtn2">CLOSE</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    document.getElementById('backBtn').addEventListener('click', () => {
+        showCodexWordGridView(worldId, ingotId);
+    });
+    
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+    
+    document.getElementById('closeBtn2').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+}
+
+// Update the main Codex popup to use the new progressive view
+function showCodexPopup() {
+    showCodexWorldView();
+}
+
 // ---------- HELPER FUNCTIONS FOR NAVIGATION ----------
 function returnToPreviousScreen(returnToLeaderboard) {
     if (returnToLeaderboard) {
@@ -3851,7 +4016,7 @@ function startAutoSave() {
     setInterval(saveProgress, 60000);
 }
 
-// ---------- UPDATED: updateDevotion with 40-hour grace period and 24-hour streak ----------
+// ---------- updateDevotion with 40-hour grace period ----------
 function updateDevotion() {
     const today = new Date().toDateString();
     const lastLogin = playerPerformance.devotion.lastLogin ? new Date(playerPerformance.devotion.lastLogin).toDateString() : null;
@@ -4059,7 +4224,7 @@ function onFailure(unitId) {
     ingotGrace[unitId] = Math.min(ingotGrace[unitId], 25);
 }
 
-// ---------- UPDATED: HOME SCREEN NAVIGATION with highest unlocked ingot ----------
+// ---------- HOME SCREEN NAVIGATION with highest unlocked ingot ----------
 function showHomeScreen() {
     // Set currentUnit to highest unlocked ingot
     const highest = getHighestUnlockedIngot();
@@ -4070,7 +4235,6 @@ function showHomeScreen() {
     document.getElementById('gameContainer').classList.add('hidden');
     updateHomeScreenStats();
     updateTrainTimerDisplay();
-    updateStreakTimerDisplay();
 }
 
 function showGameScreen() {
@@ -4093,14 +4257,12 @@ function initializeGame() {
     resetForNewUnit();
     showHomeScreen();
     updateTrainTimerDisplay();
-    updateStreakTimerDisplay();
     
     setInterval(() => {
         if (!gameCompleted && activeWordIndex !== null) {
             QUICK_RESUME.saveSession();
         }
         updateTrainTimerDisplay();
-        updateStreakTimerDisplay();
     }, 60000);
 }
 
@@ -4117,13 +4279,13 @@ document.addEventListener('DOMContentLoaded', function() {
         backToHomeBtn.addEventListener('click', showHomeScreen);
     }
     
-    // Profile button (footer only - top right removed per agreement)
+    // Profile button (footer only)
     const homeFooterProfileBtn = document.getElementById('homeFooterProfileBtn');
     if (homeFooterProfileBtn) {
         homeFooterProfileBtn.addEventListener('click', () => showProfilePopup(false));
     }
     
-    // QUICK ACTIONS - CORRECT ORDER AS AGREED
+    // QUICK ACTIONS - CORRECT ORDER
     // 1. Daily Train (first)
     const homeTrainBtn = document.getElementById('homeTrainBtn');
     if (homeTrainBtn) {
@@ -4154,7 +4316,7 @@ document.addEventListener('DOMContentLoaded', function() {
         homeLeaderboardBtn.addEventListener('click', () => showLeaderboardPopup(false));
     }
     
-    // 4. View Codex (fourth)
+    // 4. View Codex (fourth) - Now uses progressive disclosure
     const homeCodexBtn = document.getElementById('homeCodexBtn');
     if (homeCodexBtn) {
         homeCodexBtn.addEventListener('click', showCodexPopup);
