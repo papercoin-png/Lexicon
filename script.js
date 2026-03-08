@@ -3535,7 +3535,7 @@ function showNextIngotPreview() {
         <div class="close-x" id="closePopupBtn">✕</div>
         <div class="preview-ingot">${world.unitName} ${nextIngotId.toString().padStart(2, '0')} · ${unitName}</div>
         <div class="chance-container">
-            <div class="chance-label">CHANCE OF SUCCESS</div>
+            <div class="chance-label">CURRENT SUCCESS CHANCE</div>
             <div class="chance-value ${chanceColorClass}">${chance.final}%</div>
             <div class="chance-bar">
                 <div class="chance-bar-fill" style="width: ${chance.final}%"></div>
@@ -3630,6 +3630,77 @@ function showPracticeMode() {
     document.getElementById('backBtn').addEventListener('click', () => {
         overlay.classList.add('hidden');
         showNextIngotPreview();
+    });
+}
+
+// ---------- RESTORED: CODEX POPUP (Original version) ----------
+function showCodexPopup() {
+    const overlay = document.getElementById('popupOverlay');
+    const stats = codex.getStats();
+    
+    let ingotsHtml = '';
+    for (let i = 1; i <= 30; i++) {
+        const unit = worlds[1].units.find(u => u.id === i);
+        const unitData = MASTER_WORDS.world1.units[i];
+        const wordsInIngot = codex.getWordsByIngot(1, i);
+        const masteredInIngot = wordsInIngot.filter(w => w.mastered).length;
+        const totalInIngot = unitData ? unitData.words.length : 20;
+        
+        ingotsHtml += `
+            <div class="codex-ingot-item">
+                <div class="codex-ingot-header">
+                    <span>INGOT ${i.toString().padStart(2, '0')}: ${unitData?.name || 'Unknown'}</span>
+                    <span>${unit?.wordsCompleted || 0}/20 · ${masteredInIngot}/${totalInIngot}⭐</span>
+                </div>
+                <div class="codex-ingot-bar">
+                    <div class="codex-ingot-fill" style="width: ${((unit?.wordsCompleted || 0)/20)*100}%"></div>
+                </div>
+            </div>
+        `;
+    }
+    
+    overlay.innerHTML = `
+        <div class="profile-card" style="max-width: 500px;">
+            <button class="profile-close" id="closeBtn">✕</button>
+            <div class="profile-title">📚 CODEX</div>
+            
+            <div style="display: flex; justify-content: space-around; margin: 20px 0; padding: 15px; background: #0E2938; border-radius: 40px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #FFD700;">${stats.mastered}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Mastered</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #FFB347;">${stats.learning}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Learning</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #4ADE80;">${stats.due}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Due Now</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; color: #C0C0C0;">${stats.total}</div>
+                    <div style="font-size: 12px; color: #ACCCDD;">Total</div>
+                </div>
+            </div>
+            
+            <div class="codex-ingots-list" style="max-height: 300px; overflow-y: auto; padding: 10px; background: #0E2938; border-radius: 40px;">
+                ${ingotsHtml}
+            </div>
+            
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="action-btn" id="closeBtn2">CLOSE</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.classList.remove('hidden');
+    
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+    });
+    
+    document.getElementById('closeBtn2').addEventListener('click', () => {
+        overlay.classList.add('hidden');
     });
 }
 
@@ -4062,13 +4133,10 @@ document.addEventListener('DOMContentLoaded', function() {
         homeLeaderboardBtn.addEventListener('click', () => showLeaderboardPopup(false));
     }
     
-    // 4. Codex
+    // 4. Codex - RESTORED to original function
     const homeCodexBtn = document.getElementById('homeCodexBtn');
     if (homeCodexBtn) {
-        homeCodexBtn.addEventListener('click', () => {
-            const stats = codex.getStats();
-            alert(`Codex: ${stats.mastered} mastered, ${stats.learning} learning, ${stats.due} due`);
-        });
+        homeCodexBtn.addEventListener('click', showCodexPopup);
     }
     
     // Settings button
