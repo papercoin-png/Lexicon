@@ -1409,6 +1409,13 @@ class Codex {
         );
     }
     
+    // NEW METHOD ADDED - Fixes the Codex error
+    getDueWordsByWorld(worldId) {
+        return this.getAllWords().filter(w => 
+            w.sourceWorld === worldId && w.isDue() && !w.mastered
+        ).length;
+    }
+    
     export() {
         return {
             version: this.version,
@@ -3633,39 +3640,27 @@ function showPracticeMode() {
     });
 }
 
-// ---------- CODEX DRILL-DOWN FEATURE ----------
-function showCodexWorldView() {
+// ---------- RESTORED: CODEX POPUP (Original version) ----------
+function showCodexPopup() {
     const overlay = document.getElementById('popupOverlay');
     const stats = codex.getStats();
     
-    let worldsHtml = '';
-    
-    // Loop through all worlds 1-6
-    for (let worldId = 1; worldId <= 6; worldId++) {
-        const world = worlds[worldId];
-        if (!world) continue;
+    let ingotsHtml = '';
+    for (let i = 1; i <= 30; i++) {
+        const unit = worlds[1].units.find(u => u.id === i);
+        const unitData = MASTER_WORDS.world1.units[i];
+        const wordsInIngot = codex.getWordsByIngot(1, i);
+        const masteredInIngot = wordsInIngot.filter(w => w.mastered).length;
+        const totalInIngot = unitData ? unitData.words.length : 20;
         
-        const worldWords = codex.getAllWords().filter(w => w.sourceWorld === worldId);
-        const worldMastered = worldWords.filter(w => w.mastered).length;
-        const worldTotal = worldWords.length;
-        const worldDue = codex.getDueWordsByWorld(worldId);
-        const progressPercent = worldTotal > 0 ? (worldMastered / worldTotal) * 100 : 0;
-        
-        // Skip worlds with no words unlocked yet
-        if (worldTotal === 0 && !world.unlocked) continue;
-        
-        worldsHtml += `
-            <div class="codex-world-item" data-world="${worldId}">
-                <div class="codex-world-header">
-                    <span class="codex-world-icon">${world.icon}</span>
-                    <span class="codex-world-name">${world.name}</span>
-                    <span class="codex-world-stats">${worldMastered}/${worldTotal}⭐</span>
+        ingotsHtml += `
+            <div class="codex-ingot-item">
+                <div class="codex-ingot-header">
+                    <span>INGOT ${i.toString().padStart(2, '0')}: ${unitData?.name || 'Unknown'}</span>
+                    <span>${unit?.wordsCompleted || 0}/20 · ${masteredInIngot}/${totalInIngot}⭐</span>
                 </div>
-                <div class="codex-world-progress">
-                    <div class="codex-world-progress-bar">
-                        <div class="codex-world-progress-fill" style="width: ${progressPercent}%"></div>
-                    </div>
-                    <div class="codex-world-due">${worldDue} due today</div>
+                <div class="codex-ingot-bar">
+                    <div class="codex-ingot-fill" style="width: ${((unit?.wordsCompleted || 0)/20)*100}%"></div>
                 </div>
             </div>
         `;
@@ -3695,73 +3690,7 @@ function showCodexWorldView() {
                 </div>
             </div>
             
-            <div class="codex-worlds-list" style="max-height: 400px; overflow-y: auto; padding: 10px; background: #0E2938; border-radius: 40px;">
-                ${worldsHtml}
-            </div>
-            
-            <div class="button-group" style="margin-top: 20px;">
-                <button class="action-btn" id="closeBtn2">CLOSE</button>
-            </div>
-        </div>
-    `;
-    
-    overlay.classList.remove('hidden');
-    
-    // Add click handlers for world items
-    document.querySelectorAll('.codex-world-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const worldId = parseInt(item.dataset.world);
-            showCodexIngotView(worldId);
-        });
-    });
-    
-    document.getElementById('closeBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-    
-    document.getElementById('closeBtn2').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-}
-
-function showCodexIngotView(worldId) {
-    const overlay = document.getElementById('popupOverlay');
-    const world = worlds[worldId];
-    
-    let ingotsHtml = '';
-    
-    // Loop through ingots in this world
-    for (let i = 0; i < world.units.length; i++) {
-        const unit = world.units[i];
-        const unitId = unit.id;
-        const unitData = MASTER_WORDS[`world${worldId}`]?.units[unitId];
-        if (!unitData) continue;
-        
-        const wordsInIngot = codex.getWordsByIngot(worldId, unitId);
-        const masteredInIngot = wordsInIngot.filter(w => w.mastered).length;
-        const totalInIngot = unitData.words.length;
-        const progressPercent = totalInIngot > 0 ? (unit.wordsCompleted / totalInIngot) * 100 : 0;
-        
-        ingotsHtml += `
-            <div class="codex-ingot-item" data-world="${worldId}" data-ingot="${unitId}">
-                <div class="codex-ingot-header">
-                    <span>${world.unitName} ${unitId.toString().padStart(2, '0')}: ${unitData.name}</span>
-                    <span>${unit.wordsCompleted}/${totalInIngot} · ${masteredInIngot}/${totalInIngot}⭐</span>
-                </div>
-                <div class="codex-ingot-bar">
-                    <div class="codex-ingot-fill" style="width: ${progressPercent}%"></div>
-                </div>
-            </div>
-        `;
-    }
-    
-    overlay.innerHTML = `
-        <div class="profile-card" style="max-width: 500px;">
-            <button class="profile-close" id="backBtn">←</button>
-            <button class="profile-close" id="closeBtn" style="right: 20px;">✕</button>
-            <div class="profile-title">${world.icon} ${world.name}</div>
-            
-            <div class="codex-ingots-list" style="max-height: 500px; overflow-y: auto; padding: 10px; background: #0E2938; border-radius: 40px;">
+            <div class="codex-ingots-list" style="max-height: 300px; overflow-y: auto; padding: 10px; background: #0E2938; border-radius: 40px;">
                 ${ingotsHtml}
             </div>
             
@@ -3773,19 +3702,6 @@ function showCodexIngotView(worldId) {
     
     overlay.classList.remove('hidden');
     
-    // Add click handlers for ingot items
-    document.querySelectorAll('.codex-ingot-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const worldId = parseInt(item.dataset.world);
-            const ingotId = parseInt(item.dataset.ingot);
-            showCodexWordGridView(worldId, ingotId);
-        });
-    });
-    
-    document.getElementById('backBtn').addEventListener('click', () => {
-        showCodexWorldView();
-    });
-    
     document.getElementById('closeBtn').addEventListener('click', () => {
         overlay.classList.add('hidden');
     });
@@ -3793,161 +3709,6 @@ function showCodexIngotView(worldId) {
     document.getElementById('closeBtn2').addEventListener('click', () => {
         overlay.classList.add('hidden');
     });
-}
-
-function showCodexWordGridView(worldId, ingotId) {
-    const overlay = document.getElementById('popupOverlay');
-    const world = worlds[worldId];
-    const unitData = MASTER_WORDS[`world${worldId}`]?.units[ingotId];
-    const wordsInIngot = codex.getWordsByIngot(worldId, ingotId);
-    
-    // Create a 4x5 grid of words
-    let gridHtml = '<div class="codex-word-grid">';
-    
-    unitData.words.forEach((wordData, index) => {
-        const wordMemory = wordsInIngot.find(w => w.word === wordData.word);
-        const mastered = wordMemory?.mastered || false;
-        const correctCount = wordMemory?.correctCount || 0;
-        
-        gridHtml += `
-            <div class="codex-word-tile ${mastered ? 'mastered' : ''}" 
-                 data-world="${worldId}" 
-                 data-ingot="${ingotId}" 
-                 data-word-index="${index}"
-                 title="${wordData.word} - ${correctCount}/30">
-                <div class="codex-word-emoji">${wordData.emoji}</div>
-                <div class="codex-word">${wordData.word}</div>
-            </div>
-        `;
-    });
-    
-    gridHtml += '</div>';
-    
-    overlay.innerHTML = `
-        <div class="profile-card" style="max-width: 500px;">
-            <button class="profile-close" id="backBtn">←</button>
-            <button class="profile-close" id="closeBtn" style="right: 20px;">✕</button>
-            <div class="profile-title">${world.unitName} ${ingotId}: ${unitData.name}</div>
-            
-            ${gridHtml}
-            
-            <div class="button-group" style="margin-top: 20px;">
-                <button class="action-btn" id="closeBtn2">CLOSE</button>
-            </div>
-        </div>
-    `;
-    
-    overlay.classList.remove('hidden');
-    
-    // Add click handlers for word tiles
-    document.querySelectorAll('.codex-word-tile').forEach(tile => {
-        tile.addEventListener('click', () => {
-            const worldId = parseInt(tile.dataset.world);
-            const ingotId = parseInt(tile.dataset.ingot);
-            const wordIndex = parseInt(tile.dataset.wordIndex);
-            showCodexWordDetailView(worldId, ingotId, wordIndex);
-        });
-    });
-    
-    document.getElementById('backBtn').addEventListener('click', () => {
-        showCodexIngotView(worldId);
-    });
-    
-    document.getElementById('closeBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-    
-    document.getElementById('closeBtn2').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-}
-
-function showCodexWordDetailView(worldId, ingotId, wordIndex) {
-    const overlay = document.getElementById('popupOverlay');
-    const world = worlds[worldId];
-    const unitData = MASTER_WORDS[`world${worldId}`]?.units[ingotId];
-    const wordData = unitData.words[wordIndex];
-    const wordId = `w${worldId}u${ingotId}w${wordIndex}`;
-    const wordMemory = codex.getWord(wordId);
-    
-    const correctCount = wordMemory?.correctCount || 0;
-    const mastered = wordMemory?.mastered || false;
-    const masteryPercent = (correctCount / 30) * 100;
-    const bestTime = wordMemory?.bestTime ? wordMemory.bestTime.toFixed(1) : '--';
-    const firstForged = wordMemory?.firstForged ? new Date(wordMemory.firstForged).toLocaleDateString() : 'Never';
-    
-    // Get recent training history
-    let historyHtml = '';
-    if (wordMemory?.trainingHistory && wordMemory.trainingHistory.length > 0) {
-        const recent = wordMemory.trainingHistory.slice(-5).reverse();
-        recent.forEach(entry => {
-            const date = new Date(entry.date).toLocaleDateString();
-            const result = entry.isCorrect ? '✓' : '✗';
-            const flashEmoji = entry.flashNumber === 1 ? '⭐' : '🔨';
-            historyHtml += `<div class="word-history-item">${date} ${flashEmoji} ${result} ${entry.responseTime.toFixed(1)}s</div>`;
-        });
-    } else {
-        historyHtml = '<div class="word-history-item">No training history yet</div>';
-    }
-    
-    overlay.innerHTML = `
-        <div class="profile-card" style="max-width: 500px;">
-            <button class="profile-close" id="backBtn">←</button>
-            <button class="profile-close" id="closeBtn" style="right: 20px;">✕</button>
-            
-            <div class="word-detail-emoji">${wordData.emoji}</div>
-            <div class="word-detail-word">${wordData.word}</div>
-            
-            <div class="word-detail-section">
-                <div class="word-detail-label">Mastery Progress</div>
-                <div class="word-detail-progress-bar">
-                    <div class="word-detail-progress-fill" style="width: ${masteryPercent}%"></div>
-                </div>
-                <div class="word-detail-progress-text">${correctCount}/30 ${mastered ? '⭐ MASTERED' : ''}</div>
-            </div>
-            
-            <div class="word-detail-stats">
-                <div class="word-detail-stat">
-                    <div class="word-detail-stat-value">${bestTime}s</div>
-                    <div class="word-detail-stat-label">Best Time</div>
-                </div>
-                <div class="word-detail-stat">
-                    <div class="word-detail-stat-value">${firstForged}</div>
-                    <div class="word-detail-stat-label">First Forged</div>
-                </div>
-            </div>
-            
-            <div class="word-detail-section">
-                <div class="word-detail-label">Training History</div>
-                <div class="word-history-list">
-                    ${historyHtml}
-                </div>
-            </div>
-            
-            <div class="button-group" style="margin-top: 20px;">
-                <button class="action-btn" id="closeBtn2">CLOSE</button>
-            </div>
-        </div>
-    `;
-    
-    overlay.classList.remove('hidden');
-    
-    document.getElementById('backBtn').addEventListener('click', () => {
-        showCodexWordGridView(worldId, ingotId);
-    });
-    
-    document.getElementById('closeBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-    
-    document.getElementById('closeBtn2').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-}
-
-// Main Codex entry point
-function showCodexPopup() {
-    showCodexWorldView();
 }
 
 // ---------- HELPER FUNCTIONS FOR NAVIGATION ----------
@@ -4091,7 +3852,7 @@ function startAutoSave() {
     setInterval(saveProgress, 60000);
 }
 
-// ---------- updateDevotion with 24-hour streak timer ----------
+// ---------- UPDATED: updateDevotion with 24-hour streak timer ----------
 function updateDevotion() {
     const today = new Date().toDateString();
     const lastLogin = playerPerformance.devotion.lastLogin ? new Date(playerPerformance.devotion.lastLogin).toDateString() : null;
@@ -4379,7 +4140,7 @@ document.addEventListener('DOMContentLoaded', function() {
         homeLeaderboardBtn.addEventListener('click', () => showLeaderboardPopup(false));
     }
     
-    // 4. Codex - NEW DRILL-DOWN FEATURE
+    // 4. Codex - RESTORED to original function
     const homeCodexBtn = document.getElementById('homeCodexBtn');
     if (homeCodexBtn) {
         homeCodexBtn.addEventListener('click', showCodexPopup);
