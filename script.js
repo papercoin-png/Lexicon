@@ -4267,7 +4267,6 @@ function handleWordCompletion(wordIndex) {
                 const nextUnit = worlds[currentWorld].units.find(u => u.id === currentUnit + 1);
                 if (nextUnit) {
                     nextUnit.unlocked = true;
-                    currentUnit = currentUnit + 1;
                 }
                 
                 showIngotCompletePopup();
