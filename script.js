@@ -1798,377 +1798,6 @@ let isPracticeMode = false;
 // ---------- TIMER CONSTANTS ----------
 const TRAINING_COOLDOWN = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; // 24 hours for streak update
-// ---------- HELPER FUNCTIONS ----------
-function calculateTotalWords() {
-    let total = 0;
-    for (let worldId = 1; worldId <= 6; worldId++) {
-        if (worlds[worldId]) {
-            total += worlds[worldId].units.reduce((sum, unit) => sum + unit.wordsCompleted, 0);
-        }
-    }
-    return total;
-}
-
-function getWordsByWorld() {
-    const wordsByWorld = [];
-    for (let worldId = 1; worldId <= 6; worldId++) {
-        if (worlds[worldId]) {
-            const worldTotal = worlds[worldId].units.reduce((sum, unit) => sum + unit.wordsCompleted, 0);
-            wordsByWorld.push(worldTotal);
-        } else {
-            wordsByWorld.push(0);
-        }
-    }
-    return wordsByWorld;
-}
-
-function getPlayerStats() {
-    const wordsByWorld = getWordsByWorld();
-    const totalWords = wordsByWorld.reduce((a, b) => a + b, 0);
-    const ingotsMastered = worlds[1].units.filter(u => u.wordsCompleted === 20).length;
-    const totalAttempts = playerPerformance.ingotHistory.length;
-    const successfulAttempts = playerPerformance.ingotHistory.filter(h => h.success).length;
-    const successRate = totalAttempts > 0 ? Math.round((successfulAttempts / totalAttempts) * 100) : 100;
-    
-    return {
-        worlds: wordsByWorld,
-        totalWords: totalWords,
-        ingotsMastered: ingotsMastered,
-        successRate: successRate
-    };
-}
-
-// ---------- TRAINING TIMER FUNCTIONS ----------
-function isTrainingAvailable() {
-    if (!playerPerformance.lastTrainingTime) return true;
-    
-    const now = Date.now();
-    const timeSinceLast = now - playerPerformance.lastTrainingTime;
-    
-    if (timeSinceLast < 0 || timeSinceLast > 7 * 24 * 60 * 60 * 1000) {
-        playerPerformance.lastTrainingTime = now - TRAINING_COOLDOWN;
-        saveProgress();
-        return true;
-    }
-    
-    return timeSinceLast >= TRAINING_COOLDOWN;
-}
-
-function getTimeRemaining() {
-    if (!playerPerformance.lastTrainingTime) return null;
-    
-    const now = Date.now();
-    const timeSinceLast = now - playerPerformance.lastTrainingTime;
-    const timeRemaining = TRAINING_COOLDOWN - timeSinceLast;
-    
-    if (timeRemaining <= 0) return null;
-    
-    const hours = Math.floor(timeRemaining / (60 * 60 * 1000));
-    const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
-    
-    return { hours, minutes };
-}
-
-function updateTrainTimerDisplay() {
-    const timerEl = document.getElementById('trainTimer');
-    const trainBtn = document.getElementById('homeTrainBtn');
-    if (!timerEl || !trainBtn) return;
-    
-    const available = isTrainingAvailable();
-    
-    if (available) {
-        timerEl.innerText = 'READY!';
-        timerEl.style.color = '#4ADE80';
-        trainBtn.disabled = false;
-        trainBtn.style.opacity = '1';
-    } else {
-        const remaining = getTimeRemaining();
-        if (remaining) {
-            timerEl.innerText = `${remaining.hours}h ${remaining.minutes}m`;
-        } else {
-            timerEl.innerText = 'READY!';
-        }
-        timerEl.style.color = '#FFB347';
-        trainBtn.disabled = false;
-    }
-}
-
-// ---------- STREAK TIMER FUNCTIONS (UPDATED - Timestamp based) ----------
-function updateStreakTimerDisplay() {
-    const timerEl = document.getElementById('streakTimer');
-    if (!timerEl) return;
-    
-    const now = Date.now();
-    const lastUpdate = playerPerformance.lastStreakUpdate;
-    
-    if (!lastUpdate) {
-        timerEl.innerText = 'Next in: --h --m';
-        return;
-    }
-    
-    const nextUpdate = lastUpdate + TWENTY_FOUR_HOURS;
-    const timeRemaining = nextUpdate - now;
-    
-    if (timeRemaining <= 0) {
-        timerEl.innerText = 'Ready!';
-        timerEl.style.color = '#4ADE80';
-    } else {
-        const hours = Math.floor(timeRemaining / (60 * 60 * 1000));
-        const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
-        timerEl.innerText = `Next in: ${hours}h ${minutes}m`;
-        timerEl.style.color = '#FFB347';
-    }
-}
-
-// ---------- BACKFILL CODEX FROM PROGRESS (UPDATED) ----------
-function backfillCodexFromProgress() {
-    for (let worldId = 1; worldId <= 6; worldId++) {
-        const world = worlds[worldId];
-        if (!world || !world.unlocked) continue;
-        
-        world.units.forEach(unit => {
-            // Skip if no words completed
-            if (unit.wordsCompleted === 0) return;
-            
-            const unitWords = MASTER_WORDS[`world${worldId}`]?.units[unit.id]?.words;
-            if (!unitWords) return;
-            
-            // For each word up to the number completed
-            for (let wordIndex = 0; wordIndex < unit.wordsCompleted; wordIndex++) {
-                const wordData = unitWords[wordIndex];
-                if (!wordData) continue;
-                
-                const wordId = `w${worldId}u${unit.id}w${wordIndex}`;
-                
-                // Check if already in codex
-                let wordMemory = codex.getWord(wordId);
-                if (!wordMemory) {
-                    wordMemory = codex.addWord(wordId, {
-                        ...wordData,
-                        world: worldId,
-                        ingot: unit.id
-                    });
-                }
-                
-                // If this is a newly added word, give it initial progress
-                if (wordMemory.correctCount === 0) {
-                    wordMemory.correctCount = 1;
-                    wordMemory.recordTraining(1, 3000, true, 'good');
-                }
-                
-                // If the entire ingot is completed, give bonus progress
-                if (unit.wordsCompleted === 20) {
-                    const baseProgress = Math.min(15, Math.floor(unit.wordsCompleted / 2));
-                    if (wordMemory.correctCount < baseProgress) {
-                        wordMemory.correctCount = baseProgress;
-                    }
-                }
-            }
-        });
-    }
-    
-    saveProgress();
-}
-
-// ---------- UPDATE HOME SCREEN STATS ----------
-function updateHomeScreenStats() {
-    const streakDaysEl = document.getElementById('streakDays');
-    if (streakDaysEl) {
-        streakDaysEl.innerText = playerPerformance.devotion?.days || 0;
-    }
-    
-    const streakBonusEl = document.getElementById('streakBonus');
-    if (streakBonusEl) {
-        const bonus = playerPerformance.devotion?.bonus || 0;
-        streakBonusEl.innerText = `+${bonus.toFixed(1)}% BONUS`;
-    }
-    
-    const codexCountEl = document.getElementById('codexMasteredCount');
-    if (codexCountEl) {
-        const mastered = codex.getMasteredCount();
-        codexCountEl.innerText = `${mastered}⭐ mastered`;
-    }
-    
-    const world = worlds[currentWorld];
-    const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[currentUnit];
-    const currentIngotNameEl = document.getElementById('currentIngotName');
-    if (currentIngotNameEl && unitData) {
-        currentIngotNameEl.innerText = `${world.unitName} ${currentUnit.toString().padStart(2, '0')}: ${unitData.name}`;
-    }
-    
-    const currentIngotProgressEl = document.getElementById('currentIngotProgress');
-    const currentIngotCountEl = document.getElementById('currentIngotCount');
-    const unit = world.units.find(u => u.id === currentUnit);
-    if (currentIngotProgressEl && currentIngotCountEl && unit) {
-        currentIngotProgressEl.style.width = `${(unit.wordsCompleted/20)*100}%`;
-        currentIngotCountEl.innerText = `${unit.wordsCompleted}/20`;
-    }
-    
-    updateStreakTimerDisplay();
-}
-
-// ---------- GOOGLE SHEETS LEADERBOARD ----------
-const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxb816QBBx6q6kwIPMBHGghpUZX4554Etg2G-mcU5akYnhcUMNaAI9sdT2tlq7kzWH2Lw/exec';
-
-async function saveScoreToGoogleSheetsWithCallback(callback) {
-    const totalWords = calculateTotalWords();
-    const playerName = playerProfile.displayName || "Forgemaster";
-    
-    if (totalWords === 0) {
-        if (callback) callback({ success: false, message: 'No words to save' });
-        return;
-    }
-    
-    let playerId = localStorage.getItem('spellforge_local_id');
-    if (!playerId) {
-        playerId = 'player_' + Math.random().toString(36).substring(2, 15);
-        localStorage.setItem('spellforge_local_id', playerId);
-    }
-    
-    try {
-        const url = new URL(GOOGLE_SHEETS_URL);
-        url.searchParams.append('action', 'save');
-        url.searchParams.append('player_name', playerName);
-        url.searchParams.append('total_words', totalWords);
-        url.searchParams.append('telegram_id', playerId);
-        url.searchParams.append('display_name', playerProfile.displayName);
-        url.searchParams.append('_', Date.now());
-        
-        const response = await fetch(url.toString());
-        const result = await response.json();
-        
-        if (callback) callback(result);
-    } catch (error) {
-        console.error('Error saving score:', error);
-        if (callback) callback({ success: false, error: error.message });
-    }
-}
-
-function saveScoreToGoogleSheets() {
-    saveScoreToGoogleSheetsWithCallback();
-}
-
-async function loadLeaderboardFromSheets(callback) {
-    try {
-        const url = new URL(GOOGLE_SHEETS_URL);
-        url.searchParams.append('action', 'get');
-        url.searchParams.append('_', Date.now());
-        
-        const response = await fetch(url.toString());
-        const data = await response.json();
-        
-        callback(Array.isArray(data) ? data : []);
-    } catch (error) {
-        console.error('Error loading leaderboard:', error);
-        callback([]);
-    }
-}
-
-// ---------- GET HIGHEST UNLOCKED INGOT ----------
-function getHighestUnlockedIngot() {
-    for (let worldId = 6; worldId >= 1; worldId--) {
-        const world = worlds[worldId];
-        if (!world || !world.unlocked) continue;
-        
-        for (let i = world.units.length - 1; i >= 0; i--) {
-            if (world.units[i].unlocked) {
-                return {
-                    world: worldId,
-                    unit: world.units[i].id
-                };
-            }
-        }
-    }
-    return { world: 1, unit: 1 };
-}
-
-// ---------- SCROLL FUNCTIONS ----------
-function scrollToLetterGrid() {
-    setTimeout(() => {
-        const letterGrid = document.getElementById('letterGridContainer');
-        if (letterGrid) {
-            letterGrid.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
-            });
-        }
-    }, 100);
-}
-
-function scrollToWordGrid() {
-    setTimeout(() => {
-        const wordGrid = document.getElementById('wordListContainer');
-        if (wordGrid) {
-            wordGrid.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-            });
-        }
-    }, 100);
-}
-
-// ---------- SETTINGS POPUP (NEW) ----------
-function showSettingsPopup() {
-    const overlay = document.getElementById('popupOverlay');
-    
-    overlay.innerHTML = `
-        <div class="profile-card">
-            <button class="profile-close" id="closeBtn">✕</button>
-            <div class="profile-title">⚙️ SETTINGS</div>
-            <div style="text-align: center; padding: 20px; color: #FFD700; font-size: 48px;">🔧</div>
-            <div style="text-align: center; color: #FFDCAA; margin: 20px 0;">
-                <div style="margin-bottom: 15px;">Sound: ON</div>
-                <div style="margin-bottom: 15px;">Haptic Feedback: ON</div>
-                <div>Version 1.3.0</div>
-            </div>
-            <div class="button-group">
-                <button class="action-btn" id="closeBtn2">CLOSE</button>
-            </div>
-        </div>
-    `;
-    
-    overlay.classList.remove('hidden');
-    
-    document.getElementById('closeBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-    
-    document.getElementById('closeBtn2').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-}
-
-// ---------- INFO POPUP (NEW) ----------
-function showInfoPopup() {
-    const overlay = document.getElementById('popupOverlay');
-    
-    overlay.innerHTML = `
-        <div class="profile-card">
-            <button class="profile-close" id="closeBtn">✕</button>
-            <div class="profile-title">ℹ️ INFORMATION</div>
-            <div style="text-align: center; padding: 15px; color: #FFDCAA;">
-                <div style="margin: 15px 0;">⚒️ Spellforge · Master Blacksmith</div>
-                <div style="margin: 15px 0;">Forge words by tapping letters in order</div>
-                <div style="margin: 15px 0;">Complete all 20 words to forge an ingot</div>
-                <div style="margin: 15px 0;">Daily training helps reinforce learning</div>
-                <div style="margin: 25px 0 10px; color: #FFD700;">Created for Telegram Mini Apps</div>
-            </div>
-            <div class="button-group">
-                <button class="action-btn" id="closeBtn2">CLOSE</button>
-            </div>
-        </div>
-    `;
-    
-    overlay.classList.remove('hidden');
-    
-    document.getElementById('closeBtn').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-    
-    document.getElementById('closeBtn2').addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-}
 // ---------- generateInitialLetters ----------
 function generateInitialLetters() {
     const words = getCurrentUnitWords();
@@ -2263,6 +1892,102 @@ function calculateRiskBonus(baseChance, actualChance, success) {
     if (!success) return 0;
     const riskFactor = 100 - actualChance;
     return Math.min(riskFactor * 10, 1000);
+}
+
+// ---------- resetAllProgress function (NEW) ----------
+function resetAllProgress() {
+    // Clear all localStorage data
+    localStorage.removeItem('spellforge_save');
+    localStorage.removeItem('spellforge_profile');
+    localStorage.removeItem('spellforge_quicksave');
+    localStorage.removeItem('spellforge_local_id');
+    
+    // Reset game state to initial values
+    currentWorld = 1;
+    currentUnit = 1;
+    currentLetters = [];
+    completedWords = [];
+    activeWordIndex = null;
+    currentPosition = 0;
+    tempUsedLetters = [];
+    gameStartTime = null;
+    totalTaps = 0;
+    correctTaps = 0;
+    gameCompleted = false;
+    wordCardQueue = [];
+    showingWordCard = false;
+    isPracticeMode = false;
+    
+    // Reset player performance
+    playerPerformance = {
+        currentStreak: 0,
+        bestStreak: 0,
+        lastAccuracy: 100,
+        lastAttemptFailed: false,
+        lastPlayedDate: new Date().toISOString(),
+        totalRiskBonus: 0,
+        ingotHistory: [],
+        lastTrainingTime: null,
+        trainingHistory: [],
+        worldProgress: {
+            1: { completed: 0, failed: 0, bestTime: null },
+            2: { completed: 0, failed: 0, bestTime: null },
+            3: { completed: 0, failed: 0, bestTime: null },
+            4: { completed: 0, failed: 0, bestTime: null },
+            5: { completed: 0, failed: 0, bestTime: null },
+            6: { completed: 0, failed: 0, bestTime: null }
+        },
+        devotion: {
+            days: 0,
+            lastLogin: null,
+            bonus: 0,
+            tier: "None",
+            milestones: {
+                day30: false,
+                day100: false,
+                day200: false,
+                day365: false
+            }
+        },
+        lastStreakUpdate: null
+    };
+    
+    // Reset player profile
+    playerProfile = {
+        displayName: "Forgemaster",
+        telegramId: null,
+        firstName: "",
+        lastName: "",
+        username: ""
+    };
+    
+    // Reset worlds to initial state
+    worlds[1].unlocked = true;
+    worlds[1].completed = false;
+    worlds[1].units.forEach((unit, index) => {
+        unit.wordsCompleted = 0;
+        unit.unlocked = index === 0;
+    });
+    
+    for (let i = 2; i <= 6; i++) {
+        worlds[i].unlocked = false;
+        worlds[i].completed = false;
+        worlds[i].units.forEach(unit => {
+            unit.wordsCompleted = 0;
+            unit.unlocked = false;
+        });
+    }
+    
+    // Reset grace system
+    for (let i = 1; i <= 180; i++) {
+        ingotGrace[i] = 0;
+    }
+    
+    // Reset Codex
+    codex.words.clear();
+    
+    // Save reset state
+    saveProgress();
 }
 
 // ---------- updateWorldDisplay ----------
@@ -4011,7 +3736,7 @@ function validateDisplayName(name) {
     return true;
 }
 
-// ---------- SAVE / LOAD PROGRESS (UPDATED) ----------
+// ---------- SAVE / LOAD PROGRESS ----------
 function saveProgress() {
     const saveData = {
         version: "1.3",
@@ -4062,7 +3787,6 @@ function loadProgress() {
                 saveData.playerPerformance.lastStreakUpdate = null;
             }
             
-            // CRITICAL FIX: Restore world data with proper unit progress for ALL ingots
             if (saveData.worlds) {
                 Object.keys(saveData.worlds).forEach(key => {
                     if (worlds[key]) {
@@ -4070,7 +3794,6 @@ function loadProgress() {
                         worlds[key].unlocked = savedWorld.unlocked;
                         worlds[key].completed = savedWorld.completed;
                         
-                        // Ensure ALL units are properly restored (both odd and even)
                         savedWorld.units.forEach(savedUnit => {
                             const unit = worlds[key].units.find(u => u.id === savedUnit.id);
                             if (unit) {
@@ -4081,7 +3804,6 @@ function loadProgress() {
                     }
                 });
             }
-            
             if (saveData.ingotGrace) {
                 Object.keys(saveData.ingotGrace).forEach(key => {
                     ingotGrace[key] = saveData.ingotGrace[key];
@@ -4177,7 +3899,7 @@ function calculateSuccessChance(ingotId) {
     };
 }
 
-// ---------- handleWordCompletion ----------
+// ---------- handleWordCompletion (UPDATED - fix popup display) ----------
 function handleWordCompletion(wordIndex) {
     if (!completedWords.includes(wordIndex)) {
         completedWords.push(wordIndex);
@@ -4231,6 +3953,9 @@ function handleWordCompletion(wordIndex) {
         const roll = Math.random() * 100;
         const success = roll <= chance.final;
         
+        // Store the completed ingot ID before any changes
+        const completedIngotId = currentUnit;
+        
         tg?.HapticFeedback?.impactOccurred?.('heavy');
         showForgeMessage('Hammer strikes the anvil...', '⚒️', 3000);
         document.body.style.transition = 'background-color 0.5s';
@@ -4255,30 +3980,31 @@ function handleWordCompletion(wordIndex) {
                 playerPerformance.worldProgress[currentWorld].completed++;
                 playerPerformance.totalRiskBonus += calculateRiskBonus(chance.base, chance.final, true);
                 playerPerformance.ingotHistory.push({
-                    id: currentUnit,
+                    id: completedIngotId,
                     success: true,
                     accuracy: accuracy,
                     time: gameStartTime ? Math.floor((Date.now() - gameStartTime) / 1000) : 0,
                     sfr: calculateSFR(gameStartTime ? Math.floor((Date.now() - gameStartTime) / 1000) : 0, accuracy, totalTaps, correctTaps),
                     date: new Date().toISOString()
                 });
-                onSuccess(currentUnit);
+                onSuccess(completedIngotId);
                 
-                const nextUnit = worlds[currentWorld].units.find(u => u.id === currentUnit + 1);
+                const nextUnit = worlds[currentWorld].units.find(u => u.id === completedIngotId + 1);
                 if (nextUnit) {
                     nextUnit.unlocked = true;
-                    currentUnit = currentUnit + 1;
+                    currentUnit = completedIngotId + 1;
                 }
                 
-                showIngotCompletePopup();
+                // Pass the completed ingot ID to the popup
+                showIngotCompletePopupForIngot(completedIngotId);
                 saveProgress();
             } else {
-                onFailure(currentUnit);
+                onFailure(completedIngotId);
                 playerPerformance.lastAttemptFailed = true;
                 playerPerformance.lastPlayedDate = new Date().toISOString();
                 playerPerformance.worldProgress[currentWorld].failed++;
                 playerPerformance.ingotHistory.push({
-                    id: currentUnit,
+                    id: completedIngotId,
                     success: false,
                     accuracy: accuracy,
                     time: gameStartTime ? Math.floor((Date.now() - gameStartTime) / 1000) : 0,
@@ -4292,12 +4018,84 @@ function handleWordCompletion(wordIndex) {
     }
 }
 
+// New function to show completion popup for a specific ingot
+function showIngotCompletePopupForIngot(ingotId) {
+    const overlay = document.getElementById('popupOverlay');
+    const world = worlds[currentWorld];
+    const unit = world.units.find(u => u.id === ingotId);
+    const unitData = MASTER_WORDS[`world${currentWorld}`]?.units[ingotId];
+    
+    const timeElapsed = gameStartTime ? Math.floor((Date.now() - gameStartTime) / 1000) : 0;
+    const accuracy = totalTaps === 0 ? 100 : Math.round((correctTaps / totalTaps) * 100);
+    const playerSFR = calculateSFR(timeElapsed, accuracy, totalTaps, correctTaps);
+    const playerRating = getRatingFromScore(playerSFR);
+    
+    overlay.innerHTML = '';
+    
+    const card = document.createElement('div');
+    card.className = 'ingot-card';
+    card.innerHTML = `
+        <div class="ingot-emoji">⚒️</div>
+        <div class="ingot-title">INGOT COMPLETE!</div>
+        <div class="ingot-sub">${world.unitName} ${ingotId.toString().padStart(2, '0')} · ${unitData?.name || 'Unknown'}</div>
+        <div class="ingot-stats">
+            <div class="ingot-stat">
+                <div class="ingot-stat-value">${playerSFR}</div>
+                <div class="ingot-stat-label">SFR</div>
+            </div>
+            <div class="ingot-stat">
+                <div class="ingot-stat-value">${playerRating.emoji}</div>
+                <div class="ingot-stat-label">${playerRating.title}</div>
+            </div>
+            <div class="ingot-stat">
+                <div class="ingot-stat-value">${formatTime(timeElapsed)}</div>
+                <div class="ingot-stat-label">TIME</div>
+            </div>
+        </div>
+        <div class="ingot-buttons">
+            <button class="ingot-btn" id="viewLeaderboardBtn">🏆 LEADERBOARD</button>
+            <button class="ingot-btn secondary" id="continueBtn">⏩ CONTINUE</button>
+        </div>
+    `;
+    
+    overlay.appendChild(card);
+    overlay.classList.remove('hidden');
+    
+    document.getElementById('viewLeaderboardBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        setTimeout(() => showLeaderboardPopup(true), 100);
+    });
+    
+    document.getElementById('continueBtn').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        
+        const allUnitsCompleted = world.units.every(u => u.wordsCompleted === 20);
+        if (allUnitsCompleted) {
+            setTimeout(() => showWorldArtifactPopup(), 100);
+        } else {
+            const nextIngotId = ingotId + 1;
+            const nextUnit = world.units.find(u => u.id === nextIngotId);
+            if (nextUnit) {
+                nextUnit.unlocked = true;
+                // currentUnit is already set to next ingot from handleWordCompletion
+                setTimeout(() => showNextIngotPreview(), 100);
+            }
+        }
+        saveProgress();
+        QUICK_RESUME.saveSession();
+        updateHomeScreenStats();
+    });
+    
+    tg?.HapticFeedback?.notificationOccurred?.('success');
+}
+
 function onSuccess(unitId) {
     ingotGrace[unitId] = 0;
 }
 
+// UPDATED: Changed from +5 to +1
 function onFailure(unitId) {
-    ingotGrace[unitId] = (ingotGrace[unitId] || 0) + 5;
+    ingotGrace[unitId] = (ingotGrace[unitId] || 0) + 1;
     ingotGrace[unitId] = Math.min(ingotGrace[unitId], 25);
 }
 
